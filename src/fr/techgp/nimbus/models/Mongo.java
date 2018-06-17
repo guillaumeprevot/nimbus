@@ -36,4 +36,9 @@ public class Mongo {
 		return mongoDatabase.withWriteConcern(writeConcern).getCollection(collectionName);
 	}
 
+	public static final void reset(boolean users) {
+		if (users)
+			getCollection("users").drop();
+	}
+
 }

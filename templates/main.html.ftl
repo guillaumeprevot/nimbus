@@ -1,1 +1,0 @@
-<h1>${message} from ${appName}</h1>

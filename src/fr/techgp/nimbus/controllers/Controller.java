@@ -7,6 +7,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 
+import fr.techgp.nimbus.models.Mongo;
+import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.utils.CryptoUtils;
+import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.TemplateModelException;
@@ -26,10 +30,34 @@ public class Controller {
 		Controller.configuration = configuration;
 		Controller.templateEngine = prepareTemplateEngine(dev);
 
-		Spark.get("/main.html", (request, response) -> {
+		Spark.before("/admin.html", Filters.filterAdministratorOrRedirect);
+		Spark.get("/admin.html", (request, response) -> {
+			String login = request.session().attribute("userLogin");
+			User user = User.findByLogin(login);
 			Map<String, Object> attributes = new HashMap<>();
-			attributes.put("message", "Hello World!");
-			return Controller.templateEngine.render(new ModelAndView(attributes, "main.html.ftl"));
+			attributes.put("userName", StringUtils.withDefault(user.name, user.login));
+			return Controller.templateEngine.render(new ModelAndView(attributes, "admin.html"));
+		});
+
+		Spark.before("/main.html", Filters.filterAuthenticatedOrRedirect);
+		Spark.get("/main.html", (request, response) -> {
+			String login = request.session().attribute("userLogin");
+			User user = User.findByLogin(login);
+			Map<String, Object> attributes = new HashMap<>();
+			attributes.put("userName", StringUtils.withDefault(user.name, user.login));
+			return Controller.templateEngine.render(new ModelAndView(attributes, "main.html"));
+		});
+
+		Spark.get("/login.html", Authentication.page);
+		Spark.post("/login.html", Authentication.login);
+		Spark.get("/logout", Authentication.logout);
+
+		// TODO : supprimer à terme cette méthode qui n'est là que pour les tests
+		Spark.get("/reset", (request, response) -> {
+			Mongo.reset(true);
+			request.session().removeAttribute("userLogin");
+			response.redirect("/login.html");
+			return null;
 		});
 	}
 
@@ -59,6 +87,42 @@ public class Controller {
 		} catch (TemplateModelException | IOException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	/**
+	 * Cette méthode vérifie si le couple (login, password) est valide.
+	 * En cas d'erreur, une chaine de caractères non null est renvoyée.
+	 * A l'installation (= base vide), un premier compte est créé automatiquement.
+	 *
+	 * @param login le login fourni
+	 * @param password le mot de passe fourni
+	 * @return null si OK ou une chaine de caractère représentant l'erreur sinon
+	 */
+	protected static final String authenticate(String login, String password) {
+		if (StringUtils.isBlank(login))
+			return "utilisateur vide";
+		if (StringUtils.isBlank(password))
+			return "mot de passe vide";
+
+		if (User.count() == 0) {
+			// Installation
+			try {
+				User user = new User();
+				user.login = login;
+				user.password = CryptoUtils.hashPassword(password);
+				user.admin = true;
+				User.insert(user);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+
+		User user = User.findByLogin(login);
+		if (user == null)
+			return "utilisateur inconnu";
+		if (!CryptoUtils.validatePassword(password, user.password))
+			return "mot de passe incorrect";
+		return null;
 	}
 
 }

@@ -1,0 +1,27 @@
+<html>
+<body>
+
+<#if logout>
+	<div role="alert">You've been logged out successfully</div>
+</#if>
+<#if error>
+	<div role="alert">Authentication error</div>
+</#if>
+<form action="/login.html" method="post">
+	<fieldset>
+		<#if install>
+			<legend>Installation</legend>
+		<#else>
+			<legend>Authentication</legend>
+		</#if>
+
+		<input placeholder="Login" type="text" name="login" id="login" value="${login}" />
+		<br />
+		<input placeholder="Password" type="password" name="password" id="password" value="" />
+		<br />
+		<input type="hidden" name="urlToLoad" value="${urlToLoad}" />
+		<input type="submit" value="OK" />
+	</fieldset>
+</form>
+</body>
+</html>
