@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 
+import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import fr.techgp.nimbus.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.TemplateModelException;
 import spark.ModelAndView;
@@ -41,28 +41,26 @@ public class Controller {
 			return "";
 		});
 
-		Spark.before("/admin.html", Filters.filterAdministratorOrRedirect);
-		Spark.get("/admin.html", (request, response) -> {
-			String login = request.session().attribute("userLogin");
-			User user = User.findByLogin(login);
-			Map<String, Object> attributes = new HashMap<>();
-			attributes.put("userName", StringUtils.withDefault(user.name, user.login));
-			return Controller.templateEngine.render(new ModelAndView(attributes, "admin.html"));
-		});
-
 		Spark.before("/main.html", Filters.filterAuthenticatedOrRedirect);
 		Spark.get("/main.html", (request, response) -> {
 			String login = request.session().attribute("userLogin");
 			User user = User.findByLogin(login);
-			Map<String, Object> attributes = new HashMap<>();
-			attributes.put("userAdmin", Boolean.valueOf(user.admin));
-			attributes.put("userName", StringUtils.withDefault(user.name, user.login));
-			return Controller.templateEngine.render(new ModelAndView(attributes, "main.html"));
+			return renderTemplate("main.html",
+					"userAdmin", Boolean.valueOf(user.admin),
+					"userName", StringUtils.withDefault(user.name, user.login));
 		});
 
 		Spark.get("/login.html", Authentication.page);
 		Spark.post("/login.html", Authentication.login);
 		Spark.get("/logout", Authentication.logout);
+
+		Spark.before("/users.html", Filters.filterAdministratorOrRedirect);
+		Spark.before("/user/*", Filters.filterAdministrator);
+		Spark.get("/users.html", Users.page);
+		Spark.get("/user/list", Users.list);
+		Spark.post("/user/insert/:login", Users.insert);
+		Spark.post("/user/update/:login", Users.update);
+		Spark.post("/user/delete/:login", Users.delete);
 
 		// TODO : supprimer à terme cette méthode qui n'est là que pour les tests
 		Spark.get("/reset", (request, response) -> {
@@ -101,6 +99,19 @@ public class Controller {
 		}
 	}
 
+	protected static final String renderTemplate(String name, Object... paramAndValues) {
+		Object model;
+		if (paramAndValues.length == 1)
+			model = paramAndValues;
+		else {
+			Map<String, Object> attributes = new HashMap<>();
+			for (int i = 0; i < paramAndValues.length; i += 2) {
+				attributes.put((String) paramAndValues[i], paramAndValues[i + 1]);
+			}
+			model = attributes;
+		}
+		return Controller.templateEngine.render(new ModelAndView(model, name));
+	}
 	/**
 	 * Cette méthode vérifie si le couple (login, password) est valide.
 	 * En cas d'erreur, une chaine de caractères non null est renvoyée.

@@ -53,24 +53,24 @@
 	</fieldset>
 </form>
 
-	<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
-	<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
-	<script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/nimbus.js"></script>
-	<script type="text/javascript" src="/langs/${lang}.js"></script>
-	<script>
-	NIMBUS.init(function() {
-		$('button[data-theme]').on('click', function(event) {
-			var button = $(event.target).closest('button');
-			var theme = button.attr('data-theme');
-			var currentCSS = $('link[href$="/theme/stylesheet.css"], link[href$="bootstrap.min.css"]');
-			$.get('/theme/update', { theme: theme}).then(function() {
-				window.location.reload();
-			});
-		}).filter('[data-theme="${theme}"]').addClass('active');
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+<script>
+NIMBUS.init(function() {
+	$('button[data-theme]').on('click', function(event) {
+		var button = $(event.target).closest('button');
+		var theme = button.attr('data-theme');
+		var currentCSS = $('link[href$="/theme/stylesheet.css"], link[href$="bootstrap.min.css"]');
+		$.get('/theme/update', { theme: theme}).then(function() {
+			window.location.reload();
+		});
+	}).filter('[data-theme="${theme}"]').addClass('active');
 
-		document.body.classList.remove('nimbus-hidden');
-	});
-	</script>
+	document.body.classList.remove('nimbus-hidden');
+});
+</script>
 </body>
 </html>

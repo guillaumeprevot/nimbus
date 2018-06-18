@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title data-translate="text">UsersTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="/favicon.ico" rel="shortcut icon" />
+<link rel="stylesheet" href="/theme/stylesheet.css" />
+<link rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link rel="stylesheet" href="/nimbus.css" />
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+
+<table id="users" class="table" style="width: 700px; max-width: 100%; margin: 40px auto 0;">
+	<thead>
+		<tr>
+			<th data-translate="text" style="text-align: center; ">UsersAdminColumn</th>
+			<th data-translate="text">UsersLoginColumn</th>
+			<th data-translate="text">UsersNameColumn</th>
+			<th data-translate="text" style="text-align: center; ">UsersEditColumn</th>
+			<th data-translate="text" style="text-align: center; ">UsersDeleteColumn</th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="5" style="text-align: right; ">
+				<a class="btn btn-link" href="/main.html" style="float: left; ">
+					<i class="material-icons">chevron_left</i>
+					<span data-translate="text">UsersBackButton</span>
+				</a>
+				<button class="btn btn-primary" id="insert-button" style="float: right; ">
+					<i class="material-icons">add</i>
+					<span data-translate="text">UsersCreateButton</span>
+				</button>
+			</td>
+		</tr>
+	</tfoot>
+</table>
+
+<form>
+	<div id="edit-dialog" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title insert" data-translate="text">UsersEditCreateTitle</h4>
+					<h4 class="modal-title update" data-translate="text">UsersEditUpdateTitle</h4>
+				</div>
+				<div class="modal-body">
+					<p class="alert alert-danger"></p>
+					<div class="form-group">
+						<label for="login-input" data-translate="text">UsersEditLoginLabel</label>
+						<input id="login-input" class="form-control" data-translate="placeholder" type="text" placeholder="UsersEditLoginPlaceholder" />
+					</div>
+					<div class="form-group">
+						<label for="password-input" data-translate="text">UsersEditPasswordLabel</label>
+						<input id="password-input" class="form-control" type="password" />
+					</div>
+					<div class="form-group">
+						<label for="password2-input" data-translate="text">UsersEditPasswordConfirmationLabel</label>
+						<input id="password2-input" class="form-control" type="password" />
+					</div>
+					<div class="form-group">
+						<label for="name-input" data-translate="text">UsersEditNameLabel</label>
+						<input id="name-input" class="form-control" data-translate="placeholder" type="text" placeholder="UsersEditNamePlaceholder" />
+					</div>
+					<div class="form-group">
+						<label for="quota-input" data-translate="text">UsersEditQuotaLabel</label>
+						<input id="quota-input" class="form-control" data-translate="placeholder" type="number" placeholder="UsersEditQuotaPlaceholder" />
+					</div>
+					<div class="form-group form-check">
+						<input type="checkbox" class="form-check-input" id="admin-input">
+						<label class="form-check-label" data-translate="text" for="admin-input">UsersEditAdminLabel</label>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">UsersEditCancelButton</button>
+					<button id="edit-validate-button" type="button" class="btn btn-primary">
+						<span class="insert" data-translate="text">UsersEditValidateCreateButton</span>
+						<span class="update" data-translate="text">UsersEditValidateUpdateButton</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<div id="delete-dialog" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" data-translate="text">UsersDeleteConfirmationTitle</h4>
+			</div>
+			<div class="modal-body" data-translate="text">UsersDeleteConfirmationMessage</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-translate="text" data-dismiss="modal">UsersDeleteCancelButton</button>
+				<button id="delete-validate-button" type="button" class="btn btn-danger" data-translate="text">UsersDeleteValidateButton</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+NIMBUS.init(function() {
+	// Charger et afficher la liste des utilisateurs 
+	$.get('/user/list').then(execute);
+});
+
+function execute(users) {
+	// Affichage des utilisateurs
+	$('#users tbody').append(users.map(createUserRow));
+
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+
+	// Préparation du bouton d'ajout
+	$('#insert-button').on('click', function() {
+		editUser({
+			name: '',
+			login: '',
+			admin: false
+		}, function(user) {
+			$.post('/user/insert/' + user.login, user).done(function() {
+				users.push(user);
+				$('#users tbody').append(createUserRow(user));
+				$('#edit-dialog').modal('hide');
+			}).fail(function(error) {
+				var message = (error.status === 409) ? NIMBUS.translate('UsersEditLoginErrorMessage') : error.responseText;
+				if (error.status === 409)
+					$('#login-input').addClass('is-invalid');
+				$('#edit-dialog').find('.alert-danger').text(message).show();
+			});
+		});
+	});
+
+	// Préparation des boutons de modification
+	$('#users').on('click', '.edit-button', function() {
+		var tr = $(this).closest('tr');
+		editUser(users[tr.index()], function(user) {
+			$.post('/user/update/' + user.login, user).done(function() {
+				tr.replaceWith(createUserRow(user))
+				$('#edit-dialog').modal('hide');
+			}).fail(function(error) {
+				$('#edit-dialog').find('.alert-danger').text(error.responseText).show();
+			});
+		});
+	});
+
+	// Préparation des boutons de suppression
+	$('#users').on('click', '.delete-button', function() {
+		var tr = $(this).closest('tr');
+		$('#delete-dialog').modal('show');
+		$('#delete-validate-button').off('click').on('click', function() {
+			$.post('/user/delete/' + users[tr.index()].login).done(function() {
+				users.splice(tr.index(), 1);
+				tr.remove();
+				$('#delete-dialog').modal('hide');
+			}).fail(function() {
+				//
+			});
+		});
+	});
+}
+
+function createUserRow(user) {
+	return '<tr>'
+		+ '<td style="text-align: center; ">' + (user.admin ? '<i class="material-icons">check</i>' : '') + '</td>'
+		+ '<td>' + user.login + '</td>'
+		+ '<td>' + (user.name || '') + '</td>'
+		+ '<td style="text-align: center; "><button class="btn btn-link edit-button"><i class="material-icons">edit</i></button></td>'
+		+ '<td style="text-align: center; "><button class="btn btn-link delete-button"><i class="material-icons">delete</i></button></td>'
+		+ '</tr>';
+}
+
+function editUser(user, callback) {
+	var insert = !user.login,
+		dialog = $('#edit-dialog'),
+		loginInput = $('#login-input'),
+		passwordInput = $('#password-input'),
+		password2Input = $('#password2-input'),
+		nameInput = $('#name-input'),
+		adminInput = $('#admin-input'),
+		quotaInput = $('#quota-input');
+
+	loginInput.val(user.login).prop('disabled', !insert);
+	passwordInput.val('').attr('placeholder', insert ? NIMBUS.translate('UsersEditPasswordCreatePlaceholder') : NIMBUS.translate('UsersEditPasswordUpdatePlaceholder'));
+	password2Input.val('').attr('placeholder', insert ? NIMBUS.translate('UsersEditPasswordConfirmationCreatePlaceholder') : NIMBUS.translate('UsersEditPasswordConfirmationUpdatePlaceholder'));
+	nameInput.val(user.name);
+	adminInput.prop('checked', user.admin);
+	quotaInput.val(user.quota ? user.quota.toString() : '');
+
+	dialog.find('.insert').toggle(insert);
+	dialog.find('.update').toggle(! insert);
+	dialog.find('.alert-danger').text('').hide();
+	dialog.modal('show');
+	dialog.find('#edit-validate-button').off('click').on('click', function(event) {
+		loginInput.toggleClass('is-invalid', !loginInput.val());
+		passwordInput.toggleClass('is-invalid', insert && !passwordInput.val());
+		password2Input.toggleClass('is-invalid', password2Input.val() !== passwordInput.val());
+		if (dialog.find('.is-invalid').length > 0)
+			return;
+		user.login = loginInput.val();
+		user.password = passwordInput.val();
+		user.name = nameInput.val();
+		user.admin = adminInput.prop('checked');
+		user.quota = quotaInput.val() ? parseInt(quotaInput.val()) : undefined;
+		callback(user);
+	});
+}
+</script>
+
+</body>
+</html>

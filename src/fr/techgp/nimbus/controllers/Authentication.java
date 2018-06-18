@@ -17,15 +17,15 @@ public class Authentication extends Controller {
 	 * 
 	 * ($urlToLoad, $logout) => HTML
 	 * 
-	 * @see login.html.ftl
+	 * @see login.html
 	 * @see Filters
 	 */
 	public static final Route page = (request, response) -> {
 		String urlToLoad = request.session().attribute("urlToLoad");
 		boolean logout = Boolean.TRUE.equals(request.session().attribute("logout"));
-		Map<String, Object> attributes = attributes(request, false, logout, urlToLoad);
 		request.session().removeAttribute("logout");
 		request.session().removeAttribute("urlToLoad");
+		Map<String, Object> attributes = attributes(request, false, logout, urlToLoad);
 		return Controller.templateEngine.render(new ModelAndView(attributes, "login.html"));
 	};
 
@@ -37,7 +37,7 @@ public class Authentication extends Controller {
 	 * (login, password, urlToLoad) => redirect(urlToLoad)
 	 *
 	 * @see Controller#authenticate(String, String)
-	 * @see login.html.ftl
+	 * @see login.html
 	 */
 	public static final Route login = (request, response) -> {
 		String login = request.queryParams("login");

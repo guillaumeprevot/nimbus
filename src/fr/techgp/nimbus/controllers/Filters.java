@@ -44,17 +44,17 @@ public class Filters extends Controller {
 	public static final Filter filterAuthenticated = (request, response) -> {
 		String login = request.session().attribute("userLogin");
 		if (login == null)
-			SparkUtils.unauthorized();
+			SparkUtils.haltUnauthorized();
 	};
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié en tant qu'administrateur */
 	public static final Filter filterAdministrator = (request, response) -> {
 		String login = request.session().attribute("userLogin");
 		if (login == null)
-			SparkUtils.unauthorized();
+			SparkUtils.haltUnauthorized();
 		User user = User.findByLogin(login);
 		if (user == null || !user.admin)
-			SparkUtils.forbidden();
+			SparkUtils.haltForbidden();
 	};
 
 	/**
@@ -84,7 +84,7 @@ public class Filters extends Controller {
 		// Demande d'authentification
 		if (login == null) {
 			response.header("WWW-Authenticate", "Basic realm=\"Authentication required\"");
-			SparkUtils.unauthorized();
+			SparkUtils.haltUnauthorized();
 		}
 	};
 
