@@ -1,27 +1,76 @@
+<!DOCTYPE html>
 <html>
-<body>
+<head>
+<title>${appName}</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="/favicon.ico" rel="shortcut icon" />
+<link rel="stylesheet" href="/theme/stylesheet.css" />
+<link rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link rel="stylesheet" href="/nimbus.css" />
+</head>
+<body class="nimbus-hidden">
 
-<#if logout>
-	<div role="alert">You've been logged out successfully</div>
-</#if>
-<#if error>
-	<div role="alert">Authentication error</div>
-</#if>
-<form action="/login.html" method="post">
+<form action="/login.html" method="post" style="display: block; width: 400px; max-width: 100%; margin: 0 auto; padding: 40px; ">
 	<fieldset>
 		<#if install>
-			<legend>Installation</legend>
+			<legend data-translate="text">LoginInstallationTitle</legend>
 		<#else>
-			<legend>Authentication</legend>
+			<legend data-translate="text">LoginTitle</legend>
 		</#if>
 
-		<input placeholder="Login" type="text" name="login" id="login" value="${login}" />
-		<br />
-		<input placeholder="Password" type="password" name="password" id="password" value="" />
-		<br />
+		<#if logout>
+			<div class="alert alert-primary" data-translate="text" role="alert">LoginLogoutSuccessMessage</div>
+		</#if>
+
+		<div class="form-group">
+			<label data-translate="text" for="login">LoginLoginLabel</label>
+			<input class="form-control <#if error>is-invalid</#if>" data-translate="placeholder" type="text" name="login" id="login" value="${login}" placeholder="LoginLoginPlaceholder" />
+			<div class="invalid-feedback" data-translate="text">LoginErrorMessage</div>
+		</div>
+		<div class="form-group">
+			<label data-translate="text" for="password">LoginPasswordLabel</label>
+			<input class="form-control <#if error>is-invalid</#if>" data-translate="placeholder" type="password" name="password" id="password" value="" placeholder="LoginPasswordPlaceholder" />
+			<div class="invalid-feedback" data-translate="text">LoginErrorMessage</div>
+		</div>
 		<input type="hidden" name="urlToLoad" value="${urlToLoad}" />
-		<input type="submit" value="OK" />
+		<button class="btn btn-primary btn-block" data-translate="text" type="submit">LoginButton</button>
+		<div class="btn-group">
+			<button class="btn btn-link btn-block dropdown-toggle" data-toggle="dropdown" data-translate="text" type="button" aria-haspopup="true" aria-expanded="false">LoginThemeLabel</button>
+			<div class="dropdown-menu">
+				<button class="dropdown-item" data-translate="text" data-theme="" type="button">LoginThemeDefault</button>
+				<button class="dropdown-item" data-translate="text" data-theme="darkly" type="button">LoginThemeDarkly</button>
+				<button class="dropdown-item" data-translate="text" data-theme="flatly" type="button">LoginThemeFlatly</button>
+				<button class="dropdown-item" data-translate="text" data-theme="materia" type="button">LoginThemeMateria</button>
+				<button class="dropdown-item" data-translate="text" data-theme="united" type="button">LoginThemeUnited</button>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item disabled" data-translate="text" target="_blank" href="https://bootswatch.com/">LoginThemeCredits</a>
+			</div>
+		</div>
 	</fieldset>
 </form>
+
+	<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+	<script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/nimbus.js"></script>
+	<script type="text/javascript" src="/langs/${lang}.js"></script>
+	<script>
+	NIMBUS.init(function() {
+		$('button[data-theme]').on('click', function(event) {
+			var button = $(event.target).closest('button');
+			var theme = button.attr('data-theme');
+			var currentCSS = $('link[href$="/theme/stylesheet.css"], link[href$="bootstrap.min.css"]');
+			$.get('/theme/update', { theme: theme}).then(function() {
+				window.location.reload();
+			});
+		}).filter('[data-theme="${theme}"]').addClass('active');
+
+		document.body.classList.remove('nimbus-hidden');
+	});
+	</script>
 </body>
 </html>

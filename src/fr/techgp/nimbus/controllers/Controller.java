@@ -30,6 +30,17 @@ public class Controller {
 		Controller.configuration = configuration;
 		Controller.templateEngine = prepareTemplateEngine(dev);
 
+		Spark.get("/theme/stylesheet.css", (request, response) -> {
+			String theme = request.session().attribute("theme");
+			String url = StringUtils.isBlank(theme) ? "/libs/bootstrap/css/bootstrap.min.css" : ("/themes/" + theme + "/bootstrap.min.css");
+			response.redirect(url);
+			return null;
+		});
+		Spark.get("/theme/update", (request, response) -> {
+			request.session().attribute("theme", request.queryParams("theme"));
+			return "";
+		});
+
 		Spark.before("/admin.html", Filters.filterAdministratorOrRedirect);
 		Spark.get("/admin.html", (request, response) -> {
 			String login = request.session().attribute("userLogin");
@@ -44,6 +55,7 @@ public class Controller {
 			String login = request.session().attribute("userLogin");
 			User user = User.findByLogin(login);
 			Map<String, Object> attributes = new HashMap<>();
+			attributes.put("userAdmin", Boolean.valueOf(user.admin));
 			attributes.put("userName", StringUtils.withDefault(user.name, user.login));
 			return Controller.templateEngine.render(new ModelAndView(attributes, "main.html"));
 		});

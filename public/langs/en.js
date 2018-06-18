@@ -1,0 +1,18 @@
+NIMBUS.lang = {
+	LoginTitle: "Authentication",
+	LoginInstallationTitle: "Installation",
+	LoginLoginLabel: "Login",
+	LoginLoginPlaceholder: "Enter your login here",
+	LoginPasswordLabel: "Password",
+	LoginPasswordPlaceholder: "Enter your password here",
+	LoginThemeLabel: "Theme",
+	LoginThemeDefault: "Default theme (Bootstrap)",
+	LoginThemeDarkly: "Dark theme (Darkly)",
+	LoginThemeFlatly: "Light theme (Flatly)",
+	LoginThemeMateria: "Material design (Materia)",
+	LoginThemeUnited: "Ubuntu orange (United)",
+	LoginThemeCredits: "Themes from bootswatch.com",
+	LoginButton: "Connection",
+	LoginErrorMessage: "Authentication failed",
+	LoginLogoutSuccessMessage: "You are now logged out.",
+};
