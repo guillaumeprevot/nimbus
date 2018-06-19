@@ -1,9 +1,21 @@
 package fr.techgp.nimbus.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.function.Function;
 
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -57,6 +69,30 @@ public final class SparkUtils {
 		return a.toString();
 	}
 
+	public static final Object renderFile(Response response, String mimeType, File file, String fileName) throws IOException {
+		if (fileName != null)
+			response.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+		response.header("Content-Length", Long.toString(file.length()));
+		try (InputStream is = new FileInputStream(file)) {
+			return renderStream(response, mimeType, is);
+		}
+	}
+
+	public static final Object renderBytes(Response response, String mimeType, byte[] bytes) throws IOException {
+		response.header("Content-Length", Integer.toString(bytes.length));
+		try (InputStream stream = new ByteArrayInputStream(bytes)) {
+			return renderStream(response, mimeType, stream);
+		}
+	}
+
+	public static final Object renderStream(Response response, String mimeType, InputStream stream) throws IOException {
+		response.type(mimeType);
+		try (OutputStream os = response.raw().getOutputStream()) {
+			IOUtils.copy(stream, os, 1024 * 1024);
+		}
+		return null;
+	}
+
 	public static final String queryParamString(Request request, String name, String defaultValue) {
 		String s = request.queryParams(name);
 		return StringUtils.isBlank(s) ? defaultValue : s;
@@ -107,6 +143,14 @@ public final class SparkUtils {
 			}
 		}
 		return "en";
+	}
+
+	/**
+	 * Date format used for HTTP response headers
+	 */
+	public static final DateFormat HTTP_RESPONSE_HEADER_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+	static {
+		HTTP_RESPONSE_HEADER_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
 }

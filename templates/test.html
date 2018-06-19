@@ -86,6 +86,12 @@ function assertStream(content, status, jqHR, mimetype, filename, length) {
 function assertLoginPage(ajax) {
 	return ajax.then((result) => assertContains(result, "<form action=\"/login.html\""));
 }
+function assertRange(url, header, value) {
+	return $.ajax({
+		url: url,
+		headers: {"Range": "bytes=" + header}
+	}).then((result) => assertEquals(result, value));
+}
 function shoudBeAnError(ajax) {
 	return ajax.then(
 		(result) => $.Deferred().reject("Devrait lancer une erreur"),
@@ -99,7 +105,7 @@ function shouldUpload(content, mimetype, filename, id) {
 	formData.append("files", blob, filename);
 	return $.ajax({
 		method: "POST",
-		url: "/items/add/files",
+		url: "/files/upload",
 		data: formData,
 		dataType: 'json',
 		contentType: false,
@@ -180,10 +186,83 @@ function fillTests(add) {
 		return shoudBeAnError($.post("/user/update/uuu"));
 	});
 
+	add("Créer un fichier 'fichier.txt' vide avec id 0 à la racine", function() {
+		return $.post("/files/touch?name=fichier.txt").then((result) => assertEquals(result, "0"));
+	});
+	add("Streamer le fichier 'fichier.txt' de longueur 0", function() {
+		return $.get("/files/stream/0").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
+	});
+	add("Télécharger le fichier 'fichier.txt' de longueur 0", function() {
+		return $.get("/files/download/0").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
+	});
+	add("Naviguer vers le fichier 'fichier.txt' de longueur 0", function() {
+		return $.get("/files/browse/fichier.txt").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
+	});
+	add("Vérifier les méta-données d'un fichier texte vide", function() {
+		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && r.name === "fichier.txt" && r.length === 0 && r.mimetype === "text/plain"));
+	});
+
+	var totoTxtContent = "Un fichier\ntexte";
+	add("Uploader un fichier texte à la racine qui aura pour id 1", function() {
+		return shouldUpload(totoTxtContent, "text/plain", "toto.txt", 1);
+	});
+	add("Streamer le fichier 'toto.txt' de longueur définie", function() {
+		return $.get("/files/stream/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+	});
+	add("Télécharger le fichier 'toto.txt' de longueur définie", function() {
+		return $.get("/files/download/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+	});
+	add("Naviguer vers le fichier 'toto.txt' de longueur définie", function() {
+		return $.get("/files/browse/toto.txt").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+	});
+	add("Vérifier les méta-données d'un fichier texte non vide", function() {
+		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.name === "toto.txt" && r.length === totoTxtContent.length && r.mimetype === "text/plain" && r.lines === 2));
+	});
+
+	add("Uploader une image qui aura pour id 2", function() {
+		// Found here : https://stackoverflow.com/questions/23150333/html5-javascript-dataurl-to-blob-blob-to-dataurl
+		var base64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABP0lEQVQ4jd3SP07DMBTH8UcS23ET+U/rurKjplaGXoAF5R7deoaeoUdhYOsEZ+jCwMYNkCohBEIcgB8TlWCAZmDhSZ/xffWGR/Sv5oxzvpZS7qSUByHEIc/zHRGtiejs12Wl1NZ7jxgjYozw3kNrDSEEiGj7Y8Rau26aBikldF2HruuQUkLTNLDWoixLcM63nPPLoihesyy7JKKLYyCldN22LRaLxRdt2yKEgPF4DOfcg3MOxhhIKVGW5dUxEGN8/Dz9uxACZrMZvPfvIQR476GUAmPs7RgIITxNp1OcwjkHpRTm8/kNERHVdb2aTCYvxhicQmsNpdRzVVX3RLSiuq73o9EIp5JSQgiBoijAGNuT1vqWc44hGGPI8xxVVd1S3/cba+1dlmUYwhhz1/f9hgBYAEsA5wMtAdhBv/4n8wHh/sScXBuiFwAAAABJRU5ErkJggg==";
+		var bstr = atob(base64);
+		var n = bstr.length; // 376
+		var content = new Uint8Array(n);
+	    while (n--) {
+	    	content[n] = bstr.charCodeAt(n);
+	    }
+		return shouldUpload(content, "image/png", "favicon.png", 2);
+	});
+	add("Vérifier que l'image 'favicon.png' a la bonne taille", function() {
+		return $.get("/files/stream/2").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
+	});
+	add("Récupérer une miniature en 32x32 de 'favicon.png'", function() {
+		return $.get("/files/thumbnail/2").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
+	});
+	add("Récupérer une miniature en 64x64 de 'favicon.png'", function() {
+		return $.get("/files/thumbnail/2?size=64").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
+	});
+	add("Naviguer vers l'image 'favicon.png'", function() {
+		return $.get("/files/browse/favicon.png").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
+	});
+	add("Vérifier les méta-données d'une image", function() {
+		return $.get("/items/info/2").then((result) => assertObject(result, (r) => r.id === 2 && r.name === "favicon.png" && r.length === 376 && r.mimetype === "image/png" && r.width === 16 && r.height === 16 && r.depth === 32));
+	});
+
+	add("Vérifier le streaming avec Range 3", function() {
+		return assertRange("/files/stream/1", "3", totoTxtContent.substr(0,4));
+	});
+	add("Vérifier le streaming avec Range -3", function() {
+		return assertRange("/files/stream/1", "-3", totoTxtContent.substr(-3));
+	});
+	add("Vérifier le streaming avec Range 3-", function() {
+		return assertRange("/files/stream/1", "3-", totoTxtContent.substring(3));
+	});
+	add("Vérifier le streaming avec Range 3-6", function() {
+		return assertRange("/files/stream/1", "3-6", totoTxtContent.substring(3,7));
+	});
+
 	add("Déconnecter ramène sur la page de connexion", function() {
 		return assertLoginPage($.get("/logout"));
 	});
-	add("Bloquer à nouveau l'accès à la page principale une fois déconnecter", function() {
+	add("Bloquer à nouveau l'accès à la page principale une fois déconnecté", function() {
 		return assertLoginPage($.get("/main.html"));
 	});
 

@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 
 import fr.techgp.nimbus.Configuration;
+import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.CryptoUtils;
@@ -16,6 +18,7 @@ import fr.techgp.nimbus.utils.StringUtils;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.TemplateModelException;
 import spark.ModelAndView;
+import spark.Request;
 import spark.Spark;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
@@ -62,6 +65,17 @@ public class Controller {
 		Spark.post("/user/insert/:login", Users.insert);
 		Spark.post("/user/update/:login", Users.update);
 		Spark.post("/user/delete/:login", Users.delete);
+
+		Spark.before("/files/*", Filters.filterAuthenticated);
+		Spark.post("/files/upload", Files.upload);
+		Spark.post("/files/touch", Files.touch);
+		Spark.get("/files/browse/*", Files.browse);
+		Spark.get("/files/thumbnail/:itemId", Files.thumbnail);
+		Spark.get("/files/stream/:itemId", Files.stream);
+		Spark.get("/files/download/:itemId", Files.download);
+
+		Spark.before("/items/*", Filters.filterAuthenticated);
+		Spark.get("/items/info/:itemId", Items.info);
 
 		// Accès à la page de test en mode DEV uniquement
 		Spark.get("/test.html", (request, response) -> {
@@ -121,6 +135,26 @@ public class Controller {
 			model = attributes;
 		}
 		return Controller.templateEngine.render(new ModelAndView(model, name));
+	}
+
+	/**
+	 * Cette méthode récupère l'élément demandé "itemId" de l'utilisateur connecté dans "request".
+	 * L'élément est ensute "consommé" de manière personnalisée par "consumer".
+	 *
+	 * @param request la requête pour savoir qui est connecté (via "userLogin")
+	 * @param itemId l'id de l'élément demandé
+	 * @param consumer le traitement à effectuer sur chaque élément
+	 * @return badRequest en cas de problème ou "" si tous les éléments ont été consommés sans erreur
+	 */
+	protected static final Object actionOnSingleItem(Request request, String itemIdString, Function<Item, Object> consumer) {
+		// Récupérer l'utilisateur connecté
+		String userLogin = request.session().attribute("userLogin");
+		// Rechercher l'élément et en vérifier l'accès
+		Item item = Item.findById(Long.valueOf(itemIdString));
+		if (item == null || !item.userLogin.equals(userLogin))
+			return SparkUtils.haltBadRequest();
+		// Laisser l'appelant "consommer" l'élément
+		return consumer.apply(item);
 	}
 
 	/**
