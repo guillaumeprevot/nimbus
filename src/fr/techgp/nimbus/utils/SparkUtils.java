@@ -1,7 +1,6 @@
 package fr.techgp.nimbus.utils;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 import javax.servlet.http.HttpServletResponse;
@@ -58,12 +57,39 @@ public final class SparkUtils {
 		return a.toString();
 	}
 
-	public static final boolean queryParamBoolean(Request request, String name) {
-		return "true".equals(request.queryParams(name));
+	public static final String queryParamString(Request request, String name, String defaultValue) {
+		String s = request.queryParams(name);
+		return StringUtils.isBlank(s) ? defaultValue : s;
+	}
+
+	public static final Long queryParamLong(Request request, String name, Long defaultValue) {
+		String s = request.queryParams(name);
+		return StringUtils.isBlank(s) ? defaultValue : Long.valueOf(s);
+	}
+
+	public static final long queryParamLong(Request request, String name, long defaultValue) {
+		String s = request.queryParams(name);
+		return StringUtils.isBlank(s) ? defaultValue : Long.parseLong(s);
 	}
 
 	public static final Integer queryParamInteger(Request request, String name, Integer defaultValue) {
-		return Optional.ofNullable(request.queryParams(name)).map(Integer::valueOf).orElse(defaultValue);
+		String s = request.queryParams(name);
+		return StringUtils.isBlank(s) ? defaultValue : Integer.valueOf(s);
+	}
+
+	public static final int queryParamInteger(Request request, String name, int defaultValue) {
+		String s = request.queryParams(name);
+		return StringUtils.isBlank(s) ? defaultValue : Integer.parseInt(s);
+	}
+
+	public static final Boolean queryParamBoolean(Request request, String name, Boolean defaultValue) {
+		String s = request.queryParams(name);
+		return StringUtils.isBlank(s) ? defaultValue : Boolean.valueOf(s);
+	}
+
+	public static final boolean queryParamBoolean(Request request, String name, boolean defaultValue) {
+		String s = request.queryParams(name);
+		return StringUtils.isBlank(s) ? defaultValue : Boolean.parseBoolean(s);
 	}
 
 	public static final String getRequestLang(Request request) {

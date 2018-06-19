@@ -46,21 +46,25 @@ public class Users extends Controller {
 	public static final Route insert = (request, response) -> {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.params(":login");
-		if (login == null)
+		if (StringUtils.isBlank(login))
 			return SparkUtils.haltBadRequest();
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user != null)
 			return SparkUtils.haltConflict();
+		// Récupérer le mot de passe
+		String password = request.queryParams("password");
+		if (StringUtils.isBlank(password))
+			return SparkUtils.haltBadRequest();
 		// Récupérer le formulaire
 		user = new User();
 		user.login = login;
-		user.password = CryptoUtils.hashPassword(request.queryParams("password"));
+		user.password = CryptoUtils.hashPassword(password);
 		user.name = request.queryParams("name");
-		user.admin = SparkUtils.queryParamBoolean(request, "admin");
+		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
 		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
 		User.insert(user);
-		return "";
+		return SparkUtils.renderJSON(response, toJSON(user));
 	};
 
 	/**
@@ -75,7 +79,7 @@ public class Users extends Controller {
 	public static final Route update = (request, response) -> {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.params(":login");
-		if (login == null)
+		if (StringUtils.isBlank(login))
 			return SparkUtils.haltBadRequest();
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
@@ -86,10 +90,10 @@ public class Users extends Controller {
 		if (StringUtils.isNotBlank(password))
 			user.password = CryptoUtils.hashPassword(password);
 		user.name = request.queryParams("name");
-		user.admin = SparkUtils.queryParamBoolean(request, "admin");
+		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
 		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
 		User.update(user);
-		return "";
+		return SparkUtils.renderJSON(response, toJSON(user));
 	};
 
 	/**
@@ -103,7 +107,7 @@ public class Users extends Controller {
 	public static final Route delete = (request, response) -> {
 		// Récupérer le login de l'utilisateur à supprimer
 		String login = request.params(":login");
-		if (login == null)
+		if (StringUtils.isBlank(login))
 			return SparkUtils.haltBadRequest();
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
@@ -111,7 +115,7 @@ public class Users extends Controller {
 			return SparkUtils.haltNotFound();
 		User.delete(user);
 		// TODO Supprimer le contenu (base+disque) de l'utilisateur dans Users.delete
-		return "";
+		return SparkUtils.renderJSON(response, toJSON(user));
 	};
 
 	private static final JsonObject toJSON(User u) {

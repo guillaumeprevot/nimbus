@@ -11,6 +11,7 @@ import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.CryptoUtils;
+import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.TemplateModelException;
@@ -62,12 +63,14 @@ public class Controller {
 		Spark.post("/user/update/:login", Users.update);
 		Spark.post("/user/delete/:login", Users.delete);
 
-		// TODO : supprimer à terme cette méthode qui n'est là que pour les tests
-		Spark.get("/reset", (request, response) -> {
+		// Accès à la page de test en mode DEV uniquement
+		Spark.get("/test.html", (request, response) -> {
+			if (!dev)
+				return SparkUtils.haltNotFound();
 			Mongo.reset(true);
 			request.session().removeAttribute("userLogin");
-			response.redirect("/login.html");
-			return null;
+			request.session().removeAttribute("theme");
+			return renderTemplate("test.html");
 		});
 	}
 
@@ -99,6 +102,13 @@ public class Controller {
 		}
 	}
 
+	/**
+	 * Cette méthode génère un template FreeMarker avec les paramètres indiqués
+	 * 
+	 * @param name le nom du template à générer
+	 * @param paramAndValues une suite de paramètres "name1:String, value1, name2:String, value2, ..."
+	 * @return le texte issu de la génération du template
+	 */
 	protected static final String renderTemplate(String name, Object... paramAndValues) {
 		Object model;
 		if (paramAndValues.length == 1)
@@ -112,6 +122,7 @@ public class Controller {
 		}
 		return Controller.templateEngine.render(new ModelAndView(model, name));
 	}
+
 	/**
 	 * Cette méthode vérifie si le couple (login, password) est valide.
 	 * En cas d'erreur, une chaine de caractères non null est renvoyée.

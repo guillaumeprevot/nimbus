@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>${appName} - TEST</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/theme/stylesheet.css" />
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+</head>
+<body>
+<div style="text-align: center"><a href="/test.html" class="btn btn-default">Relancer</a></div>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>N°</th>
+			<th>Test</th>
+			<th>Résultat</th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+<script type="text/javascript">
+
+//==========
+//========== Un ensemble de méthode de vérification du résultat des requêtes AJAX
+//==========
+	
+function assertEmpty(result) {
+	if (result === "")
+		return "OK";
+	return $.Deferred().reject("'" + result + "' devrait être vide");
+}
+function assertEquals(result, text) {
+	if (result === text)
+		return "OK";
+	return $.Deferred().reject("'" + result + "' devrait valoir '" + text + "'");
+}
+function assertContains(result, text) {
+	if (result.indexOf(text) >= 0)
+		return "OK";
+	return $.Deferred().reject("'" + result + "' devrait contenir '" + text + "'");
+}
+function assertNotContains(result, text) {
+	if (result.indexOf(text) === -1)
+		return "OK";
+	return $.Deferred().reject("'" + result + "' ne devrait pas contenir '" + text + "'");
+}
+function assertObject(result, check) {
+	if (typeof result !== 'object')
+		return $.Deferred().reject("'" + result + "' devrait être un objet");
+	if (!check(result)) {
+		console.log(result);
+		return $.Deferred().reject("'" + result + "' n'est pas le résultat souhaité");
+	}
+	return "OK";
+}
+function assertArray(result, length, checkFirst) {
+	if (!Array.isArray(result))
+		return $.Deferred().reject("'" + result + "' devrait être un tableau");
+	if (result.length !== length)
+		return $.Deferred().reject("'" + result + "' devrait contenir " + length + " élément(s)");
+	if (checkFirst && !checkFirst(result[0])) {
+		console.log(result);
+		return $.Deferred().reject("'" + result + "' n'est pas le résultat souhaité");
+	}
+	return "OK";
+}
+function assertStream(content, status, jqHR, mimetype, filename, length) {
+	var ct = jqHR.getResponseHeader("Content-Type");
+	var cd = jqHR.getResponseHeader("Content-Disposition");
+	var cl = jqHR.getResponseHeader("Content-Length");
+	if (mimetype && (ct !== mimetype))
+		return $.Deferred().reject("'Content-Type' vaut '" + ct + "' mais devrait être '" + mimetype + "'");
+	if (filename && (!cd || cd.indexOf("; filename=\"" + filename + "\"") === -1))
+		return $.Deferred().reject("'Content-Disposition' vaut '" + cd + "' mais le fichier devrait être '" + filename + "'");
+	if (typeof length === 'number' && cl !== length.toString())
+		return $.Deferred().reject("'Content-Length' vaut '" + cl + "' mais la longueur devrait être '" + length + "'");
+	return "OK";
+}
+function assertLoginPage(ajax) {
+	return ajax.then((result) => assertContains(result, "<form action=\"/login.html\""));
+}
+function shoudBeAnError(ajax) {
+	return ajax.then(
+		(result) => $.Deferred().reject("Devrait lancer une erreur"),
+		(error) => "OK"
+	);
+}
+function shouldUpload(content, mimetype, filename, id) {
+	var blob = new Blob([content], { type: mimetype });
+	var formData = new FormData();
+	formData.append("parentId", ""); // à la racine
+	formData.append("files", blob, filename);
+	return $.ajax({
+		method: "POST",
+		url: "/items/add/files",
+		data: formData,
+		dataType: 'json',
+		contentType: false,
+		processData: false,
+		cache: false,
+		timeout: 0
+	}).then((result) => assertArray(result, 1, (newId) => newId === id));
+}
+
+//==========
+//========== La suite des tests AJAX pour vérifier le comportement du serveur
+//==========
+	
+function fillTests(add) {
+	add("Utiliser par défaut le thème Bootstrap", function() {
+		return $.get("/theme/stylesheet.css").then((result) => assertContains(result, "https://getbootstrap.com/") && assertNotContains(result, "https://bootswatch.com"));
+	});
+	add("Personnaliser le thème", function() {
+		return $.get("/theme/update?theme=materia").then(assertEmpty);
+	});
+	add("Utiliser ensuite le thème personnalisé", function() {
+		return $.get("/theme/stylesheet.css").then((result) => assertContains(result, "https://bootswatch.com"));
+	});
+
+	add("Bloquer l'accès à la page principale sans identification", function() {
+		return assertLoginPage($.get("/main.html"));
+	});
+	add("Créer un premier compte quand la base est vide", function() {
+		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
+	});
+	add("Recupérer la liste des utilisateurs", function() {
+		return $.get("/user/list").then((result) => assertArray(result, 1, (u) => u.login === "adm" && u.admin === true));
+	});
+
+	add("Créer un utilisateur", function() {
+		return $.post("/user/insert/u?password=u").then((result) => assertObject(result, (o) => o.login === 'u' && !o.name && !o.admin && !o.quota && !o.password));
+	});
+	add("Bloquer la création si doublon de login", function() {
+		return shoudBeAnError($.post("/user/insert/u?password=u"));
+	});
+	add("Bloquer la création si login absent", function() {
+		return shoudBeAnError($.post("/user/insert/?password=u"));
+	});
+	add("Bloquer la création si password absent", function() {
+		return shoudBeAnError($.post("/user/insert/e?password="));
+	});
+
+	add("Modifier un utilisateur", function() {
+		return $.post("/user/update/u?name=Utilisateur&password=u&quota=3&admin=false").then((result) => assertObject(result, (o) => o.login === 'u' && o.name === 'Utilisateur' && !o.admin && o.quota === 3 && !o.password));
+	});
+	add("Bloquer la modification si login absent", function() {
+		return shoudBeAnError($.post("/user/update/?name=Utilisateur&password=u&quota=3&admin=false"));
+	});
+	add("Bloquer la modification si login invalide", function() {
+		return shoudBeAnError($.post("/user/update/uuu?name=Utilisateur&password=u&quota=3&admin=false"));
+	});
+
+	add("Autoriser l'accès à la gestion des utilisateurs aux admins", function() {
+		return $.get("/users.html").then((result) => assertContains(result, "<table id=\"users\""));
+	});
+	add("Se reconnecter en utilisateur standard", function() {
+		return $.post("/login.html?login=u&password=u").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
+	});
+	add("Bloquer l'accès à la gestion des utilisateurs aux non admins", function() {
+		return assertLoginPage($.get("/users.html"));
+	});
+	add("Se reconnecter en administrateur", function() {
+		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
+	});
+
+	add("Supprimer un utilisateur", function() {
+		return $.post("/user/delete/u").then((result) => assertObject(result, (o) => o.login === 'u'));
+	});
+	add("Bloquer la suppression si login absent", function() {
+		return shoudBeAnError($.post("/user/delete/"));
+	});
+	add("Bloquer la suppression si login invalide", function() {
+		return shoudBeAnError($.post("/user/update/uuu"));
+	});
+
+	add("Déconnecter ramène sur la page de connexion", function() {
+		return assertLoginPage($.get("/logout"));
+	});
+	add("Bloquer à nouveau l'accès à la page principale une fois déconnecter", function() {
+		return assertLoginPage($.get("/main.html"));
+	});
+
+}
+
+//==========
+//========== Exécution et affichage du résultat de chaque test
+//==========
+
+var tests = [];
+var tbody = $("table > tbody");
+var defer = $.Deferred();
+var chain = defer;
+
+fillTests((name, run) => tests.push({ name, run }));
+
+tests.forEach((test, index) => {
+	var tr = $("<tr />")
+		.append("<td>" + (index + 1) + "</td>")
+		.append("<td>" + test.name + "</td>")
+		.append("<td></td>")
+		.appendTo(tbody);
+	chain = chain.then(() => test.run()
+		.done((result) => {
+			tr.children(":last-child").addClass("text-success").text(result || "OK");
+		})
+		.fail((error) => {
+			var text = error ? (error.responseText || error) : "KO";
+			tr.children(":last-child").addClass("text-danger").text(text);
+		})
+	);
+});
+defer.resolve();
+</script>
+</body>
+</html>
