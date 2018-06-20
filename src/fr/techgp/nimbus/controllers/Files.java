@@ -182,6 +182,8 @@ public class Files extends Controller {
 		try {
 			if (thumbnailWidth == null && thumbnailHeight == null)
 				return SparkUtils.renderFile(response, mimetype, file, null);
+			if (item.name.endsWith(".ico"))
+				return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleICOImage(file, thumbnailWidth, thumbnailHeight));
 			return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleImage(file, thumbnailWidth, thumbnailHeight));
 		} catch (IOException ex) {
 			return SparkUtils.haltBadRequest();

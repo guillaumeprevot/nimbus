@@ -6,8 +6,12 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -15,10 +19,40 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
+import net.sf.image4j.codec.ico.ICODecoder;
+import net.sf.image4j.codec.ico.ICOEncoder;
+
 public final class ImageUtils {
 
 	private ImageUtils() {
 		//
+	}
+
+	/** Cette méthode crée une miniature du fichier .ico passé en paramètre en conservant les proportions d'origine */
+	public static final byte[] getScaleICOImage(File file, Integer targetWidth, Integer targetHeight) throws IOException {
+		try (InputStream inputStream = new FileInputStream(file)) {
+			List<BufferedImage> images = ICODecoder.read(inputStream);
+			Integer targetSize = targetWidth != null ? targetWidth : targetHeight;
+			BufferedImage bestImage = null;
+			for (BufferedImage i : images) {
+				if (bestImage == null) {
+					bestImage = i;
+				} else {
+					Integer bestSize = targetWidth != null ? bestImage.getWidth() : bestImage.getHeight();
+					Integer currentSize = targetWidth != null ? i.getWidth() : i.getHeight();
+					if ((bestSize < targetSize && currentSize > bestSize) // on préfère une plus grande qu'une plus petite
+						|| (bestSize > targetSize && currentSize > targetSize && currentSize < bestSize)) // mais la + petite des + grandes
+						bestImage = i;
+				}
+			}
+
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				images = new ArrayList<>(1);
+				images.add(getScaledImageWithMaxDimensions(bestImage, targetWidth, targetHeight));
+				ICOEncoder.write(images, outputStream);
+				return outputStream.toByteArray();
+			}
+		}
 	}
 
 	/** Cette méthode crée une miniature du fichier passé en paramètre en conservant les proportions d'origine */

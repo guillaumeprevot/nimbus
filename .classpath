@@ -6,6 +6,7 @@
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.28.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.8.5.jar"/>
+	<classpathentry kind="lib" path="lib/itextpdf-5.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-client-9.4.8.v20171121.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-http-9.4.8.v20171121.jar"/>
@@ -16,6 +17,7 @@
 	<classpathentry kind="lib" path="lib/jetty-util-9.4.8.v20171121.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-webapp-9.4.8.v20171121.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-xml-9.4.8.v20171121.jar"/>
+	<classpathentry kind="lib" path="lib/metadata-extractor-2.11.0.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb-driver-3.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
@@ -27,5 +29,14 @@
 	<classpathentry kind="lib" path="lib/websocket-common-9.4.8.v20171121.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-server-9.4.8.v20171121.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-servlet-9.4.8.v20171121.jar"/>
+	<classpathentry kind="lib" path="lib/xmpcore-5.1.3.jar"/>
+	<classpathentry kind="lib" path="lib/image4j/image4j-0.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/javazoom/jl1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/javazoom/jogg-0.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/javazoom/jorbis-0.0.15.jar"/>
+	<classpathentry kind="lib" path="lib/javazoom/mp3spi1.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/javazoom/tritonus_share.jar"/>
+	<classpathentry kind="lib" path="lib/javazoom/vorbisspi1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/jave/jave-1.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

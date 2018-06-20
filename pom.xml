@@ -83,6 +83,26 @@
 			<version>3.7.1</version>
 		</dependency>
 		<!--
+			5.5.13
+			http://developers.itextpdf.com/itext-java
+			https://www.mvnrepository.com/artifact/com.itextpdf/itextpdf
+		-->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>RELEASE</version>
+		</dependency>
+		<!--
+			2.11.0
+			https://github.com/drewnoakes/metadata-extractor/releases
+			https://www.mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
+		-->
+		<dependency>
+			<groupId>com.drewnoakes</groupId>
+			<artifactId>metadata-extractor</artifactId>
+			<version>RELEASE</version>
+		</dependency>
+		<!--
 			2.6
 			https://commons.apache.org/proper/commons-io/
 			https://www.mvnrepository.com/artifact/commons-io/commons-io
@@ -92,6 +112,13 @@
 			<artifactId>commons-io</artifactId>
 			<version>RELEASE</version>
 		</dependency>
+		<!--
+		<dependency>
+			<groupId>org.jclarion</groupId>
+			<artifactId>image4j</artifactId>
+			<version>0.7</version>0.7.1 dispo mais pas par Maven
+		</dependency>
+		-->
 	</dependencies>
 
 	<build>
