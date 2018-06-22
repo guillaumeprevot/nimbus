@@ -291,9 +291,76 @@ function fillTests(add) {
 		return $.get("/trash/count").then((result) => assertEquals(result, "0"));
 	});
 
-	add("Vérifier que seul un fichier 'fichier.txt' reste dans le cloud", function() {
-		return $.get("/items/list?recursive=true").then((result) => assertArray(result, 1, (first) => first.name === "fichier.txt"));
+	add("Créer un dossier 'Dossier3' avec id 3", function() {
+		return $.post("/items/add/folder?name=Dossier3").then((result) => assertEquals(result, "3"));
 	});
+	add("Créer un dossier 'Dossier4' avec id 4", function() {
+		return $.post("/items/add/folder?name=Dossier4").then((result) => assertEquals(result, "4"));
+	});
+	add("Créer un sous-dossier 'Dossier3/Dossier5' avec id 5", function() {
+		return $.post("/items/add/folder?name=Dossier5&parentId=3").then((result) => assertEquals(result, "5"));
+	});
+	add("Vérifier que le sous-dossier 'Dossier3/Dossier5' n'est pas visible à la racine", function() {
+		return $.get("/items/exists?names[]=Dossier5").then((result) => assertEquals(result, "false"));
+	});
+	add("Vérifier que le sous-dossier 'Dossier3/Dossier5' est visible par son parent", function() {
+		return $.get("/items/exists?names[]=Dossier5&parentId=3").then((result) => assertEquals(result, "true"));
+	});
+	add("Récupérer les infos du dossier 'Dossier3'", function() {
+		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.name === "Dossier3" && r.id === 3 ));
+	});
+	add("Récupérer les infos du dossier 'Dossier5' avec chemin '3,'", function() {
+		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.name === "Dossier5" && r.path === "3," ));
+	});
+	
+	add("Vérifier que la racine contient 'Dossier3', 'Dossier4' et 'fichier.txt'", function() {
+		return $.get("/items/list?sortBy=name&sortAscending=true").then((result) => assertArray(result, 3, (first) => first.name === "Dossier3"));
+	});
+	add("Vérifier que récursivement, on trouve aussi 'Dossier5'", function() {
+		return $.get("/items/list?sortBy=name&sortAscending=true&recursive=true").then((result) => assertArray(result, 4, (first) => result[2].name === "Dossier5"));
+	});
+	add("Obtenir une erreur si on veut dupliquer un élément qui n'existe pas (ou plus)", function() {
+		return shoudBeAnError($.post("/items/duplicate?itemId=6"));
+	});
+	add("Réussir par contre à copier le sous-dossier 'Dossier5' avec id 6", function() {
+		return $.post("/items/duplicate?itemId=5").then((result) => assertEquals(result, "6"));
+	});
+
+	add("Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {
+		return $.post("/items/rename?itemId=6&name=Dossier6&tags=tag1,tag2").then(assertEmpty);
+	});
+	add("Renommer le fichier 'fichier.txt' en 'file.txt' avec ajout de tags 'tag2' et 'tag3'", function() {
+		return $.post("/items/rename?itemId=0&name=file.txt&tags=tag2,tag3").then(assertEmpty);
+	});
+	add("Rechercher tous les tags utilisés (tag1, tag2 et tag3)", function() {
+		return $.get("/items/tags?term=*").then((result) => assertArray(result, 3, (t) => t.label === "tag1" && t.value === "tag1"));
+	});
+	add("Rechercher les tags contenant 'g2' (uniquement tag2)", function() {
+		return $.get("/items/tags?term=g2").then((result) => assertArray(result, 1, (t) => t.label === "tag2" && t.value === "tag2"));
+	});
+
+	add("Télécharger 'file.txt' via un zip appelé 'cloud.zip'", function() {
+		return $.get("/items/zip?itemIds=0").then((content, status, jqHR) => assertStream(content, status, jqHR, "application/zip", "cloud.zip"));
+	});
+	add("Déplacer 'Dossier6' et 'file.txt' dans 'Dossier5'", function() {
+		return $.post("/items/move?itemIds=6,0&targetParentId=5").then(assertEmpty);
+	});
+	add("Vérifier que 'Dossier3' contient 3 éléments récursivement dont 'Dossier5'", function() {
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertArray(result, 3, (e) => e.id === 5));
+	});
+	add("et que le deuxième élément est le sous-dossier 'Dossier6'", function() {
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertObject(result[1], (e) => e.name === 'Dossier6' && e.path === '3,5,'));
+	});
+	add("et que le dernier élément est le sous-fichier 'file.txt'", function() {
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertObject(result[2], (e) => e.name === 'file.txt' && e.path === '3,5,'));
+	});
+	add("Déplacer cette fois 'Dossier6' et 'file.txt' vers la racine", function() {
+		return $.post("/items/move?itemIds=6,0").then(assertEmpty);
+	});
+	add("Vérifier que 'Dossier3' ne contient plus que 'Dossier5'", function() {
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertArray(result, 1, (e) => e.id === 5));
+	});
+
 	add("Déconnecter ramène sur la page de connexion", function() {
 		return $.get("/logout").then(assertLoginPage);
 	});

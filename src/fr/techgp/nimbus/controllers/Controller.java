@@ -77,7 +77,14 @@ public class Controller {
 
 		Spark.before("/items/*", Filters.filterAuthenticated);
 		Spark.get("/items/list", Items.list);
+		Spark.get("/items/exists", Items.exists);
 		Spark.get("/items/info/:itemId", Items.info);
+		Spark.get("/items/tags", Items.tags);
+		Spark.post("/items/add/folder", Items.addFolder);
+		Spark.post("/items/duplicate", Items.duplicate);
+		Spark.post("/items/rename", Items.rename);
+		Spark.post("/items/move", Items.move);
+		Spark.get("/items/zip", Items.zip);
 
 		Spark.before("/trash.html", Filters.filterAuthenticatedOrRedirect);
 		Spark.before("/trash/*", Filters.filterAuthenticated);
