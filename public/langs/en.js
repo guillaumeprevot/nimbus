@@ -47,4 +47,35 @@ NIMBUS.lang = {
 	UsersDeleteConfirmationMessage: "Delete user ?",
 	UsersDeleteCancelButton: "Cancel",
 	UsersDeleteValidateButton: "Delete",
+
+	TrashTitle: "Trash",
+	TrashNameColumn: "Name",
+	TrashLengthColumn: "Length",
+	TrashCreateDateColumn: "Created on",
+	TrashDeleteDateColumn: "Deleted on",
+	TrashPathColumn: "Path",
+	TrashBackButton: "Back",
+	TrashEraseButton: "Delete permanently",
+	TrashRestoreButton: "Restore",
+	TrashClearButton: "Empty trash",
+
+	CommonFileLength0: "Empty",
+	CommonFileLengthB: "{0} bytes",
+	CommonFileLengthKB: "{0} KB",
+	CommonFileLengthMB: "{0} MB",
+	CommonFileLengthGB: "{0} GB",
+	CommonFolder: "Folder",
+
+	formatDate: function(value) {
+		var d = value.getDate(), m = value.getMonth() + 1, y = value.getFullYear();
+		return (m < 10 ? "0" : "") + m + "/" + (d < 10 ? "0" : "") + d + "/" + y;
+	},
+	formatTime: function(value) {
+		var h = value.getHours(), m = value.getMinutes(), s = value.getSeconds();
+		return (h < 12 ? h : (h - 12)) + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s + (h < 12 ? " AM" : " PM");
+	},
+	formatDatetime: function(value) {
+		var time = NIMBUS.lang.formatTime(value);
+		return NIMBUS.lang.formatDate(value) + " " + time.substring(0, time.length - 6) + time.substr(-3); 
+	},
 };

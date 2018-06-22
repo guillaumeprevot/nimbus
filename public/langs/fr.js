@@ -47,4 +47,35 @@ NIMBUS.lang = {
 	UsersDeleteConfirmationMessage: "Supprimer l'utilisateur ?",
 	UsersDeleteCancelButton: "Annuler",
 	UsersDeleteValidateButton: "Supprimer",
+
+	TrashTitle: "Corbeille",
+	TrashNameColumn: "Nom",
+	TrashLengthColumn: "Taille",
+	TrashCreateDateColumn: "Créé le",
+	TrashDeleteDateColumn: "Supprimé le",
+	TrashPathColumn: "Emplacement",
+	TrashBackButton: "Retour",
+	TrashEraseButton: "Supprimer définitivement",
+	TrashRestoreButton: "Restaurer",
+	TrashClearButton: "Vider la corbeille",
+
+	CommonFileLength0: "Vide",
+	CommonFileLengthB: "{0} octets",
+	CommonFileLengthKB: "{0} Ko",
+	CommonFileLengthMB: "{0} Mo",
+	CommonFileLengthGB: "{0} Go",
+	CommonFolder: "Dossier",
+
+	formatDate: function(value) {
+		var d = value.getDate(), m = value.getMonth() + 1, y = value.getFullYear();
+		return (d < 10 ? "0" : "") + d + "/" + (m < 10 ? "0" : "") + m + "/" + y;
+	},
+	formatTime: function(value) {
+		var h = value.getHours(), m = value.getMinutes(), s = value.getSeconds();
+		return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+	},
+	formatDatetime: function(value) {
+		return NIMBUS.lang.formatDate(value) + " " + NIMBUS.lang.formatTime(value).substr(0,5); 
+	},
+
 };

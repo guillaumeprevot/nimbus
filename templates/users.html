@@ -7,10 +7,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="/favicon.ico" rel="shortcut icon" />
-<link rel="stylesheet" href="/theme/stylesheet.css" />
-<link rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
-<link rel="stylesheet" href="/nimbus.css" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/theme/stylesheet.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
@@ -20,7 +20,7 @@
 <body class="nimbus-hidden">
 
 <table id="users" class="table" style="width: 700px; max-width: 100%; margin: 40px auto 0;">
-	<thead>
+	<thead class="thead-light">
 		<tr>
 			<th data-translate="text" style="text-align: center; ">UsersAdminColumn</th>
 			<th data-translate="text">UsersLoginColumn</th>
@@ -110,6 +110,7 @@
 </div>
 
 <script>
+//Initialiser la page
 NIMBUS.init(function() {
 	// Charger et afficher la liste des utilisateurs 
 	$.get('/user/list').then(execute);

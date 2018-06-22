@@ -39,6 +39,8 @@ public class Item {
 	public Date createDate;
 	/** Date de dernière modification de l'élement */
 	public Date updateDate;
+	/** Date de suppression de l'élement (mis à la corbeille) */
+	public Date deleteDate;
 	/** Liste des tags, séparés par des virgules */
 	public List<String> tags;
 	/** Contenu de l'élément spécifique à la facet (largeur et hauteur d'une image par exemple) */
@@ -57,6 +59,16 @@ public class Item {
 	}
 
 	public static final void delete(Item item) {
+		item.deleteDate = new Date();
+		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$set", new Document("deleteDate", item.deleteDate)));
+	}
+
+	public static final void restore(Item item) {
+		item.deleteDate = null;
+		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$unset", new Document("deleteDate", "")));
+	}
+
+	public static final void erase(Item item) {
 		getWriteCollection().deleteOne(Filters.eq("_id", item.id));
 	}
 
@@ -80,6 +92,7 @@ public class Item {
 		child.name = name;
 		child.createDate = new Date();
 		child.updateDate = new Date();
+		child.deleteDate = null;
 		child.tags = null;
 		child.content = new Document();
 		if (child.folder)
@@ -104,6 +117,7 @@ public class Item {
 		duplicate.name = item.name;
 		duplicate.createDate = new Date();
 		duplicate.updateDate = new Date();
+		duplicate.deleteDate = null;
 		duplicate.tags = item.tags == null ? null : new ArrayList<>(item.tags);
 		duplicate.content = Document.parse(item.content.toJson()); // ensure deep metadatas copy
 		if (duplicate.folder)
@@ -157,11 +171,12 @@ public class Item {
 	 * @param searchBy nom de la propriété dans laquelle chercher (par exemple content.author), on null pour le comportement par défaut (name + tags)
 	 * @param searchText le texte recherché, ou vide par défaut
 	 * @param folders true/false/null pour chercher un dossier, un fichier ou peu importe
+	 * @param deleted true/false/null pour chercher un élément supprimé, un élément non supprimé ou peu importe
 	 * @param extensions liste des extensions, séparées par "," ou null pour ne pas limiter la recherche
 	 * @return la liste des éléments correspondant à la rechercher
 	 */
 	public static final List<Item> findAll(String userLogin, Long parentId, boolean recursive, String sortBy,
-			boolean sortAscending, String searchBy, String searchText, Boolean folders, String extensions) {
+			boolean sortAscending, String searchBy, String searchText, Boolean folders, Boolean deleted, String extensions) {
 		// Filtres de la recherche
 		List<Bson> filters = new ArrayList<>(3);
 		filters.add(Filters.eq("userLogin", userLogin));
@@ -191,6 +206,10 @@ public class Item {
 		if (folders != null)
 			filters.add(Filters.eq("folder", folders.booleanValue()));
 
+		// Eléments supprimés, non supprimés ou tout
+		if (deleted != null)
+			filters.add(Filters.exists("deleteDate", deleted.booleanValue()));
+
 		// Extensions recherchées
 		if (StringUtils.isNotBlank(extensions))
 			filters.add(Filters.or(Filters.eq("folder", true), Filters.regex("name", ".*\\.(" + extensions.replace(",", "|") + ")", "i")));
@@ -214,6 +233,10 @@ public class Item {
 
 	public static final int count(String userLogin, Long parentId) {
 		return (int) getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId));
+	}
+
+	public static final int trashCount(String userLogin) {
+		return (int) getCollection().count(Filters.and(Filters.eq("userLogin", userLogin), Filters.exists("deleteDate")));
 	}
 
 	public static final boolean hasItem(String userLogin, Long itemId) {
@@ -256,6 +279,7 @@ public class Item {
 		item.tags = (List<String>) document.get("tags");
 		item.createDate = document.getDate("createDate");
 		item.updateDate = document.getDate("updateDate");
+		item.deleteDate = document.getDate("deleteDate");
 		item.content = (Document) document.get("content");
 		check(item);
 		return item;
@@ -263,7 +287,7 @@ public class Item {
 
 	private static final Document write(Item item) {
 		check(item);
-		return new Document()
+		Document d = new Document()
 			.append("_id", item.id)
 			.append("parentId", item.parentId)
 			.append("path", item.path)
@@ -274,6 +298,9 @@ public class Item {
 			.append("createDate", item.createDate)
 			.append("updateDate", item.updateDate)
 			.append("content", item.content);
+		if (item.deleteDate != null)
+			d.append("deleteDate", item.deleteDate);
+		return d;
 	}
 
 	private static final void check(Item item) {

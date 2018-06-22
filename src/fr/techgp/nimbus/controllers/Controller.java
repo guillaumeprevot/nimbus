@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -75,7 +76,17 @@ public class Controller {
 		Spark.get("/files/download/:itemId", Files.download);
 
 		Spark.before("/items/*", Filters.filterAuthenticated);
+		Spark.get("/items/list", Items.list);
 		Spark.get("/items/info/:itemId", Items.info);
+
+		Spark.before("/trash.html", Filters.filterAuthenticatedOrRedirect);
+		Spark.before("/trash/*", Filters.filterAuthenticated);
+		Spark.get("/trash.html", Trash.page);
+		Spark.get("/trash/count", Trash.count);
+		Spark.get("/trash/items", Trash.items);
+		Spark.post("/trash/delete", Trash.delete);
+		Spark.post("/trash/restore", Trash.restore);
+		Spark.post("/trash/erase", Trash.erase);
 
 		// Accès à la page de test en mode DEV uniquement
 		Spark.get("/test.html", (request, response) -> {
@@ -155,6 +166,34 @@ public class Controller {
 			return SparkUtils.haltBadRequest();
 		// Laisser l'appelant "consommer" l'élément
 		return consumer.apply(item);
+	}
+
+	/**
+	 * Cette méthode récupère les éléments demandés "itemIds" de l'utilisateur connecté dans "request".
+	 * Chaque élément est "consommé" de manière personnalisée par "consumer".
+	 *
+	 * @param request la requête pour savoir qui est connecté (via "userLogin")
+	 * @param itemIds les ids des éléments demandés, séparés par ","
+	 * @param consumer le traitement à effectuer sur chaque élément
+	 * @return badRequest en cas de problème ou "" si tous les éléments ont été consommés sans erreur
+	 */
+	protected static final Object actionOnMultipleItems(Request request, String itemIds, Consumer<Item> consumer) {
+		if (itemIds != null && itemIds.trim().length() > 0) {
+			// Récupérer l'utilisateur connecté
+			String userLogin = request.session().attribute("userLogin");
+			// Récupérer les identifiants des éléments demandés
+			String[] ids = itemIds.split(",");
+			for (String itemIdString : ids) {
+				// Récupérer l'élément de chaque identifiant
+				Item item = Item.findById(Long.valueOf(itemIdString));
+				// Vérifier les droits d'accès
+				if (item == null || !item.userLogin.equals(userLogin))
+					return SparkUtils.haltBadRequest();
+				// Laisser l'appelant "consommer" l'élément
+				consumer.accept(item);
+			}
+		}
+		return "";
 	}
 
 	/**

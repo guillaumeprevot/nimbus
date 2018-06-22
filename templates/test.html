@@ -46,10 +46,14 @@ function assertContains(result, text) {
 		return "OK";
 	return $.Deferred().reject("'" + result + "' devrait contenir '" + text + "'");
 }
-function assertNotContains(result, text) {
-	if (result.indexOf(text) === -1)
-		return "OK";
-	return $.Deferred().reject("'" + result + "' ne devrait pas contenir '" + text + "'");
+function assertString(result, shouldContain, shouldNotContain) {
+	if (typeof result !== 'string')
+		return $.Deferred().reject("'" + result + "' devrait être un texte");
+	if (shouldContain && result.indexOf(shouldContain) === -1)
+		return $.Deferred().reject("'" + result + "' devrait contenir '" + shouldContain + "'");
+	if (shouldNotContain && result.indexOf(shouldNotContain) >= 0)
+		return $.Deferred().reject("'" + result + "' ne devrait pas contenir '" + shouldNotContain + "'");
+	return "OK";
 }
 function assertObject(result, check) {
 	if (typeof result !== 'object')
@@ -71,6 +75,9 @@ function assertArray(result, length, checkFirst) {
 	}
 	return "OK";
 }
+function assertLoginPage(result) {
+	return assertContains(result, "<form action=\"/login.html\"");
+}
 function assertStream(content, status, jqHR, mimetype, filename, length) {
 	var ct = jqHR.getResponseHeader("Content-Type");
 	var cd = jqHR.getResponseHeader("Content-Disposition");
@@ -79,12 +86,9 @@ function assertStream(content, status, jqHR, mimetype, filename, length) {
 		return $.Deferred().reject("'Content-Type' vaut '" + ct + "' mais devrait être '" + mimetype + "'");
 	if (filename && (!cd || cd.indexOf("; filename=\"" + filename + "\"") === -1))
 		return $.Deferred().reject("'Content-Disposition' vaut '" + cd + "' mais le fichier devrait être '" + filename + "'");
-	if (typeof length === 'number' && cl !== length.toString())
+	if (typeof length === "number" && cl !== length.toString())
 		return $.Deferred().reject("'Content-Length' vaut '" + cl + "' mais la longueur devrait être '" + length + "'");
 	return "OK";
-}
-function assertLoginPage(ajax) {
-	return ajax.then((result) => assertContains(result, "<form action=\"/login.html\""));
 }
 function assertRange(url, header, value) {
 	return $.ajax({
@@ -107,7 +111,7 @@ function shouldUpload(content, mimetype, filename, id) {
 		method: "POST",
 		url: "/files/upload",
 		data: formData,
-		dataType: 'json',
+		dataType: "json",
 		contentType: false,
 		processData: false,
 		cache: false,
@@ -121,17 +125,17 @@ function shouldUpload(content, mimetype, filename, id) {
 	
 function fillTests(add) {
 	add("Utiliser par défaut le thème Bootstrap", function() {
-		return $.get("/theme/stylesheet.css").then((result) => assertContains(result, "https://getbootstrap.com/") && assertNotContains(result, "https://bootswatch.com"));
+		return $.get("/theme/stylesheet.css").then((result) => assertString(result, "https://getbootstrap.com/", "https://bootswatch.com"));
 	});
 	add("Personnaliser le thème", function() {
-		return $.get("/theme/update?theme=materia").then(assertEmpty);
+		return $.get("/theme/update?theme=flatly").then(assertEmpty);
 	});
 	add("Utiliser ensuite le thème personnalisé", function() {
 		return $.get("/theme/stylesheet.css").then((result) => assertContains(result, "https://bootswatch.com"));
 	});
 
 	add("Bloquer l'accès à la page principale sans identification", function() {
-		return assertLoginPage($.get("/main.html"));
+		return $.get("/main.html").then(assertLoginPage);
 	});
 	add("Créer un premier compte quand la base est vide", function() {
 		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
@@ -141,7 +145,7 @@ function fillTests(add) {
 	});
 
 	add("Créer un utilisateur", function() {
-		return $.post("/user/insert/u?password=u").then((result) => assertObject(result, (o) => o.login === 'u' && !o.name && !o.admin && !o.quota && !o.password));
+		return $.post("/user/insert/u?password=u").then((result) => assertObject(result, (o) => o.login === "u" && !o.name && !o.admin && !o.quota && !o.password));
 	});
 	add("Bloquer la création si doublon de login", function() {
 		return shoudBeAnError($.post("/user/insert/u?password=u"));
@@ -154,7 +158,7 @@ function fillTests(add) {
 	});
 
 	add("Modifier un utilisateur", function() {
-		return $.post("/user/update/u?name=Utilisateur&password=u&quota=3&admin=false").then((result) => assertObject(result, (o) => o.login === 'u' && o.name === 'Utilisateur' && !o.admin && o.quota === 3 && !o.password));
+		return $.post("/user/update/u?name=Utilisateur&password=u&quota=3&admin=false").then((result) => assertObject(result, (o) => o.login === "u" && o.name === "Utilisateur" && !o.admin && o.quota === 3 && !o.password));
 	});
 	add("Bloquer la modification si login absent", function() {
 		return shoudBeAnError($.post("/user/update/?name=Utilisateur&password=u&quota=3&admin=false"));
@@ -170,14 +174,14 @@ function fillTests(add) {
 		return $.post("/login.html?login=u&password=u").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
 	});
 	add("Bloquer l'accès à la gestion des utilisateurs aux non admins", function() {
-		return assertLoginPage($.get("/users.html"));
+		return $.get("/users.html").then(assertLoginPage);
 	});
 	add("Se reconnecter en administrateur", function() {
 		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
 	});
 
 	add("Supprimer un utilisateur", function() {
-		return $.post("/user/delete/u").then((result) => assertObject(result, (o) => o.login === 'u'));
+		return $.post("/user/delete/u").then((result) => assertObject(result, (o) => o.login === "u"));
 	});
 	add("Bloquer la suppression si login absent", function() {
 		return shoudBeAnError($.post("/user/delete/"));
@@ -259,11 +263,42 @@ function fillTests(add) {
 		return assertRange("/files/stream/1", "3-6", totoTxtContent.substring(3,7));
 	});
 
+	add("Vérifier que la corbeille est vide", function() {
+		return $.get("/trash/count").then((result) => assertEquals(result, "0"));
+	});
+	add("Supprimer (corbeille) le fichier 'fichier.txt'", function() {
+		return $.post("/trash/delete?itemIds=0").then(assertEmpty);
+	});
+	add("Vérifier que la corbeille contient 1 élément", function() {
+		return $.get("/trash/count").then((result) => assertEquals(result, "1"));
+	});
+	add("Supprimer (corbeille) les fichiers 'toto.txt' et 'favicon.png'", function() {
+		return $.post("/trash/delete?itemIds=1,2").then(assertEmpty);
+	});
+	add("Vérifier que la corbeille contient 3 éléments", function() {
+		return $.get("/trash/count").then((result) => assertEquals(result, "3"));
+	});
+	add("Restaurer le fichier 'fichier.txt'", function() {
+		return $.post("/trash/restore?itemIds=0").then(assertEmpty);
+	});
+	add("Vérifier le contenu de la corbeille", function() {
+		return $.get("/trash/items").then((result) => assertArray(result, 2, (first) => first.name === "favicon.png" && result[1].name === "toto.txt"));
+	});
+	add("Supprimer (définitivement) le contenu de la corbeille", function() {
+		return $.post("/trash/erase?itemIds=1,2").then(assertEmpty);
+	});
+	add("Vérifier que la corbeille est à nouveau vide", function() {
+		return $.get("/trash/count").then((result) => assertEquals(result, "0"));
+	});
+
+	add("Vérifier que seul un fichier 'fichier.txt' reste dans le cloud", function() {
+		return $.get("/items/list?recursive=true").then((result) => assertArray(result, 1, (first) => first.name === "fichier.txt"));
+	});
 	add("Déconnecter ramène sur la page de connexion", function() {
-		return assertLoginPage($.get("/logout"));
+		return $.get("/logout").then(assertLoginPage);
 	});
 	add("Bloquer à nouveau l'accès à la page principale une fois déconnecté", function() {
-		return assertLoginPage($.get("/main.html"));
+		return $.get("/main.html").then(assertLoginPage);
 	});
 
 }

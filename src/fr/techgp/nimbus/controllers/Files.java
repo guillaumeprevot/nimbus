@@ -250,7 +250,7 @@ public class Files extends Controller {
 	 * @param item l'élément représentant un fichier dans le cloud
 	 * @return le fichier associé à l'élément sur le disque
 	 */
-	private static final File getFile(Item item) {
+	protected static final File getFile(Item item) {
 		// Les fichiers sont répartis dans 256 dossiers. A partir de l'id du fichier, on en déduit son dossier
 		long folder = item.id & 0xFF;
 		// On récupère le dossier spécifié pour l'utilisateur

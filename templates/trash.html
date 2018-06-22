@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title data-translate="text">TrashTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/theme/stylesheet.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+
+<table id="items" class="table" style="width: 800px; max-width: 100%; margin: 40px auto 0;">
+	<thead class="thead-light">
+		<tr>
+			<th>
+				<input id="select-all" type="checkbox" class="nimbus-hidden" />
+				<span data-translate="text">TrashNameColumn</span>
+			</th>
+			<th data-translate="text" style="text-align: right; ">TrashLengthColumn</th>
+			<th data-translate="text">TrashCreateDateColumn</th>
+			<th data-translate="text">TrashDeleteDateColumn</th>
+			<th data-translate="text">TrashPathColumn</th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="5">
+				<a class="btn btn-link" href="/main.html" style="float: left; ">
+					<i class="material-icons">chevron_left</i>
+					<span data-translate="text">TrashBackButton</span>
+				</a>
+				<button class="btn btn-outline-danger nimbus-hidden" id="clear-button" style="float: right; ">
+					<i class="material-icons">delete_sweep</i>
+					<span data-translate="text">TrashClearButton</span>
+				</button>
+				<button class="btn btn-outline-danger nimbus-hidden" id="erase-button" style="float: right; margin-right: 10px; ">
+					<i class="material-icons">delete_forever</i>
+					<span data-translate="text">TrashEraseButton</span>
+				</button>
+				<button class="btn btn-primary nimbus-hidden" id="restore-button" style="float: right; margin-right: 10px; ">
+					<i class="material-icons">restore_from_trash</i>
+					<span data-translate="text">TrashRestoreButton</span>
+				</button>
+			</td>
+		</tr>
+	</tfoot>
+</table>
+
+<script>
+//Initialiser la page
+NIMBUS.init(function() {
+	execute();
+});
+
+function processSelection(url) {
+	var rows = $('#items > tbody > tr.table-active');
+	var ids = rows.get().map(function(tr) {
+		return tr.getAttribute('data-id');
+	}).join(',');
+
+	$.post(url, {
+		itemIds: ids
+	}).then(function() {
+		rows.remove();
+		$('#select-all').prop('check', false);
+		$('#restore-button,#erase-button').addClass('nimbus-hidden');
+		if (document.querySelector('#items > tbody > tr') === null)
+			$('#select-all,#clear-button').addClass('nimbus-hidden');
+	});
+}
+
+function execute() {
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+
+	// Chargement du contenu de la corbeille
+	$.get('/trash/items').then(function(items) {
+		$('#items > tbody').append(items.map(function(item) {
+			return $('<tr />').attr('data-id', item.id.toString())
+				.append($('<td />').text(item.name))
+				.append($('<td style="text-align: right; "/>').text(NIMBUS.formatLength(item.length)))
+				.append($('<td />').text(NIMBUS.formatDatetime(item.createDate)))
+				.append($('<td />').text(NIMBUS.formatDatetime(item.deleteDate)))
+				.append($('<td />').text(item.path))
+				[0];
+		}));
+		if (items.length > 0)
+			$('#select-all,#clear-button').removeClass('nimbus-hidden');
+	});
+
+	// Sélection / désélection
+	$('#items > tbody').on('click', 'tr', function(event) {
+		var tr = $(event.target).closest('tr').toggleClass('table-active');
+		var hasSelection = tr.is('.table-active') || tr.siblings('.table-active').length > 0;
+		$('#restore-button,#erase-button').toggleClass('nimbus-hidden', !hasSelection);
+	});
+
+	// Sélection / désélection totale
+	$('#select-all').on('change', function(event) {
+		$('#items > tbody > tr').toggleClass('table-active', event.target.checked);
+		$('#restore-button,#erase-button').toggleClass('nimbus-hidden', !event.target.checked);
+	});
+
+	// Préparation du bouton qui vide la corbeille
+	$('#clear-button').click(function() {
+		var ids = $('#items > tbody > tr').get().map(function(tr) {
+			return tr.getAttribute('data-id');
+		}).join(',');
+
+		$.post('/trash/erase', {
+			itemIds: ids
+		}).then(function() {
+			$('#items > tbody').empty();
+			$('#select-all,#clear-button,#restore-button,#erase-button').addClass('nimbus-hidden');
+		})
+	});
+
+	// Préparation du bouton de suppression définitive
+	$('#erase-button').click(function() {
+		processSelection('/trash/erase')
+	});
+
+	// Préparation du bouton de restauration
+	$('#restore-button').click(function() {
+		processSelection('/trash/restore')
+	});
+}
+</script>
+
+	</body>
+</html>

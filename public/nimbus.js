@@ -11,7 +11,7 @@ var NIMBUS = (function() {
 			text = NIMBUS.format(text, params);
 		}
 		return text;
-	}
+	};
 
 	// (text) ou (text, p1, p2, ...) ou (text, [p1, p2, ...])
 	NIMBUS.format = function(text) {
@@ -22,7 +22,30 @@ var NIMBUS = (function() {
 			}
 		}
 		return text;
-	},
+	};
+
+	// Formatte une date exprimée en milliseconds depuis epoch avec partie date et partie heure
+	NIMBUS.formatDatetime = function(ms) {
+		return NIMBUS.lang.formatDatetime(new Date(ms));
+	};
+
+	// Formatte une taille de fichier exprimée en octets en un texte "lisible"
+	NIMBUS.formatLength = function(length) {
+		if (typeof length !== 'number')
+			return NIMBUS.translate('CommonFolder');
+		if (length === 0)
+			return NIMBUS.translate('CommonFileLength0');
+		if (length < 1024)
+			return NIMBUS.translate('CommonFileLengthB', length);
+		length = length / 1024;
+		if (length < 1024)
+			return NIMBUS.translate('CommonFileLengthKB', length.toFixed(1));
+		length = length / 1024;
+		if (length < 1024)
+			return NIMBUS.translate('CommonFileLengthMB', length.toFixed(1));
+		length = length / 1024;
+		return NIMBUS.translate('CommonFileLengthGB', length.toFixed(1));
+	};
 
 	// Function d'initialisation de la page
 	NIMBUS.init = function(callback) {
@@ -54,7 +77,7 @@ var NIMBUS = (function() {
 			// Finalisation spécifique à la page en cours
 			callback();
 		});
-	}
+	};
 
 	return NIMBUS;
 })();
