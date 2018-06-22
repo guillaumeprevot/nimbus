@@ -120,12 +120,12 @@ public class Trash extends Controller {
 				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, null, null, null, null, null);
 				for (Item child : children) {
 					if (! child.folder)
-						Files.getFile(child).delete();
+						Controller.getFile(child).delete();
 					Item.erase(child);
 				}
 			} else {
 				// Pour les fichiers, supprimer le fichier associé
-				Files.getFile(item).delete();
+				Controller.getFile(item).delete();
 			}
 			// Supprimer définitivement en base
 			Item.erase(item);

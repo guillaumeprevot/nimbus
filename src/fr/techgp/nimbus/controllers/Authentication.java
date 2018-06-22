@@ -18,7 +18,6 @@ public class Authentication extends Controller {
 	 * ($urlToLoad, $logout) => HTML
 	 * 
 	 * @see login.html
-	 * @see Filters
 	 */
 	public static final Route page = (request, response) -> {
 		String urlToLoad = request.session().attribute("urlToLoad");

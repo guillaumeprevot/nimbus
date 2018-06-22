@@ -245,25 +245,6 @@ public class Files extends Controller {
 	}
 
 	/**
-	 * Cette méthode retourne le fichier associé à l'élément "item".
-	 *
-	 * @param item l'élément représentant un fichier dans le cloud
-	 * @return le fichier associé à l'élément sur le disque
-	 */
-	protected static final File getFile(Item item) {
-		// Les fichiers sont répartis dans 256 dossiers. A partir de l'id du fichier, on en déduit son dossier
-		long folder = item.id & 0xFF;
-		// On récupère le dossier spécifié pour l'utilisateur
-		File baseFolder = new File(configuration.getStorageFolder(), item.userLogin);
-		// Au final, on retourne le fichier "itemId" dans l'un des 256 dossiers du répertoire utilisateur
-		File result = new File(baseFolder, Long.toString(folder, 16) + File.separator + item.id.toString());
-		// S'assurer que les dossiers existent
-		result.getParentFile().mkdirs();
-		// OK, on est prêt
-		return result;
-	}
-
-	/**
 	 * Cette méthode met à jour les méta-données de l'élément "item".
 	 *
 	 * @param item l'élément représentant un fichier dans le cloud
