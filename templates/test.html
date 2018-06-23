@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
-<link type="text/css" rel="stylesheet" href="/theme/stylesheet.css" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 </head>
 <body>
@@ -46,13 +46,17 @@ function assertContains(result, text) {
 		return "OK";
 	return $.Deferred().reject("'" + result + "' devrait contenir '" + text + "'");
 }
-function assertString(result, shouldContain, shouldNotContain) {
+function assertString(result/*, text1, included?, text2, included?, ...*/) {
 	if (typeof result !== 'string')
 		return $.Deferred().reject("'" + result + "' devrait être un texte");
-	if (shouldContain && result.indexOf(shouldContain) === -1)
-		return $.Deferred().reject("'" + result + "' devrait contenir '" + shouldContain + "'");
-	if (shouldNotContain && result.indexOf(shouldNotContain) >= 0)
-		return $.Deferred().reject("'" + result + "' ne devrait pas contenir '" + shouldNotContain + "'");
+	var n = arguments.length;
+	for (var i = 1; i < n; i+=2) {
+		var text = arguments[i], includes = arguments[i + 1];
+		if (includes && result.indexOf(text) === -1)
+			return $.Deferred().reject("'" + result + "' devrait contenir '" + text + "'");
+		else if (!includes && result.indexOf(text) >= 0)
+			return $.Deferred().reject("'" + result + "' ne devrait pas contenir '" + text + "'");
+	}
 	return "OK";
 }
 function assertObject(result, check) {
@@ -125,13 +129,13 @@ function shouldUpload(content, mimetype, filename, id) {
 	
 function fillTests(add) {
 	add("Utiliser par défaut le thème Bootstrap", function() {
-		return $.get("/theme/stylesheet.css").then((result) => assertString(result, "https://getbootstrap.com/", "https://bootswatch.com"));
+		return $.get("/preferences/theme.css").then((result) => assertString(result, "https://getbootstrap.com/", true, "https://bootswatch.com", false));
 	});
 	add("Personnaliser le thème", function() {
-		return $.get("/theme/update?theme=flatly").then(assertEmpty);
+		return $.get("/preferences/theme?theme=flatly").then(assertEmpty);
 	});
 	add("Utiliser ensuite le thème personnalisé", function() {
-		return $.get("/theme/stylesheet.css").then((result) => assertContains(result, "https://bootswatch.com"));
+		return $.get("/preferences/theme.css").then((result) => assertContains(result, "https://bootswatch.com"));
 	});
 
 	add("Bloquer l'accès à la page principale sans identification", function() {
@@ -361,13 +365,45 @@ function fillTests(add) {
 		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertArray(result, 1, (e) => e.id === 5));
 	});
 
+	add("Vérifier les préférences par défaut", function() {
+		return $.get("/preferences.html").then((result) => assertString(result,
+				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"\" />", true,
+				"<input id=\"showItemTags\" type=\"checkbox\" checked>", true,
+				"<input id=\"showItemDescription\" type=\"checkbox\" checked>", true,
+				"<input id=\"showItemThumbnail\" type=\"checkbox\" checked>", true,
+				"$('#visibleItemColumns').val([]);", true));
+	});
+	add("Modifier les préférences", function() {
+		return $.post("/preferences/save", {
+			name: 'Administrateur', // changement
+			password: 'aaa', passwordConfirmation: 'aaa', // changement
+			showItemDescription: true, // showItemTags et showItemThumbnail passent à false
+			visibleItemColumns: ['length', 'createDate', 'updateDate'] // changement
+		}).then(assertEmpty);
+	});
+	add("Vérifier que le formulaire est correct", function() {
+		return shoudBeAnError($.post("/preferences/save", {
+			name: 'AAAAAA',
+			password: 'aaa', passwordConfirmation: 'bbb', // erreur
+			showItemDescription: false,
+			visibleItemColumns: ['createDate', 'updateDate']
+		}));
+	});
+	add("Vérifier que les préférences sont bien prises en compte", function() {
+		return $.get("/preferences.html").then((result) => assertString(result,
+				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"Administrateur\" />", true,
+				"<input id=\"showItemTags\" type=\"checkbox\" >", true,
+				"<input id=\"showItemDescription\" type=\"checkbox\" checked>", true,
+				"<input id=\"showItemThumbnail\" type=\"checkbox\" >", true,
+				"$('#visibleItemColumns').val(['length','createDate','updateDate']);", true));
+	});
+
 	add("Déconnecter ramène sur la page de connexion", function() {
 		return $.get("/logout").then(assertLoginPage);
 	});
 	add("Bloquer à nouveau l'accès à la page principale une fois déconnecté", function() {
 		return $.get("/main.html").then(assertLoginPage);
 	});
-
 }
 
 //==========

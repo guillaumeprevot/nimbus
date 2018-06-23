@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title data-translate="text">PreferencesTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+
+<form class="container" style="display: block; width: 800px; max-width: 100%; margin: 0 auto; padding: 40px; ">
+	<div class="row">
+	<fieldset class="col-md-6">
+		<legend data-translate="text">PreferencesPersonnalOptions</legend>
+
+		<div data-translate="text" id="password-error" class="alert alert-danger" role="alert" style="display: none; ">PreferencesErrorPasswordsDoNotMatch</div>
+
+		<div class="form-group">
+			<label data-translate="text" for="name">PreferencesNameLabel</label>
+			<input data-translate="placeholder" id="name" type="text" class="form-control" placeholder="PreferencesNamePlaceholder" value="${name!""}" />
+		</div>
+
+		<div class="form-group">
+			<label data-translate="text" for="password">PreferencesPasswordLabel</label>
+			<input data-translate="placeholder" id="password" type="password" class="form-control" placeholder="PreferencesPasswordPlaceholder" value="" />
+		</div>
+
+		<div class="form-group">
+			<label data-translate="text" for="passwordConfirmation">PreferencesPasswordConfirmationLabel</label>
+			<input data-translate="placeholder" id="passwordConfirmation" type="password" class="form-control " placeholder="PreferencesPasswordConfirmationPlaceholder" value="" />
+		</div>
+	</fieldset>
+
+	<fieldset class="col-md-6">
+		<legend data-translate="text">PreferencesGridOptions</legend>
+
+		<div class="form-group">
+			<label data-translate="text" for="visibleItemColumns">PreferencesVisibleItemColumnsLabel</label>
+			<select id="visibleItemColumns" multiple="multiple" class="form-control">
+				<option data-translate="text" value="folder">CommonPropertyFolder</option>
+				<option data-translate="text" value="length">CommonPropertyLength</option>
+				<option data-translate="text" value="createDate">CommonPropertyCreateDate</option>
+				<option data-translate="text" value="updateDate">CommonPropertyUpdateDate</option>
+				<option data-translate="text" value="tags">CommonPropertyTags</option>
+				<option data-translate="text" value="description">CommonPropertyDescription</option>
+				<option data-translate="text" value="itemCount">CommonPropertyItemCount</option>
+				<option data-translate="text" value="itemCount">CommonPropertyIconURL</option>
+				<option data-translate="text" value="mimetype">CommonPropertyMimetype</option>
+			</select>
+		</div>
+
+		<label data-translate="text">PreferencesGridOtherOptions</label>
+		<div class="checkbox">
+			<label>
+				<input id="showItemTags" type="checkbox" ${showItemTags?then("checked","")}>
+				<span data-translate="text">PreferencesShowItemTagsLabel</span>
+			</label>
+		</div>
+
+		<div class="checkbox">
+			<label>
+				<input id="showItemDescription" type="checkbox" ${showItemDescription?then("checked","")}>
+				<span data-translate="text">PreferencesShowItemDescriptionLabel</span>
+			</label>
+		</div>
+
+		<div class="checkbox">
+			<label>
+				<input id="showItemThumbnail" type="checkbox" ${showItemThumbnail?then("checked","")}>
+				<span data-translate="text">PreferencesShowItemThumbnailLabel</span>
+			</label>
+		</div>
+	</fieldset>
+	</div>
+
+	<div>
+		<a class="btn btn-link" href="/main.html" style="float: left; ">
+			<i class="material-icons">chevron_left</i>
+			<span data-translate="text">PreferencesCancelButton</span>
+		</a>
+		<button type="button" class="btn btn-primary" id="save-button" style="float: right; ">
+			<i class="material-icons">check</i>
+			<span data-translate="text">PreferencesSaveButton</span>
+		</button>
+	</div>
+</form>
+
+<script>
+//Initialiser la page
+NIMBUS.init(function() {
+	// Compléter la liste des colonnes disponibles
+	$('#visibleItemColumns').val([<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>]);
+
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+
+	// Préparation du bouton de sauvegarde
+	$('#save-button').click(function() {
+		var form = {
+			name: $('#name').val(),
+			password: $('#password').val(),
+			passwordConfirmation: $('#passwordConfirmation').val(),
+			showItemTags: $('#showItemTags').prop('checked'),
+			showItemDescription: $('#showItemDescription').prop('checked'),
+			showItemThumbnail: $('#showItemThumbnail').prop('checked'),
+			visibleItemColumns: $('#visibleItemColumns').val() || [],
+		};
+		if (form.password !== form.passwordConfirmation) {
+			$('#password-error').fadeIn();
+			$('#password,#passwordConfirmation').addClass('is-invalid');
+			return;
+		}
+		$.post('/preferences/save', form).then(function() {
+			window.location = '/';
+		});
+	});
+});
+</script>
+</body>
+</html>

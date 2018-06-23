@@ -21,6 +21,14 @@ public class User {
 	public boolean admin = true;
 	/** Quotas d'espace disque en Mo ou "null" si illimité */
 	public Integer quota = null;
+	/** L'utilisateur souhaite-t-il afficher les tags des éléments ? */
+	public boolean showItemTags = true;
+	/** L'utilisateur souhaite-t-il afficher les description des éléments */
+	public boolean showItemDescription = true;
+	/** L'utilisateur souhaite-t-il afficher les miniatures des éléments ? */
+	public boolean showItemThumbnail = true;
+	/** Liste des colonnes que l'utilisateur souhaite dans la liste des éléments */
+	public List<String> visibleItemColumns;
 
 	public User() {
 		super();
@@ -50,6 +58,7 @@ public class User {
 		getWriteCollection().deleteOne(Filters.eq("login", user.login));
 	}
 
+	@SuppressWarnings("unchecked")
 	private static final User read(Document document) {
 		if (document == null)
 			return null;
@@ -59,6 +68,10 @@ public class User {
 		user.name = document.getString("name");
 		user.admin = document.getBoolean("admin", true);
 		user.quota = document.getInteger("quota");
+		user.showItemTags = document.getBoolean("showItemTags", true);
+		user.showItemDescription = document.getBoolean("showItemDescription", true);
+		user.showItemThumbnail = document.getBoolean("showItemThumbnail", true);
+		user.visibleItemColumns = (List<String>) document.get("visibleItemColumns");
 		return user;
 	}
 
@@ -68,7 +81,11 @@ public class User {
 			.append("password", user.password)
 			.append("name", user.name)
 			.append("admin", user.admin)
-			.append("quota", user.quota);
+			.append("quota", user.quota)
+			.append("showItemTags", user.showItemTags)
+			.append("showItemDescription", user.showItemDescription)
+			.append("showItemThumbnail", user.showItemThumbnail)
+			.append("visibleItemColumns", user.visibleItemColumns == null ? new ArrayList<>() : user.visibleItemColumns);
 	}
 
 	private static final MongoCollection<Document> getCollection() {

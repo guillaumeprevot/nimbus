@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
-<link type="text/css" rel="stylesheet" href="/theme/stylesheet.css" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
@@ -35,6 +35,11 @@
 	<tbody>
 	</tbody>
 	<tfoot>
+		<tr class="nimbus-hidden" id="empty-message">
+			<td colspan="5">
+				<div data-translate="text" class="alert alert-light" role="alert" style="margin-bottom: 0;">TrashEmptyMessage</div>
+			</td>
+		</tr>
 		<tr>
 			<td colspan="5">
 				<a class="btn btn-link" href="/main.html" style="float: left; ">
@@ -76,8 +81,10 @@ function processSelection(url) {
 		rows.remove();
 		$('#select-all').prop('check', false);
 		$('#restore-button,#erase-button').addClass('nimbus-hidden');
-		if (document.querySelector('#items > tbody > tr') === null)
+		if (document.querySelector('#items > tbody > tr') === null) {
 			$('#select-all,#clear-button').addClass('nimbus-hidden');
+			$('#empty-message').removeClass('nimbus-hidden');
+		}
 	});
 }
 
@@ -96,8 +103,11 @@ function execute() {
 				.append($('<td />').text(item.path))
 				[0];
 		}));
-		if (items.length > 0)
+		if (items.length > 0) {
 			$('#select-all,#clear-button').removeClass('nimbus-hidden');
+		} else {
+			$('#empty-message').removeClass('nimbus-hidden');
+		}
 	});
 
 	// Sélection / désélection
@@ -124,6 +134,7 @@ function execute() {
 		}).then(function() {
 			$('#items > tbody').empty();
 			$('#select-all,#clear-button,#restore-button,#erase-button').addClass('nimbus-hidden');
+			$('#empty-message').removeClass('nimbus-hidden');
 		})
 	});
 
@@ -139,5 +150,5 @@ function execute() {
 }
 </script>
 
-	</body>
+</body>
 </html>

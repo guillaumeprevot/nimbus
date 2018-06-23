@@ -35,17 +35,6 @@ public class Controller {
 		Controller.configuration = configuration;
 		Controller.templateEngine = prepareTemplateEngine(dev);
 
-		Spark.get("/theme/stylesheet.css", (request, response) -> {
-			String theme = request.session().attribute("theme");
-			String url = StringUtils.isBlank(theme) ? "/libs/bootstrap/css/bootstrap.min.css" : ("/themes/" + theme + "/bootstrap.min.css");
-			response.redirect(url);
-			return null;
-		});
-		Spark.get("/theme/update", (request, response) -> {
-			request.session().attribute("theme", request.queryParams("theme"));
-			return "";
-		});
-
 		Spark.before("/main.html", Filters.filterAuthenticatedOrRedirect);
 		Spark.get("/main.html", (request, response) -> {
 			String login = request.session().attribute("userLogin");
@@ -55,9 +44,9 @@ public class Controller {
 					"userName", StringUtils.withDefault(user.name, user.login));
 		});
 
-		Spark.get("/login.html", Authentication.page);
-		Spark.post("/login.html", Authentication.login);
-		Spark.get("/logout", Authentication.logout);
+		Spark.get("/login.html", Authentication.page); // URL publique
+		Spark.post("/login.html", Authentication.login); // URL publique
+		Spark.get("/logout", Authentication.logout); // URL publique
 
 		Spark.before("/users.html", Filters.filterAdministratorOrRedirect);
 		Spark.before("/user/*", Filters.filterAdministrator);
@@ -94,6 +83,13 @@ public class Controller {
 		Spark.post("/trash/delete", Trash.delete);
 		Spark.post("/trash/restore", Trash.restore);
 		Spark.post("/trash/erase", Trash.erase);
+
+		Spark.before("/preferences.html", Filters.filterAuthenticatedOrRedirect);
+		Spark.before("/preferences/save", Filters.filterAuthenticated);
+		Spark.get("/preferences/theme.css", Preferences.stylesheet); // URL publique
+		Spark.get("/preferences/theme", Preferences.theme); // URL publique
+		Spark.get("/preferences.html", Preferences.page);
+		Spark.post("/preferences/save", Preferences.save);
 
 		// Accès à la page de test en mode DEV uniquement
 		Spark.get("/test.html", (request, response) -> {
