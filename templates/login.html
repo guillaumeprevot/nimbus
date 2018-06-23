@@ -68,7 +68,11 @@ NIMBUS.init(function() {
 		});
 	}).filter('[data-theme="${theme}"]').addClass('active');
 
-	document.body.classList.remove('nimbus-hidden');
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+
+	// Donner le focus à la première entrée éditable
+	$('#login').focus();
 });
 </script>
 </body>

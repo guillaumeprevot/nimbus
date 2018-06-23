@@ -42,7 +42,7 @@
 		</tr>
 		<tr>
 			<td colspan="5">
-				<a class="btn btn-link" href="/main.html" style="float: left; ">
+				<a class="btn btn-link" href="/main.html" id="back-button" style="float: left; ">
 					<i class="material-icons">chevron_left</i>
 					<span data-translate="text">TrashBackButton</span>
 				</a>
@@ -91,6 +91,9 @@ function processSelection(url) {
 function execute() {
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
+
+	// Donner le focus au bouton retour, par précaution
+	$('#back-button').focus();
 
 	// Chargement du contenu de la corbeille
 	$.get('/trash/items').then(function(items) {

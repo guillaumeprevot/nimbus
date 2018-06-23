@@ -33,8 +33,8 @@
 	</tbody>
 	<tfoot>
 		<tr>
-			<td colspan="5" style="text-align: right; ">
-				<a class="btn btn-link" href="/main.html" style="float: left; ">
+			<td colspan="5">
+				<a class="btn btn-link" href="/main.html" id="back-button" style="float: left; ">
 					<i class="material-icons">chevron_left</i>
 					<span data-translate="text">UsersBackButton</span>
 				</a>
@@ -122,6 +122,9 @@ function execute(users) {
 
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
+
+	// Donner le focus au bouton retour, par précaution
+	$('#back-button').focus();
 
 	// Préparation du bouton d'ajout
 	$('#insert-button').on('click', function() {

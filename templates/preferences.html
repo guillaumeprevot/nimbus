@@ -105,6 +105,9 @@ NIMBUS.init(function() {
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
 
+	// Donner le focus à la première entrée éditable
+	$('#name').focus();
+
 	// Préparation du bouton de sauvegarde
 	$('#save-button').click(function() {
 		var form = {
