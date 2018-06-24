@@ -106,7 +106,7 @@ function shoudBeAnError(ajax) {
 		(error) => "OK"
 	);
 }
-function shouldUpload(content, mimetype, filename, id) {
+function upload(content, mimetype, filename) {
 	var blob = new Blob([content], { type: mimetype });
 	var formData = new FormData();
 	formData.append("parentId", ""); // à la racine
@@ -120,7 +120,11 @@ function shouldUpload(content, mimetype, filename, id) {
 		processData: false,
 		cache: false,
 		timeout: 0
-	}).then((result) => assertArray(result, 1, (newId) => newId === id));
+	});
+}
+function shouldUpload(content, mimetype, filename, id) {
+	return upload(content, mimetype, filename)
+		.then((result) => assertArray(result, 1, (newId) => newId === id));
 }
 
 //==========
@@ -326,8 +330,11 @@ function fillTests(add) {
 	add("Obtenir une erreur si on veut dupliquer un élément qui n'existe pas (ou plus)", function() {
 		return shoudBeAnError($.post("/items/duplicate?itemId=6"));
 	});
+	add("Vérifier que le nom est obligatoire pour 'duplicate'", function() {
+		return shoudBeAnError($.post("/items/duplicate?itemId=5"));
+	});
 	add("Réussir par contre à copier le sous-dossier 'Dossier5' avec id 6", function() {
-		return $.post("/items/duplicate?itemId=5").then((result) => assertEquals(result, "6"));
+		return $.post("/items/duplicate?itemId=5&name=Copie%20de%20Dossier5").then((result) => assertEquals(result, "6"));
 	});
 
 	add("Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {
@@ -363,6 +370,23 @@ function fillTests(add) {
 	});
 	add("Vérifier que 'Dossier3' ne contient plus que 'Dossier5'", function() {
 		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertArray(result, 1, (e) => e.id === 5));
+	});
+
+	var stringOf520KB = "0123456789".repeat(52).repeat(1024);
+	add("Descendre le quota disque à 1Mo", function() {
+		return $.post("/user/update/adm?name=&admin=true&quota=1").then((result) => assertObject(result, (o) => o.quota === 1));
+	});
+	add("Vérifier que le quota autorise de dupliquer 'file.txt' en 'fichier7.txt'", function() {
+		return $.post("/items/duplicate?itemId=0&name=fichier7.txt").then((result) => assertEquals(result, "7"));
+	});
+	add("Vérifier que le quota autorise d'uploader 510KB dans 'file.txt'", function() {
+		return upload(stringOf520KB, "text/plain", "file.txt").then((result) => assertArray(result, 1, (first) => first === 0));
+	});
+	add("Vérifier que le quota empêche de dupliquer à nouveau 'file.txt'", function() {
+		return shoudBeAnError($.post("/items/duplicate?itemId=0&name=fichier8.txt"));
+	});
+	add("Vérifier que le quota empêche d'uploader à nouveau 510KB dans 'fichier7.txt'", function() {
+		return shoudBeAnError(upload(stringOf520KB, "text/plain", "fichier7.txt"));
 	});
 
 	add("Vérifier les préférences par défaut", function() {

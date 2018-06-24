@@ -55,6 +55,12 @@ public final class SparkUtils {
 		return null;
 	}
 
+	public static final Object haltInsufficientStorage() {
+		// Emprunté de WEBDAV : https://tools.ietf.org/html/rfc4918#section-11.5
+		Spark.halt(507, "Insufficient Storag"); // 507
+		return null;
+	}
+	
 	public static final String renderJSON(Response response, JsonElement object) {
 		response.type("application/json");
 		return object.toString();

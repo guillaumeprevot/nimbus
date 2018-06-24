@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.Deflater;
@@ -79,7 +78,7 @@ public class Items extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
-		Collection<String> filenames = Arrays.asList(request.queryParamsValues("names[]"));
+		String[] filenames = request.queryParamsValues("names[]");
 		// Vérifier si la racine demandée est accessible à l'utilisateur
 		if (parentId != null) {
 			Item parent = Item.findById(parentId);
@@ -150,12 +149,22 @@ public class Items extends Controller {
 	 * - dans le cas d'un fichier, duplique le fichier
 	 * - dans le cas d'un dossier, les sous-éléments NE sont PAS dupliqués
 	 *
-	 * (itemId) => nouvelId
+	 * (itemId, name) => nouvelId
 	 */
 	public static final Route duplicate = (request, response) -> {
+		String newName = request.queryParams("name");
+		if (StringUtils.isBlank(newName))
+			return SparkUtils.haltBadRequest();
 		return actionOnSingleItem(request, request.queryParams("itemId"), (source) -> {
+			// Vérifier que le nom choisi pour la copie est correct
+			if (Item.hasItemsWithNames(source.userLogin, source.parentId, newName))
+				return SparkUtils.haltConflict();
+			// Vérification des quotas d'espace disque
+			if (!source.folder)
+				checkQuotaAndHaltIfNecessary(source.userLogin, source.content.getLong("length"));
+
 			// Dupliquer l'élément
-			Item item = Item.duplicate(source);
+			Item item = Item.duplicate(source, newName);
 			// Copier le fichier
 			if (! item.folder) {
 				File sourceFile = getFile(source);

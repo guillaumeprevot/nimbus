@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.Part;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -43,34 +46,44 @@ public class Files extends Controller {
 		Item parent = parentId == null ? null : Item.findById(parentId);
 		if (parentId != null && (parent == null || !parent.userLogin.equals(userLogin)))
 			return SparkUtils.haltBadRequest();
-		// Parcourir les fichiers uploadés
-		JsonArray results = new JsonArray();
-		request.raw().getParts().forEach((part) -> {
+		// Récupérer les fichiers uploadés, les éventuels items correspondants et l'espace disque nécessaire
+		List<Part> parts = new ArrayList<>();
+		List<Item> items = new ArrayList<>();
+		long neededSpace = 0L;
+		for (Part part : request.raw().getParts()) {
 			if (!"files".equals(part.getName()))
-				return;
-			try {
-				// Informations sur le fichier reçu
-				String name = part.getSubmittedFileName();
-				// Rechercher l'élément ayant ce nom ou l'ajouter s'il n'existe pas encore
-				Item item = Item.findItemWithName(userLogin, parentId, name);
-				if (item == null)
-					item = Item.add(userLogin, parent, false, name, null);
-				// Enregistrement sur disque
-				File storedFile = getFile(item);
-				try (InputStream is = part.getInputStream()) {
-					FileUtils.copyInputStreamToFile(is, storedFile);
-				}
-				// Mettre à jour les infos du fichier
-				updateFile(item);
-				// Sauvegarde des métadonnées
-				item.updateDate = new Date();
-				Item.update(item);
-				// Renvoyer la liste des ids créés
-				results.add(item.id);
-			} catch (Exception ex) {
-				throw new RuntimeException(ex);
+				continue;
+			Item item = Item.findItemWithName(userLogin, parentId, part.getSubmittedFileName());
+			parts.add(part);
+			items.add(item);
+			neededSpace += part.getSize();
+			if (item != null && item.content.getLong("length") != null)
+				neededSpace -= item.content.getLong("length").longValue();
+		}
+		// Vérifier avannt de commencer que l'espace disque est suffisant
+		if (neededSpace > 0)
+			checkQuotaAndHaltIfNecessary(userLogin, neededSpace);
+		// OK, lancer l'intégration
+		JsonArray results = new JsonArray();
+		for (int i = 0; i < parts.size(); i++) {
+			Part part = parts.get(i);
+			Item item = items.get(i);
+			// Ajouter l'élément s'il n'existe pas encore
+			if (item == null)
+				item = Item.add(userLogin, parent, false, part.getSubmittedFileName(), null);
+			// Enregistrement sur disque
+			File storedFile = getFile(item);
+			try (InputStream is = part.getInputStream()) {
+				FileUtils.copyInputStreamToFile(is, storedFile);
 			}
-		});
+			// Mettre à jour les infos du fichier
+			updateFile(item);
+			// Sauvegarde des métadonnées
+			item.updateDate = new Date();
+			Item.update(item);
+			// Renvoyer la liste des ids créés
+			results.add(item.id);
+		}
 		return SparkUtils.renderJSON(response, results);
 	};
 

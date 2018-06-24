@@ -2,7 +2,6 @@ package fr.techgp.nimbus.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -107,14 +106,14 @@ public class Item {
 		return child;
 	}
 
-	public static final Item duplicate(Item item) {
+	public static final Item duplicate(Item item, String name) {
 		Item duplicate = new Item();
 		duplicate.id = Mongo.getNextSequence("items");
 		duplicate.parentId = item.parentId;
 		duplicate.path = item.path;
 		duplicate.userLogin = item.userLogin;
 		duplicate.folder = item.folder;
-		duplicate.name = item.name;
+		duplicate.name = name;
 		duplicate.createDate = new Date();
 		duplicate.updateDate = new Date();
 		duplicate.deleteDate = null;
@@ -243,8 +242,8 @@ public class Item {
 		return getCollection().count(new Document("userLogin", userLogin).append("_id", itemId)) == 1;
 	}
 
-	public static final boolean hasItemsWithNames(String userLogin, Long parentId, Collection<String> names) {
-		return getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId).append("name", new Document("$in", names))) > 0;
+	public static final boolean hasItemsWithNames(String userLogin, Long parentId, String... names) {
+		return getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId).append("name", new Document("$in", Arrays.asList(names)))) > 0;
 	}
 
 	public static final Item findItemWithName(String userLogin, Long parentId, String name) {
@@ -263,6 +262,13 @@ public class Item {
 		Document sort = new Document("$sort", (orderByCount ? new Document("count", new BsonInt32(-1)) : new Document()).append("_id", new BsonInt32(1)));
 		Consumer<Document> documentConsumer = (document) -> consumer.accept(document.getString("_id"), document.getInteger("count"));
 		getCollection().aggregate(Arrays.asList(unwind, match, group, sort)).forEach(documentConsumer);
+	}
+
+	public static final long calculateUsedSpace(String userLogin) {
+		Document match = new Document("$match", new Document("userLogin", userLogin));
+		Document group = new Document("$group", new Document("_id", null).append("total", new Document("$sum", "$content.length")));
+		Long result = getCollection().aggregate(Arrays.asList(match, group)).first().getLong("total");
+		return result == null ? 0L : result.longValue();
 	}
 
 	@SuppressWarnings("unchecked")

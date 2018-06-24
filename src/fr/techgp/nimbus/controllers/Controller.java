@@ -219,6 +219,30 @@ public class Controller {
 	}
 
 	/**
+	 * Cette méthode vérifie si l'espace dispo de l'utilisateur est supérieur ou égal à neededSpace.
+	 * Si l'espace est insuffisant, la méthode SparkUtils.haltInsufficientStorage() est appelé pour interrompre le traitement.
+	 * 
+	 * @param userLogin l'utilisateur donc il faudra vérifier le quota et l'espace utilisé
+	 * @param neededSpace l'espace nécessaire pour accomplir l'opération en cours (upload, duplicate, ...)
+	 */
+	protected static final void checkQuotaAndHaltIfNecessary(String userLogin, Long neededSpace) {
+		if (neededSpace == null || neededSpace == 0)
+			return;
+		// Récupérer le quota de l'utilisateur connecté
+		User user = User.findByLogin(userLogin);
+		if (user.quota == null)
+			return;
+		// Récupérer l'espace occupé
+		long usedSpace = Item.calculateUsedSpace(userLogin);
+		//System.out.println(String.format("Needed space = %7d bytes", neededSpace));
+		//System.out.println(String.format("User quota   = %7d bytes", user.quota * 1024 * 1024));
+		//System.out.println(String.format("Used space   = %7d bytes", usedSpace));
+		//System.out.println(String.format("Free space   = %7d bytes", user.quota * 1024 * 1024 - usedSpace));
+		if (neededSpace > user.quota * 1024 * 1024 - usedSpace)
+			SparkUtils.haltInsufficientStorage();
+	}
+
+	/**
 	 * Cette méthode vérifie si le couple (login, password) est valide.
 	 * En cas d'erreur, une chaine de caractères non null est renvoyée.
 	 * A l'installation (= base vide), un premier compte est créé automatiquement.

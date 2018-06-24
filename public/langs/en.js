@@ -39,7 +39,7 @@ NIMBUS.lang = {
 	UsersEditNamePlaceholder: "(optional)",
 	UsersEditAdminLabel: "Administrator",
 	UsersEditQuotaLabel: "Disk space quota",
-	UsersEditQuotaPlaceholder: "(optional, in GB)",
+	UsersEditQuotaPlaceholder: "(optional, in MB)",
 	UsersEditCancelButton: "Cancel",
 	UsersEditValidateCreateButton: "Create",
 	UsersEditValidateUpdateButton: "Update",
