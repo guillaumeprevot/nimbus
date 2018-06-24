@@ -19,12 +19,13 @@
 </head>
 <body class="nimbus-hidden">
 
-<table id="users" class="table" style="width: 700px; max-width: 100%; margin: 40px auto 0;">
+<table id="users" class="table" style="width: 800px; max-width: 100%; margin: 40px auto 0;">
 	<thead class="thead-light">
 		<tr>
 			<th data-translate="text" style="text-align: center; ">UsersAdminColumn</th>
 			<th data-translate="text">UsersLoginColumn</th>
 			<th data-translate="text">UsersNameColumn</th>
+			<th data-translate="text">UsersQuotaColumn</th>
 			<th data-translate="text" style="text-align: center; ">UsersEditColumn</th>
 			<th data-translate="text" style="text-align: center; ">UsersDeleteColumn</th>
 		</tr>
@@ -180,6 +181,7 @@ function createUserRow(user) {
 		+ '<td style="text-align: center; ">' + (user.admin ? '<i class="material-icons">check</i>' : '') + '</td>'
 		+ '<td>' + user.login + '</td>'
 		+ '<td>' + (user.name || '') + '</td>'
+		+ '<td style="text-align: right; ">' + (user.quota ? NIMBUS.formatLength(user.quota * 1024 * 1024 ) : '') + '</td>'
 		+ '<td style="text-align: center; "><button class="btn btn-link edit-button"><i class="material-icons">edit</i></button></td>'
 		+ '<td style="text-align: center; "><button class="btn btn-link delete-button"><i class="material-icons">delete</i></button></td>'
 		+ '</tr>';

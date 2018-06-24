@@ -21,6 +21,7 @@ NIMBUS.lang = {
 	UsersAdminColumn: "Administrateur",
 	UsersLoginColumn: "Nom d'utilisateur",
 	UsersNameColumn: "Nom affiché",
+	UsersQuotaColumn: "Quota",
 	UsersEditColumn: "Modifier",
 	UsersDeleteColumn: "Supprimer",
 	UsersCreateButton: "Ajouter un utilisateur",
