@@ -352,7 +352,7 @@ public class Items extends Controller {
 				node.addProperty("iconURL", item.content.getString("iconURL"));
 			} else {
 				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
-				node.addProperty("mimetype", configuration.getMimeType(extension, null));
+				node.addProperty("mimetype", configuration.getMimeType(extension));
 				node.addProperty("length", item.content.getLong("length"));
 				for (Facet facet : configuration.getFacets()) {
 					if (facet.supports(extension)) {

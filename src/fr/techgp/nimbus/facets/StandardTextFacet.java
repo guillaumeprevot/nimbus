@@ -3,6 +3,7 @@ package fr.techgp.nimbus.facets;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Set;
 
 import org.bson.Document;
 
@@ -13,16 +14,16 @@ import fr.techgp.nimbus.Facet;
 
 public class StandardTextFacet implements Facet {
 
-	private String extensions;
+	private Set<String> extensions;
 
 	@Override
 	public void init(Configuration configuration) {
-		this.extensions = "," + configuration.getTextFileExtensions() + ",";
+		this.extensions = configuration.getTextFileExtensions();
 	}
 
 	@Override
 	public boolean supports(String extension) {
-		return this.extensions.contains("," + extension + ",");
+		return this.extensions.contains(extension);
 	}
 
 	@Override

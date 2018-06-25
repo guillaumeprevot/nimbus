@@ -4,12 +4,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import fr.techgp.nimbus.utils.StringUtils;
 
 public class Configuration {
 
@@ -26,7 +31,7 @@ public class Configuration {
 	private final String serverAbsoluteUrl;
 
 	private final File storageFolder;
-	private final String textFileExtensions;
+	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
 	private final Map<String, String> mimetypes;
 
@@ -50,7 +55,7 @@ public class Configuration {
 		this.serverAbsoluteUrl = getString("server.absolute.url", (this.serverKeystore != null ? "https" : "http") + "://localhost:" + this.serverPort);
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
-		this.textFileExtensions = getString("text.file.extensions", "txt,md");
+		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class, (facet) -> facet.init(this));
 		this.mimetypes = getPairs("mimetype");
 	}
@@ -133,7 +138,7 @@ public class Configuration {
 		return this.storageFolder;
 	}
 
-	public String getTextFileExtensions() {
+	public Set<String> getTextFileExtensions() {
 		return this.textFileExtensions;
 	}
 
@@ -142,23 +147,34 @@ public class Configuration {
 	}
 
 	/**
-	 * Obtenir le type MIME à partir d'un extension
-	 * @return le type MIME enregistré pour cette extension
+	 * Obtenir le type MIME à partir d'une extension :
+	 * - le type MIME d'une extension peut être configuré dans "nimbus.conf"
+	 * - le type MIME par défaut d'un fichier texte est "plain/text"
+	 * - sinon, le type MIME est "application/octet-stream"
+	 * 
+	 * @return le type MIME pour cette extension
 	 */
-	public final String getMimeType(String extension, String defaultValue) {
-		return this.mimetypes.getOrDefault(extension, defaultValue);
+	public final String getMimeType(String extension) {
+		if (StringUtils.isBlank(extension))
+			return null;
+		String result = this.mimetypes.get(extension);
+		if (result != null)
+			return result;
+		if (this.textFileExtensions.contains(extension))
+			return "text/plain";
+		return "application/octet-stream";
 	}
 
 	/**
 	 * Obtenir le type MIME à partir d'un nom de fichier
-	 * @return le type MIME enregistré pour l'extension ou null si le nom de fichier ne contient pas de '.'
+	 * @return le type MIME pour le fichier ou null si le nom de fichier ne contient pas de '.'
 	 */
 	public final String getMimeTypeByFileName(String filename) {
 		int index = filename.lastIndexOf('.');
 		if (index == -1)
-			return null;
+			return getMimeType(null);
 		String extension = filename.substring(index + 1).toLowerCase();
-		return getMimeType(extension, "application/octet-stream");
+		return getMimeType(extension);
 	}
 
 }
