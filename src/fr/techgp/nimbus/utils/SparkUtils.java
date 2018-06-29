@@ -56,7 +56,7 @@ public final class SparkUtils {
 	}
 
 	public static final Object haltInsufficientStorage() {
-		// Emprunté de WEBDAV : https://tools.ietf.org/html/rfc4918#section-11.5
+		// EmpruntÃ© de WEBDAV : https://tools.ietf.org/html/rfc4918#section-11.5
 		Spark.halt(507, "Insufficient Storag"); // 507
 		return null;
 	}
