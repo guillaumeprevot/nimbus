@@ -47,6 +47,21 @@ var NIMBUS = (function() {
 		return NIMBUS.translate('CommonFileLengthGB', length.toFixed(1));
 	};
 
+	// Propriétés disponibles dans la grille
+	NIMBUS.getProperties = function() {
+		return [
+			{ name: 'folder', caption: 'CommonPropertyFolder', align: 'center', sortBy: 'folder', format: (i) => NIMBUS.formatBoolean(i.folder, 'folder') },
+			{ name: 'length', caption: 'CommonPropertyLength', align: 'right', width: 100, sortBy: 'content.length', format: (i) => NIMBUS.formatLength(i.length) },
+			{ name: 'createDate', caption: 'CommonPropertyCreateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'createDate', format: (i) => NIMBUS.formatDatetime(i.createDate) },
+			{ name: 'updateDate', caption: 'CommonPropertyUpdateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'updateDate', format: (i) => NIMBUS.formatDatetime(i.updateDate) },
+			{ name: 'tags', caption: 'CommonPropertyTags', format: (i) => i.tags },
+			{ name: 'description', caption: 'CommonPropertyDescription', format: (i) => i.description },
+			{ name: 'itemCount', caption: 'CommonPropertyItemCount', align: 'right', sortBy: 'content.itemCount', format: (i) => NIMBUS.formatInteger(i.itemCount) },
+			{ name: 'iconURL', caption: 'CommonPropertyIconURL', sortBy: 'content.iconURL', format: (i) => i.iconURL || '' },
+			{ name: 'mimetype', caption: 'CommonPropertyMimetype', width: 120, format: (i) => i.mimetype || '' },
+		];
+	};
+
 	// Function d'initialisation de la page
 	NIMBUS.init = function(callback) {
 		// Attendre le chargement de la page

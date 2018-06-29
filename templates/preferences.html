@@ -48,15 +48,6 @@
 		<div class="form-group">
 			<label data-translate="text" for="visibleItemColumns">PreferencesVisibleItemColumnsLabel</label>
 			<select id="visibleItemColumns" multiple="multiple" class="form-control">
-				<option data-translate="text" value="folder">CommonPropertyFolder</option>
-				<option data-translate="text" value="length">CommonPropertyLength</option>
-				<option data-translate="text" value="createDate">CommonPropertyCreateDate</option>
-				<option data-translate="text" value="updateDate">CommonPropertyUpdateDate</option>
-				<option data-translate="text" value="tags">CommonPropertyTags</option>
-				<option data-translate="text" value="description">CommonPropertyDescription</option>
-				<option data-translate="text" value="itemCount">CommonPropertyItemCount</option>
-				<option data-translate="text" value="itemCount">CommonPropertyIconURL</option>
-				<option data-translate="text" value="mimetype">CommonPropertyMimetype</option>
 			</select>
 		</div>
 
@@ -100,7 +91,9 @@
 //Initialiser la page
 NIMBUS.init(function() {
 	// Compléter la liste des colonnes disponibles
-	$('#visibleItemColumns').val([<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>]);
+	$('#visibleItemColumns').append(NIMBUS.getProperties().map(function(p) {
+		return '<option value="' + p.name + '">' + NIMBUS.translate(p.caption) + '</option>';
+	})).val([<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>]);
 
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
