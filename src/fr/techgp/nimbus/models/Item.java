@@ -242,6 +242,10 @@ public class Item {
 		return getCollection().count(new Document("userLogin", userLogin).append("_id", itemId)) == 1;
 	}
 
+	public static final boolean hasItemWithName(String userLogin, Long parentId, String name) {
+		return getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId).append("name", name)) > 0;
+	}
+
 	public static final boolean hasItemsWithNames(String userLogin, Long parentId, String... names) {
 		return getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId).append("name", new Document("$in", Arrays.asList(names)))) > 0;
 	}

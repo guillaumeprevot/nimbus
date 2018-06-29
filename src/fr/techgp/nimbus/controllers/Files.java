@@ -98,6 +98,9 @@ public class Files extends Controller {
 		// Extraire la requête
 		String name = request.queryParams("name");
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
+		// Vérifier l'unicité des noms
+		if (Item.hasItemWithName(userLogin, parentId, name))
+			return SparkUtils.haltConflict();
 		// Ajouter un fichier vide dans le dossier demandé avec le nom donné
 		Item item = Item.add(userLogin, parentId, false, name, null);
 		if (item == null)

@@ -136,6 +136,9 @@ public class Items extends Controller {
 		// Extraire la requête
 		String name = request.queryParams("name");
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
+		// Vérifier l'unicité des noms
+		if (Item.hasItemWithName(userLogin, parentId, name))
+			return SparkUtils.haltConflict();
 		// Ajouter un dossier dans le dossier demandé avec le nom donné
 		Item item = Item.add(userLogin, parentId, true, name, null);
 		if (item == null)
@@ -157,7 +160,7 @@ public class Items extends Controller {
 			return SparkUtils.haltBadRequest();
 		return actionOnSingleItem(request, request.queryParams("itemId"), (source) -> {
 			// Vérifier que le nom choisi pour la copie est correct
-			if (Item.hasItemsWithNames(source.userLogin, source.parentId, newName))
+			if (Item.hasItemWithName(source.userLogin, source.parentId, newName))
 				return SparkUtils.haltConflict();
 			// Vérification des quotas d'espace disque
 			if (!source.folder)
