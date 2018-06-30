@@ -2,6 +2,7 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -39,9 +40,21 @@ public class Controller {
 		Spark.get("/main.html", (request, response) -> {
 			String login = request.session().attribute("userLogin");
 			User user = User.findByLogin(login);
+			long usedSpace = Item.calculateUsedSpace(login);
+			long maxSpace = user.quota == null ? Long.MAX_VALUE : (user.quota * 1024L * 1024L);
+			long freeSpace = Math.min(configuration.getStorageFolder().getFreeSpace(), maxSpace - usedSpace);
 			return renderTemplate("main.html",
-					"userAdmin", Boolean.valueOf(user.admin),
-					"userName", StringUtils.withDefault(user.name, user.login));
+					"lang", SparkUtils.getRequestLang(request),
+					"theme", StringUtils.withDefault(request.session().attribute("theme"), ""),
+					"name", StringUtils.withDefault(user.name, user.login),
+					"admin", user.admin,
+					"freeSpace", freeSpace,
+					"usedSpace", usedSpace,
+					"trashCount", Item.trashCount(login),
+					"showItemTags", user.showItemTags,
+					"showItemDescription", user.showItemDescription,
+					"showItemThumbnail", user.showItemThumbnail,
+					"visibleItemColumns", user.visibleItemColumns == null ? Collections.emptyList() : user.visibleItemColumns);
 		});
 
 		Spark.get("/login.html", Authentication.page); // URL publique
@@ -121,6 +134,7 @@ public class Controller {
 			} else {
 				configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 			}
+			configuration.setNumberFormat("###0.##");
 			configuration.setLogTemplateExceptions(false);
 			configuration.setWrapUncheckedExceptions(true);
 			configuration.setSharedVariable("appName", "Nimbus");

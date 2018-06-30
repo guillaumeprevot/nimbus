@@ -2,3 +2,45 @@
 
 [data-translate] { visibility: hidden; }
 .nimbus-hidden { display: none; }
+.search-option-extensions { }
+
+#menu-button::before, #menu-button::after,
+#search-options::before, #search-options::after { display: none; }
+#search-group { width: auto; }
+#search-input { width: 170px; }
+#add-file-input { display: none; }
+#usage-menu-entry { height: 2.5em; }
+#itemcount:empty { display: none; }
+#itemcount::before { content: "("; }
+#itemcount::after { content: ")"; }
+
+[data-theme=""] body { padding-top: 60px; }
+[data-theme=united] body { padding-top: 60px; }
+[data-theme=darkly] body { padding-top: 70px; }
+[data-theme=flatly] body { padding-top: 70px; }
+[data-theme=materia] body { padding-top: 90px; }
+
+#main:not(.nimbus-selecting) #delete-button,
+#main:not(.nimbus-selecting) #download-button,
+#main:not(.nimbus-selecting) #move-button,
+#main:not(.nimbus-selecting) #all-selected-checkbox,
+#main.nimbus-selecting #search-group,
+#main.nimbus-selecting #logout-button { display: none; }
+
+#items { width: 100%; table-layout: fixed; }
+#items .icon { width: 40px; text-align: center; }
+#items .icon .material-icons { color: gray; }
+#items .name { width: auto; }
+#items .name > .badge { float: right; margin-right: 0.5em;  }
+#items .name > .description { font-size: small; display: inline; }
+#items .actions { width: 50px; text-align: center; }
+#items > thead th[data-sort] { cursor: pointer; }
+#items > tbody { cursor: pointer; }
+#items > tbody > tr > td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#items > tbody > tr:not(.active) > td.icon > :first-child { display:none; }
+#items > tbody > tr.active td.icon > :last-child { display: none; }
+
+@media (max-width: 1023px) {
+	#path .nav-item:not(.active) { display: none; }
+	#search-input { width: 100px; }
+}
