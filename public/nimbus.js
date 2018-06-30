@@ -3,6 +3,14 @@ var NIMBUS = (function() {
 
 	var NIMBUS = {};
 
+	NIMBUS.message = function(text, isError) {
+		return $('<div class="alert" />')
+			.toggleClass('alert-danger', isError)
+			.toggleClass('alert-primary', !isError)
+			.text(text)
+			.appendTo('#alert-container');
+	},
+
 	// (key) ou (key, p1, p2, ...) ou (key, [p1, p2, ...])
 	NIMBUS.translate = function(key) {
 		var text = (key in NIMBUS.lang) ? NIMBUS.lang[key] : key;

@@ -9,6 +9,9 @@
 #search-group { width: auto; }
 #search-input { width: 170px; }
 #add-file-input { display: none; }
+#alert-container { padding: 10px 10px 0; }
+#alert-container:empty { display: none; }
+#alert-container > .alert { margin-bottom: 10px; }
 #usage-menu-entry { height: 2.5em; }
 #itemcount:empty { display: none; }
 #itemcount::before { content: "("; }
