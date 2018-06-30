@@ -17,11 +17,11 @@
 #itemcount::before { content: "("; }
 #itemcount::after { content: ")"; }
 
-[data-theme=""] body { padding-top: 60px; }
-[data-theme=united] body { padding-top: 60px; }
-[data-theme=darkly] body { padding-top: 70px; }
-[data-theme=flatly] body { padding-top: 70px; }
-[data-theme=materia] body { padding-top: 90px; }
+[data-theme=""] body { padding-top: 56px; }
+[data-theme=united] body { padding-top: 56px; }
+[data-theme=darkly] body { padding-top: 71px; }
+[data-theme=flatly] body { padding-top: 71px; }
+[data-theme=materia] body { padding-top: 88px; }
 
 #main:not(.nimbus-selecting) #delete-button,
 #main:not(.nimbus-selecting) #download-button,
