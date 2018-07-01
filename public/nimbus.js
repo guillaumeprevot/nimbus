@@ -156,6 +156,64 @@ NIMBUS.navigation = (function() {
 		});
 	}
 
+	/** Initialiser le comportement pour l'upload de fichier(s) */
+	function prepareFileUpload() {
+		// Ajout de fichier local en utilisant le plugin jquery fileupload
+		$('#add-file-input').hide().fileupload({
+			url : '/files/upload',
+			// method: 'POST',
+			// dropSelector: document,
+			// abortOnEscape: true,
+			extraParams: function(files) {
+				return { parentId: getCurrentPathId() };
+			},
+			onstart: function(files) {
+				// Mettre de côté l'id de l'élément dans lequel les fichiers seront ajoutés
+				var parentId = getCurrentPathId();
+				// Concaténer les noms de fichiers en une chaine
+				var names = Array.prototype.map.apply(files, [function(file) {
+					return file.name;
+				}]);
+				// On retournera une "promise" qui sera rejettée si des fichiers existent déjà avec ce nom et que l'utilisateur ne souhaite pas les écraser.
+				var defer = $.Deferred();
+				// Demander au serveur si l'un de ces fichiers existe déjà
+				$.get('/items/exists', {
+					parentId: parentId,
+					names: names
+				}).done(function(r) {
+					// Si c'est le cas, demander confirmer avant d'écraser
+					var ok = r === 'false' || window.confirm(NIMBUS.translate('MainUploadFileOverrideMessage'));
+					if (ok) {
+						// Si confirmation inutile ou confirmation acceptée, l'upload va commencer, on affiche la progression
+						$('#progress').css('display', 'flex')
+							.find('>div>div').removeClass('progress-bar-striped progress-bar-animated');
+						defer.resolve();
+					} else {
+						// Si confirmation refusée, on stoppe l'upload
+						defer.reject();
+					}
+				});
+				return defer;
+			},
+			onprogress: function(files, total, duration, loaded, percent) {
+				$('#progress > div > div').css('width', percent + '%').toggleClass('progress-bar-striped progress-bar-animated', percent === 100);
+				$('#progress > span').text(percent + ' %');
+			},
+			onerror: function(files) {
+				if (files.length === 1)
+					NIMBUS.message(NIMBUS.translate('MainUploadFileErrorSingleFile', files[0].name), true);
+				else
+					NIMBUS.message(NIMBUS.translate('MainUploadFileErrorMultipleFiles', files.length), true);
+			},
+			onstop: function(files, total, duration) {
+				$('#progress').css('display', 'none');
+				$('#progress > div > div').css('width', '0%');
+				$('#progress > span').text('');
+				refreshItems(false);
+			}
+		});
+	}
+
 	/** Initialiser le comportement pour l'ajout de fichier texte vide */
 	function prepareTouchFile() {
 		// Récupérer les composants concernés
@@ -590,6 +648,8 @@ NIMBUS.navigation = (function() {
 		prepareSearch();
 		// Initialiser le comportement pour l'ajout de dossier
 		prepareAddFolder();
+		// Initialiser le comportement pour l'upload de fichier(s)
+		prepareFileUpload();
 		// Initialiser le comportement pour l'ajout de fichier texte vide
 		prepareTouchFile();
 		// Affichage du nombre d'élément dans la corbeille

@@ -126,6 +126,10 @@ NIMBUS.lang = {
 	MainAddFolderValidateButton: "Valider",
 	MainAddFolderNameConflictErrorMessage: "Un élément nommé ainsi existe déjà dans le dossier.",
 
+	MainUploadFileOverrideMessage: "Certains fichiers existent déjà. Continuer et remplacer les fichiers existants ?",
+	MainUploadFileErrorSingleFile: "Une erreur a eu lieu pendant l'ajout du fichier {0}.",
+	MainUploadFileErrorMultipleFiles: "Une erreur a eu lieu pendant l'ajout de {0} fichiers.",
+
 	MainTouchFileTitle: "Ajouter un nouveau fichier",
 	MainTouchFileNameLabel: "Nom",
 	MainTouchFileNamePlaceholder: "(obligatoire)",

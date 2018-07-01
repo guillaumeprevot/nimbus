@@ -9,6 +9,9 @@
 #search-group { width: auto; }
 #search-input { width: 170px; }
 #add-file-input { display: none; }
+#progress { display: none; }
+#progress > :first-child { flex: auto; }
+#progress > :last-child { flex: none; min-width: 6em; text-align: center; font-size: .75rem; }
 #alert-container { padding: 10px 10px 0; }
 #alert-container:empty { display: none; }
 #alert-container > .alert { margin-bottom: 10px; }

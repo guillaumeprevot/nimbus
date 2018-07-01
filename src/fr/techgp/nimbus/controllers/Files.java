@@ -2,6 +2,7 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,7 +14,6 @@ import java.util.List;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -74,7 +74,10 @@ public class Files extends Controller {
 			// Enregistrement sur disque
 			File storedFile = getFile(item);
 			try (InputStream is = part.getInputStream()) {
-				FileUtils.copyInputStreamToFile(is, storedFile);
+				//too slow : FileUtils.copyInputStreamToFile(is, storedFile);
+				try (OutputStream os = new FileOutputStream(storedFile)) {
+					IOUtils.copyLarge(is, os, new byte[1024*1024*10]);
+				}
 			}
 			// Mettre à jour les infos du fichier
 			updateFile(item);
