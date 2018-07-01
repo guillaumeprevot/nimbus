@@ -196,6 +196,10 @@ public class Items extends Controller {
 			String name = request.queryParams("name");
 			String tags = request.queryParams("tags");
 			String iconURL = request.queryParams("iconURL");
+			// Vérifier que le nom choisi pour la copie est correct
+			Item existing = Item.findItemWithName(item.userLogin, item.parentId, name);
+			if (existing != null && existing.id != item.id)
+				return SparkUtils.haltConflict();
 			// On met à jour l'élément
 			item.name = name;
 			item.tags = StringUtils.isBlank(tags) ? null : Arrays.asList(tags.split(","));
