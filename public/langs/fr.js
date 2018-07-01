@@ -137,6 +137,17 @@ NIMBUS.lang = {
 	MainTouchFileValidateButton: "Valider",
 	MainTouchFileNameConflictErrorMessage: "Un élément nommé ainsi existe déjà dans le dossier.",
 
+	MainRenameTitle: "Modification",
+	MainRenameNameLabel: "Nouveau nom",
+	MainRenameNamePlaceholder: "(obligatoire)",
+	MainRenameNameConflictErrorMessage: "Un élément nommé ainsi existe déjà dans le dossier.",
+	MainRenameIconURLLabel: "Image",
+	MainRenameIconURLPlaceholder: "(URL facultative)",
+	MainRenameTagsLabel: "Mots-clefs",
+	MainRenameTagsPlaceholder: "Ajouter un mot-clef",
+	MainRenameCancelButton: "Annuler",
+	MainRenameValidateButton: "Valider",
+
 	CommonFileLength0: "Vide",
 	CommonFileLengthB: "{0} octets",
 	CommonFileLengthKB: "{0} Ko",

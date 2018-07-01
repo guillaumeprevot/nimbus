@@ -15,7 +15,9 @@
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
 <script type="text/javascript" src="/libs/gp/gp-fileupload.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-tagsinput.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -209,6 +211,37 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">MainTouchFileCancelButton</button>
 				<button type="button" class="btn btn-primary" data-translate="text" id="touch-file-validate-button">MainTouchFileValidateButton</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="rename-dialog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" data-translate="text">MainRenameTitle</h5>
+			</div>
+			<div class="modal-body">
+				<fieldset>
+					<div class="form-group">
+						<label for="rename-name" data-translate="text">MainRenameNameLabel</label>
+						<input id="rename-name" class="form-control" data-translate="placeholder" autofocus="autofocus" name="name" type="text" placeholder="MainRenameNamePlaceholder" />
+						<div class="invalid-feedback" data-translate="text">MainRenameNameConflictErrorMessage</div>
+					</div>
+					<div class="form-group">
+						<label for="rename-icon-url" data-translate="text">MainRenameIconURLLabel</label>
+						<input id="rename-icon-url" class="form-control" data-translate="placeholder" name="iconURL" type="text" placeholder="MainRenameIconURLPlaceholder" />
+					</div>
+					<div class="form-group">
+						<label for="rename-tags" data-translate="text">MainRenameTagsLabel</label>
+						<input id="rename-tags" class="form-control" data-translate="placeholder" name="tags" type="text" placeholder="MainRenameTagsPlaceholder" />
+					</div>
+				</fieldset>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">MainRenameCancelButton</button>
+				<button type="button" class="btn btn-primary" data-translate="text" id="rename-validate-button">MainRenameValidateButton</button>
 			</div>
 		</div>
 	</div>

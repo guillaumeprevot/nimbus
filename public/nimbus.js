@@ -242,6 +242,46 @@ NIMBUS.navigation = (function() {
 			});
 		});
 	}
+	/** Initialiser le comportement pour le renommage de fichier/dossier */
+	function prepareRenameItem() {
+		// Récupérer les composants concernés
+		var dialog = $('#rename-dialog');
+		var nameInput = $('#rename-name');
+		var iconUrlInput = $('#rename-iconURL');
+		var tagsInput = $('#rename-tags');
+		var validateButton = $('#rename-validate-button');
+		// Composant d'edition d'une liste de tags
+		tagsInput.tagsinput({
+			url: '/items/tags',
+			label: tagsInput.prev()
+		});
+		// Initialiser le statut de la fenêtre à l'ouverture
+		dialog.on('show.bs.modal', function() {
+			var item = dialog.data('item');
+			nameInput.val(item.name).removeClass('is-invalid');
+			iconUrlInput.val(item.iconURL || '').closest('.form-group').toggle(!!item.folder);
+			tagsInput.val(item.tags || '').tagsinput().refreshTags();
+		});
+		// Désactiver le bouton de validation quand le nom est vide
+		nameInput.on('input', function() {
+			validateButton.prop('disabled', nameInput.val().trim().length == 0);
+		});
+		// Validation de la fenêtre
+		validateButton.click(function() {
+			var item = dialog.data('item');
+			$.post('/items/rename', {
+				itemId: item.id,
+				name: nameInput.val(),
+				iconURL: iconUrlInput.val(),
+				tags: tagsInput.val()
+			}).fail(function() {
+				nameInput.addClass('is-invalid');
+			}).done(function() {
+				refreshItems(false);
+				dialog.modal('hide');
+			});
+		});
+	}
 
 	/** Afficher le nombre d'élément dans la corbeille */
 	function updateTrashMenu(count) {
@@ -625,10 +665,17 @@ NIMBUS.navigation = (function() {
 		var dialog = $('#actions-dialog');
 		// Ouvrir la "modal" donnant la liste des actions
 		dialog.modal({keyboard: true}).off('click', 'a.list-group-item').on('click', 'a.list-group-item', function(event) {
+			var id = $(event.target).closest('.list-group-item').attr('id');
 			// Ne pas toucher au hash de l'URL
 			event.preventDefault();
 			// Exécuter l'action demandée
-			todo();
+			switch (id) {
+			case 'action-rename':
+				$('#rename-dialog').data('item', item).modal();
+				break;
+			default:
+				todo();
+			}
 			// Et on ferme la fenêtre
 			dialog.modal('hide');
 		});;
@@ -652,6 +699,8 @@ NIMBUS.navigation = (function() {
 		prepareFileUpload();
 		// Initialiser le comportement pour l'ajout de fichier texte vide
 		prepareTouchFile();
+		// Initialiser le comportement pour le renommage de fichier/dossier
+		prepareRenameItem();
 		// Affichage du nombre d'élément dans la corbeille
 		updateTrashMenu(trashCount);
 		// Affichage du quota dans le menu
