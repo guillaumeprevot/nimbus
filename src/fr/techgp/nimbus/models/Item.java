@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -271,8 +272,8 @@ public class Item {
 	public static final long calculateUsedSpace(String userLogin) {
 		Document match = new Document("$match", new Document("userLogin", userLogin));
 		Document group = new Document("$group", new Document("_id", null).append("total", new Document("$sum", "$content.length")));
-		Long result = getCollection().aggregate(Arrays.asList(match, group)).first().getLong("total");
-		return result == null ? 0L : result.longValue();
+		Document result = getCollection().aggregate(Arrays.asList(match, group)).first();
+		return Optional.ofNullable(result).map(r -> r.getLong("total")).orElse(0L);
 	}
 
 	@SuppressWarnings("unchecked")
