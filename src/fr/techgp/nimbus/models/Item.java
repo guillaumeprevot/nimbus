@@ -273,7 +273,7 @@ public class Item {
 		Document match = new Document("$match", new Document("userLogin", userLogin));
 		Document group = new Document("$group", new Document("_id", null).append("total", new Document("$sum", "$content.length")));
 		Document result = getCollection().aggregate(Arrays.asList(match, group)).first();
-		return Optional.ofNullable(result).map(r -> r.getLong("total")).orElse(0L);
+		return Optional.ofNullable(result).map(r -> ((Number) r.get("total")).longValue()).orElse(0L);
 	}
 
 	@SuppressWarnings("unchecked")

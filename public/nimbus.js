@@ -460,6 +460,35 @@ NIMBUS.navigation = (function() {
 		doneCallback(itemIds, folder);
 	}
 
+	// Supprimer un ou plusieurs éléments
+	function deleteItems(itemIds) {
+		$('#delete-dialog').modal();
+		$('#delete-validate-button').off('click').on('click', function() {
+			$.post('/trash/delete', {
+				itemIds: itemIds.join(',')
+			}).done(function() {
+				refreshItems(false);
+				$.get('/trash/count').then(updateTrashMenu);
+				$('#delete-dialog').modal('hide');
+			});
+		});
+	}
+
+	// Télécharger si c'est un fichier unique ou récupérer un zip sinon
+	function downloadItems(itemIds, hasFolder) {
+		var url;
+		if (itemIds.length === 1 && !hasFolder)
+			// Si seul 1 fichier est sélectionné, on le télécharge directement
+			url = '/files/download/' + itemIds[0];
+		else
+			// Sinon, on récupère un zip du (ou des) élément(s) sélectionné(s)
+			url = '/items/zip?itemIds=' + itemIds.join(',');
+		// Ouvrir l'URL obtenue (zip ou download)
+		window.open(url);
+		// Tout désélectionner
+		clearSelection();
+	}
+
 	/** Trier les éléments quand l'utilisateur clique sur l'en-tête d'une colonne*/
 	function sortItems(event) {
 		var th = $(event.target).closest('th'); // this is a "th"
@@ -673,6 +702,12 @@ NIMBUS.navigation = (function() {
 			case 'action-rename':
 				$('#rename-dialog').data('item', item).modal();
 				break;
+			case 'action-delete':
+				deleteItems([item.id]);
+				break;
+			case 'action-download':
+				downloadItems([item.id], item.folder);
+				break;
 			default:
 				todo();
 			}
@@ -708,9 +743,9 @@ NIMBUS.navigation = (function() {
 		// Choix du thème
 		prepareThemeMenu(theme);
 		// Clic sur le bouton "Supprimer", on prépare et on affiche la fenêtre
-		$('#delete-button').click(function(event) { getSelectedItemIds(todo); });
+		$('#delete-button').click(function(event) { getSelectedItemIds(deleteItems); });
 		// Clic sur le bouton "Télécharger" afin de télécharger un fichier ou un zip des éléments sélectionnés
-		$('#download-button').click(function(event) { getSelectedItemIds(todo); });
+		$('#download-button').click(function(event) { getSelectedItemIds(downloadItems); });
 		// Clic sur le bouton "Déplacer", on prépare et on affiche la fenêtre
 		$('#move-button').click(function(event) { getSelectedItemIds(todo); });
 	}

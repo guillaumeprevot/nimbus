@@ -148,6 +148,11 @@ NIMBUS.lang = {
 	MainRenameCancelButton: "Annuler",
 	MainRenameValidateButton: "Valider",
 
+	MainDeleteTitle: "Suppression",
+	MainDeleteMessage: "Etes-vous sûr de vouloir supprimer ces éléments ?",
+	MainDeleteCancelButton: "Annuler",
+	MainDeleteValidateButton: "Supprimer",
+
 	CommonFileLength0: "Vide",
 	CommonFileLengthB: "{0} octets",
 	CommonFileLengthKB: "{0} Ko",
