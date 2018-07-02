@@ -146,7 +146,7 @@ function fillTests(add) {
 		return $.get("/main.html").then(assertLoginPage);
 	});
 	add("Créer un premier compte quand la base est vide", function() {
-		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
+		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<body id=\"main\" class=\"nimbus-hidden\">"));
 	});
 	add("Recupérer la liste des utilisateurs", function() {
 		return $.get("/user/list").then((result) => assertArray(result, 1, (u) => u.login === "adm" && u.admin === true));
@@ -179,13 +179,13 @@ function fillTests(add) {
 		return $.get("/users.html").then((result) => assertContains(result, "<table id=\"users\""));
 	});
 	add("Se reconnecter en utilisateur standard", function() {
-		return $.post("/login.html?login=u&password=u").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
+		return $.post("/login.html?login=u&password=u").then((result) => assertContains(result, "<body id=\"main\" class=\"nimbus-hidden\">"));
 	});
 	add("Bloquer l'accès à la gestion des utilisateurs aux non admins", function() {
 		return $.get("/users.html").then(assertLoginPage);
 	});
 	add("Se reconnecter en administrateur", function() {
-		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<a href=\"/logout\">Logout</a>"));
+		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<body id=\"main\" class=\"nimbus-hidden\">"));
 	});
 
 	add("Supprimer un utilisateur", function() {
@@ -395,7 +395,7 @@ function fillTests(add) {
 				"<input id=\"showItemTags\" type=\"checkbox\" checked>", true,
 				"<input id=\"showItemDescription\" type=\"checkbox\" checked>", true,
 				"<input id=\"showItemThumbnail\" type=\"checkbox\" checked>", true,
-				"$('#visibleItemColumns').val([]);", true));
+				"visibleItemColumns.val([]);", true));
 	});
 	add("Modifier les préférences", function() {
 		return $.post("/preferences/save", {
@@ -419,7 +419,7 @@ function fillTests(add) {
 				"<input id=\"showItemTags\" type=\"checkbox\" >", true,
 				"<input id=\"showItemDescription\" type=\"checkbox\" checked>", true,
 				"<input id=\"showItemThumbnail\" type=\"checkbox\" >", true,
-				"$('#visibleItemColumns').val(['length','createDate','updateDate']);", true));
+				"visibleItemColumns.val(['length','createDate','updateDate']);", true));
 	});
 
 	add("Déconnecter ramène sur la page de connexion", function() {

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
 import fr.techgp.nimbus.Configuration;
@@ -108,6 +109,13 @@ public class Controller {
 		Spark.get("/test.html", (request, response) -> {
 			if (!dev)
 				return SparkUtils.haltNotFound();
+			User.findAll().forEach((u) -> {
+				try {
+					FileUtils.cleanDirectory(new File(configuration.getStorageFolder(), u.login));
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			});
 			Mongo.reset(true);
 			request.session().removeAttribute("userLogin");
 			request.session().removeAttribute("theme");

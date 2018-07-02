@@ -91,9 +91,10 @@
 //Initialiser la page
 NIMBUS.init(function() {
 	// Compléter la liste des colonnes disponibles
-	$('#visibleItemColumns').append(NIMBUS.getProperties().map(function(p) {
+	var visibleItemColumns = $('#visibleItemColumns').append(NIMBUS.getProperties().map(function(p) {
 		return '<option value="' + p.name + '">' + NIMBUS.translate(p.caption) + '</option>';
-	})).val([<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>]);
+	}));
+	visibleItemColumns.val([<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>]);
 
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
