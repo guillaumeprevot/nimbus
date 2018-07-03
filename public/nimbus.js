@@ -762,6 +762,12 @@ NIMBUS.navigation = (function() {
 	function showActionsForItem(item) {
 		// Récupérer la fenêtre modale qui donnera la liste des actions possibles 
 		var dialog = $('#actions-dialog');
+		// La navigation ne se fait que dans des dossiers
+		$('#action-navigate').toggle(!!item.folder);
+		// L'ouverture n'est disponible que pour les fichiers
+		$('#action-open').toggle(!item.folder);
+		// La fonction "Localiser" n'est disponible que pendant une recherche récursive
+		$('#action-locate').toggle($('#search-option-recursive').is('.active') && !!$('#search-input').val());
 		// Ouvrir la "modal" donnant la liste des actions
 		dialog.modal({keyboard: true}).off('click', 'a.list-group-item').on('click', 'a.list-group-item', function(event) {
 			var id = $(event.target).closest('.list-group-item').attr('id');
@@ -769,6 +775,28 @@ NIMBUS.navigation = (function() {
 			event.preventDefault();
 			// Exécuter l'action demandée
 			switch (id) {
+			case 'action-navigate':
+				goToFolderAndRefreshItems(item);
+				break;
+			case 'action-open':
+				window.open('/files/stream/' + item.id);
+				break;
+			case 'action-locate':
+				// item.path is '' or 'pid,' or 'pid1,pid2,' ...
+				var pathArray = item.path.split(',');
+				// remove last element which is ''
+				pathArray.pop();
+				// open path in new window
+				window.open('/main.html#' + pathArray.join(','));
+				/*
+				// get path and show it to user
+				getItemsByIds(pathArray, function(items) {
+					NIMBUS.message('/ ' + items.map(function(item) {
+						return item.name;
+					}).join(' / '), false);
+				});
+				*/
+				break;
 			case 'action-rename':
 				$('#rename-dialog').data('item', item).modal();
 				break;
