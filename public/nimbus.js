@@ -489,6 +489,76 @@ NIMBUS.navigation = (function() {
 		clearSelection();
 	}
 
+	// Déplacer un ou plusieurs éléments
+	function moveItems(itemIds) {
+		var dialog = $('#move-dialog');
+		var validateButton = dialog.find('.btn-primary').prop('disabled', true);
+		var rootLI = dialog.find('.modal-body > ul > li:first-child').removeClass('list-group-item-info');
+
+		// Méthode qui charge en AJAX les sous-dossiers
+		function load(ul) {
+			$.get('/items/list', {
+				parentId: ul.parent().attr('data-itemId'),
+				folders: true,
+				deleted: false
+			}).done(function (data) {
+				if (data.length == 0)
+					return;
+				ul.append(data.map(function(item) {
+					var li = $('<li class="list-group-item list-group-item-action" />').attr('data-itemId', item.id);
+					var div = $('<div />').text(item.name).append('<span class="badge badge-primary badge-pill">' + (item.itemCount || 0) + '</span>');
+					return li.append(div)[0];
+				}));
+			});
+		}
+
+		// Sélection du dossier dans lequel déplacer les élémnts
+		dialog.on('click', 'li:not(.list-group-item-info) > div', function(event) {
+			var li = $(this).closest('li');
+			// S'assurer que le parent n'est plus actif
+			li.parent('ul').parent('li').removeClass('list-group-item-info');
+			// S'assurer que tout le sous-arbre n'est ni actif, ni déployé
+			li.parent('ul').find('li').removeClass('expanded list-group-item-info');
+			// Sélection de l'élément cliqué
+			li.addClass('list-group-item-info');
+			// Activer le bouton de validation
+			validateButton.prop('disabled', false);
+			if (! li.is(rootLI)) {
+				// Sélection de l'élément cliqué
+				li.addClass('expanded');
+				// Charger le contenu dynamiquement la première fois qu'on déploie l'entrée
+				if (! li.hasClass('loaded')) {
+					li.addClass('loaded');
+					load($('<ul class="list-group list-group-flush" />').appendTo(li));
+				}
+			}
+		});
+
+		// Vider les éléments précédemment chargés
+		rootLI.siblings().remove();
+		// Affichage de la fenêtre de sélection
+		dialog.modal();
+		// Chargement des éléments à la racine
+		load(rootLI.parent());
+
+		// Connexion du bouton de validation qui déplacera les fichiers
+		validateButton.off('click').on('click', function validate() {
+			// Récupération de l'ID du dossier cible
+			var targetId = dialog.find('li.list-group-item-info').attr('data-itemId');
+			// Déplacement des éléments
+			$.post('/items/move', {
+				targetParentId: targetId,
+				itemIds: itemIds.join(',')
+			}).done(function() {
+				refreshItems(false);
+				$('#move-dialog').modal('hide');
+			}).fail(function(result) {
+				if (result.responseText)
+					NIMBUS.message(result.responseText, true);
+			});
+		});
+	}
+
 	/** Trier les éléments quand l'utilisateur clique sur l'en-tête d'une colonne*/
 	function sortItems(event) {
 		var th = $(event.target).closest('th'); // this is a "th"
@@ -702,6 +772,9 @@ NIMBUS.navigation = (function() {
 			case 'action-rename':
 				$('#rename-dialog').data('item', item).modal();
 				break;
+			case 'action-move':
+				moveItems([item.id]);
+				break;
 			case 'action-delete':
 				deleteItems([item.id]);
 				break;
@@ -747,7 +820,7 @@ NIMBUS.navigation = (function() {
 		// Clic sur le bouton "Télécharger" afin de télécharger un fichier ou un zip des éléments sélectionnés
 		$('#download-button').click(function(event) { getSelectedItemIds(downloadItems); });
 		// Clic sur le bouton "Déplacer", on prépare et on affiche la fenêtre
-		$('#move-button').click(function(event) { getSelectedItemIds(todo); });
+		$('#move-button').click(function(event) { getSelectedItemIds(moveItems); });
 	}
 
 	function todo() {

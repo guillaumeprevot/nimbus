@@ -153,6 +153,12 @@ NIMBUS.lang = {
 	MainDeleteCancelButton: "Cancel",
 	MainDeleteValidateButton: "Delete",
 
+	MainMoveTitle: "Move to",
+	MainMoveRootFolder: "[Root folder]",
+	MainMoveCancelButton: "Cancel",
+	MainMoveValidateButton: "Validate",
+	MainMoveRecursivityErrorMessage: "Can not move an item into it's own descendants",
+
 	CommonFileLength0: "Empty",
 	CommonFileLengthB: "{0} bytes",
 	CommonFileLengthKB: "{0} KB",

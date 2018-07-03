@@ -153,6 +153,12 @@ NIMBUS.lang = {
 	MainDeleteCancelButton: "Annuler",
 	MainDeleteValidateButton: "Supprimer",
 
+	MainMoveTitle: "Déplacement vers",
+	MainMoveRootFolder: "[Dossier racine]",
+	MainMoveCancelButton: "Annuler",
+	MainMoveValidateButton: "Valider",
+	MainMoveRecursivityErrorMessage: "Déplacement impossible d'un élément dans sa propre descendance",
+
 	CommonFileLength0: "Vide",
 	CommonFileLengthB: "{0} octets",
 	CommonFileLengthKB: "{0} Ko",
