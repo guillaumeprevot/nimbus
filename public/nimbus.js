@@ -800,6 +800,21 @@ NIMBUS.navigation = (function() {
 			case 'action-rename':
 				$('#rename-dialog').data('item', item).modal();
 				break;
+			case 'action-duplicate':
+				var i = 2;
+				var duplicate = function(name) {
+					return $.post('/items/duplicate', {
+						itemId: item.id,
+						name: name
+					}).fail(function(error) {
+						if (error.status === 409) // conflict
+							return duplicate(NIMBUS.translate('CommonDuplicateNext', i++, item.name));
+					}).done(function() {
+						refreshItems(false);
+					});
+				};
+				duplicate(NIMBUS.translate('CommonDuplicateFirst', item.name));
+				break;
 			case 'action-move':
 				moveItems([item.id]);
 				break;

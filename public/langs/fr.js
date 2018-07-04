@@ -165,6 +165,8 @@ NIMBUS.lang = {
 	CommonFileLengthMB: "{0} Mo",
 	CommonFileLengthGB: "{0} Go",
 	CommonFolder: "Dossier",
+	CommonDuplicateFirst: "Copie de {0}",
+	CommonDuplicateNext: "Copie ({0}) de {1}",
 	CommonPropertyThumbnail: "Miniature",
 	CommonPropertyName: "Nom",
 	CommonPropertyFolder: "Dossier",
