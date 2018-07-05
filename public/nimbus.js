@@ -73,11 +73,25 @@ var NIMBUS = (function() {
 			{ name: 'createDate', caption: 'CommonPropertyCreateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'createDate', format: (i) => NIMBUS.formatDatetime(i.createDate) },
 			{ name: 'updateDate', caption: 'CommonPropertyUpdateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'updateDate', format: (i) => NIMBUS.formatDatetime(i.updateDate) },
 			{ name: 'tags', caption: 'CommonPropertyTags', format: (i) => i.tags },
-			{ name: 'description', caption: 'CommonPropertyDescription', format: (i) => i.description },
+			{ name: 'description', caption: 'CommonPropertyDescription', format: (i) => NIMBUS.describe(i) },
 			{ name: 'itemCount', caption: 'CommonPropertyItemCount', align: 'right', sortBy: 'content.itemCount', format: (i) => NIMBUS.formatInteger(i.itemCount) },
 			{ name: 'iconURL', caption: 'CommonPropertyIconURL', sortBy: 'content.iconURL', format: (i) => i.iconURL || '' },
 			{ name: 'mimetype', caption: 'CommonPropertyMimetype', width: 120, format: (i) => i.mimetype || '' },
 		];
+	};
+
+	// Brève description d'un élément (nombre de sous-éléments d'un dossier ou taille et type d'un fichier) 
+	NIMBUS.describe = function(item) {
+		if (! item.folder) {
+			var length = NIMBUS.formatLength(item.length);
+			var mimetype = item.mimetype || NIMBUS.translate('CommonFileUnknownMimeType');
+			return NIMBUS.translate('CommonFileDescription', [length, mimetype]);
+		}
+		if (item.itemCount === 0)
+			return NIMBUS.translate('CommonFolderDescriptionEmpty');
+		if (item.itemCount === 1)
+			return NIMBUS.translate('CommonFolderDescriptionOneChild');
+		return NIMBUS.translate('CommonFolderDescriptionMultipleChildren', [item.itemCount]);
 	};
 
 	// Function d'initialisation de la page
@@ -731,7 +745,7 @@ NIMBUS.navigation = (function() {
 					return term ? (' <span class="badge badge-primary">' + term + '</span>') : '';
 				}).join('') : '';
 				// + la description entre parenthèses de manière facultative
-				var description = showItemDescription ? (item.folder ? 'folder' : 'file') : '';
+				var description = showItemDescription ? NIMBUS.describe(item) : '';
 				if (description)
 					description = $('<span class="description text-muted" />').html(' (' + description + ')');
 				// Ensuite, les colonnes demandée
