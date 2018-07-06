@@ -267,7 +267,8 @@ NIMBUS.navigation = (function() {
 		// Composant d'edition d'une liste de tags
 		tagsInput.tagsinput({
 			url: '/items/tags',
-			label: tagsInput.prev()
+			label: tagsInput.prev(),
+			inline: false
 		});
 		// Initialiser le statut de la fenêtre à l'ouverture
 		dialog.on('show.bs.modal', function() {
