@@ -39,7 +39,7 @@ public class User {
 	}
 
 	public static final long count() {
-		return getCollection().count();
+		return getCollection().countDocuments();
 	}
 
 	public static final List<User> findAll() {

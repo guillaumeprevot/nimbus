@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/bson-3.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/bson-3.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.28.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.8.5.jar"/>
@@ -18,8 +18,8 @@
 	<classpathentry kind="lib" path="lib/jetty-webapp-9.4.8.v20171121.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-xml-9.4.8.v20171121.jar"/>
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.11.0.jar"/>
-	<classpathentry kind="lib" path="lib/mongodb-driver-3.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb-driver-3.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.25.jar"/>
 	<classpathentry kind="lib" path="lib/spark-core-2.7.2.jar"/>

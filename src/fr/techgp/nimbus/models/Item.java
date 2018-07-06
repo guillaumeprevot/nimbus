@@ -232,23 +232,23 @@ public class Item {
 	}
 
 	public static final int count(String userLogin, Long parentId) {
-		return (int) getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId));
+		return (int) getCollection().countDocuments(new Document("userLogin", userLogin).append("parentId", parentId));
 	}
 
 	public static final int trashCount(String userLogin) {
-		return (int) getCollection().count(Filters.and(Filters.eq("userLogin", userLogin), Filters.exists("deleteDate")));
+		return (int) getCollection().countDocuments(Filters.and(Filters.eq("userLogin", userLogin), Filters.exists("deleteDate")));
 	}
 
 	public static final boolean hasItem(String userLogin, Long itemId) {
-		return getCollection().count(new Document("userLogin", userLogin).append("_id", itemId)) == 1;
+		return getCollection().countDocuments(new Document("userLogin", userLogin).append("_id", itemId)) == 1;
 	}
 
 	public static final boolean hasItemWithName(String userLogin, Long parentId, String name) {
-		return getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId).append("name", name)) > 0;
+		return getCollection().countDocuments(new Document("userLogin", userLogin).append("parentId", parentId).append("name", name)) > 0;
 	}
 
 	public static final boolean hasItemsWithNames(String userLogin, Long parentId, String... names) {
-		return getCollection().count(new Document("userLogin", userLogin).append("parentId", parentId).append("name", new Document("$in", Arrays.asList(names)))) > 0;
+		return getCollection().countDocuments(new Document("userLogin", userLogin).append("parentId", parentId).append("name", new Document("$in", Arrays.asList(names)))) > 0;
 	}
 
 	public static final Item findItemWithName(String userLogin, Long parentId, String name) {
