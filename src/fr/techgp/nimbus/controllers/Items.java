@@ -330,7 +330,7 @@ public class Items extends Controller {
 	/**
 	 * Cette méthode encode un élément "item" en un objet JSON pour être renvoyé côté client contenant :
 	 * <ul>
-	 * <li>les propriétés générales (id, parentId, path, folder?, name, createDate, updateDate, deleteDate, tags)
+	 * <li>les propriétés générales (id, parentId, path, folder?, name, share*, createDate, updateDate, deleteDate, tags)
 	 * <li>les propriétés des dossiers si c'est un dossier (itemCount, iconURL)
 	 * <li>les propriétés des fichiers si c'est un fichier (mimetype, length)
 	 * <li>les propriétés des fichiers gérées par les "Facet" si c'est un fichier image, video, audio, ...
@@ -347,6 +347,12 @@ public class Items extends Controller {
 		// node.addProperty("userLogin", item.userLogin);
 		node.addProperty("folder", item.folder);
 		node.addProperty("name", item.name);
+		if (StringUtils.isNotBlank(item.sharedPassword))
+			node.addProperty("sharedPassword", item.sharedPassword);
+		if (item.sharedDate != null)
+			node.addProperty("sharedDate", item.sharedDate.getTime());
+		if (item.sharedDuration != null)
+			node.addProperty("sharedDuration", item.sharedDuration);
 		node.addProperty("createDate", item.createDate.getTime());
 		node.addProperty("updateDate", item.updateDate.getTime());
 		if (item.deleteDate != null)

@@ -98,6 +98,12 @@ public class Controller {
 		Spark.post("/trash/restore", Trash.restore);
 		Spark.post("/trash/erase", Trash.erase);
 
+		Spark.before("/share/add", Filters.filterAuthenticated);
+		Spark.before("/share/delete", Filters.filterAuthenticated);
+		Spark.post("/share/add", Shares.add);
+		Spark.post("/share/delete", Shares.delete);
+		Spark.get("/share/get/:itemId", Shares.get); // URL publique
+
 		Spark.before("/preferences.html", Filters.filterAuthenticatedOrRedirect);
 		Spark.before("/preferences/save", Filters.filterAuthenticated);
 		Spark.get("/preferences/theme.css", Preferences.stylesheet); // URL publique

@@ -247,6 +247,44 @@
 	</div>
 </div>
 
+<div id="share-dialog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" data-translate="text">MainShareTitle</h4>
+			</div>
+			<div class="modal-body">
+				<fieldset>
+					<div class="form-group">
+						<label for="share-duration" data-translate="text">MainShareDurationLabel</label>
+						<select id="share-duration" class="form-control" autofocus="autofocus" name="duration">
+							<option value="10" data-translate="text">MainShareDuration10Minutes</option>
+							<option value="60" data-translate="text">MainShareDuration1Hour</option>
+							<option value="120" data-translate="text">MainShareDuration2Hours</option>
+							<option value="1440" data-translate="text">MainShareDuration1Day</option>
+							<option value="10080" data-translate="text">MainShareDuration1Week</option>
+							<option value="44640" data-translate="text">MainShareDuration1Month</option>
+							<option value="" data-translate="text">MainShareDurationNoLimit</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="share-password" data-translate="text">MainSharePasswordLabel</label>
+						<input id="share-password" class="form-control"  data-translate="placeholder" name="password" type="text" readonly="readonly" placeholder="MainSharePasswordPlaceholder" />
+					</div>
+					<div class="form-group">
+						<label for="share-url" data-translate="text">MainShareURLLabel</label>
+						<input id="share-url" class="form-control" data-translate="placeholder" name="url" type="text" readonly="readonly" placeholder="MainShareURLPlaceholder" />
+					</div>
+				</fieldset>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-link text-danger" data-translate="text" id="share-remove-button">MainShareRemoveButton</button>
+				<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">MainShareCancelButton</button>
+				<button type="button" class="btn btn-primary" data-translate="text" id="share-validate-button">MainShareValidateButton</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <div id="delete-dialog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog" role="document">
@@ -293,6 +331,8 @@
 					<a href="#" class="list-group-item list-group-item-action" id="action-open"><i class="material-icons">open_in_new</i> <span data-translate="text">ActionOpen</span></a>
 					<a href="#" class="list-group-item list-group-item-action" id="action-locate"><i class="material-icons">location_searching</i> <span data-translate="text">ActionLocate</span></a>
 					<a href="#" class="list-group-item list-group-item-action" id="action-rename"><i class="material-icons">edit</i> <span data-translate="text">ActionRename</span></a>
+					<a href="#" class="list-group-item list-group-item-action" id="action-share"><i class="material-icons">share</i> <span data-translate="text">ActionShare</span></a>
+					<a href="#" class="list-group-item list-group-item-action" id="action-share-update"><i class="material-icons">share</i> <span data-translate="text">ActionShareUpdate</span></a>
 					<a href="#" class="list-group-item list-group-item-action" id="action-duplicate"><i class="material-icons">dns</i> <span data-translate="text">ActionDuplicate</span></a>
 					<a href="#" class="list-group-item list-group-item-action" id="action-move"><i class="material-icons">redo</i> <span data-translate="text">ActionMove</span></a>
 					<a href="#" class="list-group-item list-group-item-action" id="action-delete"><i class="material-icons">delete</i> <span data-translate="text">ActionDelete</span></a>

@@ -34,7 +34,7 @@ var NIMBUS = (function() {
 
 	// Formatte une date exprimée en milliseconds depuis epoch avec partie date et partie heure
 	NIMBUS.formatDatetime = function(ms) {
-		return NIMBUS.lang.formatDatetime(new Date(ms));
+		return ms ? NIMBUS.lang.formatDatetime(new Date(ms)) : '';
 	};
 
 	// Formatte un booléen en affichant une image quand le booléen en vrai et rien sinon
@@ -77,6 +77,9 @@ var NIMBUS = (function() {
 			{ name: 'itemCount', caption: 'CommonPropertyItemCount', align: 'right', sortBy: 'content.itemCount', format: (i) => NIMBUS.formatInteger(i.itemCount) },
 			{ name: 'iconURL', caption: 'CommonPropertyIconURL', sortBy: 'content.iconURL', format: (i) => i.iconURL || '' },
 			{ name: 'mimetype', caption: 'CommonPropertyMimetype', width: 120, format: (i) => i.mimetype || '' },
+			{ name: 'shared', caption: 'CommonPropertyShared', align: 'center', width: 80, sortBy: 'sharedPassword', format: (i) => NIMBUS.formatBoolean(!!i.sharedPassword, 'share') },
+			{ name: 'sharedDate', caption: 'CommonPropertySharedDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'sharedDate', format: (i) => NIMBUS.formatDatetime(i.sharedDate) },
+			{ name: 'sharedDuration', caption: 'CommonPropertySharedDuration', align: 'right', sortBy: 'sharedDuration', format: (i) => !i.sharedPassword ? '' : i.sharedDuration ? (NIMBUS.formatInteger(i.sharedDuration) + 'min') : '∞' },
 		];
 	};
 
@@ -256,6 +259,7 @@ NIMBUS.navigation = (function() {
 			});
 		});
 	}
+
 	/** Initialiser le comportement pour le renommage de fichier/dossier */
 	function prepareRenameItem() {
 		// Récupérer les composants concernés
@@ -294,6 +298,69 @@ NIMBUS.navigation = (function() {
 			}).done(function() {
 				refreshItems(false);
 				dialog.modal('hide');
+			});
+		});
+	}
+
+	/** Initialiser le comportement pour le partage de fichier */
+	function prepareShareItem() {
+		// Récupérer les composants concernés
+		var dialog = $('#share-dialog');
+		var durationSelect = $('#share-duration');
+		var passwordInput = $('#share-password');
+		var urlInput = $('#share-url');
+		var removeButton = $('#share-remove-button');
+		var validateButton = $('#share-validate-button');
+		// Initialiser le statut de la fenêtre à l'ouverture
+		dialog.on('show.bs.modal', function() {
+			var item = dialog.data('item');
+			if (!!item.sharedPassword) {
+				durationSelect.val(item.sharedDuration);
+				passwordInput.val(item.sharedPassword).parent().show();
+				urlInput.val(window.location.origin + '/share/get/' + item.id + '?password=' + item.sharedPassword).parent().show();
+				removeButton.show();
+			} else {
+				durationSelect.val('');
+				passwordInput.val('').parent().hide();
+				urlInput.val('').parent().hide();
+				removeButton.hide();
+			}
+		});
+		// Suppression du partage
+		removeButton.click(function() {
+			var item = dialog.data('item');
+			$.post('/share/delete', {
+				itemId: item.id
+			}).done(function() {
+				delete item.sharedPassword;
+				delete item.sharedDuration;
+				delete item.sharedDate;
+				refreshItems(false);
+				dialog.modal('hide');
+			});
+		});
+		// Création/Modification du partage
+		validateButton.click(function() {
+			var item = dialog.data('item');
+			var wasShared = !!item.sharedPassword;
+			var duration = durationSelect.val() ? parseInt(durationSelect.val()) : undefined;
+			$.post('/share/add', {
+				itemId: item.id,
+				duration: duration
+			}).done(function(data) {
+				item.sharedPassword = data;
+				item.sharedDuration = duration;
+				item.sharedDate = Date.now();
+				refreshItems(false);
+				if (wasShared) {
+					// Update share and close dialog
+					dialog.modal('hide');
+				} else {
+					// Create share and keep dialog opened to show URL
+					passwordInput.val(item.sharedPassword).parent().show();
+					urlInput.val(window.location.origin + '/share/get/' + item.id + '?password=' + item.sharedPassword).parent().show();
+					removeButton.show();
+				}
 			});
 		});
 	}
@@ -783,6 +850,10 @@ NIMBUS.navigation = (function() {
 		$('#action-open').toggle(!item.folder);
 		// La fonction "Localiser" n'est disponible que pendant une recherche récursive
 		$('#action-locate').toggle($('#search-option-recursive').is('.active') && !!$('#search-input').val());
+		// Le création de partage n'est dispo que pour les fichiers pas encore partagés
+		$('#action-share').toggle(!item.folder && !item.sharedPassword);
+		// Le modification d'un partage n'est dispo que pour les fichiers déjà partagés
+		$('#action-share-update').toggle(!item.folder && !!item.sharedPassword);
 		// Ouvrir la "modal" donnant la liste des actions
 		dialog.modal({keyboard: true}).off('click', 'a.list-group-item').on('click', 'a.list-group-item', function(event) {
 			var id = $(event.target).closest('.list-group-item').attr('id');
@@ -814,6 +885,10 @@ NIMBUS.navigation = (function() {
 				break;
 			case 'action-rename':
 				$('#rename-dialog').data('item', item).modal();
+				break;
+			case 'action-share':
+			case 'action-share-update':
+				$('#share-dialog').data('item', item).modal();
 				break;
 			case 'action-duplicate':
 				var i = 2;
@@ -867,6 +942,8 @@ NIMBUS.navigation = (function() {
 		prepareTouchFile();
 		// Initialiser le comportement pour le renommage de fichier/dossier
 		prepareRenameItem();
+		// Initialiser le comportement pour le partage de fichier
+		prepareShareItem();
 		// Affichage du nombre d'élément dans la corbeille
 		updateTrashMenu(trashCount);
 		// Affichage du quota dans le menu

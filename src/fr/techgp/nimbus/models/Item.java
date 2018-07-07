@@ -43,6 +43,12 @@ public class Item {
 	public Date deleteDate;
 	/** Liste des tags, séparés par des virgules */
 	public List<String> tags;
+	/** La date du partage ou null si l'élément n'est pas partagé */
+	public Date sharedDate;
+	/** Le mot de passe du partage, de la forme 30 caractères alpha-numérique aléatoires */
+	public String sharedPassword;
+	/** La durée en minutes du partage ou null pour un partage illimité */
+	public Integer sharedDuration;
 	/** Contenu de l'élément spécifique à la facet (largeur et hauteur d'une image par exemple) */
 	public Document content;
 
@@ -51,11 +57,13 @@ public class Item {
 	}
 
 	public static final void insert(Item item) {
-		getWriteCollection().insertOne(write(item));
+		getWriteCollection().insertOne(write(item, null));
 	}
 
 	public static final void update(Item item) {
-		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$set", write(item)));
+		Document unset = new Document();
+		Document set = write(item, unset);
+		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$set", set).append("$unset", unset));
 	}
 
 	public static final void delete(Item item) {
@@ -94,6 +102,9 @@ public class Item {
 		child.updateDate = new Date();
 		child.deleteDate = null;
 		child.tags = null;
+		child.sharedDate = null;
+		child.sharedPassword = null;
+		child.sharedDuration = null;
 		child.content = new Document();
 		if (child.folder)
 			child.content.append("itemCount", 0);
@@ -119,6 +130,9 @@ public class Item {
 		duplicate.updateDate = new Date();
 		duplicate.deleteDate = null;
 		duplicate.tags = item.tags == null ? null : new ArrayList<>(item.tags);
+		duplicate.sharedDate = null;
+		duplicate.sharedPassword = null;
+		duplicate.sharedDuration = null;
 		duplicate.content = Document.parse(item.content.toJson()); // ensure deep metadatas copy
 		if (duplicate.folder)
 			duplicate.content.append("itemCount", 0); // no recursive duplicate
@@ -288,6 +302,9 @@ public class Item {
 		item.folder = document.getBoolean("folder").booleanValue();
 		item.name = document.getString("name");
 		item.tags = (List<String>) document.get("tags");
+		item.sharedDate = document.getDate("sharedDate");
+		item.sharedPassword = document.getString("sharedPassword");
+		item.sharedDuration = document.getInteger("sharedDuration");
 		item.createDate = document.getDate("createDate");
 		item.updateDate = document.getDate("updateDate");
 		item.deleteDate = document.getDate("deleteDate");
@@ -296,7 +313,7 @@ public class Item {
 		return item;
 	}
 
-	private static final Document write(Item item) {
+	private static final Document write(Item item, Document unset) {
 		check(item);
 		Document d = new Document()
 			.append("_id", item.id)
@@ -309,8 +326,26 @@ public class Item {
 			.append("createDate", item.createDate)
 			.append("updateDate", item.updateDate)
 			.append("content", item.content);
+
+		if (item.sharedDate != null)
+			d.append("sharedDate", item.sharedDate);
+		else if (unset != null)
+			unset.append("sharedDate", "");
+
+		if (item.sharedDuration != null)
+			d.append("sharedDuration", item.sharedDuration);
+		else if (unset != null)
+			unset.append("sharedDuration", "");
+
+		if (item.sharedPassword != null)
+			d.append("sharedPassword", item.sharedPassword);
+		else if (unset != null)
+			unset.append("sharedPassword", "");
+
 		if (item.deleteDate != null)
 			d.append("deleteDate", item.deleteDate);
+		else if (unset != null)
+			unset.append("deleteDate", "");
 		return d;
 	}
 
