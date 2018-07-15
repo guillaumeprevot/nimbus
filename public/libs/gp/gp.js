@@ -32,4 +32,13 @@
 		};
 	}
 
+	/*
+	 * C'est un plugin jQuery qui donnera le focus à l'input marquée "autofocus" à l'ouverture de la fenêtre modale Bootstrap
+	 */
+	$.fn.autofocusModal = function() {
+		return this.on('shown.bs.modal', function(event) {
+			$(this).find('[autofocus]:not([disabled])').first().select().focus();
+		});
+	};
+
 })(jQuery);

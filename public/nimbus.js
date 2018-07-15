@@ -124,6 +124,10 @@ var NIMBUS = (function() {
 				e.removeAttribute('data-translate');
 			});
 
+			// Gestion auto du focus dans les boîtes modales de Bootstrap
+			if ($.fn.autofocusModal)
+				$('.modal').autofocusModal();
+
 			// Finalisation spécifique à la page en cours
 			callback();
 		});
