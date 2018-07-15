@@ -16,9 +16,10 @@
 			return false;
 		});
 
-		this.tagInput.on('keydown', function(event) {
-			if (event.key === 'Enter') {
-				self.addTag(self.tagInput.val().trim());
+		this.tagInput.on('keyup', function(event) {
+			var tag;
+			if (event.key === 'Enter' && (tag = self.tagInput.val().trim())) {
+				self.addTag(tag);
 				return false;
 			}
 		});
@@ -69,7 +70,7 @@
 				.append('<a href="#" class="btn btn-link btn-sm text-light p-0 pb-1"><i class="material-icons material-icons-16">clear</i></a>');
 		},
 		refreshTags: function() {
-			this.tagInput.val('');
+			this.tagInput.val('').trigger('input');
 			this.container.children('.badge').remove();
 			this.container.prepend((this.originalInput.val() || '').split(',').map(function(tag) {
 				if (tag)

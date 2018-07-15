@@ -127,6 +127,9 @@ var NIMBUS = (function() {
 			// Gestion auto du focus dans les boîtes modales de Bootstrap
 			if ($.fn.autofocusModal)
 				$('.modal').autofocusModal();
+			// Validation auto en appuyent sur "entrée" dans les boîtes modales de Bootstrap
+			if ($.fn.autovalidateModal)
+				$('.modal-body').autovalidateModal();
 
 			// Finalisation spécifique à la page en cours
 			callback();

@@ -33,11 +33,24 @@
 	}
 
 	/*
-	 * C'est un plugin jQuery qui donnera le focus à l'input marquée "autofocus" à l'ouverture de la fenêtre modale Bootstrap
+	 * C'est un plugin jQuery qui donnera le focus à l'input active marquée "autofocus" lors de l'ouverture de la fenêtre modale Bootstrap
 	 */
 	$.fn.autofocusModal = function() {
 		return this.on('shown.bs.modal', function(event) {
 			$(this).find('[autofocus]:not([disabled])').first().select().focus();
+		});
+	};
+
+	/*
+	 * C'est un plugin jQuery qui simulera le clic sur le ".btn-primary" (si unique) lorsque l'utilisateur appuie sur "Entrée" dans une fenêtre modale Bootstrap
+	 */
+	$.fn.autovalidateModal = function() {
+		return this.on('keyup', function(event) {
+			if (event.key === 'Enter') {
+				var btn = $(this).closest('.modal').find('.modal-footer .btn-primary:not([disabled])');
+				if (btn.length == 1)
+					btn.click();
+			}
 		});
 	};
 
