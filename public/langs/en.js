@@ -176,6 +176,7 @@ NIMBUS.lang = {
 	MainMoveValidateButton: "Validate",
 	MainMoveRecursivityErrorMessage: "Can not move an item into it's own descendants",
 
+	CommonBackToTop: "Back to the top of the page",
 	CommonFileDescription: "{0}, {1}",
 	CommonFileUnknownMimeType: "unknown file type",
 	CommonFileLength0: "empty",

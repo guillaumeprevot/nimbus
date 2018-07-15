@@ -124,15 +124,22 @@ var NIMBUS = (function() {
 				e.removeAttribute('data-translate');
 			});
 
+			// Finalisation spécifique à la page en cours
+			callback();
+
 			// Gestion auto du focus dans les boîtes modales de Bootstrap
 			if ($.fn.autofocusModal)
 				$('.modal').autofocusModal();
 			// Validation auto en appuyent sur "entrée" dans les boîtes modales de Bootstrap
 			if ($.fn.autovalidateModal)
 				$('.modal-body').autovalidateModal();
-
-			// Finalisation spécifique à la page en cours
-			callback();
+			// Ajout d'un bouton "Back to top" en fils de document.body
+			if ($.fn.backToTop) {
+				$(document.body).backToTop({
+					title: NIMBUS.translate('CommonBackToTop'),
+					contentHTML: '<i class="material-icons">keyboard_arrow_up</i>'
+				});
+			}
 		});
 	};
 
