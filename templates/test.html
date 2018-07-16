@@ -46,6 +46,13 @@ function assertContains(result, text) {
 		return "OK";
 	return $.Deferred().reject("'" + result + "' devrait contenir '" + text + "'");
 }
+function assertStringWithLength(result, length) {
+	if (typeof result !== 'string')
+		return $.Deferred().reject("'" + result + "' devrait être un texte");
+	if (result.length !== length)
+		return $.Deferred().reject("'" + result + "' n'a pas la longueur attendue de " + length + " caractères");
+	return "OK";
+}
 function assertString(result/*, text1, included?, text2, included?, ...*/) {
 	if (typeof result !== 'string')
 		return $.Deferred().reject("'" + result + "' devrait être un texte");
@@ -81,6 +88,9 @@ function assertArray(result, length, checkFirst) {
 }
 function assertLoginPage(result) {
 	return assertContains(result, "<form action=\"/login.html\"");
+}
+function assertMainPage(result) {
+	return assertContains(result, "<body id=\"main\" class=\"nimbus-hidden\">");
 }
 function assertStream(content, status, jqHR, mimetype, filename, length) {
 	var ct = jqHR.getResponseHeader("Content-Type");
@@ -146,7 +156,7 @@ function fillTests(add) {
 		return $.get("/main.html").then(assertLoginPage);
 	});
 	add("Créer un premier compte quand la base est vide", function() {
-		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<body id=\"main\" class=\"nimbus-hidden\">"));
+		return $.post("/login.html?login=adm&password=adm").then(assertMainPage);
 	});
 	add("Recupérer la liste des utilisateurs", function() {
 		return $.get("/user/list").then((result) => assertArray(result, 1, (u) => u.login === "adm" && u.admin === true));
@@ -179,13 +189,13 @@ function fillTests(add) {
 		return $.get("/users.html").then((result) => assertContains(result, "<table id=\"users\""));
 	});
 	add("Se reconnecter en utilisateur standard", function() {
-		return $.post("/login.html?login=u&password=u").then((result) => assertContains(result, "<body id=\"main\" class=\"nimbus-hidden\">"));
+		return $.post("/login.html?login=u&password=u").then(assertMainPage);
 	});
 	add("Bloquer l'accès à la gestion des utilisateurs aux non admins", function() {
 		return $.get("/users.html").then(assertLoginPage);
 	});
 	add("Se reconnecter en administrateur", function() {
-		return $.post("/login.html?login=adm&password=adm").then((result) => assertContains(result, "<body id=\"main\" class=\"nimbus-hidden\">"));
+		return $.post("/login.html?login=adm&password=adm").then(assertMainPage);
 	});
 
 	add("Supprimer un utilisateur", function() {
@@ -231,15 +241,43 @@ function fillTests(add) {
 		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.name === "toto.txt" && r.length === totoTxtContent.length && r.mimetype === "text/plain" && r.lines === 2));
 	});
 
+	var sharePassword;
+	add("PARTAGE / Vérifier que l'accès est interdit sans partage", function() {
+		return shoudBeAnError($.get("/share/get/1"));
+	});
+	add("PARTAGE / Vérifier que l'on peut partager un fichier", function() {
+		return $.post("/share/add?itemId=1").then((result) => { sharePassword = result; return assertStringWithLength(result, 30); });
+	});
+	add("PARTAGE / Vérifier que l'accès est toujours interdit sans le mot de passe", function() {
+		return shoudBeAnError($.get("/share/get/1"));
+	});
+	add("PARTAGE / Vérifier que l'accès est toujours interdit avec un mot de passe incorrect", function() {
+		return shoudBeAnError($.get("/share/get/1?password=ABABABABABABABABABABABABABABAB"));
+	});
+	add("PARTAGE / Vérifier que l'accès est par contre autorisé avec le bon mot de passe", function() {
+		return $.get("/share/get/1?password=" + sharePassword).then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+	});
+	add("PARTAGE / Vérifier que l'accès est aussi possible déconnecté avec le bon mot de passe", function() {
+		return $.get("/logout").then(assertLoginPage)
+			.then(() => $.get("/share/get/1?password=" + sharePassword).then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length)))
+			.then(() => $.post("/login.html?login=adm&password=adm").then(assertMainPage));
+	});
+	add("PARTAGE / Vérifier que l'on peut supprimer un partage", function() {
+		return $.post("/share/delete?itemId=1").then(assertEmpty);
+	});
+	add("PARTAGE / Vérifier que l'accès est ensuite bloqué, même avec le mot de passe", function() {
+		return shoudBeAnError($.get("/share/get/1?password=" + sharePassword));
+	});
+
 	add("Uploader une image qui aura pour id 2", function() {
 		// Found here : https://stackoverflow.com/questions/23150333/html5-javascript-dataurl-to-blob-blob-to-dataurl
 		var base64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABP0lEQVQ4jd3SP07DMBTH8UcS23ET+U/rurKjplaGXoAF5R7deoaeoUdhYOsEZ+jCwMYNkCohBEIcgB8TlWCAZmDhSZ/xffWGR/Sv5oxzvpZS7qSUByHEIc/zHRGtiejs12Wl1NZ7jxgjYozw3kNrDSEEiGj7Y8Rau26aBikldF2HruuQUkLTNLDWoixLcM63nPPLoihesyy7JKKLYyCldN22LRaLxRdt2yKEgPF4DOfcg3MOxhhIKVGW5dUxEGN8/Dz9uxACZrMZvPfvIQR476GUAmPs7RgIITxNp1OcwjkHpRTm8/kNERHVdb2aTCYvxhicQmsNpdRzVVX3RLSiuq73o9EIp5JSQgiBoijAGNuT1vqWc44hGGPI8xxVVd1S3/cba+1dlmUYwhhz1/f9hgBYAEsA5wMtAdhBv/4n8wHh/sScXBuiFwAAAABJRU5ErkJggg==";
 		var bstr = atob(base64);
 		var n = bstr.length; // 376
 		var content = new Uint8Array(n);
-	    while (n--) {
-	    	content[n] = bstr.charCodeAt(n);
-	    }
+		while (n--) {
+			content[n] = bstr.charCodeAt(n);
+		}
 		return shouldUpload(content, "image/png", "favicon.png", 2);
 	});
 	add("Vérifier que l'image 'favicon.png' a la bonne taille", function() {
