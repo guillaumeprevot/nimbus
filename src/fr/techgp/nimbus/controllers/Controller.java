@@ -117,7 +117,9 @@ public class Controller {
 				return SparkUtils.haltNotFound();
 			User.findAll().forEach((u) -> {
 				try {
-					FileUtils.cleanDirectory(new File(configuration.getStorageFolder(), u.login));
+					File folder = new File(configuration.getStorageFolder(), u.login);
+					if (folder.exists())
+						FileUtils.cleanDirectory(folder);
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
