@@ -89,9 +89,9 @@
 
 <script>
 //Initialiser la page
-NIMBUS.init(function() {
+NIMBUS.init([<#list plugins as p>'${p}'<#sep>,</#sep></#list>], function() {
 	// Compléter la liste des colonnes disponibles
-	var visibleItemColumns = $('#visibleItemColumns').append(NIMBUS.getProperties().map(function(p) {
+	var visibleItemColumns = $('#visibleItemColumns').append(NIMBUS.plugins.properties.map(function(p) {
 		return '<option value="' + p.name + '">' + NIMBUS.translate(p.caption) + '</option>';
 	}));
 	visibleItemColumns.val([<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>]);

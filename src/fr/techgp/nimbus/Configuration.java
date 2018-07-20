@@ -31,6 +31,7 @@ public class Configuration {
 	private final String serverAbsoluteUrl;
 
 	private final File storageFolder;
+	private final String clientPlugins;
 	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
 	private final Map<String, String> mimetypes;
@@ -55,6 +56,7 @@ public class Configuration {
 		this.serverAbsoluteUrl = getString("server.absolute.url", (this.serverKeystore != null ? "https" : "http") + "://localhost:" + this.serverPort);
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
+		this.clientPlugins = getString("client.plugins", "default-before,default-after");
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class, (facet) -> facet.init(this));
 		this.mimetypes = getPairs("mimetype");
@@ -136,6 +138,10 @@ public class Configuration {
 
 	public File getStorageFolder() {
 		return this.storageFolder;
+	}
+
+	public String getClientPlugins() {
+		return clientPlugins;
 	}
 
 	public Set<String> getTextFileExtensions() {

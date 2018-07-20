@@ -3,6 +3,51 @@ var NIMBUS = (function() {
 
 	var NIMBUS = {};
 
+	NIMBUS.plugins = {
+		// Contiendra la liste des noms de plugins chargés 
+		names: [],
+		// Contiendra la liste des propriétés des éléments
+		properties: [],
+		// Contiendra la liste des actions possible sur les éléments
+		actions: [],
+		// Contiendra les différentes manières d'afficher les éléments
+		facets: [],
+		// Cette méthode enregistre un plugin chargé dynamiquement
+		add: function(plugin) {
+			// console.log('adding plugin', plugin);
+			// On enregistre le nom du plugin chargé
+			NIMBUS.plugins.names.push(plugin.name);
+			// On enregistre les propriétés gérées par le plugin, en révitant les doublons
+			// Si 2 plugins déclarent une propriété de même nom ('width' par exemple), on
+			// considère que c'est une seule propriétés avec le même comportement dans les 2 cas
+			if ($.isArray(plugin.properties)) {
+				var names = NIMBUS.plugins.properties.map(function(p) { return p.name; });
+				plugin.properties.forEach(function(p) {
+					if (names.indexOf(p.name) === -1) {
+						NIMBUS.plugins.properties.push(p);
+						names.push(p.name);
+					}
+				});
+			}
+			if ($.isArray(plugin.facets))
+				$.merge(NIMBUS.plugins.facets, plugin.facets);
+			if ($.isArray(plugin.actions))
+				$.merge(NIMBUS.plugins.actions, plugin.actions);
+		},
+		// Cette méthode charge un ensemble de plugins et retourne une promise
+		load: function(plugins) {
+			var defer = $.Deferred();
+			var chain = defer;
+			plugins.forEach(function(name) {
+				chain = chain.then(function() {
+					return $.getScript('/plugins/' + name + '.js');
+				});
+			});
+			defer.resolve('Go!');
+			return chain;
+		}
+	};
+
 	NIMBUS.message = function(text, isError) {
 		return $('<div class="alert" />')
 			.toggleClass('alert-danger', isError)
@@ -65,49 +110,11 @@ var NIMBUS = (function() {
 		return NIMBUS.translate('CommonFileLengthGB', length.toFixed(1));
 	};
 
-	// Propriétés disponibles dans la grille
-	NIMBUS.getProperties = function() {
-		return [
-			{ name: 'folder', caption: 'CommonPropertyFolder', align: 'center', sortBy: 'folder', format: (i) => NIMBUS.formatBoolean(i.folder, 'folder') },
-			{ name: 'length', caption: 'CommonPropertyLength', align: 'right', width: 100, sortBy: 'content.length', format: (i) => NIMBUS.formatLength(i.length) },
-			{ name: 'createDate', caption: 'CommonPropertyCreateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'createDate', format: (i) => NIMBUS.formatDatetime(i.createDate) },
-			{ name: 'updateDate', caption: 'CommonPropertyUpdateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'updateDate', format: (i) => NIMBUS.formatDatetime(i.updateDate) },
-			{ name: 'tags', caption: 'CommonPropertyTags', format: (i) => i.tags },
-			{ name: 'description', caption: 'CommonPropertyDescription', format: (i) => NIMBUS.describe(i) },
-			{ name: 'itemCount', caption: 'CommonPropertyItemCount', align: 'right', sortBy: 'content.itemCount', format: (i) => NIMBUS.formatInteger(i.itemCount) },
-			{ name: 'iconURL', caption: 'CommonPropertyIconURL', sortBy: 'content.iconURL', format: (i) => i.iconURL || '' },
-			{ name: 'mimetype', caption: 'CommonPropertyMimetype', width: 120, format: (i) => i.mimetype || '' },
-			{ name: 'shared', caption: 'CommonPropertyShared', align: 'center', width: 80, sortBy: 'sharedPassword', format: (i) => NIMBUS.formatBoolean(!!i.sharedPassword, 'share') },
-			{ name: 'sharedDate', caption: 'CommonPropertySharedDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'sharedDate', format: (i) => NIMBUS.formatDatetime(i.sharedDate) },
-			{ name: 'sharedDuration', caption: 'CommonPropertySharedDuration', align: 'right', sortBy: 'sharedDuration', format: (i) => !i.sharedPassword ? '' : i.sharedDuration ? (NIMBUS.formatInteger(i.sharedDuration) + 'min') : '∞' },
-		];
-	};
-
-	// Brève description d'un élément (nombre de sous-éléments d'un dossier ou taille et type d'un fichier) 
-	NIMBUS.describe = function(item) {
-		if (! item.folder) {
-			var length = NIMBUS.formatLength(item.length);
-			var mimetype = item.mimetype || NIMBUS.translate('CommonFileUnknownMimeType');
-			return NIMBUS.translate('CommonFileDescription', [length, mimetype]);
-		}
-		if (item.itemCount === 0)
-			return NIMBUS.translate('CommonFolderDescriptionEmpty');
-		if (item.itemCount === 1)
-			return NIMBUS.translate('CommonFolderDescriptionOneChild');
-		return NIMBUS.translate('CommonFolderDescriptionMultipleChildren', [item.itemCount]);
-	};
-
 	// Function d'initialisation de la page
-	NIMBUS.init = function(callback) {
+	NIMBUS.init = function(plugins, callback) {
+
 		// Attendre le chargement de la page
 		$(function() {
-			// Fermeture auto des "alertes" en cliquant dessus
-			$('body').on('click', '.alert', function(event) {
-				$(event.target).closest('.alert').slideUp(function() {
-					$(this).remove();
-				});
-			});
-
 			// Traduction de la page
 			$('[data-translate]').each(function(i, e) {
 				var properties = e.getAttribute('data-translate').split(' ');
@@ -124,15 +131,27 @@ var NIMBUS = (function() {
 				e.removeAttribute('data-translate');
 			});
 
-			// Finalisation spécifique à la page en cours
-			callback();
+			// Chargement des plugins demandés
+			NIMBUS.plugins.load(plugins).then(function() {
+				// Finalisation spécifique à la page en cours
+				callback();
+			});
+
+			// Fermeture auto des "alertes" en cliquant dessus
+			$('body').on('click', '.alert', function(event) {
+				$(event.target).closest('.alert').slideUp(function() {
+					$(this).remove();
+				});
+			});
 
 			// Gestion auto du focus dans les boîtes modales de Bootstrap
 			if ($.fn.autofocusModal)
 				$('.modal').autofocusModal();
+
 			// Validation auto en appuyent sur "entrée" dans les boîtes modales de Bootstrap
 			if ($.fn.autovalidateModal)
 				$('.modal-body').autovalidateModal();
+
 			// Ajout d'un bouton "Back to top" en fils de document.body
 			if ($.fn.backToTop) {
 				$(document.body).backToTop({
@@ -701,7 +720,7 @@ NIMBUS.navigation = (function() {
 	/** Préparer la table principale */
 	function prepareTable(columns) {
 		// Liste des colonnes disponibles
-		$('#items-options').next().append(NIMBUS.getProperties().map(function(p) {
+		$('#items-options').next().append(NIMBUS.plugins.properties.map(function(p) {
 			return $('<a class="dropdown-item" href="#"></a>')
 				.attr('data-property', p.name)
 				.text(NIMBUS.translate(p.caption))
@@ -794,7 +813,7 @@ NIMBUS.navigation = (function() {
 			var showItemTags = optionsMenu.children('[data-option=showItemTags]').is('.active');
 			var showItemDescription = optionsMenu.children('[data-option=showItemDescription]').is('.active');
 			var showItemThumbnail = optionsMenu.children('[data-option=showItemThumbnail]').is('.active');
-			var properties = NIMBUS.getProperties().filter(function(p) { return optionsMenu.children('[data-property="' + p.name + '"]').is('.active'); });
+			var properties = NIMBUS.plugins.properties.filter(function(p) { return optionsMenu.children('[data-property="' + p.name + '"]').is('.active'); });
 
 			// Mise à jour des en-têtes
 			if (withHeaders) {
@@ -816,10 +835,18 @@ NIMBUS.navigation = (function() {
 			// Fill table
 			var tableBody = $('#items tbody');
 			for (var i = 0; i < items.length; i++) {
+				// L'élément à afficher
 				var item = items[i];
+				// L'extension associée, si c'est un fichier
+				var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
+				// La facet qui gère l'affichage de l'élément. Par défaut, on tombera au moins sur "folder" ou "file" 
+				var facet = NIMBUS.plugins.facets.find(function(facet) {
+					return facet.accept(item, extension);
+				});
+				// console.log(item.id, item.name, extension, facet.name);
+
 				// 1ère colonne : icône personnalisable
-				var icon = item.folder ? 'folder' : 'insert_drive_file';
-				icon = '<i class="material-icons">' + icon + '</i>';
+				var icon = facet.image(item, showItemThumbnail); 
 				// 2ème colonne : nom personnalisable
 				var name = $('<span />').html(item.name);
 				// + les tags de manière facultative
@@ -827,7 +854,7 @@ NIMBUS.navigation = (function() {
 					return term ? (' <span class="badge badge-primary">' + term + '</span>') : '';
 				}).join('') : '';
 				// + la description entre parenthèses de manière facultative
-				var description = showItemDescription ? NIMBUS.describe(item) : '';
+				var description = showItemDescription ? facet.describe(item) : '';
 				if (description)
 					description = $('<span class="description text-muted" />').html(' (' + description + ')');
 				// Ensuite, les colonnes demandée
@@ -837,7 +864,7 @@ NIMBUS.navigation = (function() {
 						cell.css('text-align', p.align); 
 					if (typeof p.width === 'number')
 						cell.css('width', p.width + 'px');
-					cell.append(p.format(item));
+					cell.append(p.format(item, facet));
 					return cell[0];
 				});
 				// Dernière colonne, le bouton pour le menu des actions
@@ -845,6 +872,7 @@ NIMBUS.navigation = (function() {
 
 				// Ajout de la ligne
 				$('<tr />').data('item', item)
+					.addClass(facet.name)
 					.append($('<td class="icon"><i class="material-icons text-primary">check</i></td>').append(icon))
 					.append($('<td class="name" />').append(tags).append(name).append(description))
 					.append(cells)
@@ -856,82 +884,42 @@ NIMBUS.navigation = (function() {
 
 	// Clic sur les boutons "...", on affiche les actions possibles
 	function showActionsForItem(item) {
+		// Récupérer l'extension de l'élement concerné
+		var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
 		// Récupérer la fenêtre modale qui donnera la liste des actions possibles 
 		var dialog = $('#actions-dialog');
-		// La navigation ne se fait que dans des dossiers
-		$('#action-navigate').toggle(!!item.folder);
-		// L'ouverture n'est disponible que pour les fichiers
-		$('#action-open').toggle(!item.folder);
-		// La fonction "Localiser" n'est disponible que pendant une recherche récursive
-		$('#action-locate').toggle($('#search-option-recursive').is('.active') && !!$('#search-input').val());
-		// Le création de partage n'est dispo que pour les fichiers pas encore partagés
-		$('#action-share').toggle(!item.folder && !item.sharedPassword);
-		// Le modification d'un partage n'est dispo que pour les fichiers déjà partagés
-		$('#action-share-update').toggle(!item.folder && !!item.sharedPassword);
+		// Récupérer le parent des entrées de menu qui vont être ajoutées 
+		var list = dialog.find('.list-group');
+		if (list.is(':empty')) {
+			// La 1ère fois, générer la liste des actions mais n'afficher que les actions de l'élément cliqué
+			list.append(NIMBUS.plugins.actions.map(function(action) {
+				// <a href="#" class="list-group-item list-group-item-action" id="action-navigate"><i class="material-icons">folder_open</i> <span data-translate="text">ActionNavigate</span></a>
+				return $('<a href="#" class="list-group-item list-group-item-action" />')
+					.attr('id', 'action-' + action.name)
+					.data('action', action)
+					.toggleClass('nimbus-hidden', !action.accept(item, extension))
+					.attr('href', action.url ? action.url(item) : '#')
+					.append($('<i class="material-icons" />').text(action.icon))
+					.append('&nbsp;')
+					.append($('<span />').text(NIMBUS.translate(action.caption)))
+					[0];
+			}));
+		} else {
+			// Ensuite, jouer sur la visibilité des actions
+			NIMBUS.plugins.actions.forEach(function(action) {
+				list.children('#action-' + action.name)
+					.toggleClass('nimbus-hidden', !action.accept(item, extension))
+					.attr('href', action.url ? action.url(item) : '#');
+			});
+		}
 		// Ouvrir la "modal" donnant la liste des actions
 		dialog.modal({keyboard: true}).off('click', 'a.list-group-item').on('click', 'a.list-group-item', function(event) {
 			var id = $(event.target).closest('.list-group-item').attr('id');
 			// Ne pas toucher au hash de l'URL
 			event.preventDefault();
 			// Exécuter l'action demandée
-			switch (id) {
-			case 'action-navigate':
-				goToFolderAndRefreshItems(item);
-				break;
-			case 'action-open':
-				window.open('/files/stream/' + item.id);
-				break;
-			case 'action-locate':
-				// item.path is '' or 'pid,' or 'pid1,pid2,' ...
-				var pathArray = item.path.split(',');
-				// remove last element which is ''
-				pathArray.pop();
-				// open path in new window
-				window.open('/main.html#' + pathArray.join(','));
-				/*
-				// get path and show it to user
-				getItemsByIds(pathArray, function(items) {
-					NIMBUS.message('/ ' + items.map(function(item) {
-						return item.name;
-					}).join(' / '), false);
-				});
-				*/
-				break;
-			case 'action-rename':
-				$('#rename-dialog').data('item', item).modal();
-				break;
-			case 'action-share':
-			case 'action-share-update':
-				$('#share-dialog').data('item', item).modal();
-				break;
-			case 'action-duplicate':
-				var i = 2;
-				var duplicate = function(name) {
-					return $.post('/items/duplicate', {
-						itemId: item.id,
-						name: name
-					}).fail(function(error) {
-						if (error.status === 409) // conflict
-							return duplicate(NIMBUS.translate('CommonDuplicateNext', i++, item.name));
-					}).done(function() {
-						refreshItems(false);
-					});
-				};
-				duplicate(NIMBUS.translate('CommonDuplicateFirst', item.name));
-				break;
-			case 'action-move':
-				moveItems([item.id]);
-				break;
-			case 'action-delete':
-				deleteItems([item.id]);
-				break;
-			case 'action-download':
-				downloadItems([item.id], item.folder);
-				break;
-			default:
-				todo();
-			}
-			// Et on ferme la fenêtre
+			$(event.target).closest('.list-group-item').data('action').execute(item);
+			// Et fermer la fenêtre
 			dialog.modal('hide');
 		});;
 	}
@@ -977,6 +965,10 @@ NIMBUS.navigation = (function() {
 	}
 
 	return {
-		init: init
+		init: init,
+		refreshItems: refreshItems,
+		moveItems: moveItems,
+		deleteItems: deleteItems,
+		downloadItems: downloadItems
 	}
 })();

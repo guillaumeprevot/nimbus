@@ -59,7 +59,7 @@
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 <script>
-NIMBUS.init(function() {
+NIMBUS.init([], function() {
 	$('button[data-theme]').on('click', function(event) {
 		var button = $(event.target).closest('button');
 		var theme = button.attr('data-theme');

@@ -113,7 +113,7 @@
 
 <script>
 //Initialiser la page
-NIMBUS.init(function() {
+NIMBUS.init([], function() {
 	// Charger et afficher la liste des utilisateurs 
 	$.get('/user/list').then(execute);
 });
