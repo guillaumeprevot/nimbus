@@ -106,6 +106,8 @@
 						}).fail(function(error) {
 							if (error.status === 409) // Conflict
 								return duplicate(NIMBUS.translate('CommonDuplicateNext', i++, item.name));
+							if (error.status === 507) // Insufficient Storage
+								NIMBUS.message(NIMBUS.translate('CommonDuplicateInsufficientStorage'), true);
 						}).done(function() {
 							NIMBUS.navigation.refreshItems(false);
 						});

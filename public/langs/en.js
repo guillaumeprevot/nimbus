@@ -190,6 +190,7 @@ NIMBUS.lang = {
 	CommonFolderDescriptionMultipleChildren: "contains {0} elements",
 	CommonDuplicateFirst: "Copy of {0}",
 	CommonDuplicateNext: "Copy ({0}) of {1}",
+	CommonDuplicateInsufficientStorage: "Operation failed due to disk quota",
 	CommonPropertyThumbnail: "Image",
 	CommonPropertyName: "Name",
 	CommonPropertyFolder: "Folder",
