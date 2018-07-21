@@ -1,4 +1,6 @@
 NIMBUS.lang = {
+	Name: "fr",
+
 	LoginTitle: "Authentification",
 	LoginInstallationTitle: "Installation",
 	LoginLoginLabel: "Nom d'utilisateur",

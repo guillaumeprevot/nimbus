@@ -33,6 +33,8 @@ var NIMBUS = (function() {
 				$.merge(NIMBUS.plugins.facets, plugin.facets);
 			if ($.isArray(plugin.actions))
 				$.merge(NIMBUS.plugins.actions, plugin.actions);
+			if (plugin.langs)
+				$.extend(NIMBUS.lang, plugin.langs[NIMBUS.lang['Name']] || {});
 		},
 		// Cette méthode charge un ensemble de plugins et retourne une promise
 		load: function(plugins) {
