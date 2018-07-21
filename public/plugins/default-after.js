@@ -17,6 +17,7 @@
 				},
 				open: function(item) {
 					window.open('/files/stream/' + item.id);
+					return true;
 				}
 			}
 		],
@@ -29,18 +30,11 @@
 					// L'ouverture n'est disponible que pour les fichiers
 					return !item.folder;
 				},
-				url: function(item) {
-					return '/files/stream/' + item.id;
-				},
 				execute: function(item) {
 					var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
-					var facet = NIMBUS.plugins.facets.find(function(facet) {
-						return facet.accept(item, extension);
+					NIMBUS.plugins.facets.find(function(facet) {
+						return facet.accept(item, extension) && facet.open && facet.open(item);
 					});
-					if (facet)
-						facet.open(item);
-					else
-						window.open('/files/stream/' + item.id);
 				}
 			}, {
 				name: 'locate',

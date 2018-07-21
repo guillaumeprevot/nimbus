@@ -208,6 +208,7 @@ NIMBUS.lang = {
 	CommonDateTimeColumnWidth: 170,
 
 	ActionNavigate: "Open",
+	ActionNavigateTab: "Open in a new tab",
 	ActionOpen: "Open...",
 	ActionLocate: "Show location",
 	ActionRename: "Rename",

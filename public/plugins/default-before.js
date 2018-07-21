@@ -34,7 +34,8 @@
 					return NIMBUS.translate('CommonFolderDescriptionMultipleChildren', [item.itemCount]);
 				},
 				open: function(item) {
-					goToFolderAndRefreshItems(item);
+					window.open('/main.html#' + item.path + item.id);
+					return true;
 				}
 			}
 		],
@@ -47,11 +48,19 @@
 					// La navigation ne se fait que dans des dossiers
 					return item.folder;
 				},
-				url: function(item) {
-					return '/main.html#' + item.path + item.id;
+				execute: function(item) {
+					NIMBUS.navigation.goToFolderAndRefreshItems(item);
+				}
+			}, {
+				name: 'navigate-tab',
+				icon: 'open_in_new',
+				caption: 'ActionNavigateTab',
+				accept: function(item, extension) {
+					// Cette action ouvre un dossier dans un nouvel onglet
+					return item.folder;
 				},
 				execute: function(item) {
-					goToFolderAndRefreshItems(item);
+					window.open('/main.html#' + item.path + item.id);
 				}
 			}
 		]

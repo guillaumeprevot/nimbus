@@ -898,7 +898,6 @@ NIMBUS.navigation = (function() {
 					.attr('id', 'action-' + action.name)
 					.data('action', action)
 					.toggleClass('nimbus-hidden', !action.accept(item, extension))
-					.attr('href', action.url ? action.url(item) : '#')
 					.append($('<i class="material-icons" />').text(action.icon))
 					.append('&nbsp;')
 					.append($('<span />').text(NIMBUS.translate(action.caption)))
@@ -908,8 +907,7 @@ NIMBUS.navigation = (function() {
 			// Ensuite, jouer sur la visibilité des actions
 			NIMBUS.plugins.actions.forEach(function(action) {
 				list.children('#action-' + action.name)
-					.toggleClass('nimbus-hidden', !action.accept(item, extension))
-					.attr('href', action.url ? action.url(item) : '#');
+					.toggleClass('nimbus-hidden', !action.accept(item, extension));
 			});
 		}
 		// Ouvrir la "modal" donnant la liste des actions
@@ -967,6 +965,7 @@ NIMBUS.navigation = (function() {
 	return {
 		init: init,
 		refreshItems: refreshItems,
+		goToFolderAndRefreshItems: goToFolderAndRefreshItems,
 		moveItems: moveItems,
 		deleteItems: deleteItems,
 		downloadItems: downloadItems
