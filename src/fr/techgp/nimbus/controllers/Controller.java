@@ -102,6 +102,7 @@ public class Controller {
 		Spark.post("/trash/erase", Trash.erase);
 
 		Spark.before("/download/*", Filters.filterAuthenticated);
+		Spark.get("/download/autocomplete", Downloads.autocomplete);
 		Spark.post("/download/add", Downloads.add);
 		Spark.post("/download/refresh", Downloads.refresh);
 

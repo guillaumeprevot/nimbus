@@ -279,7 +279,7 @@ NIMBUS.navigation = (function() {
 		});
 		// Désactiver le bouton de validation quand le nom est vide
 		input.on('input', function() {
-			validateButton.prop('disabled', input.val().trim().length == 0);
+			validateButton.prop('disabled', input.val().trim().length === 0);
 		});
 		// Validation de la fenêtre
 		validateButton.click(function() {
@@ -310,7 +310,20 @@ NIMBUS.navigation = (function() {
 		});
 		// Désactiver le bouton de validation quand le nom est vide
 		urlInput.on('input', function() {
-			validateButton.prop('disabled', urlInput.val().trim().length == 0);
+			validateButton.prop('disabled', urlInput.val().trim().length === 0);
+		});
+		// Profiter de l'auto-complétion des URLs (Youtube pour l'instant)
+		urlInput.autocomplete({
+			min: 22,
+			bold: false,
+			input: 'update',
+			menu: 'close',
+			query: function(term, callback) {
+				$.get('/download/autocomplete', { url: term }, callback);
+			},
+			select: function(option) {
+				nameInput.val(option.name);
+			}
 		});
 		// Validation de la fenêtre
 		validateButton.click(function() {
