@@ -37,6 +37,19 @@
 					});
 				}
 			}, {
+				name: 'refresh',
+				icon: 'refresh',
+				caption: 'ActionRefresh',
+				accept: function(item, extension) {
+					// Fonction dispo pour les fichiers téléchargés depuis une URL "source"
+					return !item.folder && item.sourceURL;
+				},
+				execute: function(item) {
+					$.post('/download/refresh?itemId=' + item.id).done(function() {
+						refreshItems(false);
+					});
+				}
+			}, {
 				name: 'locate',
 				icon: 'location_searching',
 				caption: 'ActionLocate',

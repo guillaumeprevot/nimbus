@@ -295,6 +295,38 @@ NIMBUS.navigation = (function() {
 		});
 	}
 
+	/** Initialiser le comportement pour l'ajout de fichier depuis une URL */
+	function prepareAddURL() {
+		// Récupérer les composants concernés
+		var dialog = $('#add-url-dialog');
+		var nameInput = $('#add-url-name');
+		var urlInput = $('#add-url-input');
+		var validateButton = $('#add-url-validate-button');
+		// Initialiser le statut de la fenêtre à l'ouverture
+		dialog.on('show.bs.modal', function() {
+			nameInput.val('').removeClass('is-invalid');
+			urlInput.val('').removeClass('is-invalid');
+			validateButton.prop('disabled', true);
+		});
+		// Désactiver le bouton de validation quand le nom est vide
+		urlInput.on('input', function() {
+			validateButton.prop('disabled', urlInput.val().trim().length == 0);
+		});
+		// Validation de la fenêtre
+		validateButton.click(function() {
+			$.post('/download/add', {
+				parentId: getCurrentPathId(),
+				url: urlInput.val(),
+				name: nameInput.val()
+			}).fail(function() {
+				nameInput.addClass('is-invalid');
+			}).done(function(idString) {
+				refreshItems(false);
+				dialog.modal('hide');
+			});
+		});
+	}
+
 	/** Initialiser le comportement pour le renommage de fichier/dossier */
 	function prepareRenameItem() {
 		// Récupérer les composants concernés
@@ -942,6 +974,8 @@ NIMBUS.navigation = (function() {
 		prepareFileUpload();
 		// Initialiser le comportement pour l'ajout de fichier texte vide
 		prepareTouchFile();
+		// Initialiser le comportement pour l'ajout de fichier depuis une URL
+		prepareAddURL();
 		// Initialiser le comportement pour le renommage de fichier/dossier
 		prepareRenameItem();
 		// Initialiser le comportement pour le partage de fichier

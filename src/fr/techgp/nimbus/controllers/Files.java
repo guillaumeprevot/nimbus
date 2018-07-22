@@ -14,12 +14,10 @@ import java.util.List;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonArray;
 
-import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.utils.ImageUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
@@ -260,31 +258,6 @@ public class Files extends Controller {
 			return null;
 		} catch (IOException ex) {
 			return SparkUtils.haltBadRequest();
-		}
-	}
-
-	/**
-	 * Cette méthode met à jour les méta-données de l'élément "item".
-	 *
-	 * @param item l'élément représentant un fichier dans le cloud
-	 * @throws Exception si l'une des facets lance une erreur
-	 */
-	private static final void updateFile(Item item) throws Exception {
-		// Informations sur l'élément
-		File storedFile = getFile(item);
-		String extension = FilenameUtils.getExtension(item.name).toLowerCase();
-		// Mise à jour des méta-données
-		item.content.clear();
-		item.content.append("length", storedFile.length());
-		// Mettre à jour les propriétés spécifiques aux Facet
-		for (Facet facet : configuration.getFacets()) {
-			try {
-				if (facet.supports(extension))
-					facet.updateMetadata(storedFile, extension, item.content);
-			} catch (Exception ex) {
-				if (Controller.logger.isErrorEnabled())
-					Controller.logger.error("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")", ex);
-			}
 		}
 	}
 

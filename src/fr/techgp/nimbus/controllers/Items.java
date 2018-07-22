@@ -332,7 +332,7 @@ public class Items extends Controller {
 	 * <ul>
 	 * <li>les propriétés générales (id, parentId, path, folder?, name, share*, createDate, updateDate, deleteDate, tags)
 	 * <li>les propriétés des dossiers si c'est un dossier (itemCount, iconURL)
-	 * <li>les propriétés des fichiers si c'est un fichier (mimetype, length)
+	 * <li>les propriétés des fichiers si c'est un fichier (mimetype, length, progress, status, sourceURL)
 	 * <li>les propriétés des fichiers gérées par les "Facet" si c'est un fichier image, video, audio, ...
 	 *</ul>
 	 *
@@ -367,6 +367,12 @@ public class Items extends Controller {
 				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
 				node.addProperty("mimetype", configuration.getMimeType(extension));
 				node.addProperty("length", item.content.getLong("length"));
+				if (item.content.containsKey("progress"))
+					node.addProperty("progress", item.content.getInteger("progress"));
+				if (item.content.containsKey("status"))
+					node.addProperty("status", item.content.getString("status"));
+				if (item.content.containsKey("sourceURL"))
+					node.addProperty("sourceURL", item.content.getString("sourceURL"));
 				for (Facet facet : configuration.getFacets()) {
 					if (facet.supports(extension)) {
 						facet.loadMetadata(item.content, node);

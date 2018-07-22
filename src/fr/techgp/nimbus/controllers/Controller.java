@@ -9,9 +9,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
 import fr.techgp.nimbus.Configuration;
+import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
@@ -98,6 +100,10 @@ public class Controller {
 		Spark.post("/trash/delete", Trash.delete);
 		Spark.post("/trash/restore", Trash.restore);
 		Spark.post("/trash/erase", Trash.erase);
+
+		Spark.before("/download/*", Filters.filterAuthenticated);
+		Spark.post("/download/add", Downloads.add);
+		Spark.post("/download/refresh", Downloads.refresh);
 
 		Spark.before("/share/add", Filters.filterAuthenticated);
 		Spark.before("/share/delete", Filters.filterAuthenticated);
@@ -247,6 +253,31 @@ public class Controller {
 		result.getParentFile().mkdirs();
 		// OK, on est prêt
 		return result;
+	}
+
+	/**
+	 * Cette méthode met à jour les méta-données de l'élément "item".
+	 *
+	 * @param item l'élément représentant un fichier dans le cloud
+	 * @throws Exception si l'une des facets lance une erreur
+	 */
+	protected static final void updateFile(Item item) throws Exception {
+		// Informations sur l'élément
+		File storedFile = getFile(item);
+		String extension = FilenameUtils.getExtension(item.name).toLowerCase();
+		// Mise à jour des méta-données
+		item.content.clear();
+		item.content.append("length", storedFile.length());
+		// Mettre à jour les propriétés spécifiques aux Facet
+		for (Facet facet : configuration.getFacets()) {
+			try {
+				if (facet.supports(extension))
+					facet.updateMetadata(storedFile, extension, item.content);
+			} catch (Exception ex) {
+				if (Controller.logger.isErrorEnabled())
+					Controller.logger.error("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")", ex);
+			}
+		}
 	}
 
 	/**

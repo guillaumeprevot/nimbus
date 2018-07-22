@@ -47,6 +47,10 @@
 				<i class="material-icons">note_add</i>
 				<span data-translate="text">MainToolbarTouchFile</span>
 			</a>
+			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#add-url-dialog">
+				<i class="material-icons">link</i>
+				<span data-translate="text">MainToolbarDownloadURL</span>
+			</a>
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="/preferences.html">
 				<i class="material-icons">account_box</i>
@@ -212,6 +216,33 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">MainTouchFileCancelButton</button>
 				<button type="button" class="btn btn-primary" data-translate="text" id="touch-file-validate-button">MainTouchFileValidateButton</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="add-url-dialog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" data-translate="text">MainAddURLTitle</h5>
+			</div>
+			<div class="modal-body">
+				<fieldset>
+					<div class="form-group">
+						<label for="add-url-name" data-translate="text">MainAddURLNameLabel</label>
+						<input id="add-url-name" class="form-control" data-translate="placeholder" autofocus="autofocus" name="name" type="text" maxlength="128" placeholder="MainAddURLNamePlaceholder" />
+						<div class="invalid-feedback" data-translate="text">MainAddURLNameConflictErrorMessage</div>
+					</div>
+					<div class="form-group">
+						<label for="add-url-input" data-translate="text">MainAddURLInputLabel</label>
+						<input id="add-url-input" class="form-control" data-translate="placeholder" name="input" type="text" maxlength="128" required="required" placeholder="MainAddURLInputPlaceholder" />
+					</div>
+				</fieldset>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">MainAddURLCancelButton</button>
+				<button type="button" class="btn btn-primary" data-translate="text" id="add-url-validate-button">MainAddURLValidateButton</button>
 			</div>
 		</div>
 	</div>
