@@ -105,6 +105,24 @@ public class Downloads extends Controller {
 		});
 	};
 
+	/**
+	 * Cette méthode est appelée quand l'utilisateur a vu l'état du fichier téléchargé "itemId".
+	 * On vide alors les attributs de l'élément qui stockait la progression du téléchargement.
+	 *
+	 * (itemId) => void
+	 *
+	 * @see Item#update(Item)
+	 */
+	public static final Route done = (request, response) -> {
+		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+			item.content.remove("status");
+			item.content.remove("progress");
+			item.updateDate = new Date();
+			Item.update(item);
+			return "";
+		});
+	};
+
 	private static final Object execute(Item item, Response response) {
 		try {
 			HttpURLConnection connection = WebUtils.openURL(item.content.getString("sourceURL"));

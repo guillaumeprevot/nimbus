@@ -37,16 +37,29 @@
 					});
 				}
 			}, {
-				name: 'refresh',
+				name: 'download-refresh',
 				icon: 'refresh',
-				caption: 'ActionRefresh',
+				caption: 'ActionDownloadRefresh',
 				accept: function(item, extension) {
 					// Fonction dispo pour les fichiers téléchargés depuis une URL "source"
 					return !item.folder && item.sourceURL;
 				},
 				execute: function(item) {
 					$.post('/download/refresh?itemId=' + item.id).done(function() {
-						refreshItems(false);
+						NIMBUS.navigation.refreshItems(false);
+					});
+				}
+			}, {
+				name: 'download-done',
+				icon: 'check',
+				caption: 'ActionDownloadDone',
+				accept: function(item, extension) {
+					// Fonction dispo pour les fichiers téléchargés dont le statut a changé
+					return !item.folder && item.sourceURL && item.status;
+				},
+				execute: function(item) {
+					$.post('/download/done?itemId=' + item.id).done(function() {
+						NIMBUS.navigation.refreshItems(false);
 					});
 				}
 			}, {

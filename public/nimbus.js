@@ -896,6 +896,12 @@ NIMBUS.navigation = (function() {
 				var icon = facet.image(item, showItemThumbnail); 
 				// 2ème colonne : nom personnalisable
 				var name = $('<span />').html(item.name);
+				if (item.status === 'download')
+					name.addClass('text-info');
+				else if (item.status === 'error')
+					name.addClass('text-danger');
+				else if (item.status === 'success')
+					name.addClass('text-success');
 				// + les tags de manière facultative
 				var tags = (showItemTags && item.tags) ? $.map(item.tags.split(','), function(term) {
 					return term ? (' <span class="badge badge-primary">' + term + '</span>') : '';

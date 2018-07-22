@@ -105,6 +105,7 @@ public class Controller {
 		Spark.get("/download/autocomplete", Downloads.autocomplete);
 		Spark.post("/download/add", Downloads.add);
 		Spark.post("/download/refresh", Downloads.refresh);
+		Spark.post("/download/done", Downloads.done);
 
 		Spark.before("/share/add", Filters.filterAuthenticated);
 		Spark.before("/share/delete", Filters.filterAuthenticated);
