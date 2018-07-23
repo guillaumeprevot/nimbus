@@ -36,15 +36,19 @@ public class JaveVideoFacet implements Facet {
 		Encoder encoder = new Encoder();
 		MultimediaInfo info = encoder.getInfo(file);
 		bson.put("duration", info.getDuration()); // 12500 (ms)
-		bson.put("width", info.getVideo().getSize().getWidth()); // 320 (px)
-		bson.put("height", info.getVideo().getSize().getHeight()); // 240 (px)
-		bson.put("videoCodec", info.getVideo().getDecoder()); // "theora"
-		bson.put("videoBitRate", info.getVideo().getBitRate()); // -1
-		bson.put("videoFrameRate", info.getVideo().getFrameRate()); // 29 (frame/s)
-		bson.put("audioChannels", info.getAudio().getChannels()); // 2 (stereo)
-		bson.put("audioCodec", info.getAudio().getDecoder()); // "vorbis"
-		bson.put("audioBitRate", info.getAudio().getBitRate()); // 64 (Kbps)
-		bson.put("audioSamplingRate", info.getAudio().getSamplingRate()); // 44100 (Hz)
+		if (info.getVideo() != null) {
+			bson.put("width", info.getVideo().getSize().getWidth()); // 320 (px)
+			bson.put("height", info.getVideo().getSize().getHeight()); // 240 (px)
+			bson.put("videoCodec", info.getVideo().getDecoder()); // "theora"
+			bson.put("videoBitRate", info.getVideo().getBitRate()); // -1
+			bson.put("videoFrameRate", info.getVideo().getFrameRate()); // 29 (frame/s)
+		}
+		if (info.getAudio() != null) {
+			bson.put("audioChannels", info.getAudio().getChannels()); // 2 (stereo)
+			bson.put("audioCodec", info.getAudio().getDecoder()); // "vorbis"
+			bson.put("audioBitRate", info.getAudio().getBitRate()); // 64 (Kbps)
+			bson.put("audioSamplingRate", info.getAudio().getSamplingRate()); // 44100 (Hz)
+		}
 	}
 
 }

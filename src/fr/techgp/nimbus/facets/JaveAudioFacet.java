@@ -31,10 +31,12 @@ public class JaveAudioFacet implements Facet {
 		Encoder encoder = new Encoder();
 		MultimediaInfo info = encoder.getInfo(file);
 		bson.put("duration", info.getDuration()); // 12500 (ms)
-		bson.put("audioChannels", info.getAudio().getChannels()); // 2 (stereo)
-		bson.put("audioCodec", info.getAudio().getDecoder()); // "vorbis"
-		bson.put("audioBitRate", info.getAudio().getBitRate()); // 64 (Kbps)
-		bson.put("audioSamplingRate", info.getAudio().getSamplingRate()); // 44100 (Hz)
+		if (info.getAudio() != null) {
+			bson.put("audioChannels", info.getAudio().getChannels()); // 2 (stereo)
+			bson.put("audioCodec", info.getAudio().getDecoder()); // "vorbis"
+			bson.put("audioBitRate", info.getAudio().getBitRate()); // 64 (Kbps)
+			bson.put("audioSamplingRate", info.getAudio().getSamplingRate()); // 44100 (Hz)
+		}
 	}
 
 }
