@@ -866,7 +866,7 @@ NIMBUS.navigation = (function() {
 			if (withHeaders) {
 				$('#items thead > tr > th.name').nextAll(':not(.actions)').remove();
 				$(properties.map(function(p) {
-					var th = $('<th />').addClass(p.name).text(NIMBUS.translate(p.caption));
+					var th = $('<th />').text(NIMBUS.translate(p.caption));
 					if (p.align !== 'left')
 						th.css('text-align', p.align); 
 					if (typeof p.width === 'number')

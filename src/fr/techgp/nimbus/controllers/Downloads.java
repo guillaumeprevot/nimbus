@@ -131,6 +131,7 @@ public class Downloads extends Controller {
 			new Thread(new DownloadURLRunnable(item, connection)).start();
 			return item.id.toString();
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			return SparkUtils.haltInternalServerError();
 		}
 	}
