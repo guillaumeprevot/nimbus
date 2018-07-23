@@ -116,6 +116,13 @@ function shoudBeAnError(ajax) {
 		(error) => "OK"
 	);
 }
+function wait(seconds) {
+	var defer = $.Deferred();
+	setTimeout(function() {
+		defer.resolve();
+	}, seconds * 1000);
+	return defer;
+}
 function upload(content, mimetype, filename) {
 	var blob = new Blob([content], { type: mimetype });
 	var formData = new FormData();
@@ -411,20 +418,51 @@ function fillTests(add) {
 	});
 
 	var stringOf520KB = "0123456789".repeat(52).repeat(1024);
-	add("Descendre le quota disque à 1Mo", function() {
+	add("QUOTA / Descendre le quota disque à 1Mo", function() {
 		return $.post("/user/update/adm?name=&admin=true&quota=1").then((result) => assertObject(result, (o) => o.quota === 1));
 	});
-	add("Vérifier que le quota autorise de dupliquer 'file.txt' en 'fichier7.txt'", function() {
+	add("QUOTA / Vérifier que le quota autorise de dupliquer 'file.txt' en 'fichier7.txt'", function() {
 		return $.post("/items/duplicate?itemId=0&name=fichier7.txt").then((result) => assertEquals(result, "7"));
 	});
-	add("Vérifier que le quota autorise d'uploader 510KB dans 'file.txt'", function() {
+	add("QUOTA / Vérifier que le quota autorise d'uploader 510KB dans 'file.txt'", function() {
 		return upload(stringOf520KB, "text/plain", "file.txt").then((result) => assertArray(result, 1, (first) => first === 0));
 	});
-	add("Vérifier que le quota empêche de dupliquer à nouveau 'file.txt'", function() {
+	add("QUOTA / Vérifier que le quota empêche de dupliquer à nouveau 'file.txt'", function() {
 		return shoudBeAnError($.post("/items/duplicate?itemId=0&name=fichier8.txt"));
 	});
-	add("Vérifier que le quota empêche d'uploader à nouveau 510KB dans 'fichier7.txt'", function() {
+	add("QUOTA / Vérifier que le quota empêche d'uploader à nouveau 510KB dans 'fichier7.txt'", function() {
 		return shoudBeAnError(upload(stringOf520KB, "text/plain", "fichier7.txt"));
+	});
+	add("QUOTA / Repasser le quota disque à 100Mo", function() {
+		return $.post("/user/update/adm?name=&admin=true&quota=100").then((result) => assertObject(result, (o) => o.quota === 100));
+	});
+
+	var aucompleteResult;
+	add("DOWNLOAD / Vérifier l'auto-complétion des vidéos YouTube", function() {
+		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=8TCxE0bWQeQ" }).then((result) => assertArray(result, 4, (r) => { aucompleteResult = r; return r.name && r.value && r.label && r.value.indexOf("http") === 0; }));
+	});
+	add("DOWNLOAD / Vérifier que l'autocomplétion YouTube échoue si la vidéo est inconnue", function() {
+		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=hg-i47g1TKY" }).then((result) => assertArray(result, 0));
+	});
+	add("DOWNLOAD / Télécharger une vidéo", function() {
+		return $.post("/download/add", { url: aucompleteResult.value, name: aucompleteResult.name }).then((result) => assertEquals(result, "8"));
+	});
+	add("DOWNLOAD / Vérifier les informations sur l'élément téléchargé", function() {
+		return wait(1).then(() => $.get("/items/info/8")).then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
+				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
+	});
+	add("DOWNLOAD / Actualiser un fichier téléchargé", function() {
+		return wait(3).then(() => $.post("/download/refresh?itemId=8")).then((result) => assertEquals(result, "8"));
+	});
+	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé n'ont pas changé", function() {
+		return wait(1).then(() => $.get("/items/info/8")).then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
+				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
+	});
+	add("DOWNLOAD / Marquer le téléchargement comme vu", function() {
+		return wait(3).then(() => $.post("/download/done?itemId=8")).then(assertEmpty);
+	});
+	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé ont été nettoyées", function() {
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0 && !r.status));
 	});
 
 	add("Vérifier les préférences par défaut", function() {
