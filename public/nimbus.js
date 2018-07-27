@@ -331,8 +331,13 @@ NIMBUS.navigation = (function() {
 				parentId: getCurrentPathId(),
 				url: urlInput.val(),
 				name: nameInput.val()
-			}).fail(function() {
-				nameInput.addClass('is-invalid');
+			}).fail(function(error) {
+				if (error.status === 409) // Conflict
+					nameInput.addClass('is-invalid');
+				else if (error.status === 507) // Insufficient Storage
+					urlInput.addClass('is-invalid');
+				else if (console && console.log)
+					console.log(error);
 			}).done(function(idString) {
 				refreshItems(false);
 				dialog.modal('hide');

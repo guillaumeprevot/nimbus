@@ -290,7 +290,8 @@ public class Controller {
 	 * @param neededSpace l'espace nécessaire pour accomplir l'opération en cours (upload, duplicate, ...)
 	 */
 	protected static final void checkQuotaAndHaltIfNecessary(String userLogin, Long neededSpace) {
-		if (neededSpace == null || neededSpace == 0)
+		// Pas de souci si la taille n'augmente pas
+		if (neededSpace == null || neededSpace <= 0)
 			return;
 		// Récupérer le quota de l'utilisateur connecté
 		User user = User.findByLogin(userLogin);

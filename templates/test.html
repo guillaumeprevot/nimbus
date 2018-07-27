@@ -448,14 +448,14 @@ function fillTests(add) {
 		return $.post("/download/add", { url: aucompleteResult.value, name: aucompleteResult.name }).then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier les informations sur l'élément téléchargé", function() {
-		return wait(1).then(() => $.get("/items/info/8")).then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
 				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
 	});
 	add("DOWNLOAD / Actualiser un fichier téléchargé", function() {
 		return wait(3).then(() => $.post("/download/refresh?itemId=8")).then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé n'ont pas changé", function() {
-		return wait(1).then(() => $.get("/items/info/8")).then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
 				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
 	});
 	add("DOWNLOAD / Marquer le téléchargement comme vu", function() {

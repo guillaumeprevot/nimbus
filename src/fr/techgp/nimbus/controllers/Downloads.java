@@ -15,6 +15,7 @@ import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
 import fr.techgp.nimbus.utils.YoutubeUtils;
+import spark.HaltException;
 import spark.Response;
 import spark.Route;
 
@@ -125,12 +126,35 @@ public class Downloads extends Controller {
 
 	private static final Object execute(Item item, Response response) {
 		try {
-			HttpURLConnection connection = WebUtils.openURL(item.content.getString("sourceURL"));
+			File file = getFile(item);
+			String sourceURL = item.content.getString("sourceURL");
+			HttpURLConnection connection = WebUtils.openURL(sourceURL);
+
+			// Vérifier avant de commencer que l'espace disque est suffisant
+			long newLength = connection.getContentLengthLong();
+			if (newLength > file.length())
+				checkQuotaAndHaltIfNecessary(item.userLogin, newLength - file.length());
+
+			// Utiliser le code de retour de la requête HTTP comme réponse
 			response.status(connection.getResponseCode());
 			response.body(connection.getResponseMessage());
+
+			// Vider le fichier actuel
+			file.delete();
+			item.content.append("status", "download");
+			item.content.append("length", 0L);
+			item.content.append("progress", 0);
+			item.updateDate = new Date();
+			Item.update(item);
+
+			// Lancer le téléchargement de manière asynchrone
 			new Thread(new DownloadURLRunnable(item, connection)).start();
+
+			// Renvoyer l'id (surtout pour "add" mais pas utile pour "refresh")
 			return item.id.toString();
 		} catch (Exception ex) {
+			if (ex instanceof HaltException)
+				throw (HaltException) ex;
 			ex.printStackTrace();
 			return SparkUtils.haltInternalServerError();
 		}
@@ -149,35 +173,37 @@ public class Downloads extends Controller {
 
 		@Override
 		public void run() {
-			this.item.content.append("status", "download");
-			this.item.content.append("length", 0L);
-			this.item.content.append("progress", 0);
-			this.item.updateDate = new Date();
-			Item.update(this.item);
-
 			File file = getFile(this.item);
 			String sourceURL = this.item.content.getString("sourceURL");
 			try {
-				String totalHeader = this.connection.getHeaderField("Content-Length");
-				Long total = StringUtils.isNotBlank(totalHeader) ? Long.valueOf(totalHeader) : null;
-				int progress = 0; // pourcentage si possible ou tous les 2 Mo sinon
-				int newProgress = 0; // pourcentage si possible ou tous les 2 Mo sinon
-				long current = 0L;
+				// Taille de la réponse totale
+				long totalLength = this.connection.getContentLengthLong();
+				// Taille de la réponse déjà téléchargée
+				long currentLength = 0L;
+				// Progression (pourcentage si possible ou en Mo sinon)
+				int progress = 0;
+				int nextProgress = 0;
+				
 				try (InputStream in = this.connection.getInputStream(); OutputStream out = new FileOutputStream(file)) {
 					byte[] buffer = new byte[1024 * 1024];
-					int count = in.read(buffer);
-					while (count != -1) {
+					int count;
+					while ((count = in.read(buffer)) != -1) {
+						// Ecriture
 						out.write(buffer, 0, count);
-						current += count;
-						newProgress = (int) ((total == null) ? (current / 2 * 1024 * 1024) : Math.round(current * 100.0 / total));
-						if (newProgress > progress) {
-							progress = newProgress;
-							this.item.content.replace("length", current);
+						currentLength += count;
+						// Progression
+						if (totalLength == -1)
+							nextProgress++; // Mo par Mo
+						else
+							nextProgress = (int) Math.round(currentLength * 100.0 / totalLength); // Pourcentage
+						// Enregistrement en base
+						if (nextProgress > progress) {
+							progress = nextProgress;
+							this.item.content.replace("length", currentLength);
 							this.item.content.replace("progress", progress);
 							this.item.updateDate = new Date();
 							Item.update(this.item);
 						}
-						count = in.read(buffer);
 					}
 				} finally {
 					this.connection.disconnect();
@@ -198,7 +224,5 @@ public class Downloads extends Controller {
 			this.item.updateDate = new Date();
 			Item.update(this.item);
 		}
-
 	}
-
 }

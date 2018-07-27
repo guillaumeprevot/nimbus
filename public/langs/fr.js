@@ -148,6 +148,7 @@ NIMBUS.lang = {
 	MainAddURLCancelButton: "Annuler",
 	MainAddURLValidateButton: "Valider",
 	MainAddURLNameConflictErrorMessage: "Un élément nommé ainsi existe déjà dans le dossier.",
+	MainAddURLInsufficientStorage: "Opération impossible en raison du votre quota d'espace disque",
 
 	MainRenameTitle: "Modification",
 	MainRenameNameLabel: "Nouveau nom",
