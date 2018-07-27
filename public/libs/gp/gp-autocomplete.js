@@ -7,13 +7,12 @@
 		this.update = this.update.bind(this);
 		this.select = this.select.bind(this);
 		this.autoclose = this.autoclose.bind(this);
-		this.input.wrap('<div />')
-			.addClass('form-control')
+		this.input
 			.on('input', this.update)
 			.on('focus', this.update)
 			.on('blur', this.autoclose);
-		this.container = this.input.parent()
-			.addClass('dropdown autocomplete');
+		this.container = $('<div class="dropdown autocomplete" />')
+			.insertAfter(this.input);
 		this.menu = $('<div class="dropdown-menu" />')
 			.appendTo(this.container)
 			.css('width', '100%')
@@ -24,8 +23,7 @@
 
 	$.extend(AutoComplete.prototype, {
 		destroy: function() {
-			this.input.insertBefore(this.container)
-				.removeClass('form-control')
+			this.input
 				.off('input', this.update)
 				.off('focus', this.update)
 				.off('blur', this.autoclose);
