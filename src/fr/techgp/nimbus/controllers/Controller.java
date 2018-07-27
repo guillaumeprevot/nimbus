@@ -136,7 +136,8 @@ public class Controller {
 			Mongo.reset(true);
 			request.session().removeAttribute("userLogin");
 			request.session().removeAttribute("theme");
-			return renderTemplate("test.html");
+			return renderTemplate("test.html",
+					"serverAbsoluteUrl", configuration.getServerAbsoluteUrl());
 		});
 	}
 

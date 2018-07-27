@@ -22,6 +22,7 @@ import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
+import fr.techgp.nimbus.utils.WebUtils;
 import spark.Route;
 
 public class Items extends Controller {
@@ -203,10 +204,18 @@ public class Items extends Controller {
 			// On met à jour l'élément
 			item.name = name;
 			item.tags = StringUtils.isBlank(tags) ? null : Arrays.asList(tags.split(","));
+			item.content.remove("iconURLCache");
 			if (StringUtils.isBlank(iconURL)) {
 				item.content.remove("iconURL");
 			} else {
 				item.content.put("iconURL", iconURL);
+				// Mise en cache des URLs externes pour ne pas "pinger" à chaque affichage
+				if (iconURL.toLowerCase().startsWith("http") && !iconURL.toLowerCase().startsWith(configuration.getServerAbsoluteUrl())) {
+					String defaultMimetype = configuration.getMimeTypeByFileName(item.name);
+					String dataURL = WebUtils.downloadURLAsDataUrl(iconURL, defaultMimetype);
+					if (dataURL != null)
+						item.content.put("iconURLCache", dataURL);
+				}
 			}
 			// pas de changement de updateDate car le contenu reste le même
 			//item.updateDate = new Date();
@@ -331,7 +340,7 @@ public class Items extends Controller {
 	 * Cette méthode encode un élément "item" en un objet JSON pour être renvoyé côté client contenant :
 	 * <ul>
 	 * <li>les propriétés générales (id, parentId, path, folder?, name, share*, createDate, updateDate, deleteDate, tags)
-	 * <li>les propriétés des dossiers si c'est un dossier (itemCount, iconURL)
+	 * <li>les propriétés des dossiers si c'est un dossier (itemCount, iconURL, iconURLCache)
 	 * <li>les propriétés des fichiers si c'est un fichier (mimetype, length, progress, status, sourceURL)
 	 * <li>les propriétés des fichiers gérées par les "Facet" si c'est un fichier image, video, audio, ...
 	 *</ul>
@@ -363,6 +372,7 @@ public class Items extends Controller {
 			if (item.folder) {
 				node.addProperty("itemCount", item.content.getInteger("itemCount"));
 				node.addProperty("iconURL", item.content.getString("iconURL"));
+				node.addProperty("iconURLCache", item.content.getString("iconURLCache"));
 			} else {
 				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
 				node.addProperty("mimetype", configuration.getMimeType(extension));

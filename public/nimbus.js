@@ -350,7 +350,7 @@ NIMBUS.navigation = (function() {
 		// Récupérer les composants concernés
 		var dialog = $('#rename-dialog');
 		var nameInput = $('#rename-name');
-		var iconUrlInput = $('#rename-iconURL');
+		var iconUrlInput = $('#rename-icon-url');
 		var tagsInput = $('#rename-tags');
 		var validateButton = $('#rename-validate-button');
 		// Composant d'edition d'une liste de tags

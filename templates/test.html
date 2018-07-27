@@ -47,7 +47,7 @@ function assertContains(result, text) {
 	return $.Deferred().reject("'" + result + "' devrait contenir '" + text + "'");
 }
 function assertStringWithLength(result, length) {
-	if (typeof result !== 'string')
+	if (typeof result !== "string")
 		return $.Deferred().reject("'" + result + "' devrait être un texte");
 	if (result.length !== length)
 		return $.Deferred().reject("'" + result + "' n'a pas la longueur attendue de " + length + " caractères");
@@ -67,7 +67,7 @@ function assertString(result/*, text1, included?, text2, included?, ...*/) {
 	return "OK";
 }
 function assertObject(result, check) {
-	if (typeof result !== 'object')
+	if (typeof result !== "object")
 		return $.Deferred().reject("'" + result + "' devrait être un objet");
 	if (!check(result)) {
 		console.log(result);
@@ -405,10 +405,10 @@ function fillTests(add) {
 		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertArray(result, 3, (e) => e.id === 5));
 	});
 	add("et que le deuxième élément est le sous-dossier 'Dossier6'", function() {
-		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertObject(result[1], (e) => e.name === 'Dossier6' && e.path === '3,5,'));
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertObject(result[1], (e) => e.name === "Dossier6" && e.path === "3,5,"));
 	});
 	add("et que le dernier élément est le sous-fichier 'file.txt'", function() {
-		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertObject(result[2], (e) => e.name === 'file.txt' && e.path === '3,5,'));
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&parentId=3").then((result) => assertObject(result[2], (e) => e.name === "file.txt" && e.path === "3,5,"));
 	});
 	add("Déplacer cette fois 'Dossier6' et 'file.txt' vers la racine", function() {
 		return $.post("/items/move?itemIds=6,0").then(assertEmpty);
@@ -435,6 +435,31 @@ function fillTests(add) {
 	});
 	add("QUOTA / Repasser le quota disque à 100Mo", function() {
 		return $.post("/user/update/adm?name=&admin=true&quota=100").then((result) => assertObject(result, (o) => o.quota === 100));
+	});
+
+	add("ICONURL / Modifier l'icône de 'Dossier3' avec une adresse locale complète", function() {
+		return $.post("/items/rename?itemId=3&name=Dossier3&iconURL=${serverAbsoluteUrl}/favicon.png").then(assertEmpty);
+	});
+	add("ICONURL / Vérifier la présence de l'icône et l'absence de cache", function() {
+		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.id === 3 && r.iconURL === "${serverAbsoluteUrl}/favicon.png" && !r.iconURLCache));
+	});
+	add("ICONURL / Modifier l'icône de 'Dossier4' avec une adresse locale relative", function() {
+		return $.post("/items/rename?itemId=4&name=Dossier4&iconURL=/favicon.ico").then(assertEmpty);
+	});
+	add("ICONURL / Vérifier la présence de l'icône et l'absence de cache", function() {
+		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.id === 4 && r.iconURL === "/favicon.ico" && !r.iconURLCache));
+	});
+	add("ICONURL / Modifier l'icône de 'Dossier6' avec une adresse distante", function() {
+		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=http://techgp.fr/webapps/webapps-cipher.png").then(assertEmpty);
+	});
+	add("ICONURL / Vérifier la présence de l'icône et la récupération de l'icône en cache", function() {
+		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "http://techgp.fr/webapps/webapps-cipher.png" && r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0));
+	});
+	add("ICONURL / Tenter de modifier l'icône de 'Dossier5' avec une adresse incorrecte", function() {
+		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=http://techgp.fr/webapps/webapps-blablabla.png").then(assertEmpty);
+	});
+	add("ICONURL / Vérifier la présence de l'icône mais l'abscence de l'icône en cache", function() {
+		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "http://techgp.fr/webapps/webapps-blablabla.png" && !r.iconURLCache));
 	});
 
 	var aucompleteResult;
@@ -465,7 +490,7 @@ function fillTests(add) {
 		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0 && !r.status));
 	});
 
-	add("Vérifier les préférences par défaut", function() {
+	add("PREFERENCES / Vérifier les préférences par défaut", function() {
 		return $.get("/preferences.html").then((result) => assertString(result,
 				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"\" />", true,
 				"<input id=\"showItemTags\" type=\"checkbox\" checked>", true,
@@ -473,29 +498,37 @@ function fillTests(add) {
 				"<input id=\"showItemThumbnail\" type=\"checkbox\" checked>", true,
 				"visibleItemColumns.val([]);", true));
 	});
-	add("Modifier les préférences", function() {
+	add("PREFERENCES / Modifier les préférences", function() {
 		return $.post("/preferences/save", {
-			name: 'Administrateur', // changement
-			password: 'aaa', passwordConfirmation: 'aaa', // changement
+			name: "Administrateur", // changement
+			password: "aaa", passwordConfirmation: "aaa", // changement
 			showItemDescription: true, // showItemTags et showItemThumbnail passent à false
-			visibleItemColumns: ['length', 'createDate', 'updateDate'] // changement
+			visibleItemColumns: ["length", "createDate", "updateDate"] // changement
 		}).then(assertEmpty);
 	});
-	add("Vérifier que le formulaire est correct", function() {
+	add("PREFERENCES / Vérifier que le formulaire est correct", function() {
 		return shoudBeAnError($.post("/preferences/save", {
-			name: 'AAAAAA',
-			password: 'aaa', passwordConfirmation: 'bbb', // erreur
+			name: "AAAAAA",
+			password: "aaa", passwordConfirmation: "bbb", // erreur
 			showItemDescription: false,
-			visibleItemColumns: ['createDate', 'updateDate']
+			visibleItemColumns: ["createDate", "updateDate"]
 		}));
 	});
-	add("Vérifier que les préférences sont bien prises en compte", function() {
+	add("PREFERENCES / Vérifier que les préférences sont bien prises en compte", function() {
 		return $.get("/preferences.html").then((result) => assertString(result,
 				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"Administrateur\" />", true,
 				"<input id=\"showItemTags\" type=\"checkbox\" >", true,
 				"<input id=\"showItemDescription\" type=\"checkbox\" checked>", true,
 				"<input id=\"showItemThumbnail\" type=\"checkbox\" >", true,
 				"visibleItemColumns.val(['length','createDate','updateDate']);", true));
+	});
+	add("PREFERENCES / Choisir les préférences par défaut de l'adm", function() {
+		return $.post("/preferences/save", {
+			name: "Administrateur",
+			password: "adm", passwordConfirmation: "adm",
+			showItemTags: true, showItemDescription: true, showItemThumbnail: true,
+			visibleItemColumns: ["length", "createDate", "updateDate", "shared", "mimetype"]
+		}).then(assertEmpty);
 	});
 
 	add("Déconnecter ramène sur la page de connexion", function() {

@@ -26,7 +26,7 @@
 				},
 				image: function(item, thumbnail) {
 					if (thumbnail && item.iconURL)
-						return '<img src="' + item.iconURL + '" style="width: 24px; height: 24px;" />';
+						return '<img src="' + (item.iconURLCache || item.iconURL) + '" style="width: 24px; height: 24px;" />';
 					return '<i class="material-icons">folder</i>';
 				},
 				describe: function(item) {
