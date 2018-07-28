@@ -46,7 +46,7 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.params(":login");
 		if (StringUtils.isBlank(login))
-			return SparkUtils.haltBadRequest();
+			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user != null)
@@ -79,7 +79,7 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.params(":login");
 		if (StringUtils.isBlank(login))
-			return SparkUtils.haltBadRequest();
+			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user == null)
@@ -107,7 +107,7 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à supprimer
 		String login = request.params(":login");
 		if (StringUtils.isBlank(login))
-			return SparkUtils.haltBadRequest();
+			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user == null)

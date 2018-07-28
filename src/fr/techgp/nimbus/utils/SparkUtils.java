@@ -62,7 +62,7 @@ public final class SparkUtils {
 
 	public static final Object haltInsufficientStorage() {
 		// Emprunté de WEBDAV : https://tools.ietf.org/html/rfc4918#section-11.5
-		Spark.halt(507, "Insufficient Storag"); // 507
+		Spark.halt(507, "Insufficient Storage"); // 507
 		return null;
 	}
 	
@@ -101,7 +101,7 @@ public final class SparkUtils {
 		try (OutputStream os = response.raw().getOutputStream()) {
 			IOUtils.copy(stream, os, 1024 * 1024);
 		}
-		return null;
+		return "";
 	}
 
 	public static final String queryParamString(Request request, String name, String defaultValue) {

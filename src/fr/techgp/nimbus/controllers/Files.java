@@ -182,9 +182,9 @@ public class Files extends Controller {
 	private static final Object returnFile(Response response, Item item, boolean download, Integer thumbnailWidth, Integer thumbnailHeight) {
 		String mimetype = configuration.getMimeTypeByFileName(item.name);
 		if (download)
-			response.header("Content-disposition", "attachment; filename=\"" + item.name + "\"");
+			response.header("Content-Disposition", "attachment; filename=\"" + item.name + "\"");
 		else
-			response.header("Content-disposition", "inline; filename=\"" + item.name + "\"");
+			response.header("Content-Disposition", "inline; filename=\"" + item.name + "\"");
 		response.type(mimetype);
 		File file = getFile(item);
 		if (!file.exists()) {
@@ -207,13 +207,15 @@ public class Files extends Controller {
 		}
 	}
 
+	// TODO : gérer l'erreur 416 Range Not Satisfiable
+	// TODO : gérer l'en-tête Range multiple, par exemple "0-10, 20-30, 40-50"
 	private static final Object returnFileRange(Response response, Item item, String range) {
 		File file = getFile(item);
 		if (!file.exists())
 			SparkUtils.haltNotFound();
 		// System.out.println("ByteRange=" + range + " pour " + item.name);
 		response.type(configuration.getMimeTypeByFileName(item.name));
-		response.header("Content-disposition", "inline; filename=\"" + item.name + "\"");
+		response.header("Content-Disposition", "inline; filename=\"" + item.name + "\"");
 
 		// http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
 		int indexOfDash = range.indexOf('-');
@@ -255,7 +257,7 @@ public class Files extends Controller {
 					remaining -= read;
 				}
 			}
-			return null;
+			return "";
 		} catch (IOException ex) {
 			return SparkUtils.haltBadRequest();
 		}
