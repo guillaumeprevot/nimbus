@@ -14,6 +14,8 @@
 <body>
 <div style="text-align: center"><a href="/test.html" class="btn btn-default">Relancer</a></div>
 
+<div class="alert alert-success" style="display: none; margin: 0 1em; ">OK, tous les tests sont passés avec succès.</div>
+
 <table class="table">
 	<thead>
 		<tr>
@@ -110,10 +112,10 @@ function assertRange(url, header, value) {
 		headers: {"Range": "bytes=" + header}
 	}).then((result) => assertEquals(result, value));
 }
-function shoudBeAnError(ajax) {
+function shoudBeAnError(ajax, code) {
 	return ajax.then(
 		(result) => $.Deferred().reject("Devrait lancer une erreur"),
-		(error) => "OK"
+		(error) => (code && (code !== error.status)) ? $.Deferred().reject("Lance une erreur '" + error.status + "' au lieu de '" + code + "'") : "OK"
 	);
 }
 function wait(seconds) {
@@ -173,23 +175,23 @@ function fillTests(add) {
 		return $.post("/user/insert/u?password=u").then((result) => assertObject(result, (o) => o.login === "u" && !o.name && !o.admin && !o.quota && !o.password));
 	});
 	add("Bloquer la création si doublon de login", function() {
-		return shoudBeAnError($.post("/user/insert/u?password=u"));
+		return shoudBeAnError($.post("/user/insert/u?password=u"), 409);
 	});
 	add("Bloquer la création si login absent", function() {
-		return shoudBeAnError($.post("/user/insert/?password=u"));
+		return shoudBeAnError($.post("/user/insert/?password=u"), 404);
 	});
 	add("Bloquer la création si password absent", function() {
-		return shoudBeAnError($.post("/user/insert/e?password="));
+		return shoudBeAnError($.post("/user/insert/e?password="), 400);
 	});
 
 	add("Modifier un utilisateur", function() {
 		return $.post("/user/update/u?name=Utilisateur&password=u&quota=3&admin=false").then((result) => assertObject(result, (o) => o.login === "u" && o.name === "Utilisateur" && !o.admin && o.quota === 3 && !o.password));
 	});
 	add("Bloquer la modification si login absent", function() {
-		return shoudBeAnError($.post("/user/update/?name=Utilisateur&password=u&quota=3&admin=false"));
+		return shoudBeAnError($.post("/user/update/?name=Utilisateur&password=u&quota=3&admin=false"), 404);
 	});
 	add("Bloquer la modification si login invalide", function() {
-		return shoudBeAnError($.post("/user/update/uuu?name=Utilisateur&password=u&quota=3&admin=false"));
+		return shoudBeAnError($.post("/user/update/uuu?name=Utilisateur&password=u&quota=3&admin=false"), 404);
 	});
 
 	add("Autoriser l'accès à la gestion des utilisateurs aux admins", function() {
@@ -209,10 +211,10 @@ function fillTests(add) {
 		return $.post("/user/delete/u").then((result) => assertObject(result, (o) => o.login === "u"));
 	});
 	add("Bloquer la suppression si login absent", function() {
-		return shoudBeAnError($.post("/user/delete/"));
+		return shoudBeAnError($.post("/user/delete/"), 404);
 	});
 	add("Bloquer la suppression si login invalide", function() {
-		return shoudBeAnError($.post("/user/update/uuu"));
+		return shoudBeAnError($.post("/user/update/uuu"), 404);
 	});
 
 	add("Créer un fichier 'fichier.txt' vide avec id 0 à la racine", function() {
@@ -250,16 +252,16 @@ function fillTests(add) {
 
 	var sharePassword;
 	add("PARTAGE / Vérifier que l'accès est interdit sans partage", function() {
-		return shoudBeAnError($.get("/share/get/1"));
+		return shoudBeAnError($.get("/share/get/1?password=ABABABABABABABABABABABABABABAB"), 400);
 	});
 	add("PARTAGE / Vérifier que l'on peut partager un fichier", function() {
 		return $.post("/share/add?itemId=1").then((result) => { sharePassword = result; return assertStringWithLength(result, 30); });
 	});
 	add("PARTAGE / Vérifier que l'accès est toujours interdit sans le mot de passe", function() {
-		return shoudBeAnError($.get("/share/get/1"));
+		return shoudBeAnError($.get("/share/get/1"), 400);
 	});
 	add("PARTAGE / Vérifier que l'accès est toujours interdit avec un mot de passe incorrect", function() {
-		return shoudBeAnError($.get("/share/get/1?password=ABABABABABABABABABABABABABABAB"));
+		return shoudBeAnError($.get("/share/get/1?password=ABABABABABABABABABABABABABABAB"), 400);
 	});
 	add("PARTAGE / Vérifier que l'accès est par contre autorisé avec le bon mot de passe", function() {
 		return $.get("/share/get/1?password=" + sharePassword).then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
@@ -273,7 +275,7 @@ function fillTests(add) {
 		return $.post("/share/delete?itemId=1").then(assertEmpty);
 	});
 	add("PARTAGE / Vérifier que l'accès est ensuite bloqué, même avec le mot de passe", function() {
-		return shoudBeAnError($.get("/share/get/1?password=" + sharePassword));
+		return shoudBeAnError($.get("/share/get/1?password=" + sharePassword), 400);
 	});
 
 	add("Uploader une image qui aura pour id 2", function() {
@@ -373,10 +375,10 @@ function fillTests(add) {
 		return $.get("/items/list?sortBy=name&sortAscending=true&recursive=true").then((result) => assertArray(result, 4, (first) => result[2].name === "Dossier5"));
 	});
 	add("Obtenir une erreur si on veut dupliquer un élément qui n'existe pas (ou plus)", function() {
-		return shoudBeAnError($.post("/items/duplicate?itemId=6"));
+		return shoudBeAnError($.post("/items/duplicate?itemId=6"), 400);
 	});
 	add("Vérifier que le nom est obligatoire pour 'duplicate'", function() {
-		return shoudBeAnError($.post("/items/duplicate?itemId=5"));
+		return shoudBeAnError($.post("/items/duplicate?itemId=5"), 400);
 	});
 	add("Réussir par contre à copier le sous-dossier 'Dossier5' avec id 6", function() {
 		return $.post("/items/duplicate?itemId=5&name=Copie%20de%20Dossier5").then((result) => assertEquals(result, "6"));
@@ -428,10 +430,10 @@ function fillTests(add) {
 		return upload(stringOf520KB, "text/plain", "file.txt").then((result) => assertArray(result, 1, (first) => first === 0));
 	});
 	add("QUOTA / Vérifier que le quota empêche de dupliquer à nouveau 'file.txt'", function() {
-		return shoudBeAnError($.post("/items/duplicate?itemId=0&name=fichier8.txt"));
+		return shoudBeAnError($.post("/items/duplicate?itemId=0&name=fichier8.txt"), 507);
 	});
 	add("QUOTA / Vérifier que le quota empêche d'uploader à nouveau 510KB dans 'fichier7.txt'", function() {
-		return shoudBeAnError(upload(stringOf520KB, "text/plain", "fichier7.txt"));
+		return shoudBeAnError(upload(stringOf520KB, "text/plain", "fichier7.txt"), 507);
 	});
 	add("QUOTA / Repasser le quota disque à 100Mo", function() {
 		return $.post("/user/update/adm?name=&admin=true&quota=100").then((result) => assertObject(result, (o) => o.quota === 100));
@@ -512,7 +514,7 @@ function fillTests(add) {
 			password: "aaa", passwordConfirmation: "bbb", // erreur
 			showItemDescription: false,
 			visibleItemColumns: ["createDate", "updateDate"]
-		}));
+		}), 400);
 	});
 	add("PREFERENCES / Vérifier que les préférences sont bien prises en compte", function() {
 		return $.get("/preferences.html").then((result) => assertString(result,
@@ -544,6 +546,7 @@ function fillTests(add) {
 //==========
 
 var tests = [];
+var success = $('.alert');
 var tbody = $("table > tbody");
 var defer = $.Deferred();
 var chain = defer;
@@ -564,7 +567,14 @@ tests.forEach((test, index) => {
 			var text = error ? (error.responseText || error) : "KO";
 			tr.children(":last-child").addClass("text-danger").text(text);
 		})
+		.always(() => {
+			$(document.documentElement).scrollTop(tr.offset().top - 60);
+		})
 	);
+});
+chain.then(() => {
+	tbody.closest('table').hide();
+	success.show();
 });
 defer.resolve();
 </script>
