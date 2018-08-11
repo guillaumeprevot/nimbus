@@ -151,6 +151,9 @@ function shouldUpload(content, mimetype, filename, id) {
 //==========
 	
 function fillTests(add) {
+	add("Réinitialiser le thème sur Bootstrap", function() {
+		return $.get("/preferences/theme?theme=bootstrap").then(assertEmpty);
+	});
 	add("Utiliser par défaut le thème Bootstrap", function() {
 		return $.get("/preferences/theme.css").then((result) => assertString(result, "https://getbootstrap.com/", true, "https://bootswatch.com", false));
 	});
@@ -452,16 +455,16 @@ function fillTests(add) {
 		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.id === 4 && r.iconURL === "/favicon.ico" && !r.iconURLCache));
 	});
 	add("ICONURL / Modifier l'icône de 'Dossier6' avec une adresse distante", function() {
-		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=http://techgp.fr/webapps/webapps-cipher.png").then(assertEmpty);
+		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=https://techgp.fr/webapps/webapps-cipher.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône et la récupération de l'icône en cache", function() {
-		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "http://techgp.fr/webapps/webapps-cipher.png" && r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0));
+		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "https://techgp.fr/webapps/webapps-cipher.png" && r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0));
 	});
 	add("ICONURL / Tenter de modifier l'icône de 'Dossier5' avec une adresse incorrecte", function() {
-		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=http://techgp.fr/webapps/webapps-blablabla.png").then(assertEmpty);
+		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=https://techgp.fr/webapps/webapps-blablabla.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône mais l'abscence de l'icône en cache", function() {
-		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "http://techgp.fr/webapps/webapps-blablabla.png" && !r.iconURLCache));
+		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "https://techgp.fr/webapps/webapps-blablabla.png" && !r.iconURLCache));
 	});
 
 	var aucompleteResult;

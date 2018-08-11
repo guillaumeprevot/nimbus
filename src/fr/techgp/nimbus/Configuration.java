@@ -31,6 +31,7 @@ public class Configuration {
 	private final String serverAbsoluteUrl;
 
 	private final File storageFolder;
+	private final String clientDefaultTheme;
 	private final String clientPlugins;
 	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
@@ -56,6 +57,7 @@ public class Configuration {
 		this.serverAbsoluteUrl = getString("server.absolute.url", (this.serverKeystore != null ? "https" : "http") + "://localhost:" + this.serverPort);
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
+		this.clientDefaultTheme = getString("client.default.theme", "bootstrap");
 		this.clientPlugins = getString("client.plugins", "default-before,default-after");
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class, (facet) -> facet.init(this));
@@ -140,8 +142,12 @@ public class Configuration {
 		return this.storageFolder;
 	}
 
+	public String getClientDefaultTheme() {
+		return this.clientDefaultTheme;
+	}
+
 	public String getClientPlugins() {
-		return clientPlugins;
+		return this.clientPlugins;
 	}
 
 	public Set<String> getTextFileExtensions() {

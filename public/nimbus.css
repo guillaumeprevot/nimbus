@@ -24,7 +24,7 @@
 #move-dialog li > div { padding: 8px 15px 8px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 #move-dialog li:not(.expanded) > ul { display: none; }
 
-[data-theme=""] body { padding-top: 56px; }
+[data-theme=bootstrap] body { padding-top: 56px; }
 [data-theme=united] body { padding-top: 56px; }
 [data-theme=darkly] body { padding-top: 71px; }
 [data-theme=flatly] body { padding-top: 71px; }
