@@ -898,7 +898,10 @@ NIMBUS.navigation = (function() {
 				// console.log(item.id, item.name, extension, facet.name);
 
 				// 1ère colonne : icône personnalisable
-				var icon = facet.image(item, showItemThumbnail); 
+				var icon = $(facet.image(item, showItemThumbnail));
+				icon.filter('img').on('error', function(event) {
+					$(this).replaceWith(facet.image(item, false));
+				});
 				// 2ème colonne : nom personnalisable
 				var name = $('<span />').html(item.name);
 				if (item.status === 'download')
