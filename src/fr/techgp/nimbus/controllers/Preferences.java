@@ -18,9 +18,7 @@ public class Preferences extends Controller {
 	 * ($theme) => redirect
 	 */
 	public static final Route stylesheet = (request, response) -> {
-		String theme = request.session().attribute("theme");
-		if (StringUtils.isBlank(theme))
-			theme = configuration.getClientDefaultTheme();
+		String theme = getUserTheme(request);
 		response.redirect("/themes/" + theme + "/bootstrap.min.css");
 		return null;
 	};

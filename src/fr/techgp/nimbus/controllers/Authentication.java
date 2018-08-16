@@ -69,7 +69,7 @@ public class Authentication extends Controller {
 	private static final Map<String, Object> attributes(Request request, boolean error, boolean logout, String urlToLoad) {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("lang", SparkUtils.getRequestLang(request));
-		attributes.put("theme", StringUtils.withDefault(request.session().attribute("theme"), ""));
+		attributes.put("theme", getUserTheme(request));
 		attributes.put("login", StringUtils.withDefault(request.queryParams("login"), ""));
 		attributes.put("urlToLoad", StringUtils.withDefault(urlToLoad, "/"));
 		attributes.put("error", error);

@@ -49,7 +49,7 @@ public class Controller {
 			return renderTemplate("main.html",
 					"lang", SparkUtils.getRequestLang(request),
 					"plugins", configuration.getClientPlugins().split(","),
-					"theme", StringUtils.withDefault(request.session().attribute("theme"), ""),
+					"theme", getUserTheme(request),
 					"name", StringUtils.withDefault(user.name, user.login),
 					"admin", user.admin,
 					"freeSpace", freeSpace,
@@ -189,6 +189,16 @@ public class Controller {
 			model = attributes;
 		}
 		return Controller.templateEngine.render(new ModelAndView(model, name));
+	}
+
+	/**
+	 * Cette méthode centralise la récupération du thème de l'utilisateur
+	 * 
+	 * @param request la requête pour chercher dans la session si l'utilisateur a choisi un thème
+	 * @return le nom du thème choisi par l'utilisateur ou le thème par défaut sinon (cf nimbus.conf) 
+	 */
+	protected static final String getUserTheme(Request request) {
+		return StringUtils.withDefault(request.session().attribute("theme"), configuration.getClientDefaultTheme());
 	}
 
 	/**
