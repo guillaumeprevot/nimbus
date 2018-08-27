@@ -5,6 +5,8 @@ import java.io.File;
 import org.bson.Document;
 
 import com.google.gson.JsonObject;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.Utilities;
 import com.itextpdf.text.pdf.PdfReader;
 
 import fr.techgp.nimbus.Facet;
@@ -26,9 +28,13 @@ public class ITextPDFFacet implements Facet {
 	@Override
 	public void updateMetadata(File file, String extension, Document bson) throws Exception {
 		PdfReader reader = new PdfReader(file.getAbsolutePath());
-		bson.put("pageCount", reader.getNumberOfPages());
-		bson.put("pageWidthInMillimeters", Math.round(reader.getPageSize(0).getWidth() / 2));
-		bson.put("pageHeightInMillimeters", Math.round(reader.getPageSize(0).getHeight() / 2));
+		int pageCount = reader.getNumberOfPages();
+		bson.put("pageCount", pageCount);
+		if (pageCount > 0) {
+			Rectangle rectangle = reader.getPageSizeWithRotation(1);
+			bson.put("pageWidthInMillimeters", Math.round(Utilities.pointsToMillimeters(rectangle.getWidth())));
+			bson.put("pageHeightInMillimeters", Math.round(Utilities.pointsToMillimeters(rectangle.getHeight())));
+		}
 	}
 
 }
