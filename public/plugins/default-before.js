@@ -35,10 +35,6 @@
 					if (item.itemCount === 1)
 						return NIMBUS.translate('CommonFolderDescriptionOneChild');
 					return NIMBUS.translate('CommonFolderDescriptionMultipleChildren', [item.itemCount]);
-				},
-				open: function(item) {
-					window.open('/main.html#' + item.path + item.id);
-					return true;
 				}
 			}
 		],

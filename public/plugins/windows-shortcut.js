@@ -21,16 +21,19 @@
 				if (item.url)
 					return item.url;
 				return NIMBUS.plugins.facets[NIMBUS.plugins.facets.length - 1].describe(item);
-			},
-			open: function(item) {
-				if (item.url) {
-					window.open(item.url);
-					return true;
-				}
-				return false;
 			}
 		}],
-		actions: [],
+		actions: [{
+			name: 'open',
+			icon: 'open_in_new',
+			caption: 'ActionOpen',
+			accept: function(item, extension) {
+				return item.url && ('url' === extension);
+			},
+			execute: function(item) {
+				window.open(item.url);
+			}			
+		}],
 		langs: {
 			fr: {
 				WindowsShortcutURL: "URL",

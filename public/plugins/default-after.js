@@ -14,29 +14,11 @@
 					var length = NIMBUS.formatLength(item.length);
 					var mimetype = item.mimetype || NIMBUS.translate('CommonFileUnknownMimeType');
 					return NIMBUS.translate('CommonFileDescription', [length, mimetype]);
-				},
-				open: function(item) {
-					window.open('/files/stream/' + item.id);
-					return true;
 				}
 			}
 		],
 		actions: [
 			{
-				name: 'open',
-				icon: 'open_in_new',
-				caption: 'ActionOpen',
-				accept: function(item, extension) {
-					// L'ouverture n'est disponible que pour les fichiers
-					return !item.folder;
-				},
-				execute: function(item) {
-					var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
-					NIMBUS.plugins.facets.find(function(facet) {
-						return facet.accept(item, extension) && facet.open && facet.open(item);
-					});
-				}
-			}, {
 				name: 'download-refresh',
 				icon: 'refresh',
 				caption: 'ActionDownloadRefresh',
