@@ -28,7 +28,7 @@
 [data-theme=united] body { padding-top: 56px; }
 [data-theme=darkly] body { padding-top: 71px; }
 [data-theme=flatly] body { padding-top: 71px; }
-[data-theme=materia] body { padding-top: 88px; }
+[data-theme=materia] body { padding-top: 80px; }
 
 #main:not(.nimbus-selecting) #delete-button,
 #main:not(.nimbus-selecting) #download-button,
@@ -39,14 +39,14 @@
 
 #items { width: 100%; table-layout: fixed; }
 #items .icon { width: 40px; text-align: center; }
-#items .icon .material-icons { color: gray; }
 #items .name { width: auto; }
 #items .name > .badge { float: right; margin-right: 0.5em;  }
 #items .name > .description { font-size: small; display: inline; }
 #items .actions { width: 50px; text-align: center; }
 #items > thead th[data-sort] { cursor: pointer; }
 #items > tbody { cursor: pointer; }
-#items > tbody > tr > td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#items > tbody > tr > td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+#items > tbody > tr:not(.folder) > td.icon > .material-icons { color: gray; }
 #items > tbody > tr:not(.active) > td.icon > :first-child { display:none; }
 #items > tbody > tr.active td.icon > :last-child { display: none; }
 
