@@ -42,7 +42,7 @@ var NIMBUS = (function() {
 			var chain = defer;
 			plugins.forEach(function(name) {
 				chain = chain.then(function() {
-					return $.getScript('/plugins/' + name + '.js');
+					return $.getScript('/plugins/' + name);
 				});
 			});
 			defer.resolve('Go!');

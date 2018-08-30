@@ -58,10 +58,15 @@ public class Configuration {
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "bootstrap");
-		this.clientPlugins = getString("client.plugins", "default-before,default-after");
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class, (facet) -> facet.init(this));
 		this.mimetypes = getPairs("mimetype");
+
+		List<String> plugins = new ArrayList<>();
+		for (Facet facet : this.facets) {
+			facet.fillClientPlugins(plugins);
+		}
+		this.clientPlugins = String.join(",", plugins);
 	}
 
 	private final String getString(String property, String defaultValue) {
