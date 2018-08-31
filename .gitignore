@@ -3,3 +3,6 @@
 /lib/*.jar
 /storage/*
 /temp/
+nimbus.keystore
+nimbus.pkcs12
+nimbus.url

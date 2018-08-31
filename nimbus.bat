@@ -1,4 +1,4 @@
-set PATH=%PATH%;X:\apps\jdk-8\bin
+set PATH=%PATH%;D:\apps\jdk-8\bin
 set CLASSPATH=.\bin
 set CLASSPATH=%CLASSPATH%;.\lib\*
 set CLASSPATH=%CLASSPATH%;.\lib\image4j\*
