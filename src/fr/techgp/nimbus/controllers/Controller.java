@@ -48,7 +48,7 @@ public class Controller {
 			long freeSpace = Math.min(configuration.getStorageFolder().getFreeSpace(), maxSpace - usedSpace);
 			return renderTemplate("main.html",
 					"lang", SparkUtils.getRequestLang(request),
-					"plugins", configuration.getClientPlugins().split(","),
+					"plugins", configuration.getClientPlugins(),
 					"theme", getUserTheme(request),
 					"name", StringUtils.withDefault(user.name, user.login),
 					"admin", user.admin,

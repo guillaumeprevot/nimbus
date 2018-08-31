@@ -32,7 +32,7 @@ public class Configuration {
 
 	private final File storageFolder;
 	private final String clientDefaultTheme;
-	private final String clientPlugins;
+	private final String[] clientPlugins;
 	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
 	private final Map<String, String> mimetypes;
@@ -66,7 +66,7 @@ public class Configuration {
 		for (Facet facet : this.facets) {
 			facet.fillClientPlugins(plugins);
 		}
-		this.clientPlugins = String.join(",", plugins);
+		this.clientPlugins = plugins.toArray(new String[plugins.size()]);
 	}
 
 	private final String getString(String property, String defaultValue) {
@@ -151,7 +151,7 @@ public class Configuration {
 		return this.clientDefaultTheme;
 	}
 
-	public String getClientPlugins() {
+	public String[] getClientPlugins() {
 		return this.clientPlugins;
 	}
 

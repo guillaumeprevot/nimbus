@@ -44,7 +44,7 @@ public class Preferences extends Controller {
 		// Générer la page
 		return renderTemplate("preferences.html",
 				"lang", SparkUtils.getRequestLang(request),
-				"plugins", configuration.getClientPlugins().split(","),
+				"plugins", configuration.getClientPlugins(),
 				"name", user.name,
 				"showItemTags", user.showItemTags,
 				"showItemDescription", user.showItemDescription,
