@@ -89,6 +89,7 @@ public class Controller {
 		Spark.post("/items/add/folder", Items.addFolder);
 		Spark.post("/items/duplicate", Items.duplicate);
 		Spark.post("/items/rename", Items.rename);
+		Spark.post("/items/metadata", Items.metadata);
 		Spark.post("/items/move", Items.move);
 		Spark.get("/items/zip", Items.zip);
 
@@ -272,9 +273,8 @@ public class Controller {
 	 * Cette méthode met à jour les méta-données de l'élément "item".
 	 *
 	 * @param item l'élément représentant un fichier dans le cloud
-	 * @throws Exception si l'une des facets lance une erreur
 	 */
-	protected static final void updateFile(Item item) throws Exception {
+	protected static final void updateFile(Item item) {
 		// Informations sur l'élément
 		File storedFile = getFile(item);
 		String extension = FilenameUtils.getExtension(item.name).toLowerCase();

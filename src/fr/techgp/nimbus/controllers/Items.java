@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.Deflater;
@@ -16,7 +17,10 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
@@ -219,6 +223,85 @@ public class Items extends Controller {
 			}
 			// pas de changement de updateDate car le contenu reste le même
 			//item.updateDate = new Date();
+			Item.update(item);
+
+			// Ajuster la date de modification du dossier parent
+			if (item.parentId != null)
+				Item.notifyFolderContentChanged(item.parentId, 0);
+			return "";
+		});
+	};
+
+	/**
+	 * Met à jour les méta-données de l'élément "itemId" :
+	 * - si demandé avec "refresh", les méta-données seront recalculées côté serveur
+	 * - via la liste "metadata", les méta-données seront ajustées comme demandées côté client
+	 * 
+	 * Chaque entrée de méta-donnée se compose des propriétés suivantes :
+	 * - "name", le nom de la propriété
+	 * - "action", l'action à effectuer ("set", "remove")
+	 * - "value", la valeur de la popriété, dans le cas où "action" est égal à "set"
+	 * - "type", le type de la propriété ("boolean", "integer", "long", "double", "datetime" ou "string")
+	 *
+	 * (itemId, refresh, metadata) => ""
+	 */
+	public static final Route metadata = (request, response) -> {
+		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+			// Extraire la requête
+			boolean refresh = SparkUtils.queryParamBoolean(request, "refresh", false);
+			String json = request.queryParams("metadata");
+			JsonElement element = new JsonParser().parse(json);
+			if (!element.isJsonArray())
+				return SparkUtils.haltBadRequest();
+			// Si demandé avec "refresh", les méta-données seront recalculées côté serveur 
+			if (refresh)
+				updateFile(item);
+			// Via la liste "metadata", les méta-données seront ajustées comme demandées côté client
+			JsonArray array = element.getAsJsonArray();
+			for (int i = 0; i < array.size(); i++) {
+				element = array.get(i);
+				if (!element.isJsonObject())
+					return SparkUtils.haltBadRequest();
+				JsonObject object = element.getAsJsonObject();
+				String name = object.get("name").getAsString();
+				String action = object.get("action").getAsString();
+				if ("remove".equals(action))
+					item.content.remove(name);
+				else {
+					JsonElement valueElement = object.get("value");
+					if (!valueElement.isJsonPrimitive())
+						return SparkUtils.haltBadRequest();
+					JsonPrimitive valuePrimitive = valueElement.getAsJsonPrimitive();
+					Object value;
+					String type = object.get("type").getAsString();
+					switch (type) {
+					case "boolean":
+						value = Boolean.valueOf(valuePrimitive.getAsBoolean());
+						break;
+					case "integer":
+						value = Integer.valueOf(valuePrimitive.getAsInt());
+						break;
+					case "long":
+						value = Long.valueOf(valuePrimitive.getAsLong());
+						break;
+					case "double":
+						value = Double.valueOf(valuePrimitive.getAsDouble());
+						break;
+					case "datetime":
+						value = new Date(valuePrimitive.getAsLong());
+						break;
+					case "string":
+					default:
+						value = valuePrimitive.getAsString();
+						break;
+					}
+					item.content.put(name, value);
+				}
+			}
+
+			// pas de changement de updateDate car le contenu reste le même
+			//item.updateDate = new Date();
+			// On met à jour l'élément
 			Item.update(item);
 
 			// Ajuster la date de modification du dossier parent

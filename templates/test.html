@@ -467,32 +467,69 @@ function fillTests(add) {
 		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "https://techgp.fr/webapps/webapps-blablabla.png" && !r.iconURLCache));
 	});
 
-	var aucompleteResult;
+	var autocompleteResult;
 	add("DOWNLOAD / Vérifier l'auto-complétion des vidéos YouTube", function() {
-		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=8TCxE0bWQeQ" }).then((result) => assertArray(result, 4, (r) => { aucompleteResult = r; return r.name && r.value && r.label && r.value.indexOf("http") === 0; }));
+		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=8TCxE0bWQeQ" }).then((result) => assertArray(result, 4, (r) => { autocompleteResult = r; return r.name && r.value && r.label && r.value.indexOf("http") === 0; }));
 	});
 	add("DOWNLOAD / Vérifier que l'autocomplétion YouTube échoue si la vidéo est inconnue", function() {
 		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=hg-i47g1TKY" }).then((result) => assertArray(result, 0));
 	});
 	add("DOWNLOAD / Télécharger une vidéo", function() {
-		return $.post("/download/add", { url: aucompleteResult.value, name: aucompleteResult.name }).then((result) => assertEquals(result, "8"));
+		return $.post("/download/add", { url: autocompleteResult.value, name: autocompleteResult.name }).then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier les informations sur l'élément téléchargé", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === autocompleteResult.name && r.mimetype.indexOf("video/") === 0
 				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
 	});
 	add("DOWNLOAD / Actualiser un fichier téléchargé", function() {
 		return wait(3).then(() => $.post("/download/refresh?itemId=8")).then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé n'ont pas changé", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === autocompleteResult.name && r.mimetype.indexOf("video/") === 0
 				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
 	});
 	add("DOWNLOAD / Marquer le téléchargement comme vu", function() {
 		return wait(3).then(() => $.post("/download/done?itemId=8")).then(assertEmpty);
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé ont été nettoyées", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === aucompleteResult.name && r.mimetype.indexOf("video/") === 0 && !r.status));
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === autocompleteResult.name && r.mimetype.indexOf("video/") === 0 && !r.status));
+	});
+
+	var metadataDatetime = Date.now();
+	add("METADATA / Créer un fichier de test pour les méta-données", function() {
+		return $.post("/files/touch?name=fichier.test").then((result) => assertEquals(result, "9"));
+	});
+	add("METADATA / Vérifier que les méta-données sont pour le moment vide", function() {
+		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && !r.testserver && !r.testinteger));
+	});
+	add("METADATA / Recalculer les méta-données gérées côté serveur", function() {
+		return $.post("/items/metadata?itemId=9&refresh=true&metadata=[]").then(assertEmpty);
+	});
+	add("METADATA / Vérifier l'apparition d'une méta-donnée", function() {
+		return $.get("/items/info/9")
+			.then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && !r.testinteger))
+			.then(undefined, (error) => $.Deferred().reject("Résultat inattendu. Pensez à activer la TestFacet pour l'exécution des tests"));
+	});
+	add("METADATA / Demander à conserver 3 méta-données", function() {
+		return $.post("/items/metadata?itemId=9&refresh=false&metadata=" + JSON.stringify([
+			{ action:"set", name:"testboolean", type:"boolean", value:true },
+			{ action:"set", name:"testinteger", type:"integer", value:123 },
+			{ action:"set", name:"testlong", type:"long", value:456 }
+		])).then(assertEmpty);
+	});
+	add("METADATA / Vérifier l'apparition des 3 méta-données", function() {
+		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && r.testinteger === 123 && r.testlong === 456 && !r.testdouble));
+	});
+	add("METADATA / En supprimer 1 et en ajouter les 3 autres méta-données", function() {
+		return $.post("/items/metadata?itemId=9&refresh=false&metadata=" + JSON.stringify([
+			{ action:"set", name:"testdouble", type:"double", value:123456.789 },
+			{ action:"remove", name:"testinteger" },
+			{ action:"set", name:"testdatetime", type:"datetime", value:metadataDatetime },
+			{ action:"set", name:"teststring", type:"string", value:"Nimbus" }
+		])).then(assertEmpty);
+	});
+	add("METADATA / Vérifier les modifications apportées aux méta-données", function() {
+		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && !r.testinteger && r.testdouble === 123456.789 && r.testdatetime === metadataDatetime && r.teststring === "Nimbus"));
 	});
 
 	add("PREFERENCES / Vérifier les préférences par défaut", function() {
