@@ -114,10 +114,13 @@ var NIMBUS = (function() {
 
 	// Function d'initialisation de la page
 	NIMBUS.init = function(plugins, callback) {
+		// Chargement des plugins demandés
+		function loadPlugins() {
+			return NIMBUS.plugins.load(plugins);
+		}
 
-		// Attendre le chargement de la page
-		$(function() {
-			// Traduction de la page
+		// Traduction de la page
+		function translatePage() {
 			$('[data-translate]').each(function(i, e) {
 				var properties = e.getAttribute('data-translate').split(' ');
 				for (var i = 0; i  < properties.length; i++) {
@@ -132,13 +135,11 @@ var NIMBUS = (function() {
 				}
 				e.removeAttribute('data-translate');
 			});
+			return $.Deferred().resolve();
+		}
 
-			// Chargement des plugins demandés
-			NIMBUS.plugins.load(plugins).then(function() {
-				// Finalisation spécifique à la page en cours
-				callback();
-			});
-
+		// Modification offscreen à effectuer en dernier
+		function finishOffscreen() {
 			// Fermeture auto des "alertes" en cliquant dessus
 			$('body').on('click', '.alert', function(event) {
 				$(event.target).closest('.alert').slideUp(function() {
@@ -161,6 +162,14 @@ var NIMBUS = (function() {
 					contentHTML: '<i class="material-icons">keyboard_arrow_up</i>'
 				});
 			}
+		}
+
+		// Attendre le chargement de la page
+		$(function() {
+			loadPlugins()
+				.then(translatePage)
+				.then(callback) // Finalisation spécifique à la page en cours
+				.then(finishOffscreen);
 		});
 	};
 
