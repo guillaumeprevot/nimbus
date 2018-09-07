@@ -54,4 +54,34 @@
 		});
 	};
 
+	/*
+	 * C'est un plugin jQuery qui écoute la manipulation au doigt et envoie des évènements "swipe", "", "" et ""
+	 */
+	$.fn.swipe = function() {
+		return this.addClass('swipe').on('touchstart', function(startEvent) {
+			var startX, startY, moveX, moveY;
+			var target = $(startEvent.target).closest('.swipe');
+			function touchmove(event) {
+				var t = event.originalEvent.touches;
+				if (t) {
+					moveX = t[0].clientX;
+					moveY = t[0].clientY;
+				}
+			}
+			var t = startEvent.originalEvent.touches;
+			if (t) {
+				startX = t[0].clientX;
+				startY = t[0].clientY;
+				$(document).on('touchmove', touchmove).one('touchend', function() {
+					$(document).off('touchmove', touchmove);
+					var radians = Math.atan2((startY - moveY), (moveX - startX));
+					var directions = ['left', 'bottomleft', 'bottom', 'bottomright', 'right', 'topright', 'top', 'topleft'];
+					var index = Math.floor((radians + Math.PI + Math.PI / 8) / (Math.PI / 4)) % 8;
+					target.trigger('swipe', [directions[index]]);
+					// target.trigger('swipe.' + directions[index]);
+				});
+			}
+		});
+	};
+
 })(jQuery);
