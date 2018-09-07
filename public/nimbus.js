@@ -908,9 +908,11 @@ NIMBUS.navigation = (function() {
 
 				// 1ère colonne : icône personnalisable
 				var icon = $(facet.image(item, showItemThumbnail));
-				icon.filter('img').on('error', function(event) {
-					$(this).replaceWith(facet.image(item, false));
-				});
+				icon.filter('img').on('error', (function(item, facet) {
+					return function(event) {
+						$(this).replaceWith(facet.image(item, false));
+					};
+				})(item, facet));
 				// 2ème colonne : nom personnalisable
 				var name = $('<span />').html(item.name);
 				if (item.status === 'download')
