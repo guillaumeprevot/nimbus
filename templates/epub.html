@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer">
+<head>
+<title data-translate="text">EPUBTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+</head>
+<body class="nimbus-hidden">
+	<header>
+		<div class="float-left">
+			<a href="#" class="btn btn-dark back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+		</div>
+
+		<div class="d-inline">
+			<button type="button" class="btn btn-dark previous-page" data-translate="title" title="EPUBPreviousPage"><i class="material-icons">chevron_left</i></button>
+			<button type="button" class="btn btn-dark next-page" data-translate="title" title="EPUBNextPage"><i class="material-icons">chevron_right</i></button>
+		</div>
+
+		<div class="float-right btn-group btn-group-toggle" data-toggle="buttons">
+			<button type="button" class="btn btn-dark spreads-off" data-translate="title" title="EPUBSpreadsOff"><i class="material-icons">format_align_justify</i></button>
+			<button type="button" class="btn btn-dark spreads-on active" data-translate="title" title="EPUBSpreadsOn"><i class="material-icons">chrome_reader_mode</i></button>
+		</div>
+	</header>
+	<article></article>
+	<div class="nimbus-viewer-foreground"></div>
+	<footer></footer>
+	
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/jszip/jszip.min.js"></script>
+<script type="text/javascript" src="/libs/epub/epub.min.js"></script>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+<script>
+NIMBUS.init(['epub.js'], function() {
+	// L'IHM est prête, on l'affiche
+	var body = $(document.body).removeClass('nimbus-hidden');
+
+	// Affichage de la première page
+	var article = $('article');
+	var book = ePub('${url}', { openAs: 'epub' });
+	var rendition = book.renderTo(article[0], {
+		width: '100%',
+		height: '100%',
+		flow: 'paginated',
+		stylesheet: '/preferences/theme.css',
+		script: ''
+	});
+	rendition.display();
+
+	// Manipulation par la barre d'outils
+	var header = $('header');
+	var backButton = header.find('.back')
+		.toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+	var spreadsOnButton = header.find('.spreads-on').click(function() {
+		spreadsOnButton.addClass('active').siblings().removeClass('active');
+		rendition.spread('auto');
+	});
+	var spreadsOffButton = header.find('.spreads-off').click(function() {
+		spreadsOffButton.addClass('active').siblings().removeClass('active');
+		rendition.spread('none');
+	});
+	var previousPageButton = header.find('.previous-page').click(function() {
+		rendition.prev();
+	});
+	var nextPageButton = header.find('.next-page').click(function() {
+		rendition.next();
+	});
+
+	// Manipulation au clavier
+	body.keyup(function(event) {
+		if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
+			rendition.prev();
+		else if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+			rendition.next();
+	});
+
+	// Changement de page par "swipe" à gauche ou à droite
+	$('.nimbus-viewer-foreground').swipe().on('swipe', function(event, direction) {
+		if ('right' === direction || 'bottom' === direction)
+			rendition.prev();
+		else if ('left' === direction || 'top' === direction)
+			rendition.next();
+	});
+
+	// Ajuster la visibilité des boutons en fonction de la page en cours
+	rendition.on('relocated', function(location) {
+		previousPageButton.prop('disabled', !!location.atStart);
+		nextPageButton.prop('disabled', !!location.atEnd);
+	});
+
+});
+</script>
+</body>
+</html>

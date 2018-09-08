@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -137,6 +138,15 @@ public final class SparkUtils {
 	public static final boolean queryParamBoolean(Request request, String name, boolean defaultValue) {
 		String s = request.queryParams(name);
 		return StringUtils.isBlank(s) ? defaultValue : Boolean.parseBoolean(s);
+	}
+
+	public static final String queryParamUrl(Request request, String name, String defaultValue) {
+		String s = request.queryParams(name);
+		try {
+			if (StringUtils.isNotBlank(s))
+				return URLDecoder.decode(s, "UTF-8");
+		} catch (Exception ex) { /* */ }
+		return defaultValue;
 	}
 
 	public static final String getRequestLang(Request request) {

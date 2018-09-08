@@ -37,6 +37,8 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Popper.js](https://popper.js.org/) | JS | 1.14.4 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
 [Bootswatch](https://bootswatch.com/) | CSS | 4.1.3 | MIT | Thèmes pour Boostrap
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
+[ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.66 | Free BSD | Support des fichiers ePub
+[JSZip](https://github.com/Stuk/jszip/releases) | plugin JS | 3.1.5 | MIT or GPLv3 | Dépendances de ePub.js
 
 ## Fonctionnalités
 
