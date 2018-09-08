@@ -4,11 +4,13 @@
 	<groupId>fr.techgp.nimbus</groupId>
 	<artifactId>nimbus-app</artifactId>
 	<packaging>jar</packaging>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Nimbus</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -119,9 +121,27 @@
 			<version>0.7</version>0.7.1 dispo mais pas par Maven
 		</dependency>
 		-->
+
+		<dependency>
+			<groupId>fr.techgpdeps</groupId>
+			<artifactId>image4j</artifactId>
+			<version>0.7.1</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/image4j/image4j-0.7.1.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>fr.techgpdeps</groupId>
+			<artifactId>jave</artifactId>
+			<version>1.0.2</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/jave/jave-1.0.2.jar</systemPath>
+		</dependency>
+
 	</dependencies>
 
 	<build>
+		<sourceDirectory>src/</sourceDirectory>
+		<outputDirectory>bin/</outputDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
