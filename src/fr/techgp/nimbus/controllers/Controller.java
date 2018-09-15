@@ -122,6 +122,7 @@ public class Controller {
 		Spark.post("/preferences/save", Preferences.save);
 
 		Spark.get("/epub.html", Extensions.epub); // URL publique
+		Spark.get("/pdf.html", Extensions.pdf); // URL publique
 
 		// Accès à la page de test en mode DEV uniquement
 		Spark.get("/test.html", (request, response) -> {

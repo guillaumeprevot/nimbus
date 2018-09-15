@@ -9,6 +9,7 @@ public class ExtensionFacet implements Facet {
 	@Override
 	public void fillClientPlugins(List<String> plugins) {
 		plugins.add("epub.js");
+		plugins.add("pdf.js");
 	}
 
 }

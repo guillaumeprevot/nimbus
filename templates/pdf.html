@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer">
+<head>
+<title data-translate="text">PDFTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+article > canvas { z-index: 1; display: none; margin: 0 auto 1em; border: 1px solid #aaa; box-shadow: 5px 5px 5px rgba(0,0,0,0.5); }
+article > div { z-index: 2; display: block; margin: 0 auto; position: relative; height: 0; }
+article > div > div { position: absolute; white-space: pre; line-height: 1; direction: ltr; color: transparent; background-color: transparent; cursor: text; }
+::selection { background: rgba(51,122,183,0.3); }
+::-moz-selection { background: rgba(51,122,183,0.3); }
+</style>
+</head>
+<body class="nimbus-hidden">
+	<header>
+		<div class="float-left">
+			<a href="#" class="btn btn-dark back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+		</div>
+
+		<div class="d-inline">
+			<div class="btn-group">
+				<button type="button" class="btn btn-dark first-page" data-translate="title" title="PDFFirstPage"><i class="material-icons">first_page</i></button>
+				<button type="button" class="btn btn-dark previous-page" data-translate="title" title="PDFPreviousPage"><i class="material-icons">chevron_left</i></button>
+				<button type="button" class="btn btn-dark page-number"></button>
+				<button type="button" class="btn btn-dark next-page" data-translate="title" title="PDFNextPage"><i class="material-icons">chevron_right</i></button>
+				<button type="button" class="btn btn-dark last-page" data-translate="title" title="PDFLastPage"><i class="material-icons">last_page</i></button>
+			</div>
+			<div class="btn-group">
+				<button type="button" class="btn btn-dark zoom-out" data-translate="title" title="PDFZoomOut"><i class="material-icons">zoom_out</i></button>
+				<div class="btn-group">
+					<button type="button" class="btn btn-dark zoom-menu dropdown-toggle" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">80%</button>
+					<div class="dropdown-menu">
+						<a href="#" class="dropdown-item zoom-real" data-translate="text">PDFZoomReal</a>
+						<a href="#" class="dropdown-item zoom-fit" data-translate="text">PDFZoomFit</a>
+						<a href="#" class="dropdown-item zoom-width" data-translate="text">PDFZoomWidth</a>
+						<div class="dropdown-divider"></div>
+						<a href="#" class="dropdown-item zoom-pct" data-value="50">50 %</a>
+						<a href="#" class="dropdown-item zoom-pct" data-value="75">75 %</a>
+						<a href="#" class="dropdown-item zoom-pct" data-value="100">100 %</a>
+						<a href="#" class="dropdown-item zoom-pct" data-value="125">125 %</a>
+						<a href="#" class="dropdown-item zoom-pct" data-value="150">150 %</a>
+						<a href="#" class="dropdown-item zoom-pct" data-value="200">200 %</a>
+						<a href="#" class="dropdown-item zoom-pct" data-value="300">300 %</a>
+						<a href="#" class="dropdown-item zoom-pct" data-value="400">400 %</a>
+					</div>
+				</div>
+				<button type="button" class="btn btn-dark zoom-in" data-translate="title" title="PDFZoomIn"><i class="material-icons">zoom_in</i></button>
+			</div>
+			<span class="btn-group">
+				<button type="button" class="btn btn-dark rotate-ccw" data-translate="title" title="PDFRotateCCW"><i class="material-icons">rotate_left</i></button>
+				<button type="button" class="btn btn-dark rotate-cw" data-translate="title" title="PDFRotateCW"><i class="material-icons">rotate_right</i></button>
+			</span>
+		</div>
+
+		<div class="float-right">
+			<button type="button" class="btn btn-dark about" data-toggle="modal" data-target="#about-modal" data-translate="title" title="PDFAbout"><i class="material-icons">info</i></button>
+		</div>
+	</header>
+	<article>
+		<div></div>
+		<canvas></canvas>
+	</article>
+	<footer></footer>
+
+	<div id="about-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-body">
+					<ul class="nav nav-tabs">
+						<li class="nav-item"><a class="nav-link active" href="#about-controls" aria-controls="about-controls" role="tab" data-toggle="tab" aria-selected="true" data-translate="text">PDFAboutControls</a></li>
+						<li class="nav-item"><a class="nav-link" href="#about-metadata" aria-controls="about-metadata" role="tab" data-toggle="tab" aria-selected="false" data-translate="text">PDFAboutProperties</a></li>
+					</ul>
+					<div class="tab-content">
+						<div role="tabpanel" id="about-controls" class="tab-pane active">
+							<table class="table table-sm">
+								<thead>
+									<tr>
+										<th style="width: 200px;" data-translate="text">PDFAboutFunction</th>
+										<th style="width: auto;" data-translate="text">PDFAboutKeyboard</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr><td data-translate="text">PDFFirstPage</td><td><code data-translate="text">PDFFirstPageKey</code></td></tr>
+									<tr><td data-translate="text">PDFPreviousPage</td><td><code data-translate="text">PDFPreviousPageKey</code></td></tr>
+									<tr><td data-translate="text">PDFNextPage</td><td><code data-translate="text">PDFNextPageKey</code></td></tr>
+									<tr><td data-translate="text">PDFLastPage</td><td><code data-translate="text">PDFLastPageKey</code></td></tr>
+									<tr><td data-translate="text">PDFZoomOut</td><td><code data-translate="text">PDFZoomOutKey</code></td></tr>
+									<tr><td data-translate="text">PDFZoomIn</td><td><code data-translate="text">PDFZoomInKey</code></td></tr>
+									<tr><td data-translate="text">PDFZoomFit</td><td><code data-translate="text">PDFZoomFitKey</code></td></tr>
+									<tr><td data-translate="text">PDFRotateCCW</td><td><code data-translate="text">PDFRotateCCWKey</code></td></tr>
+									<tr><td data-translate="text">PDFRotateCW</td><td><code data-translate="text">PDFRotateCWKey</code></td></tr>
+								</tbody>
+							</table>
+						</div>
+						<div role="tabpanel" id="about-metadata" class="tab-pane">
+							<table class="table table-sm">
+								<thead>
+									<tr>
+										<th style="width: 200px;" data-translate="text">PDFAboutProperty</th>
+										<th style="width: auto;" data-translate="text">PDFAboutValue</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/pdfjs/pdf.js"></script>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+<script>
+/** Cette fonction parse une date telle que retournée par le fichier PDF */
+function parsePDFDate(s) {
+	var text = s;
+	if (!text)
+		return undefined;
+	// Remove the D: prefix if it is available.
+	if (text.substring(0,2) === 'D:')
+		text = text.substring(2);
+	// Get all elements from the PDF date string.
+	var year = parseInt(text.substring(0,4));
+	var month = parseInt(text.substring(4,6)) - 1;
+	var day = parseInt(text.substring(6,8));
+	var hours = parseInt(text.substring(8,10));
+	var minutes = parseInt(text.substring(10,12));
+	var seconds = parseInt(text.substring(12,14));
+	var utRel = text.substring(14,15);
+	var offsetHours = parseInt(text.substring(15,17));
+	var offsetMinutes = parseInt(text.substring(18,20));
+	// Deal with timezone
+	if (utRel === '-') {
+		hours += offsetHours;
+		minutes += offsetMinutes;
+	} else if (utRel === '+') {
+		hours -= offsetHours;
+		minutes -= offsetMinutes;
+	}
+	return new Date(Date.UTC(year, month, day, hours, minutes, seconds));
+}
+
+/** Cette fonction crée un "div" pour un morceau de texte de la page */
+function createTextChunk(viewport, item, styles) {
+	var style = styles[item.fontName];
+	var tx = PDFJS.Util.transform(viewport.transform, item.transform);
+	//var pos = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
+	var fontHeight = Math.sqrt((tx[2] * tx[2]) + (tx[3] * tx[3]));
+	var fontAscent = fontHeight * (style.ascent ? style.ascent : (style.descent ? (1 + style.descent) : 1));
+	var angle = Math.atan2(tx[1], tx[0]) + (style.vertical ? Math.PI / 2 : 0);
+	var left = tx[4] + fontAscent * (angle === 0 ? 0 : Math.sin(angle));
+	var top = tx[5] - fontAscent * (angle === 0 ? 1 : Math.cos(angle));
+	var rotate = (angle === 0) ? '' : ('rotate(' + (angle * (180 / Math.PI)) + 'deg)');
+	var scale = '';
+	/*
+	if (item.str.length > 1) {
+		this.canvasContext.font = fontHeight + 'px ' + item.fontName;
+		var width = this.canvasContext.measureText(item.str).width;
+		var textScale = (style.vertical ? item.height : item.width) * viewport.scale / width;
+		scale = 'scaleX(' + textScale + ')';
+	}
+	*/
+
+	var textDiv = document.createElement('div');
+	textDiv.style.left = left + 'px';
+	textDiv.style.top = top + 'px';
+	textDiv.style.fontSize = fontHeight + 'px';
+	textDiv.style.fontFamily = item.fontName;
+	if (item.dir === 'rtl')
+		textDiv.style.direction = 'rtl';
+	if (scale || rotate)
+		textDiv.style.transform = rotate + ' ' + scale;
+	textDiv.textContent = item.str;
+	return textDiv;
+}
+
+NIMBUS.init(['pdf.js'], function() {
+	// L'IHM est prête, on l'affiche
+	var body = $(document.body).removeClass('nimbus-hidden');
+
+	// Récupération de quelques éléments DOM
+	var article = $('article');
+	var showTextLayer = true;
+	var textLayer = article.children('div');
+	var canvas = article.children('canvas');
+	var canvasContext = canvas[0].getContext('2d');
+
+	// Préparation des variables concernant le document PDF
+	var pdf = null;
+	var pageIndex = 1;
+	var pageRendering = false;
+	var pageIndexPending = null;
+	var scale = 80;
+	var rotation = 0;
+
+	// Méthode affichant la page indiquée
+	function renderPage(index) {
+		if (pageRendering) {
+			// Attendre le fin du chargement de page en cours avant de changer de page
+			pageIndexPending = index;
+		} else {
+			// OK, dessiner la page demandée
+			pageRendering = true;
+			pdf.getPage(index).then(function(page) {
+				// console.log(page); // page = { pageIndex: 0, pageInfo: { rotate: 0, view:[t,l,w,h]} }
+
+				var viewport = page.getViewport(scale / 100.0, rotation + page.pageInfo.rotate);
+				canvas.show().attr({
+					width: viewport.width,
+					height: viewport.height
+				});
+				if (showTextLayer)
+					textLayer.text('').css('width', viewport.width + 'px');
+				// Changement de page
+				pageIndex = index;
+				firstPageButton.prop('disabled', pageIndex === 1);
+				previousPageButton.prop('disabled', pageIndex === 1);
+				nextPageButton.prop('disabled', pageIndex === pdf.numPages);
+				lastPageButton.prop('disabled', pageIndex === pdf.numPages);
+				pageNumberButton.text(NIMBUS.translate('PDFPageNumbering', [pageIndex, pdf.numPages]));
+				// trigger 'pagechanged' pageIndex / pdf.numPages
+				var renderContext = {
+					canvasContext: canvasContext,
+					viewport: viewport
+				};
+				var renderTask = page.render(renderContext);
+				renderTask.promise.then(function() {
+					pageRendering = false;
+					if (pageIndexPending !== null) {
+						var n = pageIndexPending;
+						pageIndexPending = null;
+						renderPage(n);
+					}
+				});
+
+				if (showTextLayer) {
+					page.getTextContent(/*{ normalizeWhitespace: true }*/).then(function(textContent) {
+						// console.log($.map(textContent.items, (i) => i.str).join(' '));
+						var textItems = textContent.items;
+						for (var i = 0, len = textItems.length; i < len; i++) {
+							textLayer.append(createTextChunk(viewport, textItems[i], textContent.styles));
+						}
+					});
+				}
+			});
+		}
+	}
+
+	// Changer le zoom et redessiner la page
+	function changeScale(value) {
+		scale = value;
+		header.find('.zoom-menu').text(Math.floor(scale) + '%');
+		renderPage(pageIndex);
+	}
+
+	// Changer la rotation et redessiner la page
+	function changeRotation(offset) {
+		rotation = (rotation + 360 + offset) % 360;
+		renderPage(pageIndex);
+	};
+
+	// Manipulation par la barre d'outils
+	var header = $('header');
+	var backButton = header.find('.back')
+		.toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+
+	// Revenir à la première page
+	var firstPageButton = header.find('.first-page').click(function() {
+		if (pageIndex > 1)
+			renderPage(1);
+	});
+	// Revenir à la page précédente
+	var previousPageButton = header.find('.previous-page').click(function() {
+		if (pageIndex > 1)
+			renderPage(pageIndex - 1);
+	});
+	// Aller à la page suivante
+	var nextPageButton = header.find('.next-page').click(function() {
+		if (pageIndex < pdf.numPages)
+			renderPage(pageIndex + 1);
+	});
+	// Aller à la dernière page
+	var lastPageButton = header.find('.last-page').click(function() {
+		if (pageIndex < pdf.numPages)
+			renderPage(pdf.numPages);
+	});
+	// Afficher / Choisir le numéro de page
+	var pageNumberButton = header.find('.page-number').popover({
+		html: true,
+		placement: 'bottom',
+		content: function() {
+			return $('<input type="text" class="form-control" style="width: 3.5em;" />')
+				.val(pageIndex.toString())
+				.change(function(event) {
+					var n = parseInt(event.target.value);
+					if (typeof n === 'number' && !Number.isNaN(n) && n >= 1 && n <= pdf.numPages)
+						renderPage(n);
+				})
+		}
+	});
+	// Zoomer un peu moins (-10 entre 0 et 100, -20 entre 100 et 200, -30 entre 200 et 300, ...)
+	var zoomOutButton = header.find('.zoom-out').click(function() {
+		var decrement = (Math.floor(scale / 100) + 1) * 10;
+		changeScale(Math.max(10, scale - decrement));
+	});
+	// Zoomer un peu plus (+10 entre 0 et 100, +20 entre 100 et 200, +30 entre 200 et 300, ...)
+	var zoomInButton = header.find('.zoom-in').click(function() {
+		var increment = (Math.floor(scale / 100) + 1) * 10;
+		changeScale(scale + increment);
+	});
+	// Positionner le zoom à 100% (taille réelle)
+	var zoomRealButton = header.find('.zoom-real').click(function() {
+		changeScale(100);
+	});
+	// Ajuster le zoom pour que la page s'affiche en entière
+	var zoomFit = header.find('.zoom-fit').click(function() {
+		var height = article.height(),
+			width = article.width() - 17/*if scrollbar are visible*/,
+			heightFactor = height / canvas[0].height,
+			widthFactor = width / canvas[0].width;
+		changeScale(scale * Math.min(widthFactor, heightFactor));
+	});
+	// Ajuster le zoom pour que la page s'affiche en pleine largeur
+	var zoomWidth = header.find('.zoom-width').click(function() {
+		var newWidth = article.width() - 17/*if scrollbar are visible*/,
+			currentWidth = canvas[0].width,
+			currentScale = scale;
+		changeScale(currentScale * newWidth / currentWidth);
+	});
+	// Zoomer à une valeur définie par le menu
+	header.on('click', 'a.zoom-pct', function(event) {
+		changeScale(parseInt($(event.target).attr('data-value')));
+	});
+	// Faire pivoter la page dans le sens des aiguilles d'une montre
+	var rotateCWButton = header.find('.rotate-cw').click(function() {
+		changeRotation(90);
+	});
+	// Faire pivoter la page dans le sens inverse des aiguilles d'une montre
+	var rotateCCWButton = header.find('.rotate-ccw').click(function() {
+		changeRotation(-90);
+	});
+	// Afficher les propriétés du document quand la fenêtre modale est affichée
+	var aboutModal = $('#about-modal').on('show.bs.modal', function() {
+		pdf.getMetadata().then(function(data) {
+			// console.log(data);
+			var lang = NIMBUS.translate('PDFAboutMetadata');
+			var tbody = $('#about-metadata tbody').empty();
+			for (var property in lang) {
+				var name = lang[property];
+				var value = data.info[property];
+				if (property.indexOf('Date') === property.length - 4)
+					value = parsePDFDate(value).toLocaleString();
+				$('<tr />').append('<td>' + name + '</td>').append('<td>' + (value || '') + '</td>').appendTo(tbody);
+			}
+		});
+	});
+
+	// Affichage de la première page
+	PDFJS.getDocument('${url}').then(function(pdfDoc) {
+		pdf = pdfDoc;
+		renderPage(1);
+	});
+
+	// Manipulation au clavier
+	body.keyup(function(event) {
+		if (event.target.tagName === 'INPUT' || event.ctrlKey)
+			return;
+		var key = event.key, prevent = true;
+		// console.log(event.key);
+		switch (key) {
+			case 'Home':
+				firstPageButton.click();
+				break;
+			case 'PageUp':
+				previousPageButton.click();
+				break;
+			case 'PageDown':
+				nextPageButton.click();
+				break;
+			case 'End':
+				lastPageButton.click();
+				break;
+			case '+':
+				zoomInButton.click();
+				break;
+			case '-':
+				zoomOutButton.click();
+				break;
+			case '0':
+				zoomFit.click();
+				break;
+			case 'ArrowLeft':
+				if (event.altKey)
+					rotateCCWButton.click();
+				else
+					prevent = false;
+				break;
+			case 'ArrowRight':
+				if (event.altKey)
+					rotateCWButton.click();
+				else
+					prevent = false;
+				break;
+			default:
+				prevent = false;
+		}
+		if (prevent)
+			event.preventDefault();
+	});
+
+	// Changement de page par "swipe" à gauche ou à droite
+	article.swipe().on('swipe', function(event, direction) {
+		if ('right' === direction || 'bottom' === direction)
+			previousPageButton.click();
+		else if ('left' === direction || 'top' === direction)
+			nextPageButton.click();
+	});
+});
+</script>
+</body>
+</html>

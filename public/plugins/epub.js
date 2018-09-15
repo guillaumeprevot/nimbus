@@ -33,25 +33,23 @@
 		langs: {
 			fr: {
 				EPUBRead: "Lire",
-				EPUBTitle: 'Lecteur ePub',
+				EPUBTitle: "Lecteur ePub",
 				EPUBSpreadsOff: "Afficher en une colonne",
 				EPUBSpreadsOn: "Afficher sur deux colonnes",
 				EPUBFirstPage: "Première page",
 				EPUBPreviousPage: "Page précédente",
 				EPUBNextPage: "Page suivante",
 				EPUBLastPage: "Dernière page",
-				EPUBCLose: "Fermer",
 			},
 			en: {
 				EPUBRead: "Read",
-				EPUBTitle: 'ePub reader',
+				EPUBTitle: "ePub reader",
 				EPUBSpreadsOff: "Display as a single column",
 				EPUBSpreadsOn: "Display on two columns",
 				EPUBFirstPage: "First page",
 				EPUBPreviousPage: "Previous page",
 				EPUBNextPage: "Next page",
 				EPUBLastPage: "Last page",
-				EPUBCLose: "Close",
 			} 
 		}
 	});
