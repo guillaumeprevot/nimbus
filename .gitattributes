@@ -1,2 +1,8 @@
-public/libs/* linguist-vendored
-public/libs/gp linguist-vendored=false
+public/libs/bootstrap/* linguist-vendored
+public/libs/epub/* linguist-vendored
+public/libs/jquery/* linguist-vendored
+public/libs/jszip/* linguist-vendored
+public/libs/material-icons/* linguist-vendored
+public/libs/pdfjs/* linguist-vendored
+public/libs/popper/* linguist-vendored
+public/themes/* linguist-vendored
