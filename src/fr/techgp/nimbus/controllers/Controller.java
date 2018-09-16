@@ -44,7 +44,7 @@ public class Controller {
 			String login = request.session().attribute("userLogin");
 			User user = User.findByLogin(login);
 			long usedSpace = Item.calculateUsedSpace(login);
-			long maxSpace = user.quota == null ? Long.MAX_VALUE : (user.quota * 1024L * 1024L);
+			long maxSpace = user.quota == null ? Long.MAX_VALUE : (user.quota.longValue() * 1024L * 1024L);
 			long freeSpace = Math.min(configuration.getStorageFolder().getFreeSpace(), maxSpace - usedSpace);
 			return renderTemplate("main.html",
 					"lang", SparkUtils.getRequestLang(request),
@@ -317,7 +317,7 @@ public class Controller {
 		//System.out.println(String.format("User quota   = %7d bytes", user.quota * 1024 * 1024));
 		//System.out.println(String.format("Used space   = %7d bytes", usedSpace));
 		//System.out.println(String.format("Free space   = %7d bytes", user.quota * 1024 * 1024 - usedSpace));
-		if (neededSpace > user.quota * 1024 * 1024 - usedSpace)
+		if (neededSpace > user.quota.longValue() * 1024L * 1024L - usedSpace)
 			SparkUtils.haltInsufficientStorage();
 	}
 

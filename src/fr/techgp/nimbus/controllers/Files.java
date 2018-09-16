@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -15,10 +17,12 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart;
 
 import com.google.gson.JsonArray;
 
 import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.ImageUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -34,33 +38,60 @@ public class Files extends Controller {
 	 * (files, parentId) => ""
 	 */
 	public static final Route upload = (request, response) -> {
-		// Récupérer l'utilisateur connecté
+		// Récupérer l'utilisateur pour connaitre son quota
 		String userLogin = request.session().attribute("userLogin");
+		User user = User.findByLogin(userLogin);
+		long availableSpace = user.quota == null ? Long.MAX_VALUE : (user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin));
+
+		// Configurer le traitement de la requête multi-part (Seuil et dossier pour écriture sur disque)
+		String uploadFolder = configuration.getStorageFolder().getAbsolutePath();
+		long maxFileSize = -1L; // peu importe
+		long maxRequestSize = -1L; // on vérifie plus loin le quota
+		int fileSizeThreshold = 100 * 1024 * 1024; // en mémoire jusqu'à 100 Mo
+		request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(uploadFolder, maxFileSize, maxRequestSize, fileSizeThreshold));
+
 		// Extraire la requête
-		request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(configuration.getStorageFolder().getAbsolutePath()));
-		// Rechercher le parent éventuel et en vérifier l'accès
-		String parentIdString = IOUtils.toString(request.raw().getPart("parentId").getInputStream(), "UTF-8");
-		Long parentId = (StringUtils.isBlank(parentIdString) || "null".equals(parentIdString)) ? null : Long.valueOf(parentIdString);
+		Collection<Part> requestParts = request.raw().getParts();
+
+		// Rechercher le dossier parent (où déposer les fichiers) et en vérifier l'accès
+		Long parentId = null;
+		for (Part part : requestParts) {
+			if ("parentId".equals(part.getName())) {
+				String parentIdString = IOUtils.toString(part.getInputStream(), "UTF-8");
+				parentId = (StringUtils.isBlank(parentIdString) || "null".equals(parentIdString)) ? null : Long.valueOf(parentIdString);
+				break;
+			}
+		}
 		Item parent = parentId == null ? null : Item.findById(parentId);
-		if (parentId != null && (parent == null || !parent.userLogin.equals(userLogin)))
+		if (parentId != null && (parent == null || !parent.userLogin.equals(userLogin))) {
+			for (Part part : requestParts) {
+				part.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
+			}
 			return SparkUtils.haltBadRequest();
+		}
+
 		// Récupérer les fichiers uploadés, les éventuels items correspondants et l'espace disque nécessaire
 		List<Part> parts = new ArrayList<>();
 		List<Item> items = new ArrayList<>();
-		long neededSpace = 0L;
 		for (Part part : request.raw().getParts()) {
 			if (!"files".equals(part.getName()))
 				continue;
 			Item item = Item.findItemWithName(userLogin, parentId, part.getSubmittedFileName());
 			parts.add(part);
 			items.add(item);
-			neededSpace += part.getSize();
+			availableSpace -= part.getSize();
 			if (item != null && item.content.getLong("length") != null)
-				neededSpace -= item.content.getLong("length").longValue();
+				availableSpace += item.content.getLong("length").longValue();
 		}
-		// Vérifier avannt de commencer que l'espace disque est suffisant
-		if (neededSpace > 0)
-			checkQuotaAndHaltIfNecessary(userLogin, neededSpace);
+
+		// Vérifier avant de commencer que l'espace disque est suffisant
+		if (availableSpace < 0) {
+			for (Part part : requestParts) {
+				part.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
+			}
+			return SparkUtils.haltInsufficientStorage();
+		}
+
 		// OK, lancer l'intégration
 		JsonArray results = new JsonArray();
 		for (int i = 0; i < parts.size(); i++) {
@@ -71,10 +102,32 @@ public class Files extends Controller {
 				item = Item.add(userLogin, parent, false, part.getSubmittedFileName(), null);
 			// Enregistrement sur disque
 			File storedFile = getFile(item);
-			try (InputStream is = part.getInputStream()) {
-				//too slow : FileUtils.copyInputStreamToFile(is, storedFile);
-				try (OutputStream os = new FileOutputStream(storedFile)) {
-					IOUtils.copyLarge(is, os, new byte[1024*1024*10]);
+			// NB1 : utiliser "part.getInputStream()" n'est pas efficace quand le fichier
+			//       a été écrit sur disque car on le copie inutilement à sa destination
+			// NB2 : utiliser "part.write(filePath)" fonctionne bien pour les fichiers
+			//       car elle les déplace mais on ne contrôle pas la taille du buffer pour la copie en mémoire
+			// NB3 : caster "part" en "MultiPart" fonctionne et on peut tester si c'est un
+			//       fichier (pour utiliser java.nio.file.Files.move) ou un byte[] (pour écrit dans un FileOutputStream)
+			if (! (part instanceof MultiPart)) {
+				// Cette méthode n'est pas idéale car on copie inutilement si le fichier uploadé a été stocké sur disque.
+				// => c'est juste une fallback car Jetty fournit des MultiPart (cf ci-dessous).
+				try (InputStream is = part.getInputStream()) {
+					//too slow : FileUtils.copyInputStreamToFile(is, storedFile);
+					try (OutputStream os = new FileOutputStream(storedFile)) {
+						IOUtils.copyLarge(is, os, new byte[1024*1024*10]);
+					}
+				}
+			} else {
+				MultiPart mpart = (MultiPart) part;
+				if (mpart.getFile() != null) {
+					// La limite a été dépassée et le fichier a donc été écrit sur disque.
+					// => on déplace le fichier (= rapide puisque c'est le même volume)
+					java.nio.file.Files.move(mpart.getFile().toPath(), storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				} else {
+					// La taille est en dessou de la limite et le contenu est donc en mémoire
+					try (OutputStream os = new FileOutputStream(storedFile)) {
+						os.write(mpart.getBytes());
+					}
 				}
 			}
 			// Mettre à jour les infos du fichier
