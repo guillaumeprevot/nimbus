@@ -11,6 +11,19 @@
 <link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+body:not(.selecting) iframe { pointer-events: none; }
+body:not(.selecting) .toggle-select:last-child { display: none; }
+body.selecting .toggle-select:first-child { display: none; }
+@media (orientation:portrait) {
+	header { order: 3; }
+}
+@media (max-width: 829px) { /*ePub.js minSpreadWidth (800px) + article margins (30px)*/
+	.btn-group-toggle { display: none; }
+}
+.popover { max-width: calc(100% - 10px); }
+.dropdown-menu { max-height: 300px; overflow: auto; }
+</style>
 </head>
 <body class="nimbus-hidden">
 	<header>
@@ -20,19 +33,30 @@
 
 		<div class="btn-group nimbus-hidden">
 			<button type="button" class="btn btn-dark previous-page" data-translate="title" title="EPUBPreviousPage"><i class="material-icons">chevron_left</i></button>
+			<button type="button" class="btn btn-dark position" data-translate="title" title="EPUBPosition"><i class="material-icons">linear_scale</i></button>
+			<div class="btn-group" role="group">
+				<button id="chaptersButton" type="button" class="btn btn-dark" data-toggle="dropdown" data-translate="title" title="EPUBChapters" aria-haspopup="true" aria-expanded="false"><i class="material-icons">format_list_numbered</i></button>
+				<div id="chaptersMenu" class="dropdown-menu" aria-labelledby="chaptersButton">
+				</div>
+			</div>
 			<button type="button" class="btn btn-dark next-page" data-translate="title" title="EPUBNextPage"><i class="material-icons">chevron_right</i></button>
 		</div>
 
-		<div class="float-right btn-group btn-group-toggle" data-toggle="buttons">
+		<div class="btn-group btn-group-toggle" data-toggle="buttons">
 			<button type="button" class="btn btn-dark spreads-off" data-translate="title" title="EPUBSpreadsOff"><i class="material-icons">format_align_justify</i></button>
 			<button type="button" class="btn btn-dark spreads-on active" data-translate="title" title="EPUBSpreadsOn"><i class="material-icons">chrome_reader_mode</i></button>
 		</div>
+
+		<div class="float-right">
+			<button type="button" class="btn btn-dark toggle-select" data-translate="title" title="EPUBSelectMode"><i class="material-icons">short_text</i></button>
+			<button type="button" class="btn btn-dark toggle-select" data-translate="title" title="EPUBSwipeMode"><i class="material-icons">compare_arrows</i></button>
+		</div>
 	</header>
 	<article></article>
-	<div class="nimbus-viewer-foreground"></div>
 	<footer></footer>
 	
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="/libs/jszip/jszip.min.js"></script>
 <script type="text/javascript" src="/libs/epub/epub.min.js"></script>
@@ -43,6 +67,7 @@
 NIMBUS.init(['epub.js'], function() {
 	// L'IHM est prête, on l'affiche
 	var body = $(document.body).removeClass('nimbus-hidden');
+	var header = $('header');
 
 	// Affichage de la première page
 	var article = $('article');
@@ -56,39 +81,86 @@ NIMBUS.init(['epub.js'], function() {
 	});
 	rendition.display();
 
-	// Manipulation par la barre d'outils
-	var header = $('header');
+	// Un bouton retour (facultatif)
 	var backButton = header.find('.back')
-		.toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
-	var spreadsOnButton = header.find('.spreads-on').click(function() {
-		spreadsOnButton.addClass('active').siblings().removeClass('active');
+		.toggle(!!'${fromUrl}')
+		.attr('title', '${fromTitle}')
+		.attr('href', '${fromUrl}');
+
+	// Changement de mode entre 1 colonne et 2 colonnes
+	var spreadsOnButton = header.find('.spreads-on').on('click', function() {
+		spreadsOnButton.siblings().removeClass('active');
 		rendition.spread('auto');
 	});
-	var spreadsOffButton = header.find('.spreads-off').click(function() {
-		spreadsOffButton.addClass('active').siblings().removeClass('active');
+	var spreadsOffButton = header.find('.spreads-off').on('click', function() {
+		spreadsOffButton.siblings().removeClass('active');
 		rendition.spread('none');
 	});
-	var previousPageButton = header.find('.previous-page').click(function() {
+
+	// Navigation avec les boutons "<" et ">"
+	var previousPageButton = header.find('.previous-page').on('click', function() {
 		rendition.prev();
 	});
-	var nextPageButton = header.find('.next-page').click(function() {
+	var nextPageButton = header.find('.next-page').on('click', function() {
 		rendition.next();
 	});
 
-	// Manipulation au clavier
-	body.keyup(function(event) {
+	// Navigation au clavier
+	body.on('keyup', function(event) {
 		if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
 			rendition.prev();
 		else if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
 			rendition.next();
 	});
 
-	// Changement de page par "swipe" à gauche ou à droite
-	$('.nimbus-viewer-foreground').swipe().on('swipe', function(event, direction) {
+	// Navigation à la molette
+	article.on('wheel', function(event) {
+		var e = event.originalEvent;
+		if (e.ctrlKey)
+			return;
+		if (e.deltaY < 0)
+			rendition.prev();
+		else
+			rendition.next();
+	});
+
+	// Navigation par "swipe" à gauche ou à droite
+	article.swipe().on('swipe', function(event, direction) {
 		if ('right' === direction || 'bottom' === direction)
 			rendition.prev();
 		else if ('left' === direction || 'top' === direction)
 			rendition.next();
+	});
+
+	// Changement de mode entre "swipe" et sélection de texte
+	var toggleSelectButton = header.find('.toggle-select').on('click', function() {
+		body.toggleClass('selecting');
+	})
+
+	// Préparer un slider pour avancer dans le document en pourcentage
+	var positionInput = $('<input type="range" class="form-control" min="0" max="100" step="1" value="0" style="max-width: 100%; width: 300px; " />').on('input', function() {
+		var cfi = book.locations.cfiFromPercentage(parseInt(positionInput.val()) / 100);
+		rendition.display(cfi);
+	});
+
+	// Utiliser un bouton dans la barre pour afficher le slider
+	var positionButton = header.find('.position').popover({
+		html: true,
+		placement: 'bottom',
+		content: positionInput
+	});
+
+	// Calculer le découpage en pourcentage
+	book.ready.then(function() {
+		// Comme c'est un peu coûteux, on stocke le résultat pour les fois suivantes
+		var key = book.key() + '-locations';
+		var stored = localStorage.getItem(key);
+		if (stored)
+			return book.locations.load(stored);
+		// On découpe en petits morceaux (ici de 1600 caractères. 150 par défaut sinon)
+		return book.locations.generate(1600);
+	}).then(function(locations) {
+		localStorage.setItem(book.key() + '-locations', book.locations.save());
 	});
 
 	// Ajuster la visibilité des boutons en fonction de la page en cours
@@ -96,6 +168,34 @@ NIMBUS.init(['epub.js'], function() {
 		nextPageButton.parent().toggleClass('nimbus-hidden', !!location.atEnd && !!location.atStart);
 		previousPageButton.prop('disabled', !!location.atStart);
 		nextPageButton.prop('disabled', !!location.atEnd);
+		var percent = book.locations.percentageFromCfi(location.start.cfi);
+		var percentage = Math.floor(percent * 100);
+		positionInput.val(percentage);
+		positionButton.attr('title', percentage + ' %');
+	});
+
+	// Afficher la liste des chapitres en combo
+	book.loaded.navigation.then(function(toc) {
+		var fragment = document.createDocumentFragment();
+		toc.forEach(function(chapter) {
+			var label = (chapter.label || '').trim();
+			if (! label)
+				return;
+			var a = document.createElement('a');
+			a.className = 'dropdown-item';
+			a.textContent = label;
+			a.href = chapter.href;
+			fragment.appendChild(a);
+		});
+		chaptersMenu.parent().toggle(toc.length >= 2);
+		chaptersMenu[0].appendChild(fragment);
+	});
+
+	// En se déplacer au chapitre sélectionné
+	var chaptersMenu = header.find('#chaptersMenu').on('click', 'a.dropdown-item', function(event) {
+		var url = $(event.target).attr('href');
+		rendition.display(url);
+		return false;
 	});
 
 });

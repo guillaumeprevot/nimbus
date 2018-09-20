@@ -36,20 +36,28 @@
 				EPUBTitle: "Lecteur ePub",
 				EPUBSpreadsOff: "Afficher en une colonne",
 				EPUBSpreadsOn: "Afficher sur deux colonnes",
+				EPUBSelectMode: "Passer en mode de sélection de texte",
+				EPUBSwipeMode: "Passer en mode de navigation au doigt",
 				EPUBFirstPage: "Première page",
 				EPUBPreviousPage: "Page précédente",
 				EPUBNextPage: "Page suivante",
 				EPUBLastPage: "Dernière page",
+				EPUBPosition: "Position",
+				EPUBChapters: "Chapitres",
 			},
 			en: {
 				EPUBRead: "Read",
 				EPUBTitle: "ePub reader",
 				EPUBSpreadsOff: "Display as a single column",
 				EPUBSpreadsOn: "Display on two columns",
+				EPUBSelectMode: "Switch to text selection mode",
+				EPUBSwipeMode: "Switch to swipe navigation mode",
 				EPUBFirstPage: "First page",
 				EPUBPreviousPage: "Previous page",
 				EPUBNextPage: "Next page",
 				EPUBLastPage: "Last page",
+				EPUBPosition: "Position",
+				EPUBChapters: "Chapters",
 			} 
 		}
 	});
