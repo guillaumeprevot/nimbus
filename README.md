@@ -39,7 +39,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.66 | Free BSD | Support des fichiers ePub
 [JSZip](https://github.com/Stuk/jszip/releases) | plugin JS | 3.1.5 | MIT or GPLv3 | Dépendances de ePub.js
-[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 1.0.100 | Apache 2.0 | Support des fichiers PDF
+[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 1.10.100 | Apache 2.0 | Support des fichiers PDF
 
 ## Fonctionnalités
 

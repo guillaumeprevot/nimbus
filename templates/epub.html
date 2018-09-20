@@ -18,7 +18,7 @@
 			<a href="#" class="btn btn-dark back" style="display: none;"><i class="material-icons">arrow_back</i></a>
 		</div>
 
-		<div class="d-inline">
+		<div class="btn-group nimbus-hidden">
 			<button type="button" class="btn btn-dark previous-page" data-translate="title" title="EPUBPreviousPage"><i class="material-icons">chevron_left</i></button>
 			<button type="button" class="btn btn-dark next-page" data-translate="title" title="EPUBNextPage"><i class="material-icons">chevron_right</i></button>
 		</div>
@@ -93,6 +93,7 @@ NIMBUS.init(['epub.js'], function() {
 
 	// Ajuster la visibilité des boutons en fonction de la page en cours
 	rendition.on('relocated', function(location) {
+		nextPageButton.parent().toggleClass('nimbus-hidden', !!location.atEnd && !!location.atStart);
 		previousPageButton.prop('disabled', !!location.atStart);
 		nextPageButton.prop('disabled', !!location.atEnd);
 	});

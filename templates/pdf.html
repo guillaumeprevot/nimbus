@@ -26,7 +26,7 @@ article > div > div { position: absolute; white-space: pre; line-height: 1; dire
 		</div>
 
 		<div class="d-inline">
-			<div class="btn-group">
+			<div class="btn-group nimbus-hidden">
 				<button type="button" class="btn btn-dark first-page" data-translate="title" title="PDFFirstPage"><i class="material-icons">first_page</i></button>
 				<button type="button" class="btn btn-dark previous-page" data-translate="title" title="PDFPreviousPage"><i class="material-icons">chevron_left</i></button>
 				<button type="button" class="btn btn-dark page-number"></button>
@@ -372,6 +372,7 @@ NIMBUS.init(['pdf.js'], function() {
 	// Affichage de la première page
 	PDFJS.getDocument('${url}').then(function(pdfDoc) {
 		pdf = pdfDoc;
+		pageNumberButton.closest('.btn-group').toggleClass('nimbus-hidden', pdf.numPages === 1);
 		renderPage(1);
 	});
 
