@@ -1,9 +1,11 @@
-/pom.tree.txt
 /bin/*
 /lib/*.jar
 /storage/*
-/temp/
 /target/
-nimbus.keystore
-nimbus.pkcs12
-nimbus.url
+/temp/
+/nimbus.keystore
+/nimbus.pkcs12
+/nimbus.url
+/nimbus-dev.conf
+/nimbus-test.conf
+/pom.tree.txt

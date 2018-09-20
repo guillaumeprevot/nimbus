@@ -39,10 +39,13 @@ public class Configuration {
 
 	public Configuration(String path) throws IOException {
 		super();
-		File configFile = new File(path);
-		if (configFile.exists()) {
-			try (FileInputStream fis = new FileInputStream(configFile)) {
-				this.properties.load(fis);
+		String[] pathParts = path.split(File.pathSeparator);
+		for (String pathPart : pathParts) {
+			File configFile = new File(pathPart);
+			if (configFile.exists()) {
+				try (FileInputStream fis = new FileInputStream(configFile)) {
+					this.properties.load(fis);
+				}
 			}
 		}
 
