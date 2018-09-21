@@ -17,6 +17,16 @@ article > div { z-index: 2; display: block; margin: 0 auto; position: relative; 
 article > div > div { position: absolute; white-space: pre; line-height: 1; direction: ltr; color: transparent; background-color: transparent; cursor: text; }
 ::selection { background: rgba(51,122,183,0.3); }
 ::-moz-selection { background: rgba(51,122,183,0.3); }
+
+@media (orientation:portrait) {
+	header { order: 3; }
+}
+@media (min-width: 768px) {
+	header .small-screen { display: none; }
+}
+@media (max-width: 767.5px) {
+	header .large-screen { display: none; }
+}
 </style>
 </head>
 <body class="nimbus-hidden">
@@ -25,42 +35,57 @@ article > div > div { position: absolute; white-space: pre; line-height: 1; dire
 			<a href="#" class="btn btn-dark back" style="display: none;"><i class="material-icons">arrow_back</i></a>
 		</div>
 
-		<div class="d-inline">
-			<div class="btn-group nimbus-hidden">
-				<button type="button" class="btn btn-dark first-page" data-translate="title" title="PDFFirstPage"><i class="material-icons">first_page</i></button>
-				<button type="button" class="btn btn-dark previous-page" data-translate="title" title="PDFPreviousPage"><i class="material-icons">chevron_left</i></button>
-				<button type="button" class="btn btn-dark page-number"></button>
-				<button type="button" class="btn btn-dark next-page" data-translate="title" title="PDFNextPage"><i class="material-icons">chevron_right</i></button>
-				<button type="button" class="btn btn-dark last-page" data-translate="title" title="PDFLastPage"><i class="material-icons">last_page</i></button>
-			</div>
-			<div class="btn-group">
-				<button type="button" class="btn btn-dark zoom-out" data-translate="title" title="PDFZoomOut"><i class="material-icons">zoom_out</i></button>
-				<div class="btn-group">
-					<button type="button" class="btn btn-dark zoom-menu dropdown-toggle" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">80%</button>
-					<div class="dropdown-menu">
-						<a href="#" class="dropdown-item zoom-real" data-translate="text">PDFZoomReal</a>
-						<a href="#" class="dropdown-item zoom-fit" data-translate="text">PDFZoomFit</a>
-						<a href="#" class="dropdown-item zoom-width" data-translate="text">PDFZoomWidth</a>
-						<div class="dropdown-divider"></div>
-						<a href="#" class="dropdown-item zoom-pct" data-value="50">50 %</a>
-						<a href="#" class="dropdown-item zoom-pct" data-value="75">75 %</a>
-						<a href="#" class="dropdown-item zoom-pct" data-value="100">100 %</a>
-						<a href="#" class="dropdown-item zoom-pct" data-value="125">125 %</a>
-						<a href="#" class="dropdown-item zoom-pct" data-value="150">150 %</a>
-						<a href="#" class="dropdown-item zoom-pct" data-value="200">200 %</a>
-						<a href="#" class="dropdown-item zoom-pct" data-value="300">300 %</a>
-						<a href="#" class="dropdown-item zoom-pct" data-value="400">400 %</a>
-					</div>
-				</div>
-				<button type="button" class="btn btn-dark zoom-in" data-translate="title" title="PDFZoomIn"><i class="material-icons">zoom_in</i></button>
-			</div>
-			<span class="btn-group">
-				<button type="button" class="btn btn-dark rotate-ccw" data-translate="title" title="PDFRotateCCW"><i class="material-icons">rotate_left</i></button>
-				<button type="button" class="btn btn-dark rotate-cw" data-translate="title" title="PDFRotateCW"><i class="material-icons">rotate_right</i></button>
-			</span>
+		<div class="btn-group nimbus-hidden large-screen">
+			<button type="button" class="btn btn-dark first-page" data-translate="title" title="PDFFirstPage"><i class="material-icons">first_page</i></button>
+			<button type="button" class="btn btn-dark previous-page" data-translate="title" title="PDFPreviousPage"><i class="material-icons">chevron_left</i></button>
+			<button type="button" class="btn btn-dark page-number"></button>
+			<button type="button" class="btn btn-dark next-page" data-translate="title" title="PDFNextPage"><i class="material-icons">chevron_right</i></button>
+			<button type="button" class="btn btn-dark last-page" data-translate="title" title="PDFLastPage"><i class="material-icons">last_page</i></button>
 		</div>
 
-		<div class="float-right">
+		<div class="btn-group">
+			<button type="button" class="btn btn-dark zoom-out" data-translate="title" title="PDFZoomOut"><i class="material-icons">zoom_out</i></button>
+			<div class="btn-group">
+				<button type="button" class="btn btn-dark zoom-menu" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">80%</button>
+				<div class="dropdown-menu">
+					<a href="#" class="dropdown-item zoom-real" data-translate="text">PDFZoomReal</a>
+					<a href="#" class="dropdown-item zoom-fit" data-translate="text">PDFZoomFit</a>
+					<a href="#" class="dropdown-item zoom-width" data-translate="text">PDFZoomWidth</a>
+					<div class="dropdown-divider"></div>
+					<a href="#" class="dropdown-item zoom-pct" data-value="50">50 %</a>
+					<a href="#" class="dropdown-item zoom-pct" data-value="75">75 %</a>
+					<a href="#" class="dropdown-item zoom-pct" data-value="100">100 %</a>
+					<a href="#" class="dropdown-item zoom-pct" data-value="125">125 %</a>
+					<a href="#" class="dropdown-item zoom-pct" data-value="150">150 %</a>
+					<a href="#" class="dropdown-item zoom-pct" data-value="200">200 %</a>
+					<a href="#" class="dropdown-item zoom-pct" data-value="300">300 %</a>
+					<a href="#" class="dropdown-item zoom-pct" data-value="400">400 %</a>
+				</div>
+			</div>
+			<button type="button" class="btn btn-dark zoom-in" data-translate="title" title="PDFZoomIn"><i class="material-icons">zoom_in</i></button>
+		</div>
+
+		<span class="btn-group large-screen">
+			<button type="button" class="btn btn-dark rotate-ccw" data-translate="title" title="PDFRotateCCW"><i class="material-icons">rotate_left</i></button>
+			<button type="button" class="btn btn-dark rotate-cw" data-translate="title" title="PDFRotateCW"><i class="material-icons">rotate_right</i></button>
+		</span>
+
+		<div class="float-right dropdown small-screen">
+			<button type="button" class="btn btn-dark menu" data-translate="title" title="PDFMenu" data-toggle="dropdown"><i class="material-icons">menu</i></button>
+			<div class="dropdown-menu dropdown-menu-right">
+				<a href="#" class="dropdown-item first-page" data-translate="text">PDFFirstPage</a>
+				<a href="#" class="dropdown-item previous-page" data-translate="text">PDFPreviousPage</a>
+				<a href="#" class="dropdown-item next-page" data-translate="text">PDFNextPage</a>
+				<a href="#" class="dropdown-item last-page" data-translate="text">PDFLastPage</a>
+				<div class="dropdown-divider"></div>
+				<a href="#" class="dropdown-item rotate-ccw" data-translate="text">PDFRotateCCW</a>
+				<a href="#" class="dropdown-item rotate-cw" data-translate="text">PDFRotateCW</a>
+				<div class="dropdown-divider"></div>
+				<a href="#" class="dropdown-item about" data-toggle="modal" data-target="#about-modal" data-translate="text">PDFAbout</a>
+			</div>
+		</div>
+
+		<div class="float-right large-screen">
 			<button type="button" class="btn btn-dark about" data-toggle="modal" data-target="#about-modal" data-translate="title" title="PDFAbout"><i class="material-icons">info</i></button>
 		</div>
 	</header>
@@ -303,7 +328,8 @@ NIMBUS.init(['pdf.js'], function() {
 		html: true,
 		placement: 'bottom',
 		content: function() {
-			return $('<input type="text" class="form-control" style="width: 3.5em;" />')
+			return $('<input type="number" step="1" min="1" class="form-control" style="width: 5em;" />')
+				.attr('max', pdf.numPages)
 				.val(pageIndex.toString())
 				.change(function(event) {
 					var n = parseInt(event.target.value);
