@@ -59,6 +59,31 @@ Fait | Gestion de la corbeille
 Fait | Extraction automatique des propriétés (dimension des images, durée d'une vidéo, auteur d'un MP3, ...)
 Fait | Support extensible de différents types de fichiers côté client (plugins)
 Fait | Support des thèmes grâce à Bootstrap (default) et Bootswatch (flatly, darkly, ...)
-Partiel | Import, export et téléchargement simplifié des fichiers/dossiers
+Fait | Import, export et téléchargement simplifié des fichiers/dossiers
 Partiel | Tests automatisables
  | Applications annexes
+
+## Import
+
+La classe exécutable `fr.techgp.nimbus.Import` permet l'import d'un dossier en ligne de commande.
+
+Usage : `java fr.techgp.nimbus.Import <login> <folderPath> [<parentId>]`
+
+Comportement
+- la configuration est en partie extraite de "nimbus.conf" (accès MongoDB, facets, dossier de stockage)
+- l'import demande confirmation en indiquant la taille et le nombre d'éléments en entrée
+- l'import crée ou complète l'arborescence sous "parentId" pour correspondre à l'arborescence de "folderPath"
+- les fichiers sont copiés sauf s'ils existent déjà avec la même taille
+- la trace complète est générée dans "nimbus.log" et liste les dossiers et fichiers créés/modifiés/exclus
+
+Options :
+- `-Dnimbus.log=...` permet de modifier le fichier de log
+- `-Dnimbus.log=none` ne génèrera pas de fichier de log et écrira les traces sur la sorties standard
+- `-Dnimbus.conf=...` permet de définir le(s) fichier(s) de configuration à utiliser
+- `-Dnimbus.skipExistingWithSameSize=false` désactive l'exclusion des fichiers de même taille
+- `-Dorg.slf4j.simpleLogger.log.fr.techgp.nimbus.Import=debug` ne tracera que les dossiers parcourus
+
+Exemple : importer le dossier "/media/usb/storage" dans le dossier n°1 de l'utilisateur "adm"
+```bash
+java fr.techgp.nimbus.Import adm /media/usb/storage 1
+```

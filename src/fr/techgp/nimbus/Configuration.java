@@ -11,9 +11,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
+
+import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Configuration {
@@ -195,6 +199,50 @@ public class Configuration {
 			return getMimeType(null);
 		String extension = filename.substring(index + 1).toLowerCase();
 		return getMimeType(extension);
+	}
+
+	/**
+	 * Cette méthode retourne le fichier associé à l'élément "item".
+	 *
+	 * @param item l'élément représentant un fichier dans le cloud
+	 * @return le fichier associé à l'élément sur le disque
+	 */
+	public final File getStoredFile(Item item) {
+		// Les fichiers sont répartis dans 256 dossiers. A partir de l'id du fichier, on en déduit son dossier
+		long folder = item.id & 0xFF;
+		// On récupère le dossier spécifié pour l'utilisateur
+		File baseFolder = new File(this.storageFolder, item.userLogin);
+		// Au final, on retourne le fichier "itemId" dans l'un des 256 dossiers du répertoire utilisateur
+		File result = new File(baseFolder, Long.toString(folder, 16) + File.separator + item.id.toString());
+		// S'assurer que les dossiers existent
+		result.getParentFile().mkdirs();
+		// OK, on est prêt
+		return result;
+	}
+
+	/**
+	 * Cette méthode met à jour les méta-données de l'élément "item".
+	 *
+	 * @param item l'élément représentant un fichier dans le cloud
+	 * @param errorConsumer appelé en cas d'erreur lancée par une facet
+	 */
+	public final void updateStoredFile(Item item, BiConsumer<Facet, Exception> errorConsumer) {
+		// Informations sur l'élément
+		File storedFile = getStoredFile(item);
+		String extension = FilenameUtils.getExtension(item.name).toLowerCase();
+		// Mise à jour des méta-données
+		item.content.clear();
+		item.content.append("length", storedFile.length());
+		// Mettre à jour les propriétés spécifiques aux Facet
+		for (Facet facet : this.facets) {
+			try {
+				if (facet.supports(extension))
+					facet.updateMetadata(storedFile, extension, item.content);
+			} catch (Exception ex) {
+				if (errorConsumer != null)
+					errorConsumer.accept(facet, ex);
+			}
+		}
 	}
 
 }

@@ -124,7 +124,7 @@ public class Files extends Controller {
 					// => on déplace le fichier (= rapide puisque c'est le même volume)
 					java.nio.file.Files.move(mpart.getFile().toPath(), storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 				} else {
-					// La taille est en dessou de la limite et le contenu est donc en mémoire
+					// La taille est en dessous de la limite et le contenu est donc en mémoire
 					try (OutputStream os = new FileOutputStream(storedFile)) {
 						os.write(mpart.getBytes());
 					}

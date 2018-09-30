@@ -9,11 +9,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
 import fr.techgp.nimbus.Configuration;
-import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
@@ -260,16 +258,7 @@ public class Controller {
 	 * @return le fichier associé à l'élément sur le disque
 	 */
 	protected static final File getFile(Item item) {
-		// Les fichiers sont répartis dans 256 dossiers. A partir de l'id du fichier, on en déduit son dossier
-		long folder = item.id & 0xFF;
-		// On récupère le dossier spécifié pour l'utilisateur
-		File baseFolder = new File(configuration.getStorageFolder(), item.userLogin);
-		// Au final, on retourne le fichier "itemId" dans l'un des 256 dossiers du répertoire utilisateur
-		File result = new File(baseFolder, Long.toString(folder, 16) + File.separator + item.id.toString());
-		// S'assurer que les dossiers existent
-		result.getParentFile().mkdirs();
-		// OK, on est prêt
-		return result;
+		return configuration.getStoredFile(item);
 	}
 
 	/**
@@ -278,22 +267,10 @@ public class Controller {
 	 * @param item l'élément représentant un fichier dans le cloud
 	 */
 	protected static final void updateFile(Item item) {
-		// Informations sur l'élément
-		File storedFile = getFile(item);
-		String extension = FilenameUtils.getExtension(item.name).toLowerCase();
-		// Mise à jour des méta-données
-		item.content.clear();
-		item.content.append("length", storedFile.length());
-		// Mettre à jour les propriétés spécifiques aux Facet
-		for (Facet facet : configuration.getFacets()) {
-			try {
-				if (facet.supports(extension))
-					facet.updateMetadata(storedFile, extension, item.content);
-			} catch (Exception ex) {
-				if (Controller.logger.isErrorEnabled())
-					Controller.logger.error("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")", ex);
-			}
-		}
+		configuration.updateStoredFile(item, (facet, ex) -> {
+			if (Controller.logger.isErrorEnabled())
+				Controller.logger.error("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")", ex);
+		});
 	}
 
 	/**

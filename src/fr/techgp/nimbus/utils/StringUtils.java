@@ -20,6 +20,14 @@ public final class StringUtils {
 		return isBlank(value) ? defaultValue : value;
 	}
 
+	public static final String repeat(String value, int count) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < count; i++) {
+			sb.append(value);
+		}
+		return sb.toString();
+	}
+
 	public static final String randomString(int count, boolean chars, boolean digits) {
 		Random r = new Random();
 		char[] vals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
