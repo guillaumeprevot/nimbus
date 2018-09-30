@@ -124,11 +124,11 @@ NIMBUS.init(['epub.js'], function() {
 			rendition.next();
 	});
 
-	// Navigation par "swipe" à gauche ou à droite
-	article.swipe().on('swipe', function(event, direction) {
-		if ('right' === direction || 'bottom' === direction)
+	// Changement de page par "swipe"
+	article.swipe().on('swipe', function(event, swipe) {
+		if ('right' === swipe.direction || 'bottom' === swipe.direction)
 			rendition.prev();
-		else if ('left' === direction || 'top' === direction)
+		else if ('left' === swipe.direction || 'top' === swipe.direction)
 			rendition.next();
 	});
 

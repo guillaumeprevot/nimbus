@@ -59,7 +59,7 @@
 	 */
 	$.fn.swipe = function() {
 		return this.addClass('swipe').on('touchstart', function(startEvent) {
-			var startX, startY, moveX, moveY;
+			var startX, startY, startTime, moveX, moveY;
 			var target = $(startEvent.target).closest('.swipe');
 			function touchmove(event) {
 				var t = event.originalEvent.touches;
@@ -72,12 +72,13 @@
 			if (t) {
 				startX = t[0].clientX;
 				startY = t[0].clientY;
+				startTime = Date.now();
 				$(document).on('touchmove', touchmove).one('touchend', function() {
 					$(document).off('touchmove', touchmove);
 					var radians = Math.atan2((startY - moveY), (moveX - startX));
 					var directions = ['left', 'bottomleft', 'bottom', 'bottomright', 'right', 'topright', 'top', 'topleft'];
 					var index = Math.floor((radians + Math.PI + Math.PI / 8) / (Math.PI / 4)) % 8;
-					target.trigger('swipe', [directions[index]]);
+					target.trigger('swipe', [{ direction: directions[index], duration: Date.now() - startTime }]);
 					// target.trigger('swipe.' + directions[index]);
 				});
 			}

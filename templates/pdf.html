@@ -449,11 +449,15 @@ NIMBUS.init(['pdf.js'], function() {
 			event.preventDefault();
 	});
 
-	// Changement de page par "swipe" à gauche ou à droite
-	article.swipe().on('swipe', function(event, direction) {
-		if ('right' === direction || 'bottom' === direction)
+	// Changement de page par "swipe"
+	article.swipe().on('swipe', function(event, swipe) {
+		// le swipe doit être rapide pour déclencher le changement de page
+		// les swipes plus longs sont réservés au déplacement dans des pages fortement zoomées
+		if (swipe.duration > 200)
+			return;
+		if ('right' === swipe.direction || 'bottom' === swipe.direction)
 			previousPageButton.click();
-		else if ('left' === direction || 'top' === direction)
+		else if ('left' === swipe.direction || 'top' === swipe.direction)
 			nextPageButton.click();
 	});
 });
