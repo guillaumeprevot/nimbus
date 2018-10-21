@@ -4,7 +4,7 @@
 	<groupId>fr.techgp.nimbus</groupId>
 	<artifactId>nimbus-app</artifactId>
 	<packaging>jar</packaging>
-	<version>0.3</version>
+	<version>0.4</version>
 	<name>Nimbus</name>
 
 	<properties>
@@ -15,7 +15,7 @@
 
 	<dependencies>
 		<!--
-			2.7.2
+			2.8.0
 			http://sparkjava.com/download
 			https://mvnrepository.com/artifact/com.sparkjava/spark-core
 		-->
@@ -75,7 +75,7 @@
 			<version>1.7.25</version>
 		</dependency>
 		<!--
-			3.8.0
+			3.8.2
 			https://mongodb.github.io/mongo-java-driver/
 			https://www.mvnrepository.com/artifact/org.mongodb/mongodb-driver
 		-->
