@@ -17,7 +17,6 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart;
 
 import com.google.gson.JsonArray;
 
@@ -37,6 +36,7 @@ public class Files extends Controller {
 	 *
 	 * (files, parentId) => ""
 	 */
+	@SuppressWarnings("deprecation")
 	public static final Route upload = (request, response) -> {
 		// Récupérer l'utilisateur pour connaitre son quota
 		String userLogin = request.session().attribute("userLogin");
@@ -108,7 +108,11 @@ public class Files extends Controller {
 			//       car elle les déplace mais on ne contrôle pas la taille du buffer pour la copie en mémoire
 			// NB3 : caster "part" en "MultiPart" fonctionne et on peut tester si c'est un
 			//       fichier (pour utiliser java.nio.file.Files.move) ou un byte[] (pour écrit dans un FileOutputStream)
-			if (! (part instanceof MultiPart)) {
+			if (! (part instanceof org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart)) {
+				if (logger.isWarnEnabled()) {
+					logger.warn("Spark n'utilise apparemment plus la classe dépréciée MultiPartInputStreamParser.MultIPart");
+					logger.warn("Passer sur MultiPartFormInputStream.MultiPart et supprimer @SuppressWarnings");
+				}
 				// Cette méthode n'est pas idéale car on copie inutilement si le fichier uploadé a été stocké sur disque.
 				// => c'est juste une fallback car Jetty fournit des MultiPart (cf ci-dessous).
 				try (InputStream is = part.getInputStream()) {
@@ -118,7 +122,7 @@ public class Files extends Controller {
 					}
 				}
 			} else {
-				MultiPart mpart = (MultiPart) part;
+				org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart mpart = (org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart) part;
 				if (mpart.getFile() != null) {
 					// La limite a été dépassée et le fichier a donc été écrit sur disque.
 					// => on déplace le fichier (= rapide puisque c'est le même volume)
