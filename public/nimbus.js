@@ -90,8 +90,8 @@ var NIMBUS = (function() {
 	};
 
 	// Formatte un nombre en entier si celui-ci est différent de 0
-	NIMBUS.formatInteger = function(value) {
-		return value ? value.toFixed(0) : '';
+	NIMBUS.formatInteger = function(value, suffix) {
+		return value ? (value.toFixed(0) + (suffix || '')) : '';
 	};
 
 	// Formatte une taille de fichier exprimée en octets en un texte "lisible"
@@ -111,6 +111,14 @@ var NIMBUS = (function() {
 		length = length / 1024;
 		return NIMBUS.translate('CommonFileLengthGB', length.toFixed(1));
 	};
+
+	// Formatte une durée exprimée en secondes
+	NIMBUS.formatDuration = function(seconds) {
+		var h = Math.floor(seconds / 3600);
+		var m = Math.floor(seconds / 60 % 60);
+		var s = Math.round(seconds) % 60;
+		return (h > 0 ? h + ":" : '') + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+	}
 
 	// Function d'initialisation de la page
 	NIMBUS.init = function(plugins, callback) {
@@ -868,7 +876,7 @@ NIMBUS.navigation = (function() {
 			deleted: false,
 			extensions: searchExtensions
 		}).done(function(items) {
-			$('#noitems').toggle(items.length == 0);
+			$('#noitems').toggleClass('nimbus-hidden', items.length > 0);
 			$('#itemcount').text(items.length == 0 ? '' : items.length.toString());
 			var optionsMenu = $('#items-options').next();
 			var showItemTags = optionsMenu.children('[data-option=showItemTags]').is('.active');

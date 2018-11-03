@@ -33,4 +33,18 @@ public class Extensions extends Controller {
 				"lang", SparkUtils.getRequestLang(request));
 	};
 
+	/**
+	 * Cette route affiche la page du lecteur vidéo
+	 * 
+	 * () => HTML
+	 */
+	public static final Route video = (request, response) -> {
+		// Générer la page
+		return renderTemplate("video.html",
+				"url", SparkUtils.queryParamUrl(request, "url", ""),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
+				"lang", SparkUtils.getRequestLang(request));
+	};
+
 }

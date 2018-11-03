@@ -10,6 +10,7 @@ public class ExtensionFacet implements Facet {
 	public void fillClientPlugins(List<String> plugins) {
 		plugins.add("epub.js");
 		plugins.add("pdf.js");
+		plugins.add("video.js");
 	}
 
 }

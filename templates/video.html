@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-hideable-toolbars">
+<head>
+<title data-translate="text">VideoTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+body { background-color: #666; }
+.play-toggle.active :first-child { display: none; }
+.play-toggle:not(.active) :last-child { display: none; }
+.volume-toggle.active :first-child { display: none; }
+.volume-toggle:not(.active) :last-child { display: none; }
+</style>
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+	<header>
+		<div class="float-left">
+			<a href="#" class="btn btn-dark back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+		</div>
+
+		<div class="btn-group">
+			<button type="button" class="btn btn-dark play-toggle" data-translate="title" title="VideoPause">
+				<i class="material-icons">pause_circle_outline</i>
+				<i class="material-icons">play_circle_outline</i>
+			</button>
+			<button type="button" class="btn btn-dark play-menu dropdown-toggle" data-translate="title" title="VideoPlayMenu"></button>
+			<div class="btn-group nimbus-hidden" id="play-options">
+				<button type="button" class="btn btn-link play-move" data-offset="-30" data-translate="title" title="VideoReplay30"><i class="material-icons">replay_30</i></button>
+				<button type="button" class="btn btn-link play-move" data-offset="-10" data-translate="title" title="VideoReplay10"><i class="material-icons">replay_10</i></button>
+				<button type="button" class="btn btn-link play-move" data-offset="-5" data-translate="title" title="VideoReplay5"><i class="material-icons">replay_5</i></button>
+				<button type="button" class="btn btn-link speed-slower" data-translate="title" title="VideoSpeedSlower"><i class="material-icons">fast_rewind</i></button>
+				<button type="button" class="btn btn-link speed-initial" data-translate="title" title="VideoSpeedInitial">x1</button>
+				<button type="button" class="btn btn-link speed-faster" data-translate="title" title="VideoSpeedFaster"><i class="material-icons">fast_forward</i></button>
+				<button type="button" class="btn btn-link play-move" data-offset="5" data-translate="title" title="VideoForward5"><i class="material-icons">forward_5</i></button>
+				<button type="button" class="btn btn-link play-move" data-offset="10"  data-translate="title" title="VideoForward10"><i class="material-icons">forward_10</i></button>
+				<button type="button" class="btn btn-link play-move" data-offset="30" data-translate="title" title="VideoForward30"><i class="material-icons">forward_30</i></button>
+			</div>
+		</div>
+
+		<div class="btn-group">
+			<button type="button" class="btn btn-dark volume-toggle" data-translate="title" title="VideoVolumeOff">
+				<i class="material-icons">volume_up</i>
+				<i class="material-icons">volume_off</i>
+			</button>
+			<button type="button" class="btn btn-dark volume-menu dropdown-toggle" data-translate="title" title="VideoVolumeMenu"></button>
+			<input type="range" class="nimbus-hidden" id="volume-slider" min="0" max="100" step="1" style="max-width: 100%; width: 300px; " />
+		</div>
+
+		<div class="float-right">
+			<button type="button" class="btn btn-dark fullscreen" data-translate="title" title="VideoFullscreen"><i class="material-icons">fullscreen</i></button>
+			<button type="button" class="btn btn-dark exit-fullscreen nimbus-hidden" data-translate="title" title="VideoExitFullscreen"><i class="material-icons">fullscreen_exit</i></button>
+		</div>
+	</header>
+	<article>
+		<video style="width: 100%; height: 100%; object-fit: contain; " loop="loop"></video>
+		<div class="alert alert-danger nimbus-hidden" role="alert" data-translate="text">VideoPlayError</div>
+	</article>
+	<footer>
+		<div style="float: left; padding-right: 10px; font-size: small; font-family: mono; color: white; ">
+			<span class="speed"></span>
+		</div>
+		<div style="float: right; padding-left: 10px; font-size: small; font-family: mono; color: white; ">
+			<span class="position"></span> / <span class="duration text-muted"></span>
+		</div>
+		<div class="progress" style="cursor: pointer; height: auto; height: 1em; margin: 3px 0;">
+			<div class="progress-bar" role="progressbar" style="width: 0;  transition: none; " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+		</div>
+	</footer>
+
+<script>
+// Quelques variables
+var video = document.querySelector('video');
+var fullscreenElement = document.body;
+fullscreenElement.requestFullscreen = fullscreenElement.requestFullscreen || fullscreenElement.mozRequestFullScreen || fullscreenElement.webkitRequestFullscreen || fullscreenElement.msRequestFullscreen;
+document.exitFullscreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+
+//Initialiser la page
+NIMBUS.init(['video.js'], function() {
+	// En haut à gauche, le bouton "Retour"
+	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+
+	// Gestion de la lecture
+	var playOptions = $('#play-options');
+	$('.play-toggle').click(function() {
+		if (video.paused)
+			video.play();
+		else
+			video.pause();
+	});
+	$('.play-menu').popover({
+		html: true,
+		placement: 'bottom',
+		trigger: 'click',
+		template: '<div class="popover" role="tooltip" style="max-width: none; "><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>',
+		content: function() {
+			return playOptions.removeClass('nimbus-hidden');
+		}
+	}).on('shown.bs.popover', function() {
+		playOptions.find('.speed-initial').focus();
+	});
+	playOptions.on('blur', 'button', function(event) {
+		if (!event.relatedTarget || !$(event.relatedTarget).parent().is('#play-options'))
+			$('.play-menu').popover('hide');
+	});
+	playOptions.on('click', 'button.play-move', function(event) {
+		var offset = parseInt($(event.target).closest('[data-offset]').attr('data-offset'));
+		video.currentTime += offset;
+	});
+	playOptions.on('click', 'button.speed-slower', function(event) {
+		var decrement = (Math.floor(video.playbackRate) + 1) / 10;
+		video.playbackRate = Math.max(0.1, video.playbackRate - decrement);
+	});
+	playOptions.on('click', 'button.speed-faster', function(event) {
+		var increment = (Math.floor(video.playbackRate) + 1) / 10;
+		video.playbackRate = Math.min(4, video.playbackRate + increment);
+	});
+	playOptions.on('click', 'button.speed-initial', function(event) {
+		video.playbackRate = video.defaultPlaybackRate || 1;
+	});
+
+	// Gestion du volume
+	var volumeSlider = $('#volume-slider');
+	$('.volume-toggle').click(function() {
+		video.muted = !video.muted;
+	})
+	$('.volume-menu').popover({
+		html: true,
+		placement: 'bottom',
+		trigger: 'click',
+		content: function() {
+			return volumeSlider.removeClass('nimbus-hidden').val((video.volume * 100).toFixed(0));
+		}
+	}).on('shown.bs.popover', function() {
+		volumeSlider.focus();
+	});
+	volumeSlider.on('input', function(event) {
+		video.volume = parseInt(volumeSlider.val()) / 100;
+	});
+	volumeSlider.on('blur', function() {
+		$('.volume-menu').popover('hide');
+	});
+
+	// En haut à droite, les boutons pour le plein-écran 
+	$('.fullscreen').toggleClass('nimbus-hidden', !fullscreenElement.requestFullscreen).click(function() {
+		fullscreenElement.requestFullscreen();
+		$('.fullscreen').addClass('nimbus-hidden').next().toggleClass('nimbus-hidden', !document.exitFullscreen);
+	});
+	$('.exit-fullscreen').click(function() {
+		document.exitFullscreen();
+		$('.exit-fullscreen').addClass('nimbus-hidden').prev().toggleClass('nimbus-hidden', !fullscreenElement.requestFullscreen);
+	});
+
+	// Clic sur la partie centrale pour afficher/cacher les barres d'outils
+	$('article').click(function(event) {
+		$('.nimbus-viewer').toggleClass('nimbus-hidden-toolbars');
+	});
+
+	// Gestion de la vidéo
+	// https://www.w3schools.com/tags/ref_av_dom.asp
+	// https://www.w3schools.com/tags/ref_eventattributes.asp
+	video.onerror = function() {
+		$(video).remove().next().removeClass('nimbus-hidden');
+		$('.nimbus-viewer').removeClass('nimbus-hideable-toolbars').addClass('nimbus-static-toolbars');
+		$('.back').parent().siblings().remove();
+		$('footer').empty();
+	};
+	video.onloadedmetadata = function(event) {
+		$('.progress-bar').attr('aria-valuemax', video.duration);
+		$('.duration').text(NIMBUS.formatDuration(video.duration));
+	};
+	video.ontimeupdate = function(event) {
+		$('.position').text(NIMBUS.formatDuration(video.currentTime));
+		$('.progress-bar').css('width', (video.currentTime * 100 / video.duration) + '%').attr('aria-valuenow', video.currentTime);
+	};
+	video.onplay = function() {
+		$('.play-toggle').attr('title', NIMBUS.translate('VideoPause')).removeClass('active');
+		$('.play-menu').prop('disabled', false);
+	};
+	video.onpause = function() {
+		$('.play-toggle').attr('title', NIMBUS.translate('VideoPlay')).addClass('active');
+		$('.play-menu').prop('disabled', true);
+	};
+	video.onvolumechange = function(event) {
+		$('.volume-toggle').attr('title', NIMBUS.translate(video.muted ? 'VideoVolumeOn' : 'VideoVolumeOff')).toggleClass('active', video.muted);
+		$('.volume-menu').prop('disabled', video.muted);
+	};
+	video.onratechange = function(event) {
+		$('.speed').text('x' + video.playbackRate.toFixed(1)).parent().toggle(video.playbackRate !== 1);
+	};
+
+	// Gestion de la barre de progression
+	var progress = $('.progress');
+	progress.on('mousemove', function(event) {
+		var currentX = event.clientX - document.querySelector('.progress-bar').offsetLeft;
+		var currentMS = currentX * video.duration / document.querySelector('.progress').clientWidth;
+		progress.attr('title', NIMBUS.formatDuration(currentMS));
+	});
+	progress.click(function(event) {
+		var maxMS = video.duration;
+		var currentX = event.clientX - document.querySelector('.progress-bar').offsetLeft;
+		var currentMS = currentX * video.duration / document.querySelector('.progress').clientWidth;
+		video.currentTime = currentMS;
+	});
+
+	// On lance la vidéo
+	video.src = '${url}';
+	video.play();
+
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+
+	// Manipulation au clavier
+	$(document.body).keyup(function(event) {
+		if (event.target.tagName === 'INPUT' || event.ctrlKey)
+			return;
+		var key = event.key, prevent = true;
+		// console.log(event.key);
+		switch (key) {
+			case 'Home':
+				video.currentTime = 0;
+				break;
+			case 'PageUp':
+				video.currentTime -= (event.shiftKey ? 10 : 5);
+				break;
+			case 'PageDown':
+				video.currentTime += (event.shiftKey ? 10 : 5);
+				break;
+			case '+':
+				video.volume = event.shiftKey ? 1 : Math.min(video.volume + 0.1, 1);
+				break;
+			case '-':
+				video.volume = event.shiftKey ? 0 : Math.max(video.volume - 0.1, 0);
+				break;
+			case 'ArrowRight':
+				playOptions.find('button.speed-faster').click();
+				break;
+			case 'ArrowLeft':
+				playOptions.find('button.speed-slower').click();
+				break;
+			case 'Enter':
+				playOptions.find('button.speed-initial').click();
+				break;
+			case ' ':
+				$('.play-toggle').click();
+				break;
+			default:
+				prevent = false;
+		}
+		if (prevent)
+			event.preventDefault();
+	});
+
+});
+</script>
+
+</body>
+</html>
