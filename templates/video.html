@@ -189,7 +189,7 @@ NIMBUS.init(['video.js'], function() {
 		$('.play-menu').prop('disabled', false);
 	};
 	video.onpause = function() {
-		$('.play-toggle').attr('title', NIMBUS.translate('VideoPlay')).addClass('active');
+		$('.play-toggle').attr('title', NIMBUS.translate('VideoResume')).addClass('active');
 		$('.play-menu').prop('disabled', true);
 	};
 	video.onvolumechange = function(event) {
