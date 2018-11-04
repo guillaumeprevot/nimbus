@@ -25,6 +25,7 @@
 	// Des échantillons peuvent être trouvés ici
 	// - https://hpr.dogphilosophy.net/test/
 	// - http://samplephotovideo.com/
+	// - https://www.sample-videos.com/
 	var audioElement = document.createElement('audio');
 	addOpenAction('audio-open', 'play_arrow', function(item, extension) {
 		return item.mimetype.indexOf('audio/') === 0 && audioElement.canPlayType(item.mimetype);

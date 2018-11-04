@@ -91,7 +91,7 @@ var NIMBUS = (function() {
 
 	// Formatte un nombre en entier si celui-ci est différent de 0
 	NIMBUS.formatInteger = function(value, suffix) {
-		return value ? (value.toFixed(0) + (suffix || '')) : '';
+		return (typeof value === 'number') ? (value.toFixed(0) + (suffix || '')) : '';
 	};
 
 	// Formatte une taille de fichier exprimée en octets en un texte "lisible"

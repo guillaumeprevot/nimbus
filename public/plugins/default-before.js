@@ -2,6 +2,7 @@
 	NIMBUS.plugins.add({
 		name: 'default-before',
 		properties: [
+			{ name: 'id', caption: 'CommonPropertyId', align: 'right', sortBy: '_id', format: (i) => NIMBUS.formatInteger(i.id) },
 			{ name: 'folder', caption: 'CommonPropertyFolder', align: 'center', sortBy: 'folder', format: (i) => NIMBUS.formatBoolean(i.folder, 'folder') },
 			{ name: 'length', caption: 'CommonPropertyLength', align: 'right', width: 100, sortBy: 'content.length', format: (i) => NIMBUS.formatLength(i.length) },
 			{ name: 'createDate', caption: 'CommonPropertyCreateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'createDate', format: (i) => NIMBUS.formatDatetime(i.createDate) },
@@ -11,7 +12,7 @@
 			{ name: 'itemCount', caption: 'CommonPropertyItemCount', align: 'right', sortBy: 'content.itemCount', format: (i) => NIMBUS.formatInteger(i.itemCount) },
 			{ name: 'iconURL', caption: 'CommonPropertyIconURL', sortBy: 'content.iconURL', format: (i) => i.iconURL || '' },
 			{ name: 'mimetype', caption: 'CommonPropertyMimetype', width: 120, format: (i) => i.mimetype || '' },
-			{ name: 'progress', caption: 'CommonPropertyProgress', align: 'right', sortBy: 'content.progress', format: (i) => NIMBUS.formatInteger(i.progress) },
+			{ name: 'progress', caption: 'CommonPropertyProgress', align: 'right', sortBy: 'content.progress', format: (i) => i.progress ? NIMBUS.formatInteger(i.progress) : '' },
 			{ name: 'status', caption: 'CommonPropertyStatus', sortBy: 'content.status', format: (i) => i.status || '' },
 			{ name: 'sourceURL', caption: 'CommonPropertySourceURL', sortBy: 'content.sourceURL', format: (i) => i.sourceURL || '' },
 			{ name: 'shared', caption: 'CommonPropertyShared', align: 'center', width: 80, sortBy: 'sharedPassword', format: (i) => NIMBUS.formatBoolean(!!i.sharedPassword, 'share') },

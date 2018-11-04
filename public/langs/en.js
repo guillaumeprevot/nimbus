@@ -206,6 +206,7 @@ NIMBUS.lang = {
 	CommonDuplicateInsufficientStorage: "Operation failed due to disk quota",
 	CommonPropertyThumbnail: "Image",
 	CommonPropertyName: "Name",
+	CommonPropertyId: "Id",
 	CommonPropertyFolder: "Folder",
 	CommonPropertyCreateDate: "Created on",
 	CommonPropertyUpdateDate: "Modified on",

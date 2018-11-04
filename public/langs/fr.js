@@ -206,6 +206,7 @@ NIMBUS.lang = {
 	CommonDuplicateInsufficientStorage: "Opération impossible en raison du votre quota d'espace disque",
 	CommonPropertyThumbnail: "Miniature",
 	CommonPropertyName: "Nom",
+	CommonPropertyId: "N°",
 	CommonPropertyFolder: "Dossier",
 	CommonPropertyCreateDate: "Créé le",
 	CommonPropertyUpdateDate: "Modifié le",
