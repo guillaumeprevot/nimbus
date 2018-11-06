@@ -1,7 +1,6 @@
 package fr.techgp.nimbus;
 
 import java.io.File;
-import java.util.List;
 
 import org.bson.Document;
 
@@ -15,16 +14,6 @@ public interface Facet {
 	 * @param configuration la configuration venant du fichier de configuration
 	 */
 	default void init(Configuration configuration) {
-		//
-	}
-
-	/**
-	 * Cette méthode est appelée sur toutes les Facets pour connaitre la liste des plugins JS
-	 * se trouvant dans le sous-dossier "public/plugins" qu'il faudra charger côté client.
-	 *
-	 * @param plugins la liste des fichiers à charger
-	 */
-	default void fillClientPlugins(List<String> plugins) {
 		//
 	}
 

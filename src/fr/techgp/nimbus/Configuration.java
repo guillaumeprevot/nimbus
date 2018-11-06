@@ -65,15 +65,11 @@ public class Configuration {
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "bootstrap");
+		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,windows-shortcut,default-open,default-after").split(",");
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
-		this.facets = getInstances("facet", Facet.class, (facet) -> facet.init(this));
+		this.facets = getInstances("facet", Facet.class);
+		this.facets.forEach((f) -> f.init(this));
 		this.mimetypes = getPairs("mimetype");
-
-		List<String> plugins = new ArrayList<>();
-		for (Facet facet : this.facets) {
-			facet.fillClientPlugins(plugins);
-		}
-		this.clientPlugins = plugins.toArray(new String[plugins.size()]);
 	}
 
 	private final String getString(String property, String defaultValue) {
@@ -99,7 +95,7 @@ public class Configuration {
 		return pairs;
 	}
 
-	private final <T> List<T> getInstances(String property, Class<T> clazz, Consumer<T> consumer) {
+	private final <T> List<T> getInstances(String property, Class<T> clazz) {
 		List<T> instances = new ArrayList<>();
 		int i = 0;
 		while (true) {
@@ -108,7 +104,6 @@ public class Configuration {
 				break;
 			try {
 				T instance = Class.forName(s).asSubclass(clazz).newInstance();
-				consumer.accept(instance);
 				instances.add(instance);
 			} catch (Exception ex) {
 				ex.printStackTrace();

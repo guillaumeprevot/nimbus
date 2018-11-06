@@ -1,7 +1,6 @@
 package fr.techgp.nimbus.facets;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
@@ -12,11 +11,6 @@ import com.google.gson.JsonObject;
 import fr.techgp.nimbus.Facet;
 
 public class WindowsShortcutFacet implements Facet {
-
-	@Override
-	public void fillClientPlugins(List<String> plugins) {
-		plugins.add("windows-shortcut.js");
-	}
 
 	@Override
 	public boolean supports(String extension) {

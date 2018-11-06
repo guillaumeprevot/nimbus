@@ -368,7 +368,7 @@
 <script>
 
 //Initialiser la page
-NIMBUS.init([<#list plugins as p>'${p}'<#sep>,</#sep></#list>], function() {
+NIMBUS.init([<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>], function() {
 	// Chargement des propriétés disponibles
 	var columns = [<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>];
 	// L'IHM est prête, on l'affiche

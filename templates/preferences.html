@@ -89,7 +89,7 @@
 
 <script>
 //Initialiser la page
-NIMBUS.init([<#list plugins as p>'${p}'<#sep>,</#sep></#list>], function() {
+NIMBUS.init([<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>], function() {
 	// Compléter la liste des colonnes disponibles
 	var visibleItemColumns = $('#visibleItemColumns').append(NIMBUS.plugins.properties.map(function(p) {
 		return '<option value="' + p.name + '">' + NIMBUS.translate(p.caption) + '</option>';
