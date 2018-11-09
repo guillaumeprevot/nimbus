@@ -17,10 +17,7 @@
 				return '<i class="material-icons">link</i>';
 			},
 			describe: function(item) {
-				var length, mimetype;
-				if (item.url)
-					return item.url;
-				return NIMBUS.plugins.facets[NIMBUS.plugins.facets.length - 1].describe(item);
+				return item.url || '';
 			}
 		}],
 		actions: [{

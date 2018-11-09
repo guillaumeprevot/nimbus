@@ -2,7 +2,7 @@
 	var element = document.createElement("video");
 
 	function accept(item, extension) {
-		return item.mimetype.indexOf("video/") === 0 && element.canPlayType(item.mimetype); 
+		return !item.folder && item.mimetype.indexOf("video/") === 0 && element.canPlayType(item.mimetype); 
 	}
 /*
 	function formatDuration(duration, roundAt, withPrecision) {
@@ -52,8 +52,6 @@
 					p.push(item.width.toFixed(0) + "x" + item.height.toFixed(0) + "px");
 				if (item.videoCodec && item.audioCodec)
 					p.push(item.videoCodec + "+" + item.audioCodec);
-				p.push(NIMBUS.formatLength(item.length));
-				p.push(item.mimetype);
 				return p.join(', ');
 			}
 		}],

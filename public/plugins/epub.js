@@ -14,7 +14,7 @@
 				return '<i class="material-icons">chrome_reader_mode</i>';
 			},
 			describe: function describe(item) {
-				return NIMBUS.plugins.facets[NIMBUS.plugins.facets.length - 1].describe(item);
+				return '';
 			}
 		}],
 		actions: [{

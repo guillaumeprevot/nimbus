@@ -11,9 +11,7 @@
 					return '<i class="material-icons">insert_drive_file</i>';
 				},
 				describe: function(item) {
-					var length = NIMBUS.formatLength(item.length);
-					var mimetype = item.mimetype || NIMBUS.translate('CommonFileUnknownMimeType');
-					return NIMBUS.translate('CommonFileDescription', [length, mimetype]);
+					return '';
 				}
 			}
 		],

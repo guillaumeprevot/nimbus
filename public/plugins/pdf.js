@@ -21,9 +21,10 @@
 			},
 			describe: function describe(item) {
 				if (typeof item.pageCount !== 'number')
-					return NIMBUS.plugins.facets[NIMBUS.plugins.facets.length - 1].describe(item);
-				var key = item.pageCount === 1 ? 'PDFDescriptionSingle' : 'PDFDescriptionPlural';
-				return NIMBUS.translate(key, [item.pageCount, NIMBUS.formatLength(item.length), 'application/pdf']);
+					return '';
+				if (item.pageCount === 1)
+					return NIMBUS.translate('PDFDescriptionSingle');
+				return NIMBUS.translate('PDFDescriptionPlural', [item.pageCount]);
 			}
 		}],
 		actions: [{
@@ -44,8 +45,8 @@
 				PDFRead: "Lire",
 				PDFPageCount: "Nombre de page",
 				PDFPageSize: "Taille de page",
-				PDFDescriptionSingle: "{0} page, {1}, {2}",
-				PDFDescriptionPlural: "{0} pages, {1}, {2}",
+				PDFDescriptionSingle: "1 page",
+				PDFDescriptionPlural: "{0} pages",
 				PDFTitle: "Lecteur PDF",
 				PDFShortcutFormat: "{0} ({1})",
 				PDFFirstPage: "Première page",
@@ -93,8 +94,8 @@
 				PDFRead: "Read",
 				PDFPageCount: "Page count",
 				PDFPageSize: "Page size",
-				PDFDescriptionSingle: "{0} page, {1}, {2}",
-				PDFDescriptionPlural: "{0} pages, {1}, {2}",
+				PDFDescriptionSingle: "1 page",
+				PDFDescriptionPlural: "{0} pages",
 				PDFTitle: "PDF reader",
 				PDFShorcutFormat: "{0} ({1})",
 				PDFFirstPage: "First page",

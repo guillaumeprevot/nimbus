@@ -883,6 +883,7 @@ NIMBUS.navigation = (function() {
 			var showItemDescription = optionsMenu.children('[data-option=showItemDescription]').is('.active');
 			var showItemThumbnail = optionsMenu.children('[data-option=showItemThumbnail]').is('.active');
 			var properties = NIMBUS.plugins.properties.filter(function(p) { return optionsMenu.children('[data-property="' + p.name + '"]').is('.active'); });
+			var addLengthToDescription = ! properties.some(function(p) { return p.name === 'length'; });
 
 			// Mise à jour des en-têtes
 			if (withHeaders) {
@@ -921,6 +922,7 @@ NIMBUS.navigation = (function() {
 						$(this).replaceWith(facet.image(item, false));
 					};
 				})(item, facet));
+
 				// 2ème colonne : nom personnalisable
 				var name = $('<span />').html(item.name);
 				if (item.status === 'download')
@@ -929,14 +931,22 @@ NIMBUS.navigation = (function() {
 					name.addClass('text-danger');
 				else if (item.status === 'success')
 					name.addClass('text-success');
+
 				// + les tags de manière facultative
 				var tags = (showItemTags && item.tags) ? $.map(item.tags.split(','), function(term) {
 					return term ? (' <span class="badge badge-primary">' + term + '</span>') : '';
 				}).join('') : '';
+
 				// + la description entre parenthèses de manière facultative
-				var description = showItemDescription ? facet.describe(item) : '';
-				if (description)
-					description = $('<span class="description text-muted" />').html(' (' + description + ')');
+				var description = '';
+				if (showItemDescription) {
+					description = facet.describe(item) || '';
+					if (addLengthToDescription && !item.folder)
+						description = description + (description ? ', ' : '') + NIMBUS.formatLength(item.length)
+					if (description)
+						description = $('<span class="description text-muted" />').html(' (' + description + ')');
+				}
+
 				// Ensuite, les colonnes demandée
 				var cells = properties.map(function(p) {
 					var cell = $('<td />');
@@ -947,6 +957,7 @@ NIMBUS.navigation = (function() {
 					cell.append(p.format(item, facet));
 					return cell[0];
 				});
+
 				// Dernière colonne, le bouton pour le menu des actions
 				var actionsButton = $('<button class="btn btn-link btn-sm"><i class="material-icons">format_list_bulleted</i></a>').attr('title', item.id);
 
