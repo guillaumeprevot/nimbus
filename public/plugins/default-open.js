@@ -4,8 +4,8 @@
 	function addOpenAction(name, icon, accept) {
 		actions.push({
 			name: name,
-			icon: icon || 'open_in_new',
-			caption: 'ActionOpen',
+			icon: /*icon ||*/ 'open_in_new',
+			caption: 'DefaultOpen',
 			accept: function(item, extension) {
 				return !item.folder && accept(item, extension);
 			},
@@ -91,6 +91,14 @@
 	// Enregistrement du plugin
 	NIMBUS.plugins.add({
 		name: 'default-open',
-		actions: actions
+		actions: actions,
+		langs: {
+			fr: {
+				DefaultOpen: "Ouvrir"
+			},
+			en: {
+				DefaultOpen: "Open"
+			}
+		}
 	});
 })();

@@ -26,7 +26,7 @@
 		actions: [{
 			name: 'open',
 			icon: 'open_in_new',
-			caption: 'ActionOpen',
+			caption: 'WindowsShortcutOpen',
 			accept: function(item, extension) {
 				return item.url && ('url' === extension);
 			},
@@ -36,10 +36,12 @@
 		}],
 		langs: {
 			fr: {
+				WindowsShortcutOpen: "Ouvrir ce raccourci",
 				WindowsShortcutURL: "URL",
 				WindowsShortcutIconURL: "URL de l'icône"
 			},
 			en: {
+				WindowsShortcutOpen: "Open this URL",
 				WindowsShortcutURL: "URL",
 				WindowsShortcutIconURL: "Icon URL"
 			}

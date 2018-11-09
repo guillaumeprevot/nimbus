@@ -226,7 +226,6 @@ NIMBUS.lang = {
 
 	ActionNavigate: "Open",
 	ActionNavigateTab: "Open in a new tab",
-	ActionOpen: "Open...",
 	ActionDownloadRefresh: "Refresh",
 	ActionDownloadDone: "Done",
 	ActionLocate: "Show location",
