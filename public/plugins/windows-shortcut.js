@@ -3,8 +3,8 @@
 	NIMBUS.plugins.add({
 		name: 'windows-shortcut',
 		properties: [
-			{ name: 'url', caption: 'WindowsShortcutURL', sortBy: 'content.url', format: (i) => i.url || '' },
-			{ name: 'iconURL', caption: 'WindowsShortcutIconURL', sortBy: 'content.iconURL', format: (i) => i.iconURL || '' }
+			{ name: 'url', caption: 'WindowsShortcutURL', sortBy: 'content.url' },
+			{ name: 'iconURL', caption: 'WindowsShortcutIconURL', sortBy: 'content.iconURL' }
 		],
 		facets: [{
 			name: 'windows-shorcut',

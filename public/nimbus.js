@@ -890,7 +890,7 @@ NIMBUS.navigation = (function() {
 				$('#items thead > tr > th.name').nextAll(':not(.actions)').remove();
 				$(properties.map(function(p) {
 					var th = $('<th />').text(NIMBUS.translate(p.caption));
-					if (p.align !== 'left')
+					if (p.align && (p.align !== 'left'))
 						th.css('text-align', p.align); 
 					if (typeof p.width === 'number')
 						th.css('width', p.width + 'px');
@@ -950,11 +950,11 @@ NIMBUS.navigation = (function() {
 				// Ensuite, les colonnes demandée
 				var cells = properties.map(function(p) {
 					var cell = $('<td />');
-					if (p.align !== 'left')
+					if (p.align && (p.align !== 'left'))
 						cell.css('text-align', p.align); 
 					if (typeof p.width === 'number')
 						cell.css('width', p.width + 'px');
-					cell.append(p.format(item, facet));
+					cell.append((p.format ? p.format(item, facet) : item[p.name]) || '');
 					return cell[0];
 				});
 
