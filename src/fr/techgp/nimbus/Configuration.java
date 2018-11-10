@@ -65,7 +65,7 @@ public class Configuration {
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "bootstrap");
-		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,windows-shortcut,default-open,default-after").split(",");
+		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,audio,windows-shortcut,default-open,default-after").split(",");
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class);
 		this.facets.forEach((f) -> f.init(this));

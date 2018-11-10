@@ -47,4 +47,17 @@ public class Extensions extends Controller {
 				"lang", SparkUtils.getRequestLang(request));
 	};
 
+	/**
+	 * Cette route affiche la page du lecteur audio
+	 * 
+	 * () => HTML
+	 */
+	public static final Route audio = (request, response) -> {
+		// Générer la page
+		return renderTemplate("audio.html",
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
+				"lang", SparkUtils.getRequestLang(request));
+	};
+
 }

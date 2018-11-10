@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-static-toolbars">
+<head>
+<title data-translate="text">AudioTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+table { cursor: pointer; }
+</style>
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+	<header>
+		<div class="float-left">
+			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+		</div>
+
+		<div class="btn-group">
+			<button type="button" class="btn btn-link play-first" data-translate="title" title="AudioPlayFirst"><i class="material-icons">first_page</i></button>
+			<button type="button" class="btn btn-link play-previous" data-translate="title" title="AudioPlayPrevious"><i class="material-icons">chevron_left</i></button>
+			<button type="button" class="btn btn-link pause" data-translate="title" title="AudioPause"><i class="material-icons">pause_circle_outline</i></button>
+			<button type="button" class="btn btn-link resume" data-translate="title" title="AudioResume"><i class="material-icons">play_circle_outline</i></button>
+			<button type="button" class="btn btn-link play-next" data-translate="title" title="AudioPlayNext"><i class="material-icons">chevron_right</i></button>
+			<button type="button" class="btn btn-link play-last" data-translate="title" title="AudioPlayLast"><i class="material-icons">last_page</i></button>
+		</div>
+
+		<div class="btn-group float-right">
+			<button type="button" class="btn btn-link loop" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioLoop"><i class="material-icons">loop</i></button>
+			<button type="button" class="btn btn-link shuffle" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioShuffle"><i class="material-icons">shuffle</i></button>
+			<button type="button" class="btn btn-link mute" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioMute"><i class="material-icons">volume_off</i></button>
+		</div>
+	</header>
+	<article>
+		<audio class="nimbus-hidden"></audio>
+		<table class="table table-hover table-sm">
+			<thead>
+				<tr></tr>
+			</thead>
+			<tbody>
+			</tbody>
+			<tfoot>
+			</tfoot>
+		</table>
+	</article>
+	<footer>
+		<div style="float: right; padding-left: 10px; font-size: small; font-family: mono; color: white; ">
+			<span class="position"></span> / <span class="duration text-muted"></span>
+		</div>
+		<div class="progress" style="cursor: pointer; height: auto; height: 1em; margin: 3px 0;">
+			<div class="progress-bar" role="progressbar" style="width: 0;  transition: none; " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+		</div>
+	</footer>
+<script>
+"use strict";
+
+function Player() {
+	this.audio = document.querySelector('audio');
+	this.items = [];
+	this.index = -1;
+	this.loop = false;
+	this.shuffle = false;
+	this.columns = [
+		{ name: 'track', caption: 'AudioPropertyTrack', type: 'string' },
+		{ name: 'title', caption: 'AudioPropertyTitle', type: 'string', format: (item) => item.title || item.name },
+		{ name: 'duration', caption: 'AudioPropertyDuration', type: 'integer', format: (item) => NIMBUS.formatDuration(item.duration / 1000) },
+		{ name: 'author', caption: 'AudioPropertyAuthor', type: 'string' },
+		{ name: 'year', caption: 'AudioPropertyYear', type: 'string' },
+		{ name: 'album', caption: 'AudioPropertyAlbum', type: 'string' },
+		{ name: 'audioBitRate', caption: 'AudioPropertyBitRate', type: 'integer', format: (item) => NIMBUS.formatInteger(item.audioBitRate, " kbit/s") },
+		{ name: 'genre', caption: 'AudioPropertyGenre', type: 'string' },
+		{ name: 'name', caption: 'CommonPropertyName', type: 'string' },
+	];
+	this.sortColumn = null;
+	this.sortAscending = false;
+	this.audio.addEventListener('ended', this.playNext.bind(this));
+}
+
+Player.prototype.update = function(items, play) {
+	// "Ecouter" et "Ecouter le dossier"
+	if (play) {
+		// Remplacer la liste de lecture
+		this.items = items;
+		// Prévenir
+		this.triggerListChanged();
+		// Démarrer automatiquement la première entrée
+		this.play(0, true);
+	}
+	// "Ajouter" et "Ajouter le dossier"
+	else {
+		// Repérer la position en cours de lecture
+		var currentId = this.index === -1 ? null : this.items[this.index].id;
+		/// Ajuster la liste de lecture
+		this.items = this.items
+			// en retirant les éléments ajoutés de leur position actuelle (si présents)
+			.filter((current) => !items.some((added) => added.id === current.id))
+			// en ajoutant à la suite les éléments demandés
+			.concat(items);
+		// Prévenir
+		this.triggerListChanged();
+		if (currentId)
+			// Ajuster la position de l'élément en cours de lecture
+			this.index = this.items.findIndex((item) => item.id === currentId);
+		else if (this.index === -1)
+			// Démarrer automatiquement la première entrée si la lecture n'était pas en cours
+			this.play(0, true);
+	}
+};
+
+Player.prototype.sort = function(column) {
+	if (column === this.sortColumn) {
+		// Inverser le tri
+		this.sortAscending = !this.sortAscending;
+		// Inverser l'ordre des éléments
+		this.items.reverse();
+		// Inverser la position dans le tableau
+		if (this.index !== -1)
+			this.index = this.items.length - 1 - this.index;
+		// Prévenir
+		this.triggerListChanged();
+		this.triggerIndexChanged();
+	} else {
+		// Enregistrer la colonne triée
+		this.sortColumn = column;
+		// Commencer en tri ascendant
+		this.sortAscending = true;
+		// Garder la référence sur l'élément en cours de lecture
+		var item = this.index === -1 ? null : this.items[this.index];
+		// Retrier
+		if (column.type === 'integer') {
+			this.items.sort(function(i1, i2) {
+				return (i1[column.name] || 0) - (i2[column.name] || 0);
+			});
+		} else if (column.format) {
+			this.items.sort(function(i1, i2) {
+				return column.format(i1).localeCompare(column.format(i2));
+			});
+		} else {
+			this.items.sort(function(i1, i2) {
+				return (i1[column.name] || '').localeCompare(i2[column.name] || '');
+			});
+		}
+		// Mettre à jour l'index pour rester sur l'élément en cours de lecture
+		this.index = item === null ? -1 : this.items.indexOf(item);
+		// Prévenir
+		this.triggerListChanged();
+		this.triggerIndexChanged();
+	}
+};
+/*
+Player.prototype.shuffle = function() {
+	// Mélanger la liste
+	var j, x, i;
+	for (i = this.items.length - 1; i > 0; i--) {
+		j = Math.floor(Math.random() * (i + 1));
+		x = this.items[i];
+		this.items[i] = this.items[j];
+		this.items[j] = x;
+	}
+	// Revenir à la première piste
+	this.index = Math.min(this.index, 0);
+	// Annuler le tri
+	this.sortColumn = null;
+	this.sortAscending = false;
+	// Prévenir
+	this.triggerListChanged();
+	this.triggerIndexChanged();
+};
+*/
+Player.prototype.pause = function() {
+	// Stopper la lecture
+	this.audio.pause();
+};
+
+Player.prototype.resume = function() {
+	// Reprendre la lecture
+	if (this.index === -1)
+		this.play(0, true);
+	else
+		this.audio.play();
+};
+
+Player.prototype.stop = function() {
+	// Stopper la lecture
+	this.index = -1;
+	this.audio.pause();
+	// Prévenir
+	this.triggerIndexChanged();
+};
+
+Player.prototype.clear = function() {
+	// Stopper la lecture
+	this.index = -1;
+	this.audio.pause();
+	// Vider la liste
+	this.items = [];
+	// Prévenir
+	this.triggerListChanged();
+	this.triggerIndexChanged();
+};
+
+Player.prototype.play = function(index, canShuffle) {
+	// Stopper la lecture si on nous passe -1 (previous si premier, next si dernier)
+	if (index === -1) {
+		this.stop();
+		return;
+	}
+	// Lancer la lecture de l'élément
+	this.index = (this.shuffle && canShuffle) ? Math.floor(Math.random() * this.items.length) : index;
+	this.audio.src = '/files/stream/' + this.items[this.index].id;
+	this.audio.play();
+	// Prévenir
+	this.triggerIndexChanged();
+};
+
+Player.prototype.playFirst = function() {
+	this.play(0, false);
+};
+
+Player.prototype.playPrevious = function() {
+	this.play(this.index > 0 ? (this.index - 1) : this.loop ? (this.items.length - 1) : -1, true);
+};
+
+Player.prototype.playNext = function() {
+	this.play(this.index < this.items.length - 1 ? (this.index + 1) : this.loop ? 0 : -1, true);
+};
+
+Player.prototype.playLast = function() {
+	this.play(this.items.length - 1, false);
+};
+
+Player.prototype.triggerListChanged = function() {
+	$(this).trigger('listchanged', [this.items]);
+};
+
+Player.prototype.triggerIndexChanged = function() {
+	$(this).trigger('indexchanged', [this.index]);
+};
+
+/*
+function fillAudioExtensions() {
+	function checkSupport(extension, mimetypes) {
+		for (var i = 0; i < mimetypes.length; i++) {
+			if (this.audioElement.canPlayType(mimetypes[i]))
+				this.audioExtensions.push(extension);
+		}
+	}
+	checkSupport('aac', ['audio/aac']);
+	checkSupport('caf', ['audio/x-caf; codecs="opus"']);
+	checkSupport('flac', ['audio/x-flac', 'audio/flac']);
+	checkSupport('m4a', ['audio/x-m4a', 'audio/mp4']);
+	checkSupport('mp3', ['audio/mpeg; codecs="mp3"']);
+	checkSupport('oga', ['audio/ogg; codecs="vorbis"']);
+	checkSupport('ogg', ['audio/ogg; codecs="vorbis"']);
+	checkSupport('opus', ['audio/ogg; codecs="opus"']);
+	checkSupport('weba', ['audio/webm']);
+	checkSupport('webm', ['audio/webm; codecs="opus"']);
+	checkSupport('wav', ['audio/wav; codecs="1"']);
+	checkSupport('wma', ['audio/x-ms-wma']);
+}
+*/
+
+//Initialiser la page
+NIMBUS.init(['audio.js'], function() {
+	// En haut à gauche, le bouton "Retour"
+	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+
+	// Créer un lecture
+	var player = new Player();
+
+	// Créer les en-têtes de colonne
+	var headerRow = document.querySelector('thead > tr');
+	player.columns.forEach(function(column) {
+		$('<th />')
+			.data('column', column)
+			.text(NIMBUS.translate(column.caption))
+			.css('text-align', (column.type === 'integer') ? 'right' : 'left')
+			.appendTo(headerRow);
+	});
+	// Trier la liste en cliquant sur les en-têtes
+	$(headerRow).on('click', 'th', function(event) {
+		player.sort($(event.target).closest('th').data('column'));
+	});
+	// Sélectionner une piste en cliquant dessus
+	$('tbody').on('click', 'tr', function(event) {
+		player.play($(event.target).closest('tr').index(), false);
+	});
+
+	// Dessiner la grille quand le player nous le dit
+	$(player).on('listchanged', function(event, items) {
+		localStorage.setItem('playlist', JSON.stringify(items));
+		$('tbody').empty().append(items.map(function(item) {
+			return $('<tr />').append(player.columns.map(function(column) {
+				return $('<td />')
+					.text(column.format ? column.format(item) : (item[column.name] || ''))
+					.css('text-align', (column.type === 'integer') ? 'right' : 'left')
+					.get(0);
+			}))[0];
+		}));
+	});
+
+	// Indiquer la ligne en cours de lecture quand le player nous prévient
+	$(player).on('indexchanged', function(event, index) {
+		$('tbody > tr.table-active').removeClass('table-active');
+		if (index !== -1)
+			$('tbody > tr:eq(' + index + ')').addClass('table-active');
+	});
+
+	// Indiquer les erreurs de lecture
+	player.audio.addEventListener('error', function() {
+		$('tbody > tr:eq(' + player.index + ')').addClass('text-danger');
+		player.playNext();
+	});
+
+	// Chargement de la liste de lecture précédemment sauvegardée
+	var savedPlaylist = localStorage.getItem('playlist');
+	if (savedPlaylist)
+		player.update(JSON.parse(savedPlaylist), false);
+	var updatePlaylist = localStorage.getItem('updatePlaylist');
+	if (updatePlaylist) {
+		var update = JSON.parse(updatePlaylist);
+		localStorage.removeItem('updatePlaylist');
+		player.update(update.items, update.play);
+	}
+
+	// Réception des évènements alimentant la liste de lecture depuis "main.html"
+	window.addEventListener('storage', function(event) {
+		if (event.key === 'updatePlaylist' && !!event.newValue) {
+			var update = JSON.parse(event.newValue);
+			event.storageArea.removeItem(event.key);
+			player.update(update.items, update.play);
+		} else {
+			console.log(event);
+		}
+	});
+
+	// Boutons dans la barre supérieure, au centre
+	$('.play-first').click(player.playFirst.bind(player));
+	$('.play-previous').click(player.playPrevious.bind(player));
+	$('.play-next').click(player.playNext.bind(player));
+	$('.play-last').click(player.playLast.bind(player));
+	$('.pause').click(player.pause.bind(player));
+	$('.resume').click(player.resume.bind(player));
+	player.audio.addEventListener('play', function() {
+		$('.resume').hide().prev().show();
+	});
+	player.audio.addEventListener('pause', function() {
+		$('.pause').hide().next().show();
+	});
+
+	// Options activables en haut à droite
+	$('.loop').click(function() {
+		player.loop = !player.loop;
+		$('.loop').toggleClass('btn-dark', player.loop);
+	});
+	$('.shuffle').click(function() {
+		player.shuffle = !player.shuffle;
+		$('.shuffle').toggleClass('btn-dark', player.shuffle);
+	});
+	$('.mute').click(function() {
+		player.audio.muted = !player.audio.muted;
+		$('.mute').toggleClass('btn-dark', player.audio.muted);
+	});
+
+	// Gestion de la barre de progression
+	var progress = document.querySelector('.progress');
+	var progressBar = document.querySelector('.progress-bar');
+	progress.addEventListener('mousemove', function(event) {
+		var currentX = event.clientX - progressBar.offsetLeft;
+		var currentMS = currentX * player.audio.duration / progress.clientWidth;
+		progress.title = NIMBUS.formatDuration(currentMS);
+	});
+	progress.addEventListener('click', function(event) {
+		var maxMS = player.audio.duration;
+		var currentX = event.clientX - progressBar.offsetLeft;
+		var currentMS = currentX * player.audio.duration / progress.clientWidth;
+		player.audio.currentTime = currentMS;
+	});
+	player.audio.addEventListener('loadedmetadata', function(event) {
+		progressBar.setAttribute('aria-valuemax', player.audio.duration);
+		$('.duration').text(NIMBUS.formatDuration(player.audio.duration));
+	});
+	player.audio.addEventListener('timeupdate', function(event) {
+		$('.position').text(NIMBUS.formatDuration(player.audio.currentTime));
+		progressBar.style.width = (player.audio.currentTime * 100 / player.audio.duration) + '%';
+		progressBar.setAttribute('aria-valuenow', player.audio.currentTime);
+	});
+
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+});
+</script>
+
+</body>
+</html>

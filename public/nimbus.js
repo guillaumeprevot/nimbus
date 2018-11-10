@@ -114,8 +114,10 @@ var NIMBUS = (function() {
 
 	// Formatte une durée exprimée en secondes
 	NIMBUS.formatDuration = function(seconds) {
-		var h = Math.floor(seconds / 3600);
-		var m = Math.floor(seconds / 60 % 60);
+		if (typeof seconds !== 'number' || Number.isNaN(seconds))
+			return '?';
+		var h = Math.trunc(seconds / 3600);
+		var m = Math.trunc(seconds / 60 % 60);
 		var s = Math.round(seconds) % 60;
 		return (h > 0 ? h + ":" : '') + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
 	}

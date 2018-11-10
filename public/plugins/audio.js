@@ -1,0 +1,134 @@
+(function() {
+	var element = document.createElement("audio");
+
+	function accept(item, extension) {
+		return (extension === 'ogg' && element.canPlayType('audio/ogg; codecs="vorbis"'))
+			|| !item.folder && item.mimetype.indexOf("audio/") === 0 && element.canPlayType(item.mimetype); 
+	}
+
+	function execute(play, item) {
+		localStorage.setItem('updatePlaylist', JSON.stringify({
+			play: play,
+			items:  item ? [item] : $('#items tr.audio').get().map((tr) => $(tr).data('item'))
+		}));
+		setTimeout(function() {
+			var stillHere = !!localStorage.getItem('updatePlaylist');
+			if (stillHere)
+				window.open('/audio.html?' + $.param({
+					fromUrl: window.location.href,
+					fromTitle: $('title').text()
+				}));
+		}, 1000);
+	}
+
+	NIMBUS.plugins.add({
+		name: 'audio',
+		properties: [
+			{ name: 'duration', caption: 'AudioPropertyDuration', align: 'right', sortBy: 'content.duration', format: (i) => NIMBUS.formatDuration(i.duration / 1000) },
+			{ name: 'audioBitRate', caption: 'AudioPropertyBitRate', align: 'right', sortBy: 'content.audioBitRate', format: (i) => NIMBUS.formatInteger(i.audioBitRate, "kbit/s") },
+			{ name: 'author', caption: 'AudioPropertyAuthor', sortBy: 'content.author' },
+			{ name: 'year', caption: 'AudioPropertyYear', sortBy: 'content.year' },
+			{ name: 'album', caption: 'AudioPropertyAlbum', sortBy: 'content.album' },
+			{ name: 'title', caption: 'AudioPropertyTitle', sortBy: 'content.title' },
+			{ name: 'track', caption: 'AudioPropertyTrack', sortBy: 'content.track' },
+			{ name: 'genre', caption: 'AudioPropertyGenre', sortBy: 'content.genre' },
+		],
+		facets: [{
+			name: 'audio',
+			accept: accept,
+			image: function(item, thumbnail) {
+				return '<i class="material-icons">audiotrack</i>';
+			},
+			describe: function describe(item) {
+				var p = [];
+				if (item.duration)
+					p.push(NIMBUS.formatDuration(item.duration / 1000));
+				if (item.author)
+					p.push(item.author);
+				if (item.year)
+					p.push(item.year);
+				if (item.album)
+					p.push(item.album);
+				return p.join(', ');
+			}
+		}],
+		actions: [{
+			name: 'audio-play',
+			icon: 'music_note',
+			caption: 'AudioActionPlay',
+			accept: accept,
+			execute: function(item) { execute(true, item); }
+		}, {
+			name: 'audio-play-folder',
+			icon: 'music_note',
+			caption: 'AudioActionPlayFolder',
+			accept: accept,
+			execute: function(item) { execute(true, null); }
+		}, {
+			name: 'audio-add',
+			icon: 'queue_music',
+			caption: 'AudioActionAdd',
+			accept: accept,
+			execute: function(item) { execute(false, item); }
+		}, {
+			name: 'audio-add-folder',
+			icon: 'queue_music',
+			caption: 'AudioActionAddFolder',
+			accept: accept,
+			execute: function(item) { execute(false, null); }
+		}],
+		langs: {
+			fr: {
+				AudioActionPlay: "Ecouter", 
+				AudioActionPlayFolder: "Ecouter tout le dossier",
+				AudioActionAdd: "Ajouter",
+				AudioActionAddFolder: "Ajouter tout le dossier",
+				AudioPropertyDuration: "Durée",
+				AudioPropertyBitRate: "Débit",
+				AudioPropertyAuthor: "Auteur",
+				AudioPropertyYear: "Année",
+				AudioPropertyAlbum: "Album",
+				AudioPropertyTitle: "Titre",
+				AudioPropertyTrack: "Piste",
+				AudioPropertyGenre: "Genre",
+				AudioTitle: "Lecteur audio",
+				AudioPlayFirst: "Première piste",
+				AudioPlayPrevious: "Piste précédente",
+				AudioPause: "Pause",
+				AudioResume: "Lecture",
+				AudioPlayNext: "Piste suivante",
+				AudioPlayLast: "Dernière piste",
+				AudioLoop: "En boucle",
+				AudioShuffle: "Aléatoire",
+				AudioMute: "Muet",
+				AudioPlayError: "Une erreur s'est produite.",
+			},
+			en: {
+				AudioActionPlay: "Play",
+				AudioActionPlayFolder: "Play all",
+				AudioActionAdd: "Add",
+				AudioActionAddFolder: "Add all",
+				AudioPropertyDuration: "Duration",
+				AudioPropertyBitRate: "Bitrate",
+				AudioPropertyAuthor: "Author",
+				AudioPropertyYear: "Year",
+				AudioPropertyAlbum: "Album",
+				AudioPropertyTitle: "Title",
+				AudioPropertyTrack: "Track",
+				AudioPropertyGenre: "Genre",
+				AudioTitle: "Audio player",
+				AudioPlayFirst: "First track",
+				AudioPlayPrevious: "Previous track",
+				AudioPause: "Pause",
+				AudioResume: "Resume",
+				AudioPlayNext: "NextTrack",
+				AudioPlayLast: "Last track",
+				AudioLoop: "Loop",
+				AudioShuffle: "Shuffle",
+				AudioMute: "Mute",
+				AudioPlayError: "An error occurred.",
+			} 
+		}
+	});
+
+})();
