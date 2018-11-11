@@ -42,8 +42,15 @@ public class Controller {
 			String login = request.session().attribute("userLogin");
 			User user = User.findByLogin(login);
 			long usedSpace = Item.calculateUsedSpace(login);
-			long maxSpace = user.quota == null ? Long.MAX_VALUE : (user.quota.longValue() * 1024L * 1024L);
-			long freeSpace = Math.min(configuration.getStorageFolder().getFreeSpace(), maxSpace - usedSpace);
+			long maxSpace, freeSpace;
+			if (user.quota == null) {
+				freeSpace = configuration.getStorageFolder().getFreeSpace();
+				maxSpace = freeSpace + usedSpace;
+			} else {
+				maxSpace = (user.quota.longValue() * 1024L * 1024L);
+				freeSpace = Math.min(configuration.getStorageFolder().getFreeSpace(), maxSpace - usedSpace);
+			}
+			int usedPercent = (int) (usedSpace * 100 / maxSpace);
 			return renderTemplate("main.html",
 					"lang", SparkUtils.getRequestLang(request),
 					"plugins", configuration.getClientPlugins(),
@@ -52,6 +59,7 @@ public class Controller {
 					"admin", user.admin,
 					"freeSpace", freeSpace,
 					"usedSpace", usedSpace,
+					"quotaStatus", usedPercent > configuration.getClientQuotaDanger() ? 2 : usedPercent > configuration.getClientQuotaWarning() ? 1 : 0,
 					"trashCount", Item.trashCount(login),
 					"showItemTags", user.showItemTags,
 					"showItemDescription", user.showItemDescription,

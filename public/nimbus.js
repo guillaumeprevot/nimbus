@@ -482,13 +482,14 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Afficher le quota dans le menu */
-	function updateUsageMenu(usedSpace, freeSpace) {
+	function updateUsageMenu(usedSpace, freeSpace, quotaStatus) {
 		var usedPct = Math.round(usedSpace * 100.0 / (usedSpace + freeSpace));
 		var freePct = Math.round(freeSpace * 100.0 / (usedSpace + freeSpace));
 		$('#usage-menu-entry').children()
 			.first()
 				.css('width', usedPct + '%')
 				.text(usedPct >= 20 ? NIMBUS.translate('MainToolbarUsageUsed', NIMBUS.formatLength(usedSpace)) : '')
+				.addClass(['bg-primary', 'bg-warning', 'bg-danger'][quotaStatus])
 			.next()
 				.css('width', freePct + '%')
 				.text(freePct >= 20 ? NIMBUS.translate('MainToolbarUsageFree', NIMBUS.formatLength(freeSpace)) : '');
@@ -1016,7 +1017,7 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Initialiser la page principale */
-	function init(columns, trashCount, usedSpace, freeSpace, theme) {
+	function init(columns, trashCount, usedSpace, freeSpace, quotaStatus, theme) {
 		// Préparation de la grille
 		prepareTable(columns);
 		// Après chargement de la page, se positionner sur l'élément demandé
@@ -1042,7 +1043,7 @@ NIMBUS.navigation = (function() {
 		// Affichage du nombre d'élément dans la corbeille
 		updateTrashMenu(trashCount);
 		// Affichage du quota dans le menu
-		updateUsageMenu(usedSpace, freeSpace);
+		updateUsageMenu(usedSpace, freeSpace, quotaStatus);
 		// Choix du thème
 		prepareThemeMenu(theme);
 		// Clic sur le bouton "Supprimer", on prépare et on affiche la fenêtre

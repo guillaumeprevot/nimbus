@@ -70,7 +70,7 @@
 			<div class="dropdown-divider"></div>
 			<div class="text-muted px-3" data-translate="text">MainToolbarUsage</div>
 			<div id="usage-menu-entry" class="progress mx-3 mt-1">
-				<div class="progress-bar bg-primary" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+				<div class="progress-bar" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
 				<div class="progress-bar bg-secondary" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>
 			<div class="dropdown-divider"></div>
@@ -374,7 +374,7 @@ NIMBUS.init([<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>], function() {
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
 	// Initialisation de la bavigation
-	NIMBUS.navigation.init(columns, ${trashCount}, ${usedSpace}, ${freeSpace}, '${theme}');
+	NIMBUS.navigation.init(columns, ${trashCount}, ${usedSpace}, ${freeSpace}, ${quotaStatus}, '${theme}');
 });
 </script>
 </body>

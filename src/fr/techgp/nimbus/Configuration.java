@@ -37,6 +37,8 @@ public class Configuration {
 	private final File storageFolder;
 	private final String clientDefaultTheme;
 	private final String[] clientPlugins;
+	private final int clientQuotaWarning;
+	private final int clientQuotaDanger;
 	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
 	private final Map<String, String> mimetypes;
@@ -66,6 +68,8 @@ public class Configuration {
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "bootstrap");
 		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,audio,windows-shortcut,default-open,default-after").split(",");
+		this.clientQuotaWarning = getInt("client.quota.warning", 75);
+		this.clientQuotaDanger = getInt("client.quota.danger", 90);
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class);
 		this.facets.forEach((f) -> f.init(this));
@@ -155,6 +159,14 @@ public class Configuration {
 
 	public String[] getClientPlugins() {
 		return this.clientPlugins;
+	}
+
+	public int getClientQuotaWarning() {
+		return this.clientQuotaWarning;
+	}
+
+	public int getClientQuotaDanger() {
+		return this.clientQuotaDanger;
 	}
 
 	public Set<String> getTextFileExtensions() {
