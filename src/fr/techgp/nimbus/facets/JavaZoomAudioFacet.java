@@ -23,7 +23,7 @@ public class JavaZoomAudioFacet implements Facet {
 	@Override
 	public void loadMetadata(Document bson, JsonObject node) {
 		node.addProperty("duration", bson.getLong("duration"));
-		node.addProperty("author", bson.getString("author"));
+		node.addProperty("artist", bson.getString("artist"));
 		node.addProperty("year", bson.getString("year"));
 		node.addProperty("album", bson.getString("album"));
 		node.addProperty("title", bson.getString("title"));
@@ -40,7 +40,7 @@ public class JavaZoomAudioFacet implements Facet {
 		AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(file);
 		Map<String, Object> properties = baseFileFormat.properties();
 		bson.put("duration", Optional.ofNullable((Long) properties.get("duration")).map((d) -> d.longValue() / 1000).orElse(null)); // en microsecond
-		bson.put("author", properties.get("author")); // texte
+		bson.put("artist", properties.get("author")); // texte
 		bson.put("year", properties.get("date")); // texte
 		bson.put("album", properties.get("album")); // texte
 		bson.put("title", properties.get("title")); // texte

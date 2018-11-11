@@ -26,7 +26,7 @@
 		properties: [
 			{ name: 'duration', caption: 'AudioPropertyDuration', align: 'right', sortBy: 'content.duration', format: (i) => NIMBUS.formatDuration(i.duration / 1000) },
 			{ name: 'audioBitRate', caption: 'AudioPropertyBitRate', align: 'right', sortBy: 'content.audioBitRate', format: (i) => NIMBUS.formatInteger(i.audioBitRate, "kbit/s") },
-			{ name: 'author', caption: 'AudioPropertyAuthor', sortBy: 'content.author' },
+			{ name: 'artist', caption: 'AudioPropertyArtist', sortBy: 'content.artist' },
 			{ name: 'year', caption: 'AudioPropertyYear', sortBy: 'content.year' },
 			{ name: 'album', caption: 'AudioPropertyAlbum', sortBy: 'content.album' },
 			{ name: 'title', caption: 'AudioPropertyTitle', sortBy: 'content.title' },
@@ -43,8 +43,8 @@
 				var p = [];
 				if (item.duration)
 					p.push(NIMBUS.formatDuration(item.duration / 1000));
-				if (item.author)
-					p.push(item.author);
+				if (item.artist)
+					p.push(item.artist);
 				if (item.year)
 					p.push(item.year);
 				if (item.album)
@@ -85,7 +85,7 @@
 				AudioActionAddFolder: "Ajouter tout le dossier",
 				AudioPropertyDuration: "Durée",
 				AudioPropertyBitRate: "Débit",
-				AudioPropertyAuthor: "Auteur",
+				AudioPropertyArtist: "Artiste",
 				AudioPropertyYear: "Année",
 				AudioPropertyAlbum: "Album",
 				AudioPropertyTitle: "Titre",
@@ -110,7 +110,7 @@
 				AudioActionAddFolder: "Add all",
 				AudioPropertyDuration: "Duration",
 				AudioPropertyBitRate: "Bitrate",
-				AudioPropertyAuthor: "Author",
+				AudioPropertyArtist: "Artist",
 				AudioPropertyYear: "Year",
 				AudioPropertyAlbum: "Album",
 				AudioPropertyTitle: "Title",

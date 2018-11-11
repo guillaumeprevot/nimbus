@@ -182,7 +182,7 @@ public class Item {
 	 * @param recursive true pour aller chercher dans les sous-dossier
 	 * @param sortBy nom de la propriété selon laquelle on tri les résultats
 	 * @param sortAscending true pour trier dans l'ordre ascendant, false sinon
-	 * @param searchBy nom de la propriété dans laquelle chercher (par exemple content.author), on null pour le comportement par défaut (name + tags)
+	 * @param searchBy nom de la propriété dans laquelle chercher (par exemple content.artist), on null pour le comportement par défaut (name + tags)
 	 * @param searchText le texte recherché, ou vide par défaut
 	 * @param folders true/false/null pour chercher un dossier, un fichier ou peu importe
 	 * @param deleted true/false/null pour chercher un élément supprimé, un élément non supprimé ou peu importe

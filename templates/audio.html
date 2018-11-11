@@ -74,7 +74,7 @@ function Player() {
 		{ name: 'track', caption: 'AudioPropertyTrack', type: 'string' },
 		{ name: 'title', caption: 'AudioPropertyTitle', type: 'string', format: (item) => item.title || item.name },
 		{ name: 'duration', caption: 'AudioPropertyDuration', type: 'integer', format: (item) => NIMBUS.formatDuration(item.duration / 1000) },
-		{ name: 'author', caption: 'AudioPropertyAuthor', type: 'string' },
+		{ name: 'artist', caption: 'AudioPropertyArtist', type: 'string' },
 		{ name: 'year', caption: 'AudioPropertyYear', type: 'string' },
 		{ name: 'album', caption: 'AudioPropertyAlbum', type: 'string' },
 		{ name: 'audioBitRate', caption: 'AudioPropertyBitRate', type: 'integer', format: (item) => NIMBUS.formatInteger(item.audioBitRate, " kbit/s") },
