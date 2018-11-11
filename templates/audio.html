@@ -35,13 +35,13 @@ table { cursor: pointer; }
 			<button type="button" class="btn btn-link play-last" data-translate="title" title="AudioPlayLast"><i class="material-icons">last_page</i></button>
 		</div>
 
-		<div class="btn-group float-right">
+		<div class="float-right">
 			<button type="button" class="btn btn-link loop" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioLoop"><i class="material-icons">loop</i></button>
 			<button type="button" class="btn btn-link shuffle" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioShuffle"><i class="material-icons">shuffle</i></button>
 			<button type="button" class="btn btn-link mute" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioMute"><i class="material-icons">volume_off</i></button>
 		</div>
 	</header>
-	<article>
+	<main>
 		<audio class="nimbus-hidden"></audio>
 		<table class="table table-hover table-sm">
 			<thead>
@@ -52,7 +52,7 @@ table { cursor: pointer; }
 			<tfoot>
 			</tfoot>
 		</table>
-	</article>
+	</main>
 	<footer>
 		<div style="float: right; padding-left: 10px; font-size: small; font-family: mono; color: white; ">
 			<span class="position"></span> / <span class="duration text-muted"></span>

@@ -18,7 +18,7 @@ body.selecting .toggle-select:first-child { display: none; }
 @media (orientation:portrait) {
 	header { order: 3; }
 }
-@media (max-width: 829px) { /*ePub.js minSpreadWidth (800px) + article margins (30px)*/
+@media (max-width: 829px) { /*ePub.js minSpreadWidth (800px) + 'main' margins (30px)*/
 	.btn-group-toggle { display: none; }
 }
 .popover { max-width: calc(100% - 10px); }
@@ -52,7 +52,7 @@ body.selecting .toggle-select:first-child { display: none; }
 			<button type="button" class="btn btn-dark toggle-select" data-translate="title" title="EPUBSwipeMode"><i class="material-icons">compare_arrows</i></button>
 		</div>
 	</header>
-	<article></article>
+	<main></main>
 	<footer></footer>
 	
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
@@ -70,9 +70,9 @@ NIMBUS.init(['epub.js'], function() {
 	var header = $('header');
 
 	// Affichage de la première page
-	var article = $('article');
+	var main = $('main');
 	var book = ePub('${url}', { openAs: 'epub' });
-	var rendition = book.renderTo(article[0], {
+	var rendition = book.renderTo(main[0], {
 		width: '100%',
 		height: '100%',
 		flow: 'paginated',
@@ -114,7 +114,7 @@ NIMBUS.init(['epub.js'], function() {
 	});
 
 	// Navigation à la molette
-	article.on('wheel', function(event) {
+	main.on('wheel', function(event) {
 		var e = event.originalEvent;
 		if (e.ctrlKey)
 			return;
@@ -125,7 +125,7 @@ NIMBUS.init(['epub.js'], function() {
 	});
 
 	// Changement de page par "swipe"
-	article.swipe().on('swipe', function(event, swipe) {
+	main.swipe().on('swipe', function(event, swipe) {
 		if ('right' === swipe.direction || 'bottom' === swipe.direction)
 			rendition.prev();
 		else if ('left' === swipe.direction || 'top' === swipe.direction)

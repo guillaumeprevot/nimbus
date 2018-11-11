@@ -12,9 +12,9 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
-article > canvas { z-index: 1; display: none; margin: 0 auto 1em; border: 1px solid #aaa; box-shadow: 5px 5px 5px rgba(0,0,0,0.5); }
-article > div { z-index: 2; display: block; margin: 0 auto; position: relative; height: 0; }
-article > div > div { position: absolute; white-space: pre; line-height: 1; direction: ltr; color: transparent; background-color: transparent; cursor: text; }
+main > canvas { z-index: 1; display: none; margin: 0 auto 1em; border: 1px solid #aaa; box-shadow: 5px 5px 5px rgba(0,0,0,0.5); }
+main > div { z-index: 2; display: block; margin: 0 auto; position: relative; height: 0; }
+main > div > div { position: absolute; white-space: pre; line-height: 1; direction: ltr; color: transparent; background-color: transparent; cursor: text; }
 ::selection { background: rgba(51,122,183,0.3); }
 ::-moz-selection { background: rgba(51,122,183,0.3); }
 
@@ -89,10 +89,10 @@ article > div > div { position: absolute; white-space: pre; line-height: 1; dire
 			<button type="button" class="btn btn-dark about" data-toggle="modal" data-target="#about-modal" data-translate="title" title="PDFAbout"><i class="material-icons">info</i></button>
 		</div>
 	</header>
-	<article>
+	<main>
 		<div></div>
 		<canvas></canvas>
-	</article>
+	</main>
 	<footer></footer>
 
 	<div id="about-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -218,10 +218,10 @@ NIMBUS.init(['pdf.js'], function() {
 	var body = $(document.body).removeClass('nimbus-hidden');
 
 	// Récupération de quelques éléments DOM
-	var article = $('article');
+	var main = $('main');
 	var showTextLayer = true;
-	var textLayer = article.children('div');
-	var canvas = article.children('canvas');
+	var textLayer = main.children('div');
+	var canvas = main.children('canvas');
 	var canvasContext = canvas[0].getContext('2d');
 
 	// Préparation des variables concernant le document PDF
@@ -354,15 +354,15 @@ NIMBUS.init(['pdf.js'], function() {
 	});
 	// Ajuster le zoom pour que la page s'affiche en entière
 	var zoomFit = header.find('.zoom-fit').click(function() {
-		var height = article.height(),
-			width = article.width() - 17/*if scrollbar are visible*/,
+		var height = main.height(),
+			width = main.width() - 17/*if scrollbar are visible*/,
 			heightFactor = height / canvas[0].height,
 			widthFactor = width / canvas[0].width;
 		changeScale(scale * Math.min(widthFactor, heightFactor));
 	});
 	// Ajuster le zoom pour que la page s'affiche en pleine largeur
 	var zoomWidth = header.find('.zoom-width').click(function() {
-		var newWidth = article.width() - 17/*if scrollbar are visible*/,
+		var newWidth = main.width() - 17/*if scrollbar are visible*/,
 			currentWidth = canvas[0].width,
 			currentScale = scale;
 		changeScale(currentScale * newWidth / currentWidth);
@@ -450,7 +450,7 @@ NIMBUS.init(['pdf.js'], function() {
 	});
 
 	// Changement de page par "swipe"
-	article.swipe().on('swipe', function(event, swipe) {
+	main.swipe().on('swipe', function(event, swipe) {
 		// le swipe doit être rapide pour déclencher le changement de page
 		// les swipes plus longs sont réservés au déplacement dans des pages fortement zoomées
 		if (swipe.duration > 200)
