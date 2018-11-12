@@ -136,6 +136,13 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/jave/jave-1.0.2.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>fr.techgpdeps</groupId>
+			<artifactId>javazoom</artifactId>
+			<version>2010</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/javazoom/mp3spi1.9.5.jar</systemPath>
+		</dependency>
 
 	</dependencies>
 
