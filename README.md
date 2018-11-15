@@ -32,6 +32,8 @@ Dépendance | Type | Version | Utilité | Fichiers
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/releases) | plugin Java | 2.11.0 | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
 [Jave](http://www.sauronsoftware.it/projects/jave/download.php) | plugin Java | 1.0.2 | GPL | Support audio et vidéo grâce à FFmpeg
 [JavaZoom](http://www.javazoom.net/index.shtml) | plugin Java | 2010 | LGPL | Support des fichiers MP3 et OGG
+[JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | 2.2.5 | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
+[mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | 0.9.1 | MIT | Support des fichiers MP3
 [jQuery](http://api.jquery.com/) | JS | 3.3.1 | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.1.3 | MIT | Kit de départ pour l'IHM
 [Popper.js](https://popper.js.org/) | JS | 1.14.4 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...

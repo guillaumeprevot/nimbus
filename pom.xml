@@ -4,7 +4,7 @@
 	<groupId>fr.techgp.nimbus</groupId>
 	<artifactId>nimbus-app</artifactId>
 	<packaging>jar</packaging>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>Nimbus</name>
 
 	<properties>
@@ -12,6 +12,13 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>jaudiotagger-repository</id>
+			<url>https://dl.bintray.com/ijabz/maven</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<!--
@@ -93,6 +100,26 @@
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
 			<version>RELEASE</version>
+		</dependency>
+		<!--
+			0.9.1
+			https://github.com/mpatric/mp3agic
+			https://mvnrepository.com/artifact/com.mpatric/mp3agic
+		-->
+		<dependency>
+			<groupId>com.mpatric</groupId>
+			<artifactId>mp3agic</artifactId>
+			<version>0.9.1</version>
+		</dependency>
+		<!--
+			2.2.5
+			http://www.jthink.net/jaudiotagger/index.jsp
+			https://bitbucket.org/ijabz/jaudiotagger/src/master/README.md?fileviewer=file-view-default
+		-->
+		<dependency>
+			<groupId>net.jthink</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>2.2.5</version>
 		</dependency>
 		<!--
 			2.11.0

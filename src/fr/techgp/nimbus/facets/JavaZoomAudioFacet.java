@@ -59,7 +59,7 @@ public class JavaZoomAudioFacet implements Facet {
 	public void updateMetadata(File file, String extension, Document bson) throws Exception {
 		AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(file);
 		Map<String, Object> properties = baseFileFormat.properties();
-		bson.put("duration", Optional.ofNullable((Long) properties.get("duration")).map((d) -> d.longValue() / 1000).orElse(null)); // en microsecond
+		bson.put("duration", Optional.ofNullable((Long) properties.get("duration")).map((d) -> d.longValue() / 1000).orElse(null)); // microsecond => ms
 		bson.put("artist", properties.get("author")); // texte
 		bson.put("year", properties.get("date")); // texte
 		bson.put("album", properties.get("album")); // texte
@@ -69,7 +69,7 @@ public class JavaZoomAudioFacet implements Facet {
 			bson.put("track", properties.get("mp3.id3tag.track")); // texte
 			bson.put("genre", mp3Genre((String) properties.get("mp3.id3tag.genre"))); // texte
 			bson.put("audioChannels", properties.get("mp3.channels")); // 1 (mono), 2 (stereo)
-			bson.put("audioCodec", "MP3 " + properties.get("mp3.version.mpeg")); // MP3 1
+			bson.put("audioCodec", "MPEG Layer " + properties.get("mp3.version.layer")); // MPEG Layer 3
 			bson.put("audioBitRate", (Integer) properties.get("mp3.bitrate.nominal.bps") / 1000); // 64 (Kbps)
 			bson.put("audioSamplingRate", properties.get("mp3.frequency.hz")); // 44100 (Hz)
 		} else {
