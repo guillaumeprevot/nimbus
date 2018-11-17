@@ -27,15 +27,17 @@ body { background-color: #666; }
 <body class="nimbus-hidden">
 	<header>
 		<div class="float-left">
-			<a href="#" class="btn btn-dark back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
 		</div>
 
 		<div class="btn-group">
-			<button type="button" class="btn btn-dark play-toggle" data-translate="title" title="VideoPause">
+			<button type="button" class="btn btn-link play-toggle" data-translate="title" title="VideoPause">
 				<i class="material-icons">pause_circle_outline</i>
 				<i class="material-icons">play_circle_outline</i>
 			</button>
-			<button type="button" class="btn btn-dark play-menu dropdown-toggle" data-translate="title" title="VideoPlayMenu"></button>
+			<button type="button" class="btn btn-link play-menu" data-translate="title" title="VideoPlayMenu">
+				<i class="material-icons">fast_forward</i>
+			</button>
 			<div class="btn-group nimbus-hidden" id="play-options">
 				<button type="button" class="btn btn-link play-move" data-offset="-30" data-translate="title" title="VideoReplay30"><i class="material-icons">replay_30</i></button>
 				<button type="button" class="btn btn-link play-move" data-offset="-10" data-translate="title" title="VideoReplay10"><i class="material-icons">replay_10</i></button>
@@ -50,17 +52,19 @@ body { background-color: #666; }
 		</div>
 
 		<div class="btn-group">
-			<button type="button" class="btn btn-dark volume-toggle" data-translate="title" title="VideoVolumeOff">
+			<button type="button" class="btn btn-link volume-toggle" data-translate="title" title="VideoVolumeOff">
 				<i class="material-icons">volume_up</i>
 				<i class="material-icons">volume_off</i>
 			</button>
-			<button type="button" class="btn btn-dark volume-menu dropdown-toggle" data-translate="title" title="VideoVolumeMenu"></button>
+			<button type="button" class="btn btn-link volume-menu" data-translate="title" title="VideoVolumeMenu">
+				<i class="material-icons">tune</i>
+			</button>
 			<input type="range" class="nimbus-hidden" id="volume-slider" min="0" max="100" step="1" style="max-width: 100%; width: 300px; " />
 		</div>
 
 		<div class="float-right">
-			<button type="button" class="btn btn-dark fullscreen" data-translate="title" title="VideoFullscreen"><i class="material-icons">fullscreen</i></button>
-			<button type="button" class="btn btn-dark exit-fullscreen nimbus-hidden" data-translate="title" title="VideoExitFullscreen"><i class="material-icons">fullscreen_exit</i></button>
+			<button type="button" class="btn btn-link fullscreen" data-translate="title" title="VideoFullscreen"><i class="material-icons">fullscreen</i></button>
+			<button type="button" class="btn btn-link exit-fullscreen nimbus-hidden" data-translate="title" title="VideoExitFullscreen"><i class="material-icons">fullscreen_exit</i></button>
 		</div>
 	</header>
 	<main>
@@ -186,15 +190,12 @@ NIMBUS.init(['video.js'], function() {
 	};
 	video.onplay = function() {
 		$('.play-toggle').attr('title', NIMBUS.translate('VideoPause')).removeClass('active');
-		$('.play-menu').prop('disabled', false);
 	};
 	video.onpause = function() {
 		$('.play-toggle').attr('title', NIMBUS.translate('VideoResume')).addClass('active');
-		$('.play-menu').prop('disabled', true);
 	};
 	video.onvolumechange = function(event) {
 		$('.volume-toggle').attr('title', NIMBUS.translate(video.muted ? 'VideoVolumeOn' : 'VideoVolumeOff')).toggleClass('active', video.muted);
-		$('.volume-menu').prop('disabled', video.muted);
 	};
 	video.onratechange = function(event) {
 		$('.speed').text('x' + video.playbackRate.toFixed(1)).parent().toggle(video.playbackRate !== 1);
