@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-hideable-toolbars">
+<head>
+<title data-translate="text">DiaporamaTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+	<header>
+		<div class="float-left">
+			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+		</div>
+
+		<div class="btn-group diaporama-manual">
+			<button type="button" class="btn btn-link diaporama-first" data-translate="title" title="DiaporamaFirst"><i class="material-icons">first_page</i></button>
+			<button type="button" class="btn btn-link diaporama-previous" data-translate="title" title="DiaporamaPrevious"><i class="material-icons">chevron_left</i></button>
+			<button type="button" class="btn btn-link diaporama-play" data-translate="title" title="DiaporamaPlay"><i class="material-icons">play_circle_outline</i></button>
+			<button type="button" class="btn btn-link diaporama-next" data-translate="title" title="DiaporamaNext"><i class="material-icons">chevron_right</i></button>
+			<button type="button" class="btn btn-link diaporama-last" data-translate="title" title="DiaporamaLast"><i class="material-icons">last_page</i></button>
+		</div>
+
+		<div class="btn-group diaporama-auto nimbus-hidden">
+			<button type="button" class="btn btn-link diaporama-decelerate" data-translate="title" title="AudioPlayFirst"><i class="material-icons">fast_rewind</i></button>
+			<button type="button" class="btn btn-link diaporama-pause" data-translate="title" title="AudioPause"><i class="material-icons">pause_circle_outline</i></button>
+			<button type="button" class="btn btn-link diaporama-accelerate" data-translate="title" title="AudioResume"><i class="material-icons">fast_forward</i></button>
+		</div>
+
+		<div class="float-right">
+			<button type="button" class="btn btn-link diaporama-fullscreen" data-translate="title" title="DiaporamaFullscreen"><i class="material-icons">fullscreen</i></button>
+			<button type="button" class="btn btn-link diaporama-restore nimbus-hidden" data-translate="title" title="DiaporamaRestore"><i class="material-icons">fullscreen_exit</i></button>
+		</div>
+	</header>
+	<main>
+		<img style="width: 100%; height: 100%; object-fit: scale-down; " />
+	</main>
+	<footer>
+		<div style="float: left; padding-right: 10px; font-size: small; font-family: mono; color: white; ">
+			<span class="diaporama-speed"></span>
+		</div>
+		<div style="float: right; padding-left: 10px; font-size: small; font-family: mono; color: white; ">
+			<span class="diaporama-index"></span> / <span class="diaporama-totals text-muted"></span>
+		</div>
+	</footer>
+<script>
+"use strict";
+
+function Diaporama(items, index) {
+	// L'image dans laquelle afficher
+	this.image = document.querySelector('img');
+	// La liste des éléments à afficher
+	this.items = items;
+	// La position de l'image en cours
+	this.index = index;
+	// Par défaut, le diaporama ne se lance pas
+	this.interval = null;
+	// Par défaut, le diaporama défilerait toutes les 3 secondes
+	this.intervalSeconds = 3;
+	// Afficher l'image demandée
+	this.show(index);
+}
+
+$.extend(Diaporama.prototype, {
+	play: function() {
+		this.interval = setInterval(this.next.bind(this), this.intervalSeconds * 1000);
+		this.triggerSlideshowChanged();
+	},
+	pause: function() {
+		clearInterval(this.interval);
+		this.interval = null;
+		this.triggerSlideshowChanged();
+	},
+	toggle: function() {
+		if (this.interval)
+			this.pause();
+		else
+			this.play();
+	},
+	speed: function(seconds) {
+		this.intervalSeconds = Math.max(1, seconds);
+		if (this.interval !== null) {
+			clearInterval(this.interval);
+			this.interval = setInterval(this.next.bind(this), this.intervalSeconds * 1000);
+		}
+		this.triggerSpeedChanged();
+	},
+	accelerate: function() {
+		this.speed(this.intervalSeconds - 1);
+	},
+	decelerate: function() {
+		this.speed(this.intervalSeconds + 1);
+	},
+	show: function(index) {
+		// On récupère l'élément
+		var item = this.items[index];
+		// On note la position
+		this.index = index;
+		// On ajuste le contenu de l'image
+		this.image.src = item.url;
+		// On prévient le reste de l'IHM
+		this.triggerIndexChanged();
+	},
+	first: function() {
+		this.show(0);
+	},
+	previous: function() {
+		this.show(this.index > 0 ? (this.index - 1) : (this.items.length - 1));
+	},
+	next: function() {
+		this.show(this.index < this.items.length - 1 ? (this.index + 1) : 0);
+	},
+	last: function() {
+		this.show(this.items.length - 1);
+	},
+	triggerSpeedChanged: function() {
+		$(this).trigger('speedchanged', [this.intervalSeconds]);
+	},
+	triggerSlideshowChanged: function() {
+		$(this).trigger('slideshowchanged', [this.interval !== null]);
+	},
+	triggerIndexChanged: function() {
+		$(this).trigger('indexchanged', [this.index]);
+	},
+});
+
+//Initialiser la page
+NIMBUS.init(['image.js'], function() {
+	// En haut à gauche, le bouton "Retour"
+	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+
+	// Préparer les éléments à afficher
+	var ids = [${ids}];
+	var play = ${play?string('true', 'false')};
+	var selection = ${selection};
+	var index = selection ? ids.indexOf(${selection}) : 0;
+	var items = ids.map(function(id) {
+		return {
+			url: '/files/stream/' + id
+		};
+	});
+
+	// Créer le diaporama
+	var diaporama = new Diaporama(items, index);
+
+	// Mettre à jour l'IHM quand le diaporama nous indique un changement
+	$('.diaporama-index').text('' + (index + 1));
+	$('.diaporama-totals').text('' + ids.length);
+	$('.diaporama-speed').text(diaporama.intervalSeconds + 's');
+	$(diaporama)
+		.on('speedchanged', function(event, seconds) {
+			$('.diaporama-speed').text(seconds + 's');
+		})
+		.on('slideshowchanged', function(event, active) {
+			$('.diaporama-manual').toggleClass('nimbus-hidden', active);
+			$('.diaporama-auto').toggleClass('nimbus-hidden', !active);
+		})
+		.on('indexchanged', function(event, index) {
+			$('.diaporama-index').text('' + (index + 1));
+		});
+
+	// Lancer le diaporama, si c'est demandé
+	if (play)
+		diaporama.play();
+
+	// Manipuler le diaporama grâce à l'IHM
+	$('.diaporama-first').click(diaporama.first.bind(diaporama));
+	$('.diaporama-previous').click(diaporama.previous.bind(diaporama));
+	$('.diaporama-play').click(diaporama.play.bind(diaporama));
+	$('.diaporama-next').click(diaporama.next.bind(diaporama));
+	$('.diaporama-last').click(diaporama.last.bind(diaporama));
+	$('.diaporama-decelerate').click(diaporama.decelerate.bind(diaporama));
+	$('.diaporama-pause').click(diaporama.pause.bind(diaporama));
+	$('.diaporama-accelerate').click(diaporama.accelerate.bind(diaporama));
+
+	// Entrer en plein-écran / Sortir du plein-écran
+	var fullscreenElement = document.body;
+	fullscreenElement.requestFullscreen = fullscreenElement.requestFullscreen || fullscreenElement.mozRequestFullScreen || fullscreenElement.webkitRequestFullscreen || fullscreenElement.msRequestFullscreen;
+	document.exitFullscreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+	$('.diaporama-fullscreen').toggleClass('nimbus-hidden', !fullscreenElement.requestFullscreen).click(function() {
+		fullscreenElement.requestFullscreen();
+		$('.diaporama-fullscreen').addClass('nimbus-hidden').next().toggleClass('nimbus-hidden', !document.exitFullscreen);
+	});
+	$('.diaporama-restore').click(function() {
+		document.exitFullscreen();
+		$('.diaporama-restore').addClass('nimbus-hidden').prev().toggleClass('nimbus-hidden', !fullscreenElement.requestFullscreen);
+	});
+
+	// Clic sur la partie centrale pour afficher/cacher les barres d'outils
+	$('main').click(function(event) {
+		$('.nimbus-viewer').toggleClass('nimbus-hidden-toolbars');
+	});
+
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+
+	// Manipulation au clavier
+	$(document.body).keyup(function(event) {
+		if (event.target.tagName === 'INPUT' || event.ctrlKey)
+			return;
+		var key = event.key, prevent = true;
+		// console.log(event.key);
+		switch (key) {
+			case '+':
+				diaporama.accelerate();
+				break;
+			case '-':
+				diaporama.decelerate();
+				break;
+			case 'Home':
+				diaporama.first();
+				break;
+			case 'ArrowLeft':
+			case 'PageUp':
+				diaporama.previous();
+				break;
+			case 'PageDown':
+			case 'ArrowRight':
+				diaporama.next();
+				break;
+			case 'End':
+				diaporama.last();
+				break;
+			case ' ':
+				diaporama.toggle();
+				break;
+			default:
+				prevent = false;
+		}
+		if (prevent)
+			event.preventDefault();
+	});
+
+});
+</script>
+
+</body>
+</html>

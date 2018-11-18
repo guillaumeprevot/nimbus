@@ -131,6 +131,7 @@ public class Controller {
 		Spark.get("/pdf.html", Extensions.pdf); // URL publique
 		Spark.get("/video.html", Extensions.video); // URL publique
 		Spark.get("/audio.html", Extensions.audio); // URL publique
+		Spark.get("/diaporama.html", Extensions.diaporama); // URL publique
 
 		// Accès à la page de test en mode DEV uniquement
 		Spark.get("/test.html", (request, response) -> {

@@ -60,4 +60,20 @@ public class Extensions extends Controller {
 				"lang", SparkUtils.getRequestLang(request));
 	};
 
+	/**
+	 * Cette route affiche la page du diaporama
+	 * 
+	 * () => HTML
+	 */
+	public static final Route diaporama = (request, response) -> {
+		// Générer la page
+		return renderTemplate("diaporama.html",
+				"ids", SparkUtils.queryParamString(request, "ids", ""),
+				"play", SparkUtils.queryParamBoolean(request, "play", false),
+				"selection", SparkUtils.queryParamString(request, "selection", ""),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
+				"lang", SparkUtils.getRequestLang(request));
+	};
+
 }
