@@ -569,20 +569,12 @@ NIMBUS.navigation = (function() {
 		refreshItems(true);
 	}
 
-	/** Charger de manière asynchron un ensemble d'éléments (ids) et appeler une callback une fois terminé */
+	/** Charger de manière asynchrone un ensemble d'éléments (ids) et appeler une callback une fois terminé */
 	function getItemsByIds(ids, callback) {
-		var items = [];
-		var loop = function() {
-			if (ids.length == 0)
-				callback(items);
-			else
-				$.get('/items/info/' + ids[0]).done(function(data) {
-					items.push(data);
-					ids.shift();
-					loop();
-				});
-		};
-		loop();
+		if (ids.length === 0)
+			callback([]);
+		else
+			$.get('/items/infos?itemIds=' + ids.join(',')).done(callback);
 	}
 
 	/** Préparer la zone de recherche */

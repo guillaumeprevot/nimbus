@@ -101,6 +101,8 @@
 				DiaporamaPause: "Arrêt",
 				DiaporamaAccelerate: "Accélérer",
 				DiaporamaDecelerate: "Décélérer",
+				DiaporamaDimensions: "{0}x{1} px",
+				DiaporamaDepth: "{0} bits",
 			},
 			en: {
 				ImageActionShow: "Show image",
@@ -120,6 +122,8 @@
 				DiaporamaPause: "Pause",
 				DiaporamaAccelerate: "Accelerate",
 				DiaporamaDecelerate: "Decelerate",
+				DiaporamaDimensions: "{0}x{1} px",
+				DiaporamaDepth: "{0} bits",
 			} 
 		}
 	});

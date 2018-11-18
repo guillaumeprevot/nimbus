@@ -308,16 +308,16 @@ function fillTests(add) {
 		return $.get("/items/info/2").then((result) => assertObject(result, (r) => r.id === 2 && r.name === "favicon.png" && r.length === 376 && r.mimetype === "image/png" && r.width === 16 && r.height === 16 && r.depth === 32));
 	});
 
-	add("Vérifier le streaming avec Range 3", function() {
+	add("BYTE RANGE / Vérifier le streaming avec Range 3", function() {
 		return assertRange("/files/stream/1", "3", totoTxtContent.substr(0,4));
 	});
-	add("Vérifier le streaming avec Range -3", function() {
+	add("BYTE RANGE / Vérifier le streaming avec Range -3", function() {
 		return assertRange("/files/stream/1", "-3", totoTxtContent.substr(-3));
 	});
-	add("Vérifier le streaming avec Range 3-", function() {
+	add("BYTE RANGE / Vérifier le streaming avec Range 3-", function() {
 		return assertRange("/files/stream/1", "3-", totoTxtContent.substring(3));
 	});
-	add("Vérifier le streaming avec Range 3-6", function() {
+	add("BYTE RANGE / Vérifier le streaming avec Range 3-6", function() {
 		return assertRange("/files/stream/1", "3-6", totoTxtContent.substring(3,7));
 	});
 
@@ -370,12 +370,15 @@ function fillTests(add) {
 	add("Récupérer les infos du dossier 'Dossier5' avec chemin '3,'", function() {
 		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.name === "Dossier5" && r.path === "3," ));
 	});
-	
+
 	add("Vérifier que la racine contient 'Dossier3', 'Dossier4' et 'fichier.txt'", function() {
 		return $.get("/items/list?sortBy=name&sortAscending=true").then((result) => assertArray(result, 3, (first) => first.name === "Dossier3"));
 	});
 	add("Vérifier que récursivement, on trouve aussi 'Dossier5'", function() {
 		return $.get("/items/list?sortBy=name&sortAscending=true&recursive=true").then((result) => assertArray(result, 4, (first) => result[2].name === "Dossier5"));
+	});
+	add("Récupérer les infos de plusieurs éléments en une fois", function() {
+		return $.get("/items/infos?itemIds=0,5,4").then((result) => assertArray(result, 3, (first) => first.id === 0 && first.name === "fichier.txt"));
 	});
 	add("Obtenir une erreur si on veut dupliquer un élément qui n'existe pas (ou plus)", function() {
 		return shoudBeAnError($.post("/items/duplicate?itemId=6"), 400);
@@ -387,16 +390,16 @@ function fillTests(add) {
 		return $.post("/items/duplicate?itemId=5&name=Copie%20de%20Dossier5").then((result) => assertEquals(result, "6"));
 	});
 
-	add("Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {
+	add("TAGS / Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {
 		return $.post("/items/rename?itemId=6&name=Dossier6&tags=tag1,tag2").then(assertEmpty);
 	});
-	add("Renommer le fichier 'fichier.txt' en 'file.txt' avec ajout de tags 'tag2' et 'tag3'", function() {
+	add("TAGS / Renommer le fichier 'fichier.txt' en 'file.txt' avec ajout de tags 'tag2' et 'tag3'", function() {
 		return $.post("/items/rename?itemId=0&name=file.txt&tags=tag2,tag3").then(assertEmpty);
 	});
-	add("Rechercher tous les tags utilisés (tag1, tag2 et tag3)", function() {
+	add("TAGS / Rechercher tous les tags utilisés (tag1, tag2 et tag3)", function() {
 		return $.get("/items/tags?term=*").then((result) => assertArray(result, 3, (t) => t.label === "tag1" && t.value === "tag1"));
 	});
-	add("Rechercher les tags contenant 'g2' (uniquement tag2)", function() {
+	add("TAGS / Rechercher les tags contenant 'g2' (uniquement tag2)", function() {
 		return $.get("/items/tags?term=g2").then((result) => assertArray(result, 1, (t) => t.label === "tag2" && t.value === "tag2"));
 	});
 

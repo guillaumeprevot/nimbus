@@ -108,6 +108,24 @@ public class Items extends Controller {
 	};
 
 	/**
+	 * Renvoie en JSON les infos sur les éléments indiqués par "itemIds".
+	 *
+	 * (itemId) => JSON
+	 */
+	public static final Route infos = (request, response) -> {
+		// Extraire la requête
+		String itemIds = request.queryParams("itemIds");
+		// Préparer le résultat
+		JsonArray results = new JsonArray();
+		// Parcourir chaque élément
+		actionOnMultipleItems(request, itemIds, (item) -> {
+			results.add(asJSON(item));
+		});
+		// Retourner la liste en JSON
+		return SparkUtils.renderJSON(response, results);
+	};
+
+	/**
 	 * Renvoie en JSON la liste des tags de l'utilisateur, correspondant éventuellement à la recherche donnée par "term".
 	 *
 	 * (term) => [{label, value}, ...]

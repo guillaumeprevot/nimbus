@@ -52,6 +52,7 @@
 		<div style="float: right; padding-left: 10px; font-size: small; font-family: mono; color: white; ">
 			<span class="diaporama-index"></span> / <span class="diaporama-totals text-muted"></span>
 		</div>
+		<div class="diaporama-description text-muted"></div>
 	</footer>
 <script>
 "use strict";
@@ -69,6 +70,10 @@ function Diaporama(items, index) {
 	this.intervalSeconds = 3;
 	// Afficher l'image demandée
 	this.show(index);
+	setTimeout(function() {
+		this.triggerIndexChanged();
+		this.triggerSpeedChanged();
+	}.bind(this), 0);
 }
 
 $.extend(Diaporama.prototype, {
@@ -136,27 +141,29 @@ $.extend(Diaporama.prototype, {
 
 //Initialiser la page
 NIMBUS.init(['image.js'], function() {
+	// Récupérer les infos sur les éléments
+	$.get('/items/infos?itemIds=${ids}').then(function(items) {
+		run(items, ${play?string('true', 'false')}, ${selection});
+	});
+});
+
+function run(items, play, selection) {
 	// En haut à gauche, le bouton "Retour"
 	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 
 	// Préparer les éléments à afficher
-	var ids = [${ids}];
-	var play = ${play?string('true', 'false')};
-	var selection = ${selection};
-	var index = selection ? ids.indexOf(${selection}) : 0;
-	var items = ids.map(function(id) {
-		return {
-			url: '/files/stream/' + id
-		};
+	var index = 0;
+	items.forEach(function(item, i) {
+		item.url = '/files/stream/' + item.id;
+		if (item.id === selection)
+			index = i;
 	});
 
 	// Créer le diaporama
 	var diaporama = new Diaporama(items, index);
 
 	// Mettre à jour l'IHM quand le diaporama nous indique un changement
-	$('.diaporama-index').text('' + (index + 1));
-	$('.diaporama-totals').text('' + ids.length);
-	$('.diaporama-speed').text(diaporama.intervalSeconds + 's');
+	$('.diaporama-totals').text('' + items.length);
 	$(diaporama)
 		.on('speedchanged', function(event, seconds) {
 			$('.diaporama-speed').text(seconds + 's');
@@ -166,7 +173,16 @@ NIMBUS.init(['image.js'], function() {
 			$('.diaporama-auto').toggleClass('nimbus-hidden', !active);
 		})
 		.on('indexchanged', function(event, index) {
+			// Description de l'image
+			var item = diaporama.items[index];
+			var p = [NIMBUS.formatLength(item.length)];
+			if (item.width && item.height)
+				p.push(NIMBUS.translate('DiaporamaDimensions', [item.width, item.height]))
+			if (item.depth)
+				p.push(NIMBUS.translate('DiaporamaDepth', [item.depth]))
 			$('.diaporama-index').text('' + (index + 1));
+			$('.diaporama-description').text(item.name + ' - ' + p.join(', '));
+			diaporama.image.title = item.name + '\n' + p.join(', ');
 		});
 
 	// Lancer le diaporama, si c'est demandé
@@ -240,8 +256,7 @@ NIMBUS.init(['image.js'], function() {
 		if (prevent)
 			event.preventDefault();
 	});
-
-});
+}
 </script>
 
 </body>

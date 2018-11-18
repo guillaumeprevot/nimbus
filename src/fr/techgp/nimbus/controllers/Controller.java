@@ -91,6 +91,7 @@ public class Controller {
 		Spark.get("/items/list", Items.list);
 		Spark.get("/items/exists", Items.exists);
 		Spark.get("/items/info/:itemId", Items.info);
+		Spark.get("/items/infos", Items.infos);
 		Spark.get("/items/tags", Items.tags);
 		Spark.post("/items/add/folder", Items.addFolder);
 		Spark.post("/items/duplicate", Items.duplicate);
