@@ -11,6 +11,11 @@
 <link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+.table-sm th, .table-sm td {
+	white-space: nowrap;
+}
+</style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
@@ -267,6 +272,19 @@ function fillAudioExtensions() {
 }
 */
 
+function adjustColumns() {
+	var main = document.querySelector('main');
+	var table = document.querySelector('table');
+	var hideableColumns = ['name', 'genre', 'audioBitRate', 'album', 'year', 'artist'];
+	// Tout afficher
+	$('td, th', table).removeClass('nimbus-hidden');
+	// Tant que la largeur dépasse, on retire une colonne
+	while (hideableColumns.length > 0 && main.scrollWidth > main.clientWidth) {
+		$('.column-' + hideableColumns[0], table).addClass('nimbus-hidden');
+		hideableColumns.shift();
+	}
+}
+
 //Initialiser la page
 NIMBUS.init(['audio.js'], function() {
 	// En haut à gauche, le bouton "Retour"
@@ -280,6 +298,7 @@ NIMBUS.init(['audio.js'], function() {
 	player.columns.forEach(function(column) {
 		$('<th />')
 			.data('column', column)
+			.addClass('column-' + column.name)
 			.text(NIMBUS.translate(column.caption))
 			.css('text-align', (column.type === 'integer') ? 'right' : 'left')
 			.appendTo(headerRow);
@@ -295,15 +314,20 @@ NIMBUS.init(['audio.js'], function() {
 
 	// Dessiner la grille quand le player nous le dit
 	$(player).on('listchanged', function(event, items) {
+		// Sauvegarder la playlist en cours
 		localStorage.setItem('playlist', JSON.stringify(items));
+		// Remplir la table
 		$('tbody').empty().append(items.map(function(item) {
 			return $('<tr />').append(player.columns.map(function(column) {
 				return $('<td />')
+					.addClass('column-' + column.name)
 					.text(column.format ? column.format(item) : (item[column.name] || ''))
 					.css('text-align', (column.type === 'integer') ? 'right' : 'left')
 					.get(0);
 			}))[0];
 		}));
+		// Ajuster les colonnes quand la playlist change
+		adjustColumns();
 	});
 
 	// Indiquer la ligne en cours de lecture quand le player nous prévient
@@ -339,6 +363,11 @@ NIMBUS.init(['audio.js'], function() {
 		} else {
 			console.log(event);
 		}
+	});
+
+	// Ajuster les colonnes quand la taille de la fenêtre change
+	window.addEventListener('resize', function(event) {
+		adjustColumns();
 	});
 
 	// Boutons dans la barre supérieure, au centre
