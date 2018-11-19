@@ -98,9 +98,11 @@
 				AudioResume: "Lecture",
 				AudioPlayNext: "Piste suivante",
 				AudioPlayLast: "Dernière piste",
+				AudioMenu: "Menu",
 				AudioLoop: "En boucle",
 				AudioShuffle: "Aléatoire",
 				AudioMute: "Muet",
+				AudioClearPlaylist: "Vider la liste de lecture",
 				AudioPlayError: "Une erreur s'est produite.",
 			},
 			en: {
@@ -123,9 +125,11 @@
 				AudioResume: "Resume",
 				AudioPlayNext: "NextTrack",
 				AudioPlayLast: "Last track",
+				AudioMenu: "Menu",
 				AudioLoop: "Loop",
 				AudioShuffle: "Shuffle",
 				AudioMute: "Mute",
+				AudioClearPlaylist: "Clear playlist",
 				AudioPlayError: "An error occurred.",
 			} 
 		}

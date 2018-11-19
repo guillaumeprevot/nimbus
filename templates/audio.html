@@ -31,16 +31,36 @@
 		<div class="btn-group">
 			<button type="button" class="btn btn-link play-first" data-translate="title" title="AudioPlayFirst"><i class="material-icons">first_page</i></button>
 			<button type="button" class="btn btn-link play-previous" data-translate="title" title="AudioPlayPrevious"><i class="material-icons">chevron_left</i></button>
-			<button type="button" class="btn btn-link pause" data-translate="title" title="AudioPause"><i class="material-icons">pause_circle_outline</i></button>
+			<button type="button" class="btn btn-link pause" data-translate="title" title="AudioPause" style="display: none; "><i class="material-icons">pause_circle_outline</i></button>
 			<button type="button" class="btn btn-link resume" data-translate="title" title="AudioResume"><i class="material-icons">play_circle_outline</i></button>
 			<button type="button" class="btn btn-link play-next" data-translate="title" title="AudioPlayNext"><i class="material-icons">chevron_right</i></button>
 			<button type="button" class="btn btn-link play-last" data-translate="title" title="AudioPlayLast"><i class="material-icons">last_page</i></button>
 		</div>
 
 		<div class="float-right">
-			<button type="button" class="btn btn-link loop" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioLoop"><i class="material-icons">loop</i></button>
-			<button type="button" class="btn btn-link shuffle" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioShuffle"><i class="material-icons">shuffle</i></button>
-			<button type="button" class="btn btn-link mute" data-toggle="button" aria-pressed="false" data-translate="title" title="AudioMute"><i class="material-icons">volume_off</i></button>
+			<button id="audio-menu-button" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="AudioMenu" aria-haspopup="true" aria-expanded="false"><i class="material-icons">playlist_play</i></button>
+			<div id="audio-menu" class="dropdown-menu dropdown-menu-right" aria-labelledby="audio-menu-button">
+				<button type="button" class="dropdown-item loop">
+					<i class="material-icons text-muted indicator" style="display: none; float: right; ">check</i>
+					<i class="material-icons text-muted">loop</i>
+					<span data-translate="text">AudioLoop</span>
+				</button>
+				<button type="button" class="dropdown-item shuffle">
+					<i class="material-icons text-muted indicator" style="display: none; float: right; ">check</i>
+					<i class="material-icons text-muted">shuffle</i>
+					<span data-translate="text">AudioShuffle</span>
+				</button>
+				<button type="button" class="dropdown-item mute">
+					<i class="material-icons text-muted indicator" style="display: none; float: right; ">check</i>
+					<i class="material-icons text-muted">volume_off</i>
+					<span data-translate="text">AudioMute</span>
+				</button>
+				<div class="dropdown-divider"></div>
+				<button type="button" class="dropdown-item audio-clear-playlist">
+					<i class="material-icons text-muted">delete_sweep</i>
+					<span data-translate="text">AudioClearPlaylist</span>
+				</button>
+			</div>
 		</div>
 	</header>
 	<main>
@@ -113,7 +133,7 @@ Player.prototype.update = function(items, play) {
 		if (currentId)
 			// Ajuster la position de l'élément en cours de lecture
 			this.index = this.items.findIndex((item) => item.id === currentId);
-		else if (this.index === -1)
+		else if (play && this.index === -1)
 			// Démarrer automatiquement la première entrée si la lecture n'était pas en cours
 			this.play(0, true);
 	}
@@ -384,18 +404,22 @@ NIMBUS.init(['audio.js'], function() {
 		$('.pause').hide().next().show();
 	});
 
-	// Options activables en haut à droite
+	// Options activables et actions du menu en haut à droite
 	$('.loop').click(function() {
 		player.loop = !player.loop;
-		$('.loop').toggleClass('btn-dark', player.loop);
+		$('.loop .indicator').toggle(player.loop);
 	});
 	$('.shuffle').click(function() {
 		player.shuffle = !player.shuffle;
-		$('.shuffle').toggleClass('btn-dark', player.shuffle);
+		$('.shuffle .indicator').toggle(player.shuffle);
 	});
 	$('.mute').click(function() {
 		player.audio.muted = !player.audio.muted;
-		$('.mute').toggleClass('btn-dark', player.audio.muted);
+		$('.mute .indicator').toggle(player.audio.muted);
+	});
+	$('.audio-clear-playlist').click(function() {
+		player.clear();
+		$('.mute').toggleClass('active', player.audio.muted);
 	});
 
 	// Gestion de la barre de progression
