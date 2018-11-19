@@ -83,9 +83,10 @@ public class Controller {
 		Spark.post("/files/upload", Files.upload);
 		Spark.post("/files/touch", Files.touch);
 		Spark.get("/files/browse/*", Files.browse);
-		Spark.get("/files/thumbnail/:itemId", Files.thumbnail);
 		Spark.get("/files/stream/:itemId", Files.stream);
 		Spark.get("/files/download/:itemId", Files.download);
+		Spark.get("/files/thumbnail/:itemId", Files.thumbnail);
+		Spark.post("/files/useAsFolderIcon/:itemId", Files.useAsFolderIcon);
 
 		Spark.before("/items/*", Filters.filterAuthenticated);
 		Spark.get("/items/list", Items.list);

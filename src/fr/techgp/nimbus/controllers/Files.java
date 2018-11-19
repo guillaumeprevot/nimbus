@@ -236,6 +236,30 @@ public class Files extends Controller {
 		});
 	};
 
+	/**
+	 * Utilise une miniature de l'élément "itemId" comme icone de son parent, d'une taille "size" de 32 pixels par défaut.
+	 *
+	 * (itemId[, size]) => ""
+	 */
+	public static final Route useAsFolderIcon = (request, response) -> {
+		int size = SparkUtils.queryParamInteger(request, "size", 32);
+		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
+			// Vérifier que l'élément a bien un parent
+			if (item.parentId == null)
+				return SparkUtils.haltBadRequest();
+			// Récupérer et vérifier le parent de l'élément
+			Item parent = Item.findById(item.parentId);
+			if (! parent.folder)
+				return SparkUtils.haltBadRequest();
+			// OK, c'est bon
+			parent.content.put("iconURL", "/files/thumbnail/" + item.id + "?size=" + size);
+			parent.content.remove("iconURLCache");
+			parent.updateDate = new Date();
+			Item.update(parent);
+			return "";
+		});
+	};
+
 	private static final Object returnFile(Response response, Item item, boolean download, Integer thumbnailWidth, Integer thumbnailHeight) {
 		String mimetype = configuration.getMimeTypeByFileName(item.name);
 		if (download)

@@ -80,12 +80,23 @@
 					// Lancement du diaporama avec lecture automatique
 					execute(true, item);
 				}
+			}, {
+				name: 'use-as-folder-icon',
+				icon: 'folder_special',
+				caption: 'ImageActionUseAsFolderIcon',
+				accept: function(item, extension) {
+					return accept(item, extension) && (typeof item.parentId === 'number');
+				},
+				execute: function(item) {
+					$.post('/files/useAsFolderIcon/' + item.id + '?size=24');
+				}
 			}
 		],
 		langs: {
 			fr: {
 				ImageActionShow: "Afficher l'image",
 				ImageActionSlideshow: "Lancer le diaporama",
+				ImageActionUseAsFolderIcon: "Utiliser comme image du dossier",
 				ImagePropertyWidth: "Largeur (px)",
 				ImagePropertyHeight: "Hauteur (px)",
 				ImagePropertyDepth: "Profondeur de couleur",
@@ -107,6 +118,7 @@
 			en: {
 				ImageActionShow: "Show image",
 				ImageActionSlideshow: "Start slideshow",
+				ImageActionUseAsFolderIcon: "Use as folder icon",
 				ImagePropertyWidth: "Width (px)",
 				ImagePropertyHeight: "Height (px)",
 				ImagePropertyDepth: "Color depth",
