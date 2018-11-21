@@ -1,10 +1,4 @@
 (function() {
-	var element = document.createElement("audio");
-
-	function accept(item, extension) {
-		return (extension === 'ogg' && element.canPlayType('audio/ogg; codecs="vorbis"'))
-			|| !item.folder && item.mimetype.indexOf("audio/") === 0 && element.canPlayType(item.mimetype); 
-	}
 
 	function execute(play, item) {
 		localStorage.setItem('updatePlaylist', JSON.stringify({
@@ -35,7 +29,7 @@
 		],
 		facets: [{
 			name: 'audio',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedAudio,
 			image: function(item, thumbnail) {
 				return '<i class="material-icons">audiotrack</i>';
 			},
@@ -56,25 +50,25 @@
 			name: 'audio-play',
 			icon: 'music_note',
 			caption: 'AudioActionPlay',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedAudio,
 			execute: function(item) { execute(true, item); }
 		}, {
 			name: 'audio-play-folder',
 			icon: 'music_note',
 			caption: 'AudioActionPlayFolder',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedAudio,
 			execute: function(item) { execute(true, null); }
 		}, {
 			name: 'audio-add',
 			icon: 'queue_music',
 			caption: 'AudioActionAdd',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedAudio,
 			execute: function(item) { execute(false, item); }
 		}, {
 			name: 'audio-add-folder',
 			icon: 'queue_music',
 			caption: 'AudioActionAddFolder',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedAudio,
 			execute: function(item) { execute(false, null); }
 		}],
 		langs: {

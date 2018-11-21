@@ -1,36 +1,5 @@
 (function() {
-	var element = document.createElement("video");
 
-	function accept(item, extension) {
-		return !item.folder && item.mimetype.indexOf("video/") === 0 && element.canPlayType(item.mimetype); 
-	}
-/*
-	function formatDuration(duration, roundAt, withPrecision) {
-		if (!duration)
-			return '';
-		var parts = ["j", "h", "m", "s", "ms"];
-		var modulo = [365, 24, 60, 60, 1000];
-		var values = [0, 0, 0, 0, 0];
-		var pos = 4, remain = duration;
-		while (pos > 0 && remain > 0) {
-			values[pos] = remain % modulo[pos];
-			remain = Math.floor(remain / modulo[pos]);
-			pos--;
-		}
-		return values.reduce(function(s, v, i) {
-			if ((v === 0 && s === "") || i > roundAt)
-				return s;
-			var text;
-			if (i === roundAt)
-				text = (values[i] + (values[i + 1] / modulo[i + 1])).toFixed(withPrecision || 0);
-			else
-				text = values[i];
-			if (s)
-				return s + " " + text + parts[i];
-			return text + parts[i];
-		}, "");
-	};
-*/
 	NIMBUS.plugins.add({
 		name: 'video',
 		properties: [
@@ -40,7 +9,7 @@
 		],
 		facets: [{
 			name: 'video',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedVideo,
 			image: function(item, thumbnail) {
 				return '<i class="material-icons">local_movies</i>';
 			},
@@ -59,14 +28,14 @@
 			name: 'video-play',
 			icon: 'play_circle_outline',
 			caption: 'VideoPlay',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedVideo,
 			execute: function(item) {
 				window.open('/video.html?' + $.param({
 					url: '/files/stream/' + item.id,
 					fromUrl: window.location.href,
 					fromTitle: $('title').text()
 				}));
-			}			
+			}
 		}],
 		langs: {
 			fr: {

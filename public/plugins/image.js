@@ -1,10 +1,4 @@
 (function() {
-	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Img
-	var imageExtensions = ['bmp', 'gif', 'ico', 'jpg', 'jpeg', 'png'/*, 'svg', 'tif', 'tiff', 'webp'*/];
-	if (document.implementation.hasFeature('https://www.w3.org/TR/SVG11/feature#Image', '1.1'))
-		imageExtensions.push('svg');
-	// TODO webp detection
-	// TODO factorisation avec default-open
 
 	function formatGPS(value, positive, negative) {
 		if (!value)
@@ -18,10 +12,6 @@
 		value = (value - Math.trunc(value)) * 60;
 		s += value.toFixed(3) + '\'\'';
 		return s + '' + suffix;
-	}
-
-	function accept(item, extension) {
-		return imageExtensions.indexOf(extension) >= 0; 
 	}
 
 	function execute(play, item) {
@@ -46,7 +36,7 @@
 		],
 		facets: [{
 			name: 'image',
-			accept: accept,
+			accept: NIMBUS.utils.isBrowserSupportedImage,
 			image: function(item, thumbnail) {
 				if (thumbnail)
 					return '<img src="/files/thumbnail/' + item.id + '?size=24" />'; // style="width: 24px; height: 24px;"
@@ -66,7 +56,7 @@
 				name: 'show',
 				icon: 'image',
 				caption: 'ImageActionShow',
-				accept: accept,
+				accept: NIMBUS.utils.isBrowserSupportedImage,
 				execute: function(item) {
 					// Lancement du diaporama sans lecture automatique
 					execute(false, item);
@@ -75,7 +65,7 @@
 				name: 'slideshow',
 				icon: 'slideshow',
 				caption: 'ImageActionSlideshow',
-				accept: accept,
+				accept: NIMBUS.utils.isBrowserSupportedImage,
 				execute: function(item, extension) {
 					// Lancement du diaporama avec lecture automatique
 					execute(true, item);
@@ -85,7 +75,7 @@
 				icon: 'folder_special',
 				caption: 'ImageActionUseAsFolderIcon',
 				accept: function(item, extension) {
-					return accept(item, extension) && (typeof item.parentId === 'number');
+					return NIMBUS.utils.isBrowserSupportedImage(item, extension) && (typeof item.parentId === 'number');
 				},
 				execute: function(item) {
 					$.post('/files/useAsFolderIcon/' + item.id + '?size=24');
@@ -139,4 +129,5 @@
 			} 
 		}
 	});
+
 })();
