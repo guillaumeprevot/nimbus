@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -175,22 +176,42 @@ public class Items extends Controller {
 	 * - dans le cas d'un fichier, duplique le fichier
 	 * - dans le cas d'un dossier, les sous-éléments NE sont PAS dupliqués
 	 *
+	 * Le nom de la copie peut, au choix :
+	 * - être fourni via le paramètre "name"
+	 * - être calculé via les paramètres "firstPattern" et "nextPattern"
+	 *
 	 * (itemId, name) => nouvelId
 	 */
 	public static final Route duplicate = (request, response) -> {
+		// Vérifier qu'un nom ou un couple de pattern est proposé
 		String newName = request.queryParams("name");
-		if (StringUtils.isBlank(newName))
+		String firstPattern = request.queryParams("firstPattern");
+		String nextPattern = request.queryParams("nextPattern");
+		if (StringUtils.isBlank(newName) && (StringUtils.isBlank(firstPattern) || StringUtils.isBlank(nextPattern)))
 			return SparkUtils.haltBadRequest();
+		// Méthode de renommage de l'élément
+		Function<Item, String> renamer = (item) -> {
+			if (StringUtils.isNotBlank(newName))
+				return newName;
+			String result = firstPattern.replace("{0}", item.name);
+			int i = 1;
+			while (Item.hasItemWithName(item.userLogin, item.parentId, result)) {
+				i++;
+				result = nextPattern.replace("{0}", Integer.toString(i)).replace("{1}", item.name);
+			}
+			return result;
+		};
 		return actionOnSingleItem(request, request.queryParams("itemId"), (source) -> {
 			// Vérifier que le nom choisi pour la copie est correct
-			if (Item.hasItemWithName(source.userLogin, source.parentId, newName))
+			if (StringUtils.isNotBlank(newName) && Item.hasItemWithName(source.userLogin, source.parentId, newName))
 				return SparkUtils.haltConflict();
+
 			// Vérification des quotas d'espace disque
 			if (!source.folder)
 				checkQuotaAndHaltIfNecessary(source.userLogin, source.content.getLong("length"));
 
 			// Dupliquer l'élément
-			Item item = Item.duplicate(source, newName);
+			Item item = Item.duplicate(source, renamer.apply(source));
 			// Copier le fichier
 			if (! item.folder) {
 				File sourceFile = getFile(source);

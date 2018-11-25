@@ -392,11 +392,11 @@ function fillTests(add) {
 	add("Obtenir une erreur si on veut dupliquer un élément qui n'existe pas (ou plus)", function() {
 		return shoudBeAnError($.post("/items/duplicate?itemId=6"), 400);
 	});
-	add("Vérifier que le nom est obligatoire pour 'duplicate'", function() {
-		return shoudBeAnError($.post("/items/duplicate?itemId=5"), 400);
+	add("Vérifier que le nom ou les patterns sont obligatoires pour 'duplicate'", function() {
+		return shoudBeAnError($.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}"), 400);
 	});
 	add("Réussir par contre à copier le sous-dossier 'Dossier5' avec id 6", function() {
-		return $.post("/items/duplicate?itemId=5&name=Copie%20de%20Dossier5").then((result) => assertEquals(result, "6"));
+		return $.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}&nextPattern=Copie%20{0}%20de%20{1}").then((result) => assertEquals(result, "6"));
 	});
 
 	add("TAGS / Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {

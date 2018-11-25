@@ -98,21 +98,16 @@
 					return true;
 				},
 				execute: function(item) {
-					var i = 2;
-					var duplicate = function(name) {
-						return $.post('/items/duplicate', {
-							itemId: item.id,
-							name: name
-						}).fail(function(error) {
-							if (error.status === 409) // Conflict
-								return duplicate(NIMBUS.translate('CommonDuplicateNext', i++, item.name));
-							if (error.status === 507) // Insufficient Storage
-								NIMBUS.message(NIMBUS.translate('CommonDuplicateInsufficientStorage'), true);
-						}).done(function() {
-							NIMBUS.navigation.refreshItems(false);
-						});
-					};
-					duplicate(NIMBUS.translate('CommonDuplicateFirst', item.name));
+					$.post('/items/duplicate', {
+						itemId: item.id,
+						firstPattern: NIMBUS.translate('CommonDuplicateFirst'),
+						nextPattern: NIMBUS.translate('CommonDuplicateNext')
+					}).fail(function(error) {
+						if (error.status === 507) // Insufficient Storage
+							NIMBUS.message(NIMBUS.translate('CommonDuplicateInsufficientStorage'), true);
+					}).done(function() {
+						NIMBUS.navigation.refreshItems(false);
+					});
 				}
 			}, {
 				name: 'move',
