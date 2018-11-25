@@ -26,8 +26,9 @@ public class Shares extends Controller {
 				item.sharedPassword = StringUtils.randomString(30, true, true);
 			}
 			item.sharedDuration = duration;
+			// Ne pas marquer l'élément comme modifié, son contenu n'a pas changé
+			// item.updateDate = new Date();
 			// Sauvegarder l'élément
-			item.updateDate = new Date();
 			Item.update(item);
 			// Retourner le mot de passe permettant de générer l'URL de partage
 			return item.sharedPassword;
@@ -47,8 +48,9 @@ public class Shares extends Controller {
 			item.sharedPassword = null;
 			item.sharedDate = null;
 			item.sharedDuration = null;
+			// Ne pas marquer l'élément comme modifié, son contenu n'a pas changé
+			// item.updateDate = new Date();
 			// Sauvegarder l'élément
-			item.updateDate = new Date();
 			Item.update(item);
 			return "";
 		});
