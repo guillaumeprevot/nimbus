@@ -187,6 +187,11 @@ var NIMBUS = (function() {
 })();
 
 NIMBUS.utils = (function() {
+	// Configuration des extensions configurées comme étant des fichiers texte
+	function isTextFile(item, extension) {
+		return !item.folder && (item.mimetype.indexOf("text/") === 0 || NIMBUS.utils.textFileExtensions.indexOf(extension) >= 0);
+	}
+
 	// Détection du support audio
 	// - MDN : https://developer.mozilla.org/en-US/docs/Web/HTML/Supported_media_formats
 	// - Modernizr : https://github.com/Modernizr/Modernizr/blob/master/feature-detects/audio.js
@@ -249,11 +254,39 @@ NIMBUS.utils = (function() {
 		return !item.folder && imageExtensions.indexOf(extension) >= 0;
 	}
 
+	function getFileNameFromContentDisposition(jqXHR) {
+		// inline; filename="toto.txt"
+		var cd = jqXHR.getResponseHeader('Content-Disposition');
+		// 16
+		var i = cd.indexOf('=');
+		// toto.txt
+		return cd.substring(i + 2, cd.length - 1);
+	}
+
+	function updateFile(itemId, blob) {
+		var formData = new FormData();
+		formData.append("file", blob, "unused.filename");
+		return $.ajax({
+			method: "POST",
+			url: "/files/update/" + itemId,
+			data: formData,
+			dataType: "text",
+			contentType: false,
+			processData: false,
+			cache: false,
+			timeout: 0
+		});
+	}
+
 	return {
+		isTextFile: isTextFile,
+		textFileExtensions: [],
 		isBrowserSupportedAudio: isBrowserSupportedAudio,
 		isBrowserSupportedVideo: isBrowserSupportedVideo,
 		isBrowserSupportedImage: isBrowserSupportedImage,
-	}
+		getFileNameFromContentDisposition: getFileNameFromContentDisposition,
+		updateFile: updateFile 
+	};
 })();
 
 NIMBUS.navigation = (function() {

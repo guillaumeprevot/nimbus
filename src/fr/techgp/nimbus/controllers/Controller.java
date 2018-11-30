@@ -61,6 +61,7 @@ public class Controller {
 					"usedSpace", usedSpace,
 					"quotaStatus", usedPercent > configuration.getClientQuotaDanger() ? 2 : usedPercent > configuration.getClientQuotaWarning() ? 1 : 0,
 					"trashCount", Item.trashCount(login),
+					"textFileExtensions", configuration.getTextFileExtensions(),
 					"showItemTags", user.showItemTags,
 					"showItemDescription", user.showItemDescription,
 					"showItemThumbnail", user.showItemThumbnail,
@@ -135,6 +136,7 @@ public class Controller {
 		Spark.get("/video.html", Extensions.video); // URL publique
 		Spark.get("/audio.html", Extensions.audio); // URL publique
 		Spark.get("/diaporama.html", Extensions.diaporama); // URL publique
+		Spark.get("/text-editor.html", Extensions.textEditor); // URL publique
 
 		// Accès à la page de test en mode DEV uniquement
 		Spark.get("/test.html", (request, response) -> {

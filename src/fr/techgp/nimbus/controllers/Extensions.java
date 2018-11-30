@@ -76,4 +76,19 @@ public class Extensions extends Controller {
 				"lang", SparkUtils.getRequestLang(request));
 	};
 
+	/**
+	 * Cette route affiche la page de l'éditeur de texte
+	 * 
+	 * () => HTML
+	 */
+	public static final Route textEditor = (request, response) -> {
+		// Générer la page
+		return renderTemplate("text-editor.html",
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
+				"textFileExtensions", configuration.getTextFileExtensions(),
+				"lang", SparkUtils.getRequestLang(request));
+	};
+
 }

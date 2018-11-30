@@ -67,7 +67,7 @@ public class Configuration {
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "bootstrap");
-		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,audio,image,windows-shortcut,default-open,default-after").split(",");
+		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,audio,image,text,windows-shortcut,default-open,default-after").split(",");
 		this.clientQuotaWarning = getInt("client.quota.warning", 75);
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md").split(",")).collect(Collectors.toSet());
