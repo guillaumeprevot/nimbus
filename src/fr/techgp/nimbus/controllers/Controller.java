@@ -81,6 +81,7 @@ public class Controller {
 
 		Spark.before("/files/*", Filters.filterAuthenticated);
 		Spark.post("/files/upload", Files.upload);
+		Spark.post("/files/update/:itemId", Files.update);
 		Spark.post("/files/touch", Files.touch);
 		Spark.get("/files/browse/*", Files.browse);
 		Spark.get("/files/stream/:itemId", Files.stream);

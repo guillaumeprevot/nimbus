@@ -252,6 +252,22 @@ function fillTests(add) {
 	add("Vérifier les méta-données d'un fichier texte non vide", function() {
 		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.name === "toto.txt" && r.length === totoTxtContent.length && r.mimetype === "text/plain" && r.lines === 2));
 	});
+	totoTxtContent = "Bonjour\nle Monde !";
+	add("Mettre à jour le contenu d'un fichier d'id 1", function() {
+		var blob = new Blob([totoTxtContent], { type: "text/plain" });
+		var formData = new FormData();
+		formData.append("file", blob, "unused.txt");
+		return $.ajax({
+			method: "POST",
+			url: "/files/update/1",
+			data: formData,
+			dataType: "text",
+			contentType: false,
+			processData: false,
+			cache: false,
+			timeout: 0
+		}).then(assertEmpty);
+	});
 
 	var sharePassword;
 	add("PARTAGE / Vérifier que l'accès est interdit sans partage", function() {
