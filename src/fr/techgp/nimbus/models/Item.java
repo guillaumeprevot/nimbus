@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import org.bson.BsonInt32;
 import org.bson.Document;
@@ -209,10 +210,10 @@ public class Item {
 				// Par défaut, chercher dans le nom et les tags
 				filters.add(Filters.or(
 						Filters.elemMatch("tags", new Document("$regex", searchText).append("$options", "i")),
-						Filters.regex("name", ".*" + searchText + ".*", "i")));
+						Filters.regex("name", ".*" + Pattern.quote(searchText) + ".*", "i")));
 			} else {
 				// Sinon, chercher dans la propriété demandée
-				filters.add(Filters.regex("name", ".*" + searchText + ".*", "i"));
+				filters.add(Filters.regex(searchBy, ".*" + Pattern.quote(searchText) + ".*", "i"));
 			}
 		}
 
