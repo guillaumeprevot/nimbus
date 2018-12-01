@@ -85,7 +85,7 @@
 			accept: NIMBUS.utils.isBrowserSupportedVideo,
 			execute: function(item) {
 				window.open('/video.html?' + $.param({
-					url: '/files/stream/' + item.id,
+					itemId: item.id,
 					fromUrl: window.location.href,
 					fromTitle: $('title').text()
 				}));
@@ -106,10 +106,6 @@
 					NIMBUS.utils.uploadFile(item.parentId, blob, filename).then(function() {
 						NIMBUS.navigation.refreshItems(false);
 					});
-					// L'utilisation de "btoa" plante pour certains sous-titres 
-					//addTrack(lang, lang, 'data:text/vtt;Base64,' + btoa(NIMBUS.utils.srt2webvtt(content)));
-					// L'utilisation de "encodeURIComponent" ne plante pas mais rien ne s'affiche
-					//addTrack(lang, lang, 'data:text/vtt;' + encodeURIComponent(NIMBUS.utils.srt2webvtt(content)));
 				});
 			}
 		}],
@@ -137,6 +133,9 @@
 				VideoVolumeOff: "Couper le son",
 				VideoVolumeOn: "Rétablir le son",
 				VideoVolumeMenu: "Volume",
+				VideoSubtitles: "Sous-titres",
+				VideoSubtitlesDisabled: "désactivés",
+				VideoSubtitlesDefault: "par défaut",
 				VideoFullscreen: "Passer en plein-écran",
 				VideoExitFullscreen: "Quitter le plein-écran",
 			},
@@ -163,6 +162,9 @@
 				VideoVolumeOff: "Mute",
 				VideoVolumeOn: "Unmute",
 				VideoVolumeMenu: "Volume",
+				VideoSubtitles: "Subtitles",
+				VideoSubtitlesDisabled: "disabled",
+				VideoSubtitlesDefault: "defaults",
 				VideoFullscreen: "Fullscreen",
 				VideoExitFullscreen: "Exit fullscreen mode",
 			} 

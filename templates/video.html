@@ -62,6 +62,16 @@ body { background-color: #666; }
 			<input type="range" class="nimbus-hidden" id="volume-slider" min="0" max="100" step="1" style="max-width: 100%; width: 300px; " />
 		</div>
 
+		<div class="btn-group nimbus-hidden">
+			<button id="subtitles-button" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="VideoSubtitles" aria-haspopup="true" aria-expanded="false"><i class="material-icons">subtitles</i></button>
+			<div id="subtitles-menu" class="dropdown-menu dropdown-menu-right" aria-labelledby="subtitles-button">
+				<button class="dropdown-item">
+					<i class="material-icons text-muted indicator">check</i>
+					<span data-translate="text">VideoSubtitlesDisabled</span>
+				</button>
+			</div>
+		</div>
+
 		<div class="float-right">
 			<button type="button" class="btn btn-link fullscreen" data-translate="title" title="VideoFullscreen"><i class="material-icons">fullscreen</i></button>
 			<button type="button" class="btn btn-link exit-fullscreen nimbus-hidden" data-translate="title" title="VideoExitFullscreen"><i class="material-icons">fullscreen_exit</i></button>
@@ -216,9 +226,57 @@ NIMBUS.init(['video.js'], function() {
 	});
 
 	// On lance la vidéo
-	video.src = '${url}';
+	video.src = '/files/stream/${itemId}';
 	video.play();
 
+	// Get video info to get subtitles
+	$.get('/items/info/${itemId}').then(function(item) {
+		var lastDotIndex = item.name.lastIndexOf('.');
+		var baseName = item.name.substring(0, lastDotIndex);
+		$.get('/items/list', {
+			parentId: item.parentId,
+			searchText: baseName,
+			searchBy: 'name',
+			folders: false,
+			deleted: false,
+			extensions: 'vtt'
+		}).then(function(results) {
+			var menu = $('#subtitles-menu').on('click', 'button', function(event) {
+				var button = $(event.target).closest('button');
+				var track = button.data('track');
+				for (var i = 0; i < video.textTracks.length; i++) {
+					var t = video.textTracks[i];
+					t.mode = (track && t === track.track) ? 'showing' : 'hidden';
+				}
+				button.children('.indicator').show();
+				button.siblings().children('.indicator').hide();
+			});
+			function addTrack(name, lang, src) {
+				// Enregistrer le sous-titre de la vidéo
+				var track = $('<track kind="subtitles" />')
+					.attr('label', name || NIMBUS.translate('VideoSubtitlesDefault'))
+					.attr('srclang', lang || 'fr')
+					.attr('src', src)
+					.appendTo(video)
+					.get(0);
+				// Afficher le menu de sélection des sous-titres
+				menu.parent().removeClass('nimbus-hidden');
+				// Ajouter une entrée pour chaque sous-titre
+				$('<button class="dropdown-item" />')
+					.data('track', track)
+					.text(name || NIMBUS.translate('VideoSubtitlesDefault'))
+					.prepend('<i class="material-icons text-muted indicator" style="display: none; ">check</i>')
+					.appendTo(menu);
+			}
+			results.forEach(function(result) {
+				// <track src="subtitles_en.vtt" kind="subtitles" srclang="en" label="English">
+				var name = result.name.replace(baseName, '');
+				var lang = name.substring(0, name.lastIndexOf('.')).replace('.', '').replace('_', '').replace('-', '');
+				addTrack(lang, lang, '/files/stream/' + result.id);
+			});
+		});
+	});
+	
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
 
