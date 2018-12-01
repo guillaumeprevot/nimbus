@@ -263,6 +263,22 @@ NIMBUS.utils = (function() {
 		return cd.substring(i + 2, cd.length - 1);
 	}
 
+	function uploadFile(parentId, blob, filename) {
+		var formData = new FormData();
+		formData.append("parentId", parentId ? parentId.toString() : "");
+		formData.append("files", blob, filename);
+		return $.ajax({
+			method: "POST",
+			url: "/files/upload",
+			data: formData,
+			dataType: "json",
+			contentType: false,
+			processData: false,
+			cache: false,
+			timeout: 0
+		});
+	}
+
 	function updateFile(itemId, blob) {
 		var formData = new FormData();
 		formData.append("file", blob, "unused.filename");
@@ -285,6 +301,7 @@ NIMBUS.utils = (function() {
 		isBrowserSupportedVideo: isBrowserSupportedVideo,
 		isBrowserSupportedImage: isBrowserSupportedImage,
 		getFileNameFromContentDisposition: getFileNameFromContentDisposition,
+		uploadFile: uploadFile,
 		updateFile: updateFile 
 	};
 })();
