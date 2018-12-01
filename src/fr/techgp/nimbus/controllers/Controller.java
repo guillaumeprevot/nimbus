@@ -285,7 +285,7 @@ public class Controller {
 	protected static final void updateFile(Item item) {
 		configuration.updateStoredFile(item, (facet, ex) -> {
 			if (Controller.logger.isErrorEnabled())
-				Controller.logger.error("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")", ex);
+				Controller.logger.error("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")");
 		});
 	}
 

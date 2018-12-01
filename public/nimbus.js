@@ -359,6 +359,7 @@ NIMBUS.navigation = (function() {
 					var ok = r === 'false' || window.confirm(NIMBUS.translate('MainUploadFileOverrideMessage'));
 					if (ok) {
 						// Si confirmation inutile ou confirmation acceptée, l'upload va commencer, on affiche la progression
+						$('#items').hide();
 						$('#progress').css('display', 'flex')
 							.find('>div>div').removeClass('progress-bar-striped progress-bar-animated');
 						defer.resolve();
@@ -380,9 +381,10 @@ NIMBUS.navigation = (function() {
 					NIMBUS.message(NIMBUS.translate('MainUploadFileErrorMultipleFiles', files.length), true);
 			},
 			onstop: function(files, total, duration) {
-				$('#progress').css('display', 'none');
+				$('#progress').css('display', '');
 				$('#progress > div > div').css('width', '0%');
 				$('#progress > span').text('');
+				$('#items').show();
 				refreshItems(false);
 			}
 		});
