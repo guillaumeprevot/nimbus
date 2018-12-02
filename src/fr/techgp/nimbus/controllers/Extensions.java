@@ -84,10 +84,25 @@ public class Extensions extends Controller {
 	public static final Route textEditor = (request, response) -> {
 		// Générer la page
 		return renderTemplate("text-editor.html",
+				"markdown", false,
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"textFileExtensions", configuration.getTextFileExtensions(),
+				"lang", SparkUtils.getRequestLang(request));
+	};
+
+	/**
+	 * Cette route affiche la page de l'éditeur Markdown
+	 * 
+	 * () => HTML
+	 */
+	public static final Route markdownEditor = (request, response) -> {
+		// Générer la page
+		return renderTemplate("text-editor.html",
+				"markdown", true,
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
 				"lang", SparkUtils.getRequestLang(request));
 	};
 

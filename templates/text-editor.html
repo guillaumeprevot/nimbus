@@ -12,12 +12,14 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
+textarea, .larger, .smaller { width: 100%; height: 100%; }
 .larger { font-size: larger; }
 .smaller { font-size: smaller; }
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<#if markdown><script type="text/javascript" src="/libs/marked/marked.min.js"></script></#if>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -30,6 +32,7 @@
 
 		<div class="btn-group">
 			<button id="smallerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorSmaller"><i class="material-icons">text_fields</i></button>
+			<#if markdown><button id="previewButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorPreview"><i class="material-icons">pageview</i></button></#if>
 			<button id="largerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorLarger"><i class="material-icons">format_size</i></button>
 		</div>
 
@@ -41,7 +44,8 @@
 	</header>
 	<main>
 		<textarea class="nimbus-hidden" autofocus data-translate="placeholder" placeholder="TextEditorPlaceholder"
-			style="width: 100%; height: 100%; font-family: monospace; white-space: pre; overflow: auto; border: 0; "></textarea>
+			style="font-family: monospace; white-space: pre; overflow: auto; border: 0; "></textarea>
+		<#if markdown><div id="preview" class="nimbus-hidden"></div></#if>
 	</main>
 	<footer>
 	</footer>
@@ -66,10 +70,40 @@ var lineSeparators = {
 	}
 };
 
+<#if markdown>
+function markdownToHtml(text) {
+	// https://marked.js.org/#/USING_PRO.md#renderer
+	var renderer = new marked.Renderer();
+	renderer.link = function(href, title, text) {
+		var t = title ? ' title="' + title + '"' : '';
+		return '<a target="_blank" href="' + href + '"' + t + '>' + text + '</a>';
+	};
+	renderer.image = function(href, title, alt) {
+		var t = title ? ' title="' + title + '"' : '';
+		var a = alt ? ' alt="' + alt + '"' : '';
+		return '<img class="img-fluid" src="' + href + '"' + t + a + ' />';
+	};
+	renderer.table = function(header, body) {
+		var h = header ? '<thead>' + header + '</thead>' : '';
+		var b = body ? '<tbody>' + body + '</tbody>' : '';
+		return '<table class="table table-sm table-responsive">' + h + b + '</table>';
+	};
+	renderer.blockquote = function(text) {
+		return '<blockquote class="border-left ml-4 pl-2 border-dark">' + text + '</blockquote>';
+	};
+	// https://marked.js.org/#/USING_ADVANCED.md#options
+	return marked(text || '', {
+		// baseUrl: null, // null is the default value
+		breaks: true,
+		renderer: renderer,
+		// sanitize: false, // false is the default value
+		xhtml: true,
+	});
+}
+</#if>
+
 //Initialiser la page
 NIMBUS.init(['text.js'], function() {
-	// Chargement des extensions des fichiers texte
-	NIMBUS.utils.textFileExtensions = [<#list textFileExtensions as e>'${e}'<#sep>,</#sep></#list>];
 	// En haut à gauche, le bouton "Retour"
 	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 	// L'IHM est prête, on l'affiche
@@ -96,6 +130,21 @@ NIMBUS.init(['text.js'], function() {
 			else
 				textarea.wrap('<div class="larger" />');
 		});
+		<#if markdown>
+		$('#previewButton').click(function(event) {
+			var preview = $('#preview');
+			if (preview.hasClass('nimbus-hidden')) {
+				// Passer en prévisualisation
+				preview.siblings().hide();
+				preview.html(markdownToHtml(textarea.val())).removeClass('nimbus-hidden');
+			} else {
+				// Repasser en édition
+				preview.empty().addClass('nimbus-hidden');
+				preview.siblings().show();
+			}
+			$('#smallerButton,#largerButton').toggle();
+		});
+		</#if>
 
 		$('#lineSeparatorMenu').append(lineSeparators.options.map(function(separator) {
 			var style = (separator.value === lineSeparator) ? '' : 'display: none;';

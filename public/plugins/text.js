@@ -22,6 +22,20 @@
 			}
 		}],
 		actions: [{
+			name: 'markdown-edit',
+			icon: 'subject',
+			caption: 'TextActionEditMarkdown',
+			accept: function(item, extension) {
+				return 'md' === extension || 'markdown' === extension;
+			},
+			execute: function(item) {
+				window.open('/markdown-editor.html?' + $.param({
+					itemId: item.id,
+					fromUrl: window.location.href,
+					fromTitle: $('title').text()
+				}));
+			}
+		}, {
 			name: 'text-edit',
 			icon: 'subject',
 			caption: 'TextActionEdit',
@@ -36,15 +50,17 @@
 		}],
 		langs: {
 			fr: {
+				TextActionEditMarkdown: "Ouvrir dans l'éditeur Markdown",
 				TextActionEdit: "Ouvrir dans l'éditeur de texte",
 				TextPropertyLines: "Lignes",
 				TextDescription0Line: "0 ligne",
 				TextDescription1Line: "1 ligne",
 				TextDescriptionNLines: "{0} lignes",
-				TextEditorTitle: "Editeur de texte",
+				TextEditorTitle: "Editeur",
 				TextEditorSave: "Sauvegarder les modifications",
 				TextEditorSmaller: "Diminuer la taille du texte",
 				TextEditorLarger: "Augmenter la taille du texte",
+				TextEditorPreview: "Prévisualisation",
 				TextEditorLineSeparator: "Sauts de ligne",
 				TextEditorLineSeparatorCRLF: "Windows (CR+LF)",
 				TextEditorLineSeparatorLF: "UNIX (LF)",
@@ -52,15 +68,17 @@
 				TextEditorPlaceholder: "Le fichier est pour le moment vide..."
 			},
 			en: {
+				TextActionEditMarkdown: "Open in Markdown editor",
 				TextActionEdit: "Open in text editor",
 				TextPropertyLines: "Lines",
 				TextDescription0Line: "0 line",
 				TextDescription1Line: "1 line",
 				TextDescriptionNLines: "{0} lines",
-				TextEditorTitle: "Text editor",
+				TextEditorTitle: "Editor",
 				TextEditorSave: "Save modifications",
 				TextEditorSmaller: "Decrease text size",
 				TextEditorLarger: "Increase text size",
+				TextEditorPreview: "Preview",
 				TextEditorLineSeparator: "Line separator",
 				TextEditorLineSeparatorCRLF: "Windows (CR+LF)",
 				TextEditorLineSeparatorLF: "UNIX (LF)",
