@@ -10,9 +10,11 @@
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
 <link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<#if markdown><link type="text/css" rel="stylesheet" href="/libs/prism/prism.min.css" /></#if>
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
-textarea, .larger, .smaller { width: 100%; height: 100%; }
+main { position: relative; }
+textarea { position: absolute; left: 1em; width: calc(100% - 2em); top: 1em; height: calc(100% - 2em); }
 .larger { font-size: larger; }
 .smaller { font-size: smaller; }
 </style>
@@ -20,6 +22,7 @@ textarea, .larger, .smaller { width: 100%; height: 100%; }
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <#if markdown><script type="text/javascript" src="/libs/marked/marked.min.js"></script></#if>
+<#if markdown><script type="text/javascript" src="/libs/prism/prism.min.js" data-manual></script></#if>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -91,13 +94,23 @@ function markdownToHtml(text) {
 	renderer.blockquote = function(text) {
 		return '<blockquote class="border-left ml-4 pl-2 border-dark">' + text + '</blockquote>';
 	};
+	renderer.code = function(code, language, escaped) {
+		if (typeof Prism === 'undefined' || !language || !Prism.languages[language])
+			return '<pre class="language-none"><code>' + code + '</code></pre>';
+		var c = Prism.highlight(code, Prism.languages[language]);
+		return ''
+			+ '<div class="code-toolbar">'
+			+ '  <pre class="language-' + language + '"><code>' + c + '</code></pre>'
+			+ '  <div class="toolbar"><div class="toolbar-item"><span>' + language + '</span></div></div>'
+			+ '</div>';
+	};
 	// https://marked.js.org/#/USING_ADVANCED.md#options
 	return marked(text || '', {
 		// baseUrl: null, // null is the default value
 		breaks: true,
 		renderer: renderer,
 		// sanitize: false, // false is the default value
-		xhtml: true,
+		xhtml: true
 	});
 }
 </#if>
