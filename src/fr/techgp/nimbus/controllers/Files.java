@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
@@ -125,18 +126,17 @@ public class Files extends Controller {
 
 		// Récupérer l'utilisateur pour connaitre son quota
 		User user = User.findByLogin(userLogin);
-		long availableSpace = user.quota == null ? Long.MAX_VALUE : (user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin));
-
-		// Récupérer le fichiers uploadés et l'espace disque nécessaire
+		// Récupérer le fichiers uploadés pour connaitre l'espace disque nécessaire
 		Part filePart = request.raw().getPart("file");
-		if (item.content.getLong("length") != null)
-			availableSpace += item.content.getLong("length").longValue();
-		availableSpace -= filePart.getSize();
-
-		// Vérifier avant de commencer que l'espace disque est suffisant
-		if (availableSpace < 0) {
-			filePart.delete(); // Nettoyer le fichier uploadé qui a été stocké sur disque
-			return SparkUtils.haltInsufficientStorage();
+		if (user.quota != null) {
+			// Vérifier que l'espace libre est suffisamment grand pour la différence avant/après
+			long availableSpace = user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin);
+			long newSize = filePart.getSize();
+			long oldSize = Optional.ofNullable(item.content.getLong("length")).orElse(0L);
+			if (availableSpace + oldSize - newSize < 0) {
+				filePart.delete(); // Nettoyer le fichier uploadé qui a été stocké sur disque
+				return SparkUtils.haltInsufficientStorage();
+			}
 		}
 
 		// OK, lancer l'intégration
