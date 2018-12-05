@@ -92,7 +92,7 @@ public class Controller {
 
 		Spark.before("/items/*", Filters.filterAuthenticated);
 		Spark.get("/items/list", Items.list);
-		Spark.get("/items/exists", Items.exists);
+		Spark.post("/items/exists", Items.exists); // pour éviter 414 URI Too Long
 		Spark.get("/items/info/:itemId", Items.info);
 		Spark.get("/items/infos", Items.infos);
 		Spark.get("/items/tags", Items.tags);

@@ -378,10 +378,10 @@ function fillTests(add) {
 		return $.post("/items/add/folder?name=Dossier5&parentId=3").then((result) => assertEquals(result, "5"));
 	});
 	add("ADD FOLDER / Vérifier que le sous-dossier 'Dossier3/Dossier5' n'est pas visible à la racine", function() {
-		return $.get("/items/exists?names[]=Dossier5").then((result) => assertEquals(result, "false"));
+		return $.post("/items/exists", { names: ["Dossier5"] }).then((result) => assertEquals(result, "false"));
 	});
 	add("ADD FOLDER / Vérifier que le sous-dossier 'Dossier3/Dossier5' est visible par son parent", function() {
-		return $.get("/items/exists?names[]=Dossier5&parentId=3").then((result) => assertEquals(result, "true"));
+		return $.post("/items/exists", { names: ["Dossier5"], parentId: 3 }).then((result) => assertEquals(result, "true"));
 	});
 	add("ADD FOLDER / Récupérer les infos du dossier 'Dossier3'", function() {
 		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.name === "Dossier3" && r.id === 3 ));

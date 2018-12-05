@@ -368,7 +368,7 @@ NIMBUS.navigation = (function() {
 				// On retournera une "promise" qui sera rejettée si des fichiers existent déjà avec ce nom et que l'utilisateur ne souhaite pas les écraser.
 				var defer = $.Deferred();
 				// Demander au serveur si l'un de ces fichiers existe déjà
-				$.get('/items/exists', {
+				$.post('/items/exists', {
 					parentId: parentId,
 					names: names
 				}).done(function(r) {
