@@ -42,6 +42,18 @@ textarea { position: absolute; left: 1em; width: calc(100% - 2em); top: 1em; hei
 		<div class="float-right">
 			<button id="lineSeparatorButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="TextEditorLineSeparator" aria-haspopup="true" aria-expanded="false"><i class="material-icons">wrap_text</i></button>
 			<div id="lineSeparatorMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="lineSeparatorButton">
+				<button class="dropdown-item" data-separator="crlf">
+					<i class="material-icons text-muted indicator" style="display: none; ">check</i>
+					<span data-translate="text">TextEditorLineSeparatorCRLF</span>
+				</button>
+				<button class="dropdown-item" data-separator="lf">
+					<i class="material-icons text-muted indicator" style="display: none; ">check</i>
+					<span data-translate="text">TextEditorLineSeparatorLF</span>
+				</button>
+				<button class="dropdown-item" data-separator="cr">
+					<i class="material-icons text-muted indicator" style="display: none; ">check</i>
+					<span data-translate="text">TextEditorLineSeparatorCR</span>
+				</button>
 			</div>
 		</div>
 	</header>
@@ -55,23 +67,17 @@ textarea { position: absolute; left: 1em; width: calc(100% - 2em); top: 1em; hei
 <script>
 "use strict";
 
-var lineSeparators = {
-	options: [
-		{ value: '\r\n', text: 'TextEditorLineSeparatorCRLF' },
-		{ value: '\n', text: 'TextEditorLineSeparatorLF' },
-		{ value: '\r', text: 'TextEditorLineSeparatorCR' },
-	],
-	format: function formatText(content, separator) {
-		return content.replace('\\r\\n', '\n').replace('\\r', '\n').split('\n').join(separator);
-	},
-	detect: function getLineSeparator(content) {
-		if (!content || content.indexOf('\r\n') >= 0)
-			return '\r\n';
-		if (content.indexOf('\n') >= 0)
-			return '\n';
-		return '\r';
-	}
-};
+function getLineSeparator(content) {
+	if (!content || content.indexOf('\r\n') >= 0)
+		return 'crlf';
+	if (content.indexOf('\n') >= 0)
+		return 'lf';
+	return 'cr';
+}
+
+function formatLines(content, separator) {
+	return content.replace('\\r\\n', '\n').replace('\\r', '\n').split('\n').join(separator.replace('cr', '\r').replace('lf', '\n'));
+}
 
 <#if markdown>
 function markdownToHtml(text) {
@@ -125,18 +131,20 @@ NIMBUS.init(['text.js'], function() {
 	var itemId = ${itemId};
 	// Récupération du contenu du fichier
 	$.get('/files/stream/' + itemId).then(function(content, textStatus, jqXHR) {
-		var lineSeparator = lineSeparators.detect(content),
-			textarea = $('textarea').text(lineSeparators.format(content, '\n')),
+		var lineSeparator = getLineSeparator(content),
+			textarea = $('textarea').text(content),
 			saveButton = $('#saveButton');
 
 		$('title').text(NIMBUS.utils.getFileNameFromContentDisposition(jqXHR));
 
+		// Rétrécir le texte
 		$('#smallerButton').click(function() {
 			if (textarea.parent().is('.larger'))
 				textarea.unwrap();
 			else
 				textarea.wrap('<div class="smaller" />');
 		});
+		// Agrandir le texte
 		$('#largerButton').click(function() {
 			if (textarea.parent().is('.smaller'))
 				textarea.unwrap();
@@ -144,6 +152,7 @@ NIMBUS.init(['text.js'], function() {
 				textarea.wrap('<div class="larger" />');
 		});
 		<#if markdown>
+		// Passer du mode d'édition à la prévisualisation HTML et inversement 
 		$('#previewButton').click(function(event) {
 			var preview = $('#preview');
 			if (preview.hasClass('nimbus-hidden')) {
@@ -159,16 +168,10 @@ NIMBUS.init(['text.js'], function() {
 		});
 		</#if>
 
-		$('#lineSeparatorMenu').append(lineSeparators.options.map(function(separator) {
-			var style = (separator.value === lineSeparator) ? '' : 'display: none;';
-			return $('<button class="dropdown-item" />')
-				.data('separator', separator)
-				.text(NIMBUS.translate(separator.text))
-				.prepend('<i class="material-icons text-muted indicator" style="' + style + '">check</i>')
-				.get(0);
-		})).click('button', function(event) {
+		$('#lineSeparatorMenu').find('[data-separator=' + lineSeparator + '] .indicator').show();
+		$('#lineSeparatorMenu').click('button', function(event) {
 			var button = $(event.target).closest('button');
-			lineSeparator = button.data('separator').value;
+			lineSeparator = button.attr('data-separator');
 			button.children('.indicator').show();
 			button.siblings().children('.indicator').hide();
 			saveButton.removeClass('nimbus-hidden');
@@ -179,7 +182,7 @@ NIMBUS.init(['text.js'], function() {
 		});
 
 		saveButton.on('click', function() {
-			var text = lineSeparators.format(textarea.val(), lineSeparator);
+			var text = formatLines(textarea.val(), lineSeparator);
 			NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
 				saveButton.addClass('nimbus-hidden');
 				textarea.removeClass('border border-danger')
