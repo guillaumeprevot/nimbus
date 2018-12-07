@@ -36,6 +36,7 @@ textarea { position: absolute; left: 1em; width: calc(100% - 2em); top: 1em; hei
 		<div class="btn-group">
 			<button id="smallerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorSmaller"><i class="material-icons">text_fields</i></button>
 			<#if markdown><button id="previewButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorPreview"><i class="material-icons">pageview</i></button></#if>
+			<#if markdown><a id="exportButton" href="#" type="button" class="btn btn-link" data-translate="title" title="TextEditorExport"><i class="material-icons">cloud_download</i></a></#if>
 			<button id="largerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorLarger"><i class="material-icons">format_size</i></button>
 		</div>
 
@@ -133,9 +134,10 @@ NIMBUS.init(['text.js'], function() {
 	$.get('/files/stream/' + itemId).then(function(content, textStatus, jqXHR) {
 		var lineSeparator = getLineSeparator(content),
 			textarea = $('textarea').text(content),
-			saveButton = $('#saveButton');
+			saveButton = $('#saveButton'),
+			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
 
-		$('title').text(NIMBUS.utils.getFileNameFromContentDisposition(jqXHR));
+		$('title').text(filename);
 
 		// Rétrécir le texte
 		$('#smallerButton').click(function() {
@@ -165,6 +167,24 @@ NIMBUS.init(['text.js'], function() {
 				preview.siblings().show();
 			}
 			$('#smallerButton,#largerButton').toggle();
+		});
+		// Exporter la note en HTML
+		$('#exportButton').attr('download', filename.replace('.md', '.html').replace('.markdown', '.html')).click(function() {
+			var html = '<!DOCTYPE html>'
+				+ '\n<html>'
+				+ '\n\t<head>'
+				+ '\n\t\t<title>' + filename + '</title>'
+				+ '\n\t\t<meta charset="UTF-8">'
+				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/preferences/theme.css" />'
+				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/libs/prism/prism.min.css" />'
+				+ '\n\t\t<script type="text/javascript" src="${baseURL}/libs/prism/prism.min.js"><' + '/script>'
+				+ '\n\t</head>'
+				+ '\n\t<body class="m-3">'
+				+ '\n' + markdownToHtml(textarea.val())
+				+ '\n\t</body>'
+				+ '\n</html>';
+			//$(this).attr('href', 'data:text/html;charset=UTF-8;base64,' + btoa(html));
+			$(this).attr('href', 'data:text/html;charset=UTF-8,' + encodeURIComponent(html));
 		});
 		</#if>
 

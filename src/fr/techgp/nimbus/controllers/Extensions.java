@@ -85,6 +85,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate("text-editor.html",
 				"markdown", false,
+				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
@@ -100,6 +101,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate("text-editor.html",
 				"markdown", true,
+				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
