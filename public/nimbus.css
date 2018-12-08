@@ -64,11 +64,11 @@
 .nimbus-viewer.nimbus-transparent-toolbars footer { background-color: rgba(0,0,0,0.4); }
 .nimbus-viewer.nimbus-static-toolbars body { width: 100%; height: 100%; display: flex; flex-direction: column; }
 .nimbus-viewer.nimbus-static-toolbars header { flex: none; }
-.nimbus-viewer.nimbus-static-toolbars main { flex: auto; z-index: 0; padding: 1em; overflow: auto; }
+.nimbus-viewer.nimbus-static-toolbars main { flex: auto; z-index: 0; overflow: auto; }
 .nimbus-viewer.nimbus-static-toolbars footer { flex: none; }
 .nimbus-viewer.nimbus-hideable-toolbars body { width: 100%; height: 100%; }
 .nimbus-viewer.nimbus-hideable-toolbars header { position: fixed; top: 0; left: 0; right: 0; }
-.nimbus-viewer.nimbus-hideable-toolbars main { width: 100%; height: 100%; z-index: 0; padding: 1em; overflow: auto; }
+.nimbus-viewer.nimbus-hideable-toolbars main { width: 100%; height: 100%; z-index: 0; overflow: auto; }
 .nimbus-viewer.nimbus-hideable-toolbars footer { position: fixed; bottom: 0; left: 0; right: 0; }
 .nimbus-viewer.nimbus-hidden-toolbars header { display: none; }
 .nimbus-viewer.nimbus-hidden-toolbars footer { display: none; }
