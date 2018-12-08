@@ -41,20 +41,13 @@ textarea { position: absolute; left: 1em; width: calc(100% - 2em); top: 1em; hei
 		</div>
 
 		<div class="float-right">
-			<button id="lineSeparatorButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="TextEditorLineSeparator" aria-haspopup="true" aria-expanded="false"><i class="material-icons">wrap_text</i></button>
-			<div id="lineSeparatorMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="lineSeparatorButton">
-				<button class="dropdown-item" data-separator="crlf">
-					<i class="material-icons text-muted indicator" style="display: none; ">check</i>
-					<span data-translate="text">TextEditorLineSeparatorCRLF</span>
-				</button>
-				<button class="dropdown-item" data-separator="lf">
-					<i class="material-icons text-muted indicator" style="display: none; ">check</i>
-					<span data-translate="text">TextEditorLineSeparatorLF</span>
-				</button>
-				<button class="dropdown-item" data-separator="cr">
-					<i class="material-icons text-muted indicator" style="display: none; ">check</i>
-					<span data-translate="text">TextEditorLineSeparatorCR</span>
-				</button>
+			<div class="btn-group">
+				<button id="lineSeparatorButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="TextEditorLineSeparator" aria-haspopup="true" aria-expanded="false"><i class="material-icons">wrap_text</i></button>
+				<div id="lineSeparatorMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="lineSeparatorButton">
+					<button class="dropdown-item" data-separator="crlf" data-translate="text">TextEditorLineSeparatorCRLF</button>
+					<button class="dropdown-item" data-separator="lf" data-translate="text">TextEditorLineSeparatorLF</button>
+					<button class="dropdown-item" data-separator="cr" data-translate="text">TextEditorLineSeparatorCR</button>
+				</div>
 			</div>
 		</div>
 	</header>
@@ -131,7 +124,10 @@ NIMBUS.init(['text.js'], function() {
 	// Identifiant de l'élément édité
 	var itemId = ${itemId};
 	// Récupération du contenu du fichier
-	$.get('/files/stream/' + itemId).then(function(content, textStatus, jqXHR) {
+	$.get({
+		url: '/files/stream/' + itemId,
+		dataType: 'text'
+	}).then(function(content, textStatus, jqXHR) {
 		var lineSeparator = getLineSeparator(content),
 			textarea = $('textarea').text(content),
 			saveButton = $('#saveButton'),
@@ -188,12 +184,11 @@ NIMBUS.init(['text.js'], function() {
 		});
 		</#if>
 
-		$('#lineSeparatorMenu').find('[data-separator=' + lineSeparator + '] .indicator').show();
+		$('#lineSeparatorMenu').find('[data-separator=' + lineSeparator + ']').addClass('active');
 		$('#lineSeparatorMenu').click('button', function(event) {
 			var button = $(event.target).closest('button');
 			lineSeparator = button.attr('data-separator');
-			button.children('.indicator').show();
-			button.siblings().children('.indicator').hide();
+			button.addClass('active').siblings().removeClass('active');
 			saveButton.removeClass('nimbus-hidden');
 		});
 
