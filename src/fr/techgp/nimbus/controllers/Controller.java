@@ -138,6 +138,7 @@ public class Controller {
 		Spark.get("/diaporama.html", Extensions.diaporama); // URL publique
 		Spark.get("/text-editor.html", Extensions.textEditor); // URL publique
 		Spark.get("/markdown-editor.html", Extensions.markdownEditor); // URL publique
+		Spark.get("/code-editor.html", Extensions.codeEditor); // URL publique
 
 		// Accès à la page de test en mode DEV uniquement
 		Spark.get("/test.html", (request, response) -> {

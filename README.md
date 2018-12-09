@@ -44,6 +44,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 1.10.100 | Apache 2.0 | Support des fichiers PDF
 [Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.5.2 | MIT | Prévisualisation du Markdown
 [Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.15.0 | MIT | Coloration syntaxique des blocs de code
+[CodeMirror](https://codemirror.net/) | plugin JS | 5.42.0 | MIT | Editeur de code avec coloration syntaxique notamment
 
 ## Fonctionnalités
 
