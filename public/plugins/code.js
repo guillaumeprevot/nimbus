@@ -111,6 +111,10 @@
 				CodeEditorTheme: "Thème",
 				CodeEditorThemeNone: "Sans thème",
 				CodeEditorThemeDefault: "Thème par défaut",
+				CodeEditorOptionsIndentWithTabs: "Indentation avec tabulation",
+				CodeEditorOptionsRTLDirection: "Texte de droite à gauche",
+				CodeEditorOptionsLineWrapping: "Retour automatique à la ligne",
+				CodeEditorOptionsLineNumbers: "Numérotation des lignes",
 			},
 			en: {
 				CodeActionEdit: "Open in code editor",
@@ -118,7 +122,11 @@
 				CodeEditorTheme: "Theme",
 				CodeEditorThemeNone: "No theme",
 				CodeEditorThemeDefault: "Default theme",
-			} 
+				CodeEditorOptionsIndentWithTabs: "Indent with tabs",
+				CodeEditorOptionsRTLDirection: "Right-to-left text",
+				CodeEditorOptionsLineWrapping: "Retour automatique à la ligne",
+				CodeEditorOptionsLineNumbers: "Numérotation des lignes",
+			}
 		}
 	});
 

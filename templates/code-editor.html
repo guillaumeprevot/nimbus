@@ -52,6 +52,15 @@
 
 		<div class="float-right">
 			<div class="btn-group">
+				<button id="optionsButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CodeEditorOptions" aria-haspopup="true" aria-expanded="false"><i class="material-icons">settings</i></button>
+				<div id="optionsMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsButton">
+					<button class="dropdown-item active" id="optionsIndentWithTabs" data-translate="text">CodeEditorOptionsIndentWithTabs</button>
+					<button class="dropdown-item" id="optionsRTLDirection" data-translate="text">CodeEditorOptionsRTLDirection</button>
+					<button class="dropdown-item" id="optionsLineWrapping" data-translate="text">CodeEditorOptionsLineWrapping</button>
+					<button class="dropdown-item active" id="optionsLineNumbers" data-translate="text">CodeEditorOptionsLineNumbers</button>
+				</div>
+			</div>
+			<div class="btn-group">
 				<button id="themeButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CodeEditorTheme" aria-haspopup="true" aria-expanded="false"><i class="material-icons">color_lens</i></button>
 				<div id="themeMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="themeButton">
 					<button class="dropdown-item" data-theme="" data-translate="text">CodeEditorThemeNone</button>
@@ -167,6 +176,24 @@ function initCodeMirror(content, filename) {
 		cm.setOption('theme', '');
 	else
 		$('#themeMenu button[data-theme=' + theme + ']').click();
+
+	// Autres options
+	$('#optionsIndentWithTabs').click(function() {
+		var self = $(this).toggleClass('active');
+		cm.setOption('indentWithTabs', self.hasClass('active'));
+	});
+	$('#optionsRTLDirection').click(function() {
+		var self = $(this).toggleClass('active');
+		cm.setOption('direction', self.hasClass('active') ? 'rtl' : 'ltr');
+	});
+	$('#optionsLineWrapping').click(function() {
+		var self = $(this).toggleClass('active');
+		cm.setOption('lineWrapping', self.hasClass('active'));
+	});
+	$('#optionsLineNumbers').click(function() {
+		var self = $(this).toggleClass('active');
+		cm.setOption('lineNumbers', self.hasClass('active'));
+	});
 
 	return cm;
 }
