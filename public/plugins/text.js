@@ -23,10 +23,10 @@
 		}],
 		actions: [{
 			name: 'markdown-edit',
-			icon: 'subject',
+			icon: 'art_track',
 			caption: 'TextActionEditMarkdown',
 			accept: function(item, extension) {
-				return 'md' === extension || 'markdown' === extension;
+				return 'md' === extension || 'mkd' === extension || 'markdown' === extension;
 			},
 			execute: function(item) {
 				window.open('/markdown-editor.html?' + $.param({
@@ -64,8 +64,8 @@
 				TextEditorExport: "Exporter en HTML",
 				TextEditorLineSeparator: "Sauts de ligne",
 				TextEditorLineSeparatorCRLF: "Windows (CR+LF)",
-				TextEditorLineSeparatorLF: "UNIX (LF)",
-				TextEditorLineSeparatorCR: "Mac (CR)",
+				TextEditorLineSeparatorLF: "Linux, Android, OS X (LF)",
+				TextEditorLineSeparatorCR: "Mac OS (CR)",
 				TextEditorPlaceholder: "Le fichier est pour le moment vide..."
 			},
 			en: {
@@ -83,8 +83,8 @@
 				TextEditorExport: "Export to HTML",
 				TextEditorLineSeparator: "Line separator",
 				TextEditorLineSeparatorCRLF: "Windows (CR+LF)",
-				TextEditorLineSeparatorLF: "UNIX (LF)",
-				TextEditorLineSeparatorCR: "Mac (CR)",
+				TextEditorLineSeparatorLF: "Linux, Android, OS X (LF)",
+				TextEditorLineSeparatorCR: "Mac OS (CR)",
 				TextEditorPlaceholder: "The file is currently empty..."
 			} 
 		}
