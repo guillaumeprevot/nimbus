@@ -88,6 +88,7 @@
 <script>
 "use strict";
 
+/** This method detects and returns the line separator used in content */
 function getLineSeparator(content) {
 	if (!content || content.indexOf('\r\n') >= 0)
 		return 'crlf';
@@ -96,25 +97,36 @@ function getLineSeparator(content) {
 	return 'cr';
 }
 
-//Charger les fonctions liées à CodeMirror
-function initCodeMirror(content, filename) {
-	// Extension du fichier, qui va nous indiquer les fonctions à mettre en place
-	var extension = filename.substring(filename.lastIndexOf('.') + 1);
-	// Objet du plugin 'code.js' indiquant les fonctions supportées pour CodeMirror
-	var support = NIMBUS.utils.codeMirrorSupport[extension];
-	// Injection des scripts pour le langage déduit de l'extension
-	support.mode.split(',').forEach(function(mode) {
-		if (mode === 'null')
-			return;
-		$('<script />')
-			.attr('type', 'text/javascript')
-			.attr('src', '/libs/codemirror/mode/' + mode + '/' + mode + '.js')
-			.appendTo(document.head);
-	});
-	// Configuration : https://codemirror.net/doc/manual.html#config
+/** This method ensures that the script associated with "mode" is present in "head" */
+function loadCodeMirrorMode(mode) {
+	var src, element;
+	if (mode === 'null')
+		return;
+	src = '/libs/codemirror/mode/' + mode + '/' + mode + '.js';
+	element = document.querySelector('script[src="' + src + '"]');
+	if (element)
+		return;
+	$('<script type="text/javascript" />').attr('src', src).appendTo(document.head);
+}
+
+/** This method ensures that the stylesheet associated with "theme" is present in "head" */
+function loadCodeMirrorTheme(theme) {
+	var src, element;
+	if (!theme || theme === 'default')
+		return;
+	src = '/libs/codemirror/theme/' + theme + '.css';
+	element = document.querySelector('link[href="' + src + '"]');
+	if (element)
+		return;
+	$('<link type="text/css" rel="stylesheet" />').attr('href', src).appendTo(document.head);
+}
+
+/** This method prepares the options used to create the CodeMirror instance */
+function createCodeMirrorOptions(mime, content) {
+	// https://codemirror.net/doc/manual.html#config
 	var options = {
 		value: content,
-		mode: support.mime || '',
+		mode: mime || '',
 		// lineSeparator: null,
 		// theme: 'default',
 		indentUnit: 4,
@@ -136,66 +148,15 @@ function initCodeMirror(content, filename) {
 		matchTags: true,
 		autoCloseTags: true,
 		showTrailingSpace: true,
+		// Defaults keymap : https://github.com/codemirror/CodeMirror/blob/master/src/input/keymap.js
 		extraKeys: {
 			'Ctrl-Space': 'autocomplete',
-			'Ctrl-Alt-F': function() {
-				var from = cm.getCursor(true);
-				var to = cm.getCursor(false);
-				cm.operation(function () {
-					for (var i = from.line; i <= to.line; i++) {
-						cm.indentLine(i, 'smart');
-					}
-				});
-			},
-			'Ctrl-Alt-C': 'toggleComment' // Shift-Ctrl-C utilisé par Firefox
+			'Ctrl-Alt-C': 'toggleComment'
 		}
 	};
-	if (support.mime === 'text/x-markdown')
-		$.extend(options.extraKeys, {
-			'Enter': 'newlineAndIndentContinueMarkdownList'
-		});
-	// Composant d'édition riche
-	var cm = CodeMirror(document.querySelector('main'), options);
-	cm.on('change', function() {
-		$('#saveButton').removeClass('nimbus-hidden');
-	});
-
-	// Choix du thème (https://codemirror.net/demo/theme.html)
-	$('#themeMenu').click('button', function(event) {
-		var button = $(event.target).closest('button')
-		var theme = button.attr('data-theme');
-		if (theme)
-			$('<link type="text/css" rel="stylesheet" />').attr('href', '/libs/codemirror/theme/' + theme + '.css').appendTo('head');
-		cm.setOption('theme', theme || '');
-		localStorage.setItem('nimbus-codemirror-theme', theme || 'none');
-		button.addClass('active').siblings().removeClass('active');
-	});
-	// Chargement du thème sauvegardé
-	var theme = localStorage.getItem('nimbus-codemirror-theme');
-	if (theme === 'none')
-		cm.setOption('theme', '');
-	else
-		$('#themeMenu button[data-theme=' + theme + ']').click();
-
-	// Autres options
-	$('#optionsIndentWithTabs').click(function() {
-		var self = $(this).toggleClass('active');
-		cm.setOption('indentWithTabs', self.hasClass('active'));
-	});
-	$('#optionsRTLDirection').click(function() {
-		var self = $(this).toggleClass('active');
-		cm.setOption('direction', self.hasClass('active') ? 'rtl' : 'ltr');
-	});
-	$('#optionsLineWrapping').click(function() {
-		var self = $(this).toggleClass('active');
-		cm.setOption('lineWrapping', self.hasClass('active'));
-	});
-	$('#optionsLineNumbers').click(function() {
-		var self = $(this).toggleClass('active');
-		cm.setOption('lineNumbers', self.hasClass('active'));
-	});
-
-	return cm;
+	if (mime === 'text/x-markdown')
+		options.extraKeys['Enter'] = 'newlineAndIndentContinueMarkdownList';
+	return options;
 }
 
 //Initialiser la page
@@ -211,30 +172,85 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 		url: '/files/stream/' + itemId,
 		dataType: 'text'
 	}).then(function(content, textStatus, jqXHR) {
-		var lineSeparator = getLineSeparator(content),
-			saveButton = $('#saveButton'),
-			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
-
-		var cm = initCodeMirror(content, filename);
-
+		// Find the save button (would upload content to the server on click)
+		var saveButton = $('#saveButton');
+		// Extract the text file name from HTTP response header
+		var filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
+		// Show filename as page title (=> in browser tab)
 		$('title').text(filename);
+		// Extract the file name extension for feature detection
+		var extension = filename.substring(filename.lastIndexOf('.') + 1);
+		// Get file support definition (shared by 'code.js' into the NIMBUS.utils object)
+		var support = NIMBUS.utils.codeMirrorSupport[extension];
+		// Load CodeMirror mode scripts
+		support.mode.split(',').forEach(loadCodeMirrorMode);
+		// Get CodeMirror configuration options
+		var options = createCodeMirrorOptions(support.mime, content);
+		// Composant d'édition riche
+		var cm = CodeMirror(document.querySelector('main'), options);
+		cm.on('change', function() {
+			saveButton.removeClass('nimbus-hidden');
+		});
 
-		$('#lineSeparatorMenu').find('[data-separator=' + lineSeparator + ']').addClass('active');
-		$('#lineSeparatorMenu').click('button', function(event) {
+		// Line separator menu
+		var lineSeparatorMenu = $('#lineSeparatorMenu');
+		var lineSeparator = getLineSeparator(content);
+		lineSeparatorMenu.click('button', function(event) {
 			var button = $(event.target).closest('button');
 			lineSeparator = button.attr('data-separator');
 			button.addClass('active').siblings().removeClass('active');
 			saveButton.removeClass('nimbus-hidden');
 		});
+		// Ensure that the current line separator is selected in menu
+		lineSeparatorMenu.children('[data-separator=' + lineSeparator + ']').addClass('active');
 
-		saveButton.on('click', function() {
+		// Theme selection menu (https://codemirror.net/demo/theme.html)
+		var themeMenu = $('#themeMenu');
+		var theme = localStorage.getItem('nimbus-codemirror-theme');
+		themeMenu.click('button', function(event) {
+			var button = $(event.target).closest('button')
+			theme = button.attr('data-theme');
+			loadCodeMirrorTheme(theme);
+			cm.setOption('theme', theme);
+			localStorage.setItem('nimbus-codemirror-theme', theme);
+			button.addClass('active').siblings().removeClass('active');
+		});
+		// Ensure that the previously selected theme is loaded and selected in menu
+		loadCodeMirrorTheme(theme);
+		cm.setOption('theme', theme);
+		themeMenu.children('[data-theme="' + theme + '"]').addClass('active');
+
+		// Other options
+		$('#optionsIndentWithTabs').click(function() {
+			var self = $(this).toggleClass('active');
+			cm.setOption('indentWithTabs', self.hasClass('active'));
+		});
+		$('#optionsRTLDirection').click(function() {
+			var self = $(this).toggleClass('active');
+			cm.setOption('direction', self.hasClass('active') ? 'rtl' : 'ltr');
+		});
+		$('#optionsLineWrapping').click(function() {
+			var self = $(this).toggleClass('active');
+			cm.setOption('lineWrapping', self.hasClass('active'));
+		});
+		$('#optionsLineNumbers').click(function() {
+			var self = $(this).toggleClass('active');
+			cm.setOption('lineNumbers', self.hasClass('active'));
+		});
+
+		// Implementing "save" command, invoked by default key maps on "Ctrl+S" or "Cmd+S".
+		CodeMirror.commands.save = function(cm) {
 			var text = cm.getValue(lineSeparator.replace('cr', '\r').replace('lf', '\n'));
 			NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
 				saveButton.addClass('nimbus-hidden').removeClass('text-danger');
 			}, function() {
 				saveButton.addClass('text-danger');
-			})
+			});
+		};
+		saveButton.on('click', function() {
+			CodeMirror.commands.save(cm);
 		});
+
 	});
 });
 </script>
