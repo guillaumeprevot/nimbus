@@ -22,20 +22,6 @@
 			}
 		}],
 		actions: [{
-			name: 'markdown-edit',
-			icon: 'art_track',
-			caption: 'TextActionEditMarkdown',
-			accept: function(item, extension) {
-				return 'md' === extension || 'mkd' === extension || 'markdown' === extension;
-			},
-			execute: function(item) {
-				window.open('/markdown-editor.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
-			}
-		}, {
 			name: 'text-edit',
 			icon: 'subject',
 			caption: 'TextActionEdit',
@@ -50,7 +36,6 @@
 		}],
 		langs: {
 			fr: {
-				TextActionEditMarkdown: "Ouvrir dans l'éditeur Markdown",
 				TextActionEdit: "Ouvrir dans l'éditeur de texte",
 				TextPropertyLines: "Lignes",
 				TextDescription0Line: "0 ligne",
@@ -60,8 +45,6 @@
 				TextEditorSave: "Sauvegarder les modifications",
 				TextEditorSmaller: "Diminuer la taille du texte",
 				TextEditorLarger: "Augmenter la taille du texte",
-				TextEditorPreview: "Prévisualisation",
-				TextEditorExport: "Exporter en HTML",
 				TextEditorLineSeparator: "Sauts de ligne",
 				TextEditorLineSeparatorCRLF: "Windows (CR+LF)",
 				TextEditorLineSeparatorLF: "Linux, Android, OS X (LF)",
@@ -69,7 +52,6 @@
 				TextEditorPlaceholder: "Le fichier est pour le moment vide..."
 			},
 			en: {
-				TextActionEditMarkdown: "Open in Markdown editor",
 				TextActionEdit: "Open in text editor",
 				TextPropertyLines: "Lines",
 				TextDescription0Line: "0 line",
@@ -79,8 +61,6 @@
 				TextEditorSave: "Save modifications",
 				TextEditorSmaller: "Decrease text size",
 				TextEditorLarger: "Increase text size",
-				TextEditorPreview: "Preview",
-				TextEditorExport: "Export to HTML",
 				TextEditorLineSeparator: "Line separator",
 				TextEditorLineSeparatorCRLF: "Windows (CR+LF)",
 				TextEditorLineSeparatorLF: "Linux, Android, OS X (LF)",
