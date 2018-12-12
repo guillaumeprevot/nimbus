@@ -99,9 +99,12 @@
 				DiaporamaNext: "Image suivante",
 				DiaporamaLast: "Dernière image",
 				DiaporamaPlay: "Démarrage",
-				DiaporamaPause: "Arrêt",
+				DiaporamaPause: "Pause",
 				DiaporamaAccelerate: "Accélérer",
 				DiaporamaDecelerate: "Décélérer",
+				DiaporamaAspectRatio: "Changer l'aspect",
+				DiaporamaFullscreen: "Passer en plein-écran",
+				DiaporamaRestore: "Quitter le plein-écran",
 				DiaporamaDimensions: "{0}x{1} px",
 				DiaporamaDepth: "{0} bits",
 			},
@@ -125,6 +128,9 @@
 				DiaporamaAccelerate: "Accelerate",
 				DiaporamaDecelerate: "Decelerate",
 				DiaporamaDimensions: "{0}x{1} px",
+				DiaporamaAspectRatio: "Change aspect ratio",
+				DiaporamaFullscreen: "Fullscreen",
+				DiaporamaRestore: "Exit fullscreen mode",
 				DiaporamaDepth: "{0} bits",
 			} 
 		}

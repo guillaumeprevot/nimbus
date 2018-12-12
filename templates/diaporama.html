@@ -32,12 +32,13 @@
 		</div>
 
 		<div class="btn-group diaporama-auto nimbus-hidden">
-			<button type="button" class="btn btn-link diaporama-decelerate" data-translate="title" title="AudioPlayFirst"><i class="material-icons">fast_rewind</i></button>
-			<button type="button" class="btn btn-link diaporama-pause" data-translate="title" title="AudioPause"><i class="material-icons">pause_circle_outline</i></button>
-			<button type="button" class="btn btn-link diaporama-accelerate" data-translate="title" title="AudioResume"><i class="material-icons">fast_forward</i></button>
+			<button type="button" class="btn btn-link diaporama-decelerate" data-translate="title" title="DiaporamaDecelerate"><i class="material-icons">fast_rewind</i></button>
+			<button type="button" class="btn btn-link diaporama-pause" data-translate="title" title="DiaporamaPause"><i class="material-icons">pause_circle_outline</i></button>
+			<button type="button" class="btn btn-link diaporama-accelerate" data-translate="title" title="DiaporamaAccelerate"><i class="material-icons">fast_forward</i></button>
 		</div>
 
 		<div class="float-right">
+			<button type="button" class="btn btn-link diaporama-ratio" data-translate="title" title="DiaporamaAspectRatio"><i class="material-icons">aspect_ratio</i></button>
 			<button type="button" class="btn btn-link diaporama-fullscreen" data-translate="title" title="DiaporamaFullscreen"><i class="material-icons">fullscreen</i></button>
 			<button type="button" class="btn btn-link diaporama-restore nimbus-hidden" data-translate="title" title="DiaporamaRestore"><i class="material-icons">fullscreen_exit</i></button>
 		</div>
@@ -128,6 +129,11 @@ $.extend(Diaporama.prototype, {
 	last: function() {
 		this.show(this.items.length - 1);
 	},
+	changeRatio: function() {
+		var options = ['fill', 'contain', 'cover', 'scale-down'];
+		var index = options.indexOf(this.image.style.objectFit);
+		this.image.style.objectFit = options[(index + 1) % options.length];
+	},
 	triggerSpeedChanged: function() {
 		$(this).trigger('speedchanged', [this.intervalSeconds]);
 	},
@@ -198,6 +204,7 @@ function run(items, play, selection) {
 	$('.diaporama-decelerate').click(diaporama.decelerate.bind(diaporama));
 	$('.diaporama-pause').click(diaporama.pause.bind(diaporama));
 	$('.diaporama-accelerate').click(diaporama.accelerate.bind(diaporama));
+	$('.diaporama-ratio').click(diaporama.changeRatio.bind(diaporama));
 
 	// Entrer en plein-écran / Sortir du plein-écran
 	var fullscreenElement = document.body;
