@@ -136,6 +136,7 @@
 				VideoSubtitles: "Sous-titres",
 				VideoSubtitlesDisabled: "désactivés",
 				VideoSubtitlesDefault: "par défaut",
+				VideoAspectRatio: "Changer l'aspect",
 				VideoFullscreen: "Passer en plein-écran",
 				VideoExitFullscreen: "Quitter le plein-écran",
 			},
@@ -165,6 +166,7 @@
 				VideoSubtitles: "Subtitles",
 				VideoSubtitlesDisabled: "disabled",
 				VideoSubtitlesDefault: "defaults",
+				VideoAspectRatio: "Change aspect ratio",
 				VideoFullscreen: "Fullscreen",
 				VideoExitFullscreen: "Exit fullscreen mode",
 			} 

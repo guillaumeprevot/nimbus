@@ -73,11 +73,12 @@ body { background-color: #666; }
 		</div>
 
 		<div class="float-right">
+			<button type="button" class="btn btn-link ratio" data-translate="title" title="VideoAspectRatio"><i class="material-icons">aspect_ratio</i></button>
 			<button type="button" class="btn btn-link fullscreen" data-translate="title" title="VideoFullscreen"><i class="material-icons">fullscreen</i></button>
 			<button type="button" class="btn btn-link exit-fullscreen nimbus-hidden" data-translate="title" title="VideoExitFullscreen"><i class="material-icons">fullscreen_exit</i></button>
 		</div>
 	</header>
-	<main>
+	<main style="overflow: hidden;">
 		<video style="width: 100%; height: 100%; object-fit: contain; " loop="loop"></video>
 		<div class="alert alert-danger nimbus-hidden" role="alert" data-translate="text">VideoPlayError</div>
 	</main>
@@ -166,7 +167,11 @@ NIMBUS.init(['video.js'], function() {
 		$('.volume-menu').popover('hide');
 	});
 
-	// En haut à droite, les boutons pour le plein-écran 
+	// En haut à droite, les boutons pour le plein-écran
+	$('.ratio').click(function() {
+		var options = ['fill', 'contain', 'cover', 'scale-down'];
+		video.style.objectFit = options[(options.indexOf(video.style.objectFit) + 1) % options.length];
+	});
 	$('.fullscreen').toggleClass('nimbus-hidden', !fullscreenElement.requestFullscreen).click(function() {
 		fullscreenElement.requestFullscreen();
 		$('.fullscreen').addClass('nimbus-hidden').next().toggleClass('nimbus-hidden', !document.exitFullscreen);
