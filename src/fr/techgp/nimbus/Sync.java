@@ -33,7 +33,7 @@ import fr.techgp.nimbus.utils.WebUtils.MultiPartAdapter;
 
 public class Sync {
 
-	// Le système de fichier n'a pas forçément une précision à la MS.
+	// Le système de fichier n'a pas forçément une précision à la milliseconde.
 	// Dans mes tests (exFAT), les timestamp étaient arrondis aux 2 secondes supérieures
 	public static final long DATE_EPSILON = 2000;
 
@@ -148,7 +148,14 @@ public class Sync {
 				return true;
 			String query = "/trash/delete?itemIds=" + this.nimbusId;
 			return sync.sendRequest(jsessionid, query, true, false, true, c -> {
-				return c.getResponseCode() == HttpServletResponse.SC_OK;
+				boolean result = c.getResponseCode() == HttpServletResponse.SC_OK;
+				if (result) {
+					SyncItem.this.nimbusId = null;
+					SyncItem.this.nimbusDate = null;
+					SyncItem.this.nimbusFolder = false;
+					SyncItem.this.nimbusLength = null;
+				}
+				return result;
 			});
 		}
 
@@ -182,10 +189,11 @@ public class Sync {
 	public String password;
 	public File localFolder;
 	public Long serverFolderId;
+	public boolean traceOnly;
 	public boolean skipExistingWithSameDateAndSize;
 	public boolean forceHTTPSCertificate;
 
-	public final String authenticate() throws IOException {
+	public final String authenticateAndGetJSESSIONID() throws IOException {
 		String query = "/login.html";
 		byte[] form = ("login=" + URLEncoder.encode(this.login, "UTF-8")
 				+ "&password=" + URLEncoder.encode(this.password, "UTF-8")
@@ -234,7 +242,7 @@ public class Sync {
 		}
 	}
 
-	public final JsonArray list(String jsessionid) throws IOException {
+	public final JsonArray getContentFromServerFolder(String jsessionid) throws IOException {
 		String query = "/items/list?recursive=true&deleted=false&parentId=" + (this.serverFolderId == null ? "" : this.serverFolderId.toString());
 		return sendRequest(jsessionid, query, false, false, true, (c) -> {
 			String json = IOUtils.toString(c.getInputStream(), StandardCharsets.UTF_8);
@@ -242,7 +250,7 @@ public class Sync {
 		});
 	}
 
-	public final ArrayList<SyncItem> tree(JsonArray array, Long parentId) {
+	public final ArrayList<SyncItem> buildTreeFromJSON(JsonArray array, Long parentId) {
 		ArrayList<SyncItem> results = new ArrayList<>();
 		for (int i = 0; i < array.size(); i++) {
 			JsonObject o = array.get(i).getAsJsonObject();
@@ -255,7 +263,7 @@ public class Sync {
 			item.nimbusFolder = o.get("folder").getAsBoolean();
 			item.nimbusDate = o.get("updateDate").getAsLong();
 			if (item.nimbusFolder)
-				item.children = this.tree(array, item.nimbusId);
+				item.children = this.buildTreeFromJSON(array, item.nimbusId);
 			else
 				item.nimbusLength = o.get("length").getAsLong();
 			results.add(item);
@@ -263,7 +271,7 @@ public class Sync {
 		return results;
 	}
 
-	public final void merge(ArrayList<SyncItem> items, File folder) {
+	public final void mergeContentFromLocalFolder(ArrayList<SyncItem> items, File folder) {
 		Map<String, SyncItem> map = items.stream().collect(Collectors.toMap((i) -> i.name, Function.identity()));
 		folder.listFiles((child) -> {
 			SyncItem item = map.get(child.getName());
@@ -278,7 +286,7 @@ public class Sync {
 			if (child.isDirectory()) {
 				if (item.children == null)
 					item.children = new ArrayList<>();
-				this.merge(item.children, child);
+				this.mergeContentFromLocalFolder(item.children, child);
 			}
 			if (item.nimbusId == null)
 				items.add(item);
@@ -298,7 +306,8 @@ public class Sync {
 					System.out.println(prefix + "+- [DELETE] " + item.name);
 				else
 					System.out.println(prefix + "|- [DELETE] " + item.name);
-				item.deleteLocal(file);
+				if (!this.traceOnly)
+					item.deleteLocal(file);
 				continue;
 			}
 
@@ -307,14 +316,16 @@ public class Sync {
 				// Si un fichier local a le même nom qu'un dossier Nimbus, on supprime le fichier local
 				if (file.isFile()) {
 					System.out.println(prefix + "|- [DELETE] " + item.name);
-					item.deleteLocal(file);
+					if (!this.traceOnly)
+						item.deleteLocal(file);
 				}
 				// Si le dossier local est absent, on le crée
 				if (file.exists()) {
 					System.out.println(prefix + "+- " + item.name);
 				} else {
-					System.out.println(prefix + "+- [CREATE] " + item.name);
-					item.createLocalFolder(file);
+					System.out.println(prefix + "+- [++++++] " + item.name);
+					if (!this.traceOnly)
+						item.createLocalFolder(file);
 				}
 				// On parcourt ensuite récursivement
 				this.toLocal(jsessionid, item.children, file, prefix + "  ");
@@ -326,14 +337,19 @@ public class Sync {
 				// Si un dossier local a le même nom d'un fichier Nimbus, on supprime le dossier local
 				if (file.isDirectory()) {
 					System.out.println(prefix + "+- [DELETE] " + item.name);
-					item.deleteLocal(file);
+					if (!this.traceOnly)
+						item.deleteLocal(file);
 				}
 				// Télécharger le fichier si nécessaire (différents) ou forcé (option)
 				if (item.isSkipable(this.skipExistingWithSameDateAndSize)) {
 					// System.out.println(prefix + "|- [SKIP] " + item.name);
 				} else {
-					System.out.println(prefix + "|- [DOWNLOAD] " + item.name);
-					item.updateLocalFile(this, jsessionid, file);
+					if (item.isLocalFile())
+						System.out.println(prefix + "|- [UPDATE] " + item.name);
+					else
+						System.out.println(prefix + "|- [++++++] " + item.name);
+					if (!this.traceOnly)
+						item.updateLocalFile(this, jsessionid, file);
 				}
 			}
 		}
@@ -351,7 +367,8 @@ public class Sync {
 					System.out.println(prefix + "+- [DELETE] " + item.name);
 				else
 					System.out.println(prefix + "|- [DELETE] " + item.name);
-				item.deleteNimbus(this, jsessionid);
+				if (!this.traceOnly)
+					item.deleteNimbus(this, jsessionid);
 				continue;
 			}
 
@@ -360,14 +377,16 @@ public class Sync {
 				// Si un fichier sur le serveur a le même nom qu'un dossier local, on supprime le fichier du serveur
 				if (item.isNimbusFile()) {
 					System.out.println(prefix + "|- [DELETE] " + item.name);
-					item.deleteNimbus(this, jsessionid);
+					if (!this.traceOnly)
+						item.deleteNimbus(this, jsessionid);
 				}
 				// Si le dossier est absent du serveur, on le crée
 				if (item.isNimbusFolder()) {
 					System.out.println(prefix + "+- " + item.name);
 				} else {
-					System.out.println(prefix + "+- [CREATE] " + item.name);
-					item.createNimbusFolder(this, jsessionid, parentId);
+					System.out.println(prefix + "+- [++++++] " + item.name);
+					if (!this.traceOnly)
+						item.createNimbusFolder(this, jsessionid, parentId);
 				}
 				// On parcourt ensuite récursivement
 				this.toServer(jsessionid, item.children, file, item.nimbusId, prefix + "  ");
@@ -379,14 +398,19 @@ public class Sync {
 				// Si un dossier sur le serveur a le même nom d'un fichier local, on supprime le dossier du serveur
 				if (item.isNimbusFolder()) {
 					System.out.println(prefix + "+- [DELETE] " + item.name);
-					item.deleteNimbus(this, jsessionid);
+					if (!this.traceOnly)
+						item.deleteNimbus(this, jsessionid);
 				}
 				// Téléverser le fichier si nécessaire (différents) ou forcé (option)
 				if (item.isSkipable(this.skipExistingWithSameDateAndSize)) {
 					// System.out.println(prefix + "|- [SKIP] " + item.name);
 				} else {
-					System.out.println(prefix + "|- [UPLOAD] " + item.name);
-					item.updateNimbusFile(this, jsessionid, parentId, file);
+					if (item.isNimbusFile())
+						System.out.println(prefix + "|- [UPDATE] " + item.name);
+					else
+						System.out.println(prefix + "|- [++++++] " + item.name);
+					if (!this.traceOnly)
+						item.updateNimbusFile(this, jsessionid, parentId, file);
 				}
 			}
 		}
@@ -470,6 +494,10 @@ public class Sync {
 					"nimbus.direction",
 					"Sync direction (u=upload/d=download) ?",
 					(s) -> s.equalsIgnoreCase("u") || s.equalsIgnoreCase("d"));
+			String traceOnly = getPropertyAsString(
+					"nimbus.traceOnly",
+					"Trace only (y/n) ?",
+					(s) -> s.equalsIgnoreCase("y") || s.equalsIgnoreCase("n"));
 			String skipExistingWithSameDateAndSize = getPropertyAsString(
 					"nimbus.skipExistingWithSameDateAndSize",
 					"Skip files with same date and size (y/n) ?",
@@ -488,16 +516,17 @@ public class Sync {
 			export.password = new String(password);
 			export.localFolder = new File(localFolder);
 			export.serverFolderId = "root".equals(serverFolderId) ? null : Long.valueOf(serverFolderId);
+			export.traceOnly = "y".equalsIgnoreCase(traceOnly);
 			export.skipExistingWithSameDateAndSize = "y".equalsIgnoreCase(skipExistingWithSameDateAndSize);
 			export.forceHTTPSCertificate = "y".equalsIgnoreCase(forceHTTPSCertificate);
 			// Authentication
-			String jsessionid = export.authenticate();
+			String jsessionid = export.authenticateAndGetJSESSIONID();
 			// Extract content from Nimbus
-			JsonArray array = export.list(jsessionid);
+			JsonArray array = export.getContentFromServerFolder(jsessionid);
 			// Transform array into the item tree
-			ArrayList<SyncItem> items = export.tree(array, export.serverFolderId);
+			ArrayList<SyncItem> items = export.buildTreeFromJSON(array, export.serverFolderId);
 			// Merge info from existing items found on disk
-			export.merge(items, export.localFolder);
+			export.mergeContentFromLocalFolder(items, export.localFolder);
 			// Run synchronization ...
 			if (direction.equalsIgnoreCase("u"))
 				// ... from local folder to server
