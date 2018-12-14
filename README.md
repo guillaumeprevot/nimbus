@@ -52,7 +52,6 @@ Le tableau suivant dresse la liste des fonctionnalités formant le cœur de `Nim
 
 Statut | Fonctionnalité
 -------|----------------
-En cours | Installation simplifiée
 Fait | Configuration simplifiée avec un seul fichier de configuration
 Fait | Accès authentifié depuis un navigateur en HTTPS
 Fait | Multi-utilisateurs avec profils administrateur ou standard
@@ -65,8 +64,11 @@ Fait | Extraction automatique des propriétés (dimension des images, durée d'u
 Fait | Support extensible de différents types de fichiers côté client (plugins)
 Fait | Support des thèmes grâce à Bootstrap (default) et Bootswatch (flatly, darkly, ...)
 Fait | Import, export et téléchargement simplifié des fichiers/dossiers
+Fait | Applications annexes (d'autres à ajouter au fur et à mesure)
+Partiel | Installation simplifiée
 Partiel | Tests automatisables
- | Applications annexes
+Partiel | Synchronisation en local
+A faire | Documentation
 
 ## Import
 
