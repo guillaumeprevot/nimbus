@@ -80,15 +80,17 @@ Comportement
 - la configuration est en partie extraite de "nimbus.conf" (accès MongoDB, facets, dossier de stockage)
 - l'import demande confirmation en indiquant la taille et le nombre d'éléments en entrée
 - l'import crée ou complète l'arborescence sous "parentId" pour correspondre à l'arborescence de "folderPath"
-- les fichiers sont copiés sauf s'ils existent déjà avec la même taille
+- les fichiers sont copiés sauf s'ils existent déjà avec la même taille (voir options ci-dessous pour personnaliser)
 - la trace complète est générée dans "nimbus.log" et liste les dossiers et fichiers créés/modifiés/exclus
 
 Options :
 - `-Dnimbus.log=...` permet de modifier le fichier de log
 - `-Dnimbus.log=none` ne génèrera pas de fichier de log et écrira les traces sur la sorties standard
 - `-Dnimbus.conf=...` permet de définir le(s) fichier(s) de configuration à utiliser
-- `-Dnimbus.skipExistingWithSameSize=false` désactive l'exclusion des fichiers de même taille
-- `-Dorg.slf4j.simpleLogger.log.fr.techgp.nimbus.Import=debug` ne tracera que les dossiers parcourus
+- `-Dnimbus.updateFileExistingWithSameSize=true` force la mise à jour des fichiers de même taille
+- `-Dnimbus.updateMetadataExistingWithSameSize=true` force la mise à jour des méta-données des fichiers de même taille
+- `-Dnimbus.updateTimestampsExistingWithSameSize=true` force la mise à jour des dates (création/modification) des fichiers de même taille
+- `-Dorg.slf4j.simpleLogger.log.fr.techgp.nimbus.Import=debug` réduira les traces en n'affichant que les dossiers parcourus
 
 Exemple : importer le dossier "/media/usb/storage" dans le dossier n°1 de l'utilisateur "adm"
 ```bash

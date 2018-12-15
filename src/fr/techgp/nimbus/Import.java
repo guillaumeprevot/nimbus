@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.Stack;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,9 @@ public class Import {
 	// Get expected system properties
 	private static final String logPath = System.getProperty("nimbus.log", "nimbus.log");
 	private static final String confPath = System.getProperty("nimbus.conf", "nimbus.conf");
-	private static final boolean skipExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.skipExistingWithSameSize", "true"));
+	private static final boolean updateFileExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateFileExistingWithSameSize", "false"));
+	private static final boolean updateMetadataExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateMetadataExistingWithSameSize", "false"));
+	private static final boolean updateTimestampsExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateTimestampsExistingWithSameSize", "false"));
 	// Apply log configuration as soon as possible
 	private static final Logger logger = prepareLogger();
 
@@ -86,7 +89,7 @@ public class Import {
 			Files.walkFileTree(folder, cfv);
 
 			// Demander confirmation
-			System.out.printf("%d octets, %d fichiers, %d dossiers. Continuer (oui/non) ?\n", cfv.totalSize, cfv.fileCount, cfv.folderCount);
+			System.out.printf("%s, %d fichiers, %d dossiers. Continuer (oui/non) ?\n", FileUtils.byteCountToDisplaySize(cfv.totalSize), cfv.fileCount, cfv.folderCount);
 			try (Scanner scanner = new Scanner(System.in)) {
 				if (!"oui".equals(scanner.next())) {
 					System.out.println("Import annulé.");
@@ -177,21 +180,36 @@ public class Import {
 			Objects.requireNonNull(attrs);
 			// Ajouter l'élément en base (et lui attribuer un id par la même occasion)
 			Item item = findOrAdd(file, false);
-			// Copier le fichier dans l'espace de stockage de l'utilisateur
+			// Récupérer le fichier associé dans l'espace de stockage de l'utilisateur
 			File storedFile = this.configuration.getStoredFile(item);
-			if (skipExistingWithSameSize && storedFile.exists() && storedFile.length() == attrs.size()) {
+			// Comparer avec le fichier à importer
+			boolean existingWithSameSize = storedFile.exists() && storedFile.length() == attrs.size();
+			boolean skipped = true;
+			// Copier le fichier dans l'espace de stockage de l'utilisateur
+			if (!existingWithSameSize || updateFileExistingWithSameSize) {
+				Files.copy(file, storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				skipped = false;
+			}
+			// Mettre à jour les infos du fichier
+			if (!existingWithSameSize || updateMetadataExistingWithSameSize) {
+				this.configuration.updateStoredFile(item, (facet, ex) -> {
+					if (logger.isWarnEnabled())
+						logger.warn("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")");
+				});
+				skipped = false;
+			}
+			// Mettre à jour les dates du fichier
+			if (!existingWithSameSize || updateTimestampsExistingWithSameSize) {
+				item.createDate = new Date(attrs.creationTime().toMillis());
+				item.updateDate = new Date(attrs.lastModifiedTime().toMillis());
+				skipped = false;
+			}
+			if (skipped) {
 				if (logger.isTraceEnabled())
 					logger.trace(StringUtils.repeat("  ", this.idPath.size()) + "|- " + item.name + " (skipped)");
 				return FileVisitResult.CONTINUE;
 			}
-			Files.copy(file, storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			// Mettre à jour les infos du fichier
-			this.configuration.updateStoredFile(item, (facet, ex) -> {
-				if (logger.isWarnEnabled())
-					logger.warn("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")");
-			});
 			// Sauvegarde des métadonnées
-			item.updateDate = new Date();
 			Item.update(item);
 			if (logger.isTraceEnabled())
 				logger.trace(StringUtils.repeat("  ", this.idPath.size()) + "|- " + item.name + " (" + item.id + ")");
