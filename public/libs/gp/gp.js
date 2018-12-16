@@ -85,4 +85,49 @@
 		});
 	};
 
+	$.fn.keystrokes = function(options) {
+		// Map pour transformer les valeurs de "event.key" en nom utilisés ici
+		var keyMap = {
+			' ': 'Space',
+			'Control': 'Ctrl',
+		};
+		// Retourne une chaine représentant un raccourci, de la forme '[Shift-][Meta-][Ctrl-][Alt-]key'
+		function keystrokeFromInfo(key, alt, ctrl, meta, shift) {
+			var result = key;
+			if (key !== 'Alt' && alt) result = 'Alt-' + result;
+			if (key !== 'Ctrl' && ctrl) result = 'Ctrl-' + result;
+			if (key !== 'Meta' && meta) result = 'Cmd-' + result;
+			if (key !== 'Shift' && shift) result = 'Shift-' + result;
+			return result;
+		}
+		// Retourne une chaine représentant l'évènement, de la forme '[Shift-][Meta-][Ctrl-][Alt-]key'
+		function keystrokeFromEvent(event) {
+			var base = keyMap[event.key] || event.key;
+			return keystrokeFromInfo(base, event.altKey, event.ctrlKey, event.metaKey, event.shiftKey);
+		}
+		// Reformate une chaine représentant un raccourci dans l'ordre Shift -> Meta -> Ctrl -> Alt -> key 
+		function normalize(keystroke) {
+			var base = keystroke.endsWith('-') ? '-' : keystroke.substring(keystroke.lastIndexOf('-') + 1);
+			var alt = keystroke.indexOf('Alt-') >= 0;
+			var ctrl = keystroke.indexOf('Ctrl-') >= 0;
+			var meta = keystroke.indexOf('Cmd-') >= 0;
+			var shift = keystroke.indexOf('Shift-') >= 0;
+			return keystrokeFromInfo(base, alt, ctrl, meta, shift);
+		}
+		// Génère la liste des raccourcis, en réordonnant correctement les modificateurs
+		var keystrokes = {};
+		for (var p in options) {
+			if (options.hasOwnProperty(p)) {
+				keystrokes[normalize(p)] = options[p];
+			}
+		}
+		return this.addClass('keystrokes').keydown(function(event) {
+			var keystroke = keystrokeFromEvent(event);
+			var callback = keystrokes[keystroke];
+			if (callback) {
+				callback();
+				return false;
+			}
+		});
+	};
 })(jQuery);

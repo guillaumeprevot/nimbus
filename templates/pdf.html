@@ -404,50 +404,16 @@ NIMBUS.init(['pdf.js'], function() {
 	});
 
 	// Manipulation au clavier
-	body.keyup(function(event) {
-		if (event.target.tagName === 'INPUT' || event.ctrlKey)
-			return;
-		var key = event.key, prevent = true;
-		// console.log(event.key);
-		switch (key) {
-			case 'Home':
-				firstPageButton.click();
-				break;
-			case 'PageUp':
-				previousPageButton.click();
-				break;
-			case 'PageDown':
-				nextPageButton.click();
-				break;
-			case 'End':
-				lastPageButton.click();
-				break;
-			case '+':
-				zoomInButton.click();
-				break;
-			case '-':
-				zoomOutButton.click();
-				break;
-			case '0':
-				zoomFit.click();
-				break;
-			case 'ArrowLeft':
-				if (event.altKey)
-					rotateCCWButton.click();
-				else
-					prevent = false;
-				break;
-			case 'ArrowRight':
-				if (event.altKey)
-					rotateCWButton.click();
-				else
-					prevent = false;
-				break;
-			default:
-				prevent = false;
-		}
-		if (prevent)
-			event.preventDefault();
+	body.keystrokes({
+		'Home': () => firstPageButton.click(),
+		'PageUp': () => previousPageButton.click(),
+		'PageDown': () => nextPageButton.click(),
+		'End': () => lastPageButton.click(),
+		'Ctrl-+': () => zoomInButton.click(),
+		'Ctrl--': () => zoomOutButton.click(),
+		'Ctrl-0': () => zoomFit.click(),
+		'Alt-ArrowLeft': () => changeRotation(-90),
+		'Alt-ArrowRight': () => changeRotation(90),
 	});
 
 	// Changement de page par "swipe"
