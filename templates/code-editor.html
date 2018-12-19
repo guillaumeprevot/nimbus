@@ -206,7 +206,7 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 
 		// Theme selection menu (https://codemirror.net/demo/theme.html)
 		var themeMenu = $('#themeMenu');
-		var theme = localStorage.getItem('nimbus-codemirror-theme');
+		var theme = localStorage.getItem('nimbus-codemirror-theme') || 'default';
 		themeMenu.click('button', function(event) {
 			var button = $(event.target).closest('button')
 			theme = button.attr('data-theme');
@@ -217,7 +217,8 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 		});
 		// Ensure that the previously selected theme is loaded and selected in menu
 		loadCodeMirrorTheme(theme);
-		cm.setOption('theme', theme);
+		if (theme !== 'default') // no need to do it if this is the default option value
+			cm.setOption('theme', theme);
 		themeMenu.children('[data-theme="' + theme + '"]').addClass('active');
 
 		// Other options
