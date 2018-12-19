@@ -23,6 +23,7 @@ textarea { padding: 1em; width: 100%; height: 99%; }
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <#if markdown><script type="text/javascript" src="/libs/marked/marked.min.js"></script></#if>
 <#if markdown><script type="text/javascript" src="/libs/prism/prism.min.js" data-manual></script></#if>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -120,7 +121,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 	// En haut à gauche, le bouton "Retour"
 	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 	// L'IHM est prête, on l'affiche
-	$(document.body).removeClass('nimbus-hidden');
+	var body = $(document.body).removeClass('nimbus-hidden');
 	// Identifiant de l'élément édité
 	var itemId = ${itemId};
 	// Récupération du contenu du fichier
@@ -161,6 +162,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 				// Repasser en édition
 				preview.empty().addClass('nimbus-hidden');
 				preview.siblings().show();
+				textarea.focus();
 			}
 			$('#smallerButton,#largerButton').toggle();
 		});
@@ -192,9 +194,11 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 			saveButton.removeClass('nimbus-hidden');
 		});
 
+		textarea[0].selectionStart = textarea[0].selectionEnd = 0;
 		textarea.removeClass('nimbus-hidden').on('input', function() {
 			saveButton.removeClass('nimbus-hidden');
 		});
+		textarea.focus();
 
 		saveButton.on('click', function() {
 			var text = formatLines(textarea.val(), lineSeparator);
@@ -205,6 +209,29 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 				textarea.addClass('border border-danger');
 			})
 		});
+
+		// Manipulation au clavier
+		body.keystrokes({
+			'Ctrl-s': () => saveButton.click(),
+			'Ctrl-+': () => $('#largerButton').click(),
+			'Ctrl--': () => $('#smallerButton').click(),
+			<#if markdown>
+			'Ctrl-p': () => $('#previewButton').click(),
+			// 'Ctrl-e': () => $('#exportButton').click(), // ne fonctionne pas :-(, peut-être car ça simule un clic sur un lien ?
+			</#if>
+		});
+
+		<#if markdown>
+		// Changement de mode "edit"/"preview" par "swipe"
+		$('main').swipe().on('swipe', function(event, swipe) {
+			// le swipe doit être rapide pour déclencher le passage preview <=> textarea
+			// les swipes plus longs sont réservés au déplacement dans des pages avec scroll
+			if (swipe.duration > 200)
+				return;
+			if ('right' === swipe.direction || 'left' === swipe.direction)
+				$('#previewButton').click()
+		});
+		</#if>
 	});
 });
 </script>
