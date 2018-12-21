@@ -14,6 +14,7 @@
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -217,6 +218,7 @@ function run(items, play, selection) {
 	$('.diaporama-restore').click(function() {
 		document.exitFullscreen();
 		$('.diaporama-restore').addClass('nimbus-hidden').prev().toggleClass('nimbus-hidden', !fullscreenElement.requestFullscreen);
+		$('.nimbus-viewer').removeClass('nimbus-hidden-toolbars');
 	});
 
 	// Clic sur la partie centrale pour afficher/cacher les barres d'outils
@@ -228,40 +230,17 @@ function run(items, play, selection) {
 	$(document.body).removeClass('nimbus-hidden');
 
 	// Manipulation au clavier
-	$(document.body).keyup(function(event) {
-		if (event.target.tagName === 'INPUT' || event.ctrlKey)
-			return;
-		var key = event.key, prevent = true;
-		// console.log(event.key);
-		switch (key) {
-			case '+':
-				diaporama.accelerate();
-				break;
-			case '-':
-				diaporama.decelerate();
-				break;
-			case 'Home':
-				diaporama.first();
-				break;
-			case 'ArrowLeft':
-			case 'PageUp':
-				diaporama.previous();
-				break;
-			case 'PageDown':
-			case 'ArrowRight':
-				diaporama.next();
-				break;
-			case 'End':
-				diaporama.last();
-				break;
-			case ' ':
-				diaporama.toggle();
-				break;
-			default:
-				prevent = false;
-		}
-		if (prevent)
-			event.preventDefault();
+	$(document.body).keystrokes({
+		'Home': () => diaporama.first(),
+		'ArrowLeft': () => diaporama.previous(),
+		'PageUp': () => diaporama.previous(),
+		'ArrowRight': () => diaporama.next(),
+		'PageDown': () => diaporama.next(),
+		'End': () => diaporama.last(),
+		'Space': () => diaporama.toggle(),
+		'+': () => diaporama.accelerate(),
+		'-': () => diaporama.decelerate(),
+		'F11': () => $('.diaporama-fullscreen').hasClass('nimbus-hidden') ? $('.diaporama-restore').click() : $('.diaporama-fullscreen').click(),
 	});
 }
 </script>
