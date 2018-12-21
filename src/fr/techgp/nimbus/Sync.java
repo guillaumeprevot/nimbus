@@ -78,7 +78,7 @@ public class Sync {
 			return skipExistingWithSameDateAndSize
 					&& isNimbusFile()
 					&& isLocalFile()
-					&& Math.abs(this.nimbusDate - this.localDate) < DATE_EPSILON
+					&& (Math.abs(this.nimbusDate - this.localDate) < DATE_EPSILON || Math.abs(this.nimbusDate - this.localDate) == 3600000)
 					&& this.nimbusLength.equals(this.localLength);
 		}
 
