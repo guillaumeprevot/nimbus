@@ -41,25 +41,12 @@ public class Controller {
 		Spark.get("/main.html", (request, response) -> {
 			String login = request.session().attribute("userLogin");
 			User user = User.findByLogin(login);
-			long usedSpace = Item.calculateUsedSpace(login);
-			long maxSpace, freeSpace;
-			if (user.quota == null) {
-				freeSpace = configuration.getStorageFolder().getFreeSpace();
-				maxSpace = freeSpace + usedSpace;
-			} else {
-				maxSpace = (user.quota.longValue() * 1024L * 1024L);
-				freeSpace = Math.min(configuration.getStorageFolder().getFreeSpace(), maxSpace - usedSpace);
-			}
-			int usedPercent = (int) (usedSpace * 100 / maxSpace);
 			return renderTemplate("main.html",
 					"lang", SparkUtils.getRequestLang(request),
 					"plugins", configuration.getClientPlugins(),
 					"theme", getUserTheme(request),
 					"name", StringUtils.withDefault(user.name, user.login),
 					"admin", user.admin,
-					"freeSpace", freeSpace,
-					"usedSpace", usedSpace,
-					"quotaStatus", usedPercent > configuration.getClientQuotaDanger() ? 2 : usedPercent > configuration.getClientQuotaWarning() ? 1 : 0,
 					"trashCount", Item.trashCount(login),
 					"textFileExtensions", configuration.getTextFileExtensions(),
 					"showItemTags", user.showItemTags,
@@ -91,6 +78,7 @@ public class Controller {
 		Spark.post("/files/useAsFolderIcon/:itemId", Files.useAsFolderIcon);
 
 		Spark.before("/items/*", Filters.filterAuthenticated);
+		Spark.get("/items/quota", Items.quota);
 		Spark.get("/items/list", Items.list);
 		Spark.post("/items/exists", Items.exists); // pour éviter 414 URI Too Long
 		Spark.get("/items/info/:itemId", Items.info);
@@ -304,8 +292,12 @@ public class Controller {
 			return;
 		// Récupérer le quota de l'utilisateur connecté
 		User user = User.findByLogin(userLogin);
-		if (user.quota == null)
+		// Vérifier pour les utilisateurs sans quota qu'il reste suffisamment d'espace disque
+		if (user.quota == null) {
+			if (neededSpace > configuration.getStorageFolder().getFreeSpace())
+				SparkUtils.haltInsufficientStorage(); 
 			return;
+		}
 		// Récupérer l'espace occupé
 		long usedSpace = Item.calculateUsedSpace(userLogin);
 		//System.out.println(String.format("Needed space = %7d bytes", neededSpace));

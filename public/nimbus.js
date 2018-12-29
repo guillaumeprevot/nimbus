@@ -604,17 +604,25 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Afficher le quota dans le menu */
-	function updateUsageMenu(usedSpace, freeSpace, quotaStatus) {
-		var usedPct = Math.round(usedSpace * 100.0 / (usedSpace + freeSpace));
-		var freePct = Math.round(freeSpace * 100.0 / (usedSpace + freeSpace));
-		$('#usage-menu-entry').children()
-			.first()
-				.css('width', usedPct + '%')
-				.text(usedPct >= 20 ? NIMBUS.translate('MainToolbarUsageUsed', NIMBUS.formatLength(usedSpace)) : '')
-				.addClass(['bg-primary', 'bg-warning', 'bg-danger'][quotaStatus])
-			.next()
-				.css('width', freePct + '%')
-				.text(freePct >= 20 ? NIMBUS.translate('MainToolbarUsageFree', NIMBUS.formatLength(freeSpace)) : '');
+	function updateUsageMenu() {
+		var usedProgress = $('#usage-menu-entry > :first-child');
+		var freeProgress = $('#usage-menu-entry > :last-child');
+		$('.nimbus-menu').on('show.bs.dropdown', function() {
+			usedProgress.text('')/*.css('width', '100%')*/.removeClass('bg-danger bg-warning bg-primary').addClass('progress-bar-striped progress-bar-animated');
+			freeProgress.text('')/*.css('width', '0')*/;
+			$.get('/items/quota').then(function(result) {
+				var usedPct = Math.round(result.usedSpace * 100.0 / result.maxSpace);
+				var freePct = Math.round(result.freeSpace * 100.0 / result.maxSpace);
+				var statusClass = usedPct > result.clientQuotaDanger ? 'bg-danger' : usedPct > result.clientQuotaWarning ? 'bg-warning' : 'bg-primary';
+				usedProgress
+					.css('width', usedPct + '%')
+					.text(usedPct >= 20 ? NIMBUS.translate('MainToolbarUsageUsed', NIMBUS.formatLength(result.usedSpace)) : '')
+					.addClass(statusClass).removeClass('progress-bar-striped progress-bar-animated');
+				freeProgress
+					.css('width', freePct + '%')
+					.text(freePct >= 20 ? NIMBUS.translate('MainToolbarUsageFree', NIMBUS.formatLength(result.freeSpace)) : '');
+			});
+		});
 	}
 
 	/** Préparer la zone de choix du thème */
@@ -1131,7 +1139,7 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Initialiser la page principale */
-	function init(columns, trashCount, usedSpace, freeSpace, quotaStatus, theme) {
+	function init(columns, trashCount, theme) {
 		// Préparation de la grille
 		prepareTable(columns);
 		// Après chargement de la page, se positionner sur l'élément demandé
@@ -1157,7 +1165,7 @@ NIMBUS.navigation = (function() {
 		// Affichage du nombre d'élément dans la corbeille
 		updateTrashMenu(trashCount);
 		// Affichage du quota dans le menu
-		updateUsageMenu(usedSpace, freeSpace, quotaStatus);
+		updateUsageMenu();
 		// Choix du thème
 		prepareThemeMenu(theme);
 		// Clic sur le bouton "Supprimer", on prépare et on affiche la fenêtre

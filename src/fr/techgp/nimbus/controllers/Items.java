@@ -25,12 +25,48 @@ import com.google.gson.JsonPrimitive;
 
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
 import spark.Route;
 
 public class Items extends Controller {
+
+	/**
+	 * Cette méthode renvoie les informations liées à l'ocupation de l'espace disponible
+	 * pour l'utilisateur :
+	 * - maxSpace : espace total disponible pour l'utilisateur (= quota si défini, en fonction du volume sinon)
+	 * - usedSpace : espace actuellement occupé par l'utilisateur (= somme des tailles de ses fichiers)
+	 * - freeSpace : expace libre pour l'utilisateur (max - used)
+	 * - clientQuotaWarning : pourcentage d'occupation du quota à partir duquel la barre apparait en avertissement
+	 * - clientQuotaDanger : pourcentage d'occupation du quota à partir duquel la barre apparait en danger
+	 */
+	public static final Route quota = (request, response) -> {
+		// Récupérer l'utilisateur connecté
+		String userLogin = request.session().attribute("userLogin");
+		User user = User.findByLogin(userLogin);
+		// Récupération des quotas de l'utilisateur
+		long usedSpace = Item.calculateUsedSpace(userLogin);
+		long maxSpace, freeSpace;
+		if (user.quota == null) {
+			freeSpace = configuration.getStorageFolder().getFreeSpace();
+			maxSpace = freeSpace + usedSpace;
+		} else {
+			maxSpace = (user.quota.longValue() * 1024L * 1024L);
+			freeSpace = Math.min(configuration.getStorageFolder().getFreeSpace(), maxSpace - usedSpace);
+		}
+		int clientQuotaWarning = configuration.getClientQuotaWarning();
+		int clientQuotaDanger = configuration.getClientQuotaDanger();
+		// Renvoyer les informations en JSON
+		JsonObject result = new JsonObject();
+		result.addProperty("freeSpace", freeSpace);
+		result.addProperty("usedSpace", usedSpace);
+		result.addProperty("maxSpace", maxSpace);
+		result.addProperty("clientQuotaWarning", clientQuotaWarning);
+		result.addProperty("clientQuotaDanger", clientQuotaDanger);
+		return SparkUtils.renderJSON(response, result);
+	};
 
 	/**
 	 * Renvoie en JSON les élements de l'utilisateurs correspondant aux critères données.

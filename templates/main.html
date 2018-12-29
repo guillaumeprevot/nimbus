@@ -376,7 +376,7 @@ NIMBUS.init([<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>], function() {
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
 	// Initialisation de la bavigation
-	NIMBUS.navigation.init(columns, ${trashCount}, ${usedSpace}, ${freeSpace}, ${quotaStatus}, '${theme}');
+	NIMBUS.navigation.init(columns, ${trashCount}, '${theme}');
 });
 </script>
 </body>
