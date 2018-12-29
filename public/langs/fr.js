@@ -8,7 +8,7 @@ NIMBUS.lang = {
 	LoginPasswordLabel: "Mot de passe",
 	LoginPasswordPlaceholder: "Saisissez ici votre mot de passe",
 	LoginThemeLabel: "Thème",
-	LoginThemeDefault: "Bootstrap (thème original))",
+	LoginThemeDefault: "Bootstrap (thème original)",
 	LoginThemeDarkly: "Darkly (thème sombre)",
 	LoginThemeFlatly: "Flatly (thème clair)",
 	LoginThemeMateria: "Materia (material design)",
