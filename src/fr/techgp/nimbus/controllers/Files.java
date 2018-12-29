@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import javax.servlet.MultipartConfigElement;
@@ -334,7 +335,7 @@ public class Files extends Controller {
 			if (item.name.endsWith(".ico"))
 				return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleICOImage(file, thumbnailWidth, thumbnailHeight));
 			return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleImage(file, thumbnailWidth, thumbnailHeight));
-		} catch (IOException ex) {
+		} catch (IOException | NoSuchElementException ex) { // Erreur de lecture ou format non supporté (comme SVG)
 			return SparkUtils.haltBadRequest();
 		}
 	}
