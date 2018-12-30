@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="nimbus-viewer nimbus-transparent-toolbars nimbus-hideable-toolbars">
+<html class="nimbus-viewer nimbus-hideable-toolbars">
 <head>
 <title data-translate="text">VideoTitle</title>
 <meta charset="UTF-8">
@@ -12,7 +12,6 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
-body { background-color: #666; }
 .play-toggle.active :first-child { display: none; }
 .play-toggle:not(.active) :last-child { display: none; }
 .volume-toggle.active :first-child { display: none; }
@@ -50,6 +49,7 @@ body { background-color: #666; }
 				<button type="button" class="btn btn-link play-move" data-offset="10"  data-translate="title" title="VideoForward10"><i class="material-icons">forward_10</i></button>
 				<button type="button" class="btn btn-link play-move" data-offset="30" data-translate="title" title="VideoForward30"><i class="material-icons">forward_30</i></button>
 			</div>
+			<span class="nimbus-toolbar-separator"></span>
 		</div>
 
 		<div class="btn-group">
@@ -64,12 +64,10 @@ body { background-color: #666; }
 		</div>
 
 		<div class="btn-group nimbus-hidden">
+			<span class="nimbus-toolbar-separator"></span>
 			<button id="subtitles-button" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="VideoSubtitles" aria-haspopup="true" aria-expanded="false"><i class="material-icons">subtitles</i></button>
 			<div id="subtitles-menu" class="dropdown-menu dropdown-menu-right" aria-labelledby="subtitles-button">
-				<button class="dropdown-item">
-					<i class="material-icons text-muted indicator">check</i>
-					<span data-translate="text">VideoSubtitlesDisabled</span>
-				</button>
+				<button class="dropdown-item active" data-translate="text">VideoSubtitlesDisabled</button>
 			</div>
 		</div>
 
@@ -116,6 +114,7 @@ NIMBUS.init(['video.js'], function() {
 			video.pause();
 	});
 	$('.play-menu').popover({
+		selector: true, // pour que le "title" du bouton reste présent
 		html: true,
 		placement: 'bottom',
 		trigger: 'click',
@@ -152,6 +151,7 @@ NIMBUS.init(['video.js'], function() {
 		video.muted = !video.muted;
 	})
 	$('.volume-menu').popover({
+		selector: true, // pour que le "title" du bouton reste présent
 		html: true,
 		placement: 'bottom',
 		trigger: 'click',
@@ -255,8 +255,7 @@ NIMBUS.init(['video.js'], function() {
 					var t = video.textTracks[i];
 					t.mode = (track && t === track.track) ? 'showing' : 'hidden';
 				}
-				button.children('.indicator').show();
-				button.siblings().children('.indicator').hide();
+				button.addClass('active').siblings().removeClass('active');
 			});
 			function addTrack(name, lang, src) {
 				// Enregistrer le sous-titre de la vidéo
@@ -272,7 +271,6 @@ NIMBUS.init(['video.js'], function() {
 				$('<button class="dropdown-item" />')
 					.data('track', track)
 					.text(name || NIMBUS.translate('VideoSubtitlesDefault'))
-					.prepend('<i class="material-icons text-muted indicator" style="display: none; ">check</i>')
 					.appendTo(menu);
 			}
 			results.forEach(function(result) {
@@ -283,7 +281,7 @@ NIMBUS.init(['video.js'], function() {
 			});
 		});
 	});
-	
+
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
 
