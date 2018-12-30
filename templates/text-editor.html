@@ -36,8 +36,9 @@ textarea { padding: 1em; width: 100%; height: 99%; }
 
 		<div class="btn-group">
 			<button id="smallerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorSmaller"><i class="material-icons">text_fields</i></button>
-			<#if markdown><button id="previewButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorPreview"><i class="material-icons">pageview</i></button></#if>
-			<#if markdown><a id="exportButton" href="#" class="btn btn-link" data-translate="title" title="MarkdownEditorExport"><i class="material-icons">cloud_download</i></a></#if>
+			<#if markdown><button id="previewButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorPreviewHTML"><i class="material-icons">pageview</i></button></#if>
+			<#if markdown><button id="editButton" type="button" class="btn btn-link" style="display: none; " data-translate="title" title="MarkdownEditorEditMarkdown"><i class="material-icons">edit</i></button></#if>
+			<#if markdown><a id="exportButton" href="#" class="btn btn-link" data-translate="title" title="MarkdownEditorExportHTML"><i class="material-icons">cloud_download</i></a></#if>
 			<button id="largerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorLarger"><i class="material-icons">format_size</i></button>
 		</div>
 
@@ -151,20 +152,26 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 				textarea.wrap('<div class="larger" />');
 		});
 		<#if markdown>
-		// Passer du mode d'édition à la prévisualisation HTML et inversement 
+		// Passer du mode d'édition à la prévisualisation HTML
 		$('#previewButton').click(function(event) {
 			var preview = $('#preview');
-			if (preview.hasClass('nimbus-hidden')) {
-				// Passer en prévisualisation
-				preview.siblings().hide();
-				preview.html(markdownToHtml(textarea.val())).removeClass('nimbus-hidden');
-			} else {
-				// Repasser en édition
-				preview.empty().addClass('nimbus-hidden');
-				preview.siblings().show();
-				textarea.focus();
-			}
-			$('#smallerButton,#largerButton').toggle();
+			// Cacher d'abord
+			preview.siblings().hide(); 
+			$('#previewButton,#smallerButton,#largerButton').hide();
+			// Afficher ensuite
+			preview.html(markdownToHtml(textarea.val())).removeClass('nimbus-hidden'); // afficher ensuite
+			$('#editButton').show();
+		});
+		// Passer de la prévisualisation HTML au mode d'édition
+		$('#editButton').click(function(event) {
+			var preview = $('#preview');
+			// Cacher d'abord
+			preview.empty().addClass('nimbus-hidden');
+			$('#editButton').hide();
+			// Afficher ensuite
+			preview.siblings().show();
+			textarea.focus();
+			$('#previewButton,#smallerButton,#largerButton').show();
 		});
 		// Exporter la note en HTML
 		$('#exportButton').attr('download', filename.replace('.md', '.html').replace('.markdown', '.html')).click(function() {
