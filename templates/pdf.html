@@ -33,21 +33,22 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 <body class="nimbus-hidden">
 	<header>
 		<div class="float-left">
-			<a href="#" class="btn btn-dark back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
 		</div>
 
 		<div class="btn-group nimbus-hidden large-screen">
-			<button type="button" class="btn btn-dark first-page" data-translate="title" title="PDFFirstPage"><i class="material-icons">first_page</i></button>
-			<button type="button" class="btn btn-dark previous-page" data-translate="title" title="PDFPreviousPage"><i class="material-icons">chevron_left</i></button>
-			<button type="button" class="btn btn-dark page-number"></button>
-			<button type="button" class="btn btn-dark next-page" data-translate="title" title="PDFNextPage"><i class="material-icons">chevron_right</i></button>
-			<button type="button" class="btn btn-dark last-page" data-translate="title" title="PDFLastPage"><i class="material-icons">last_page</i></button>
+			<button type="button" class="btn btn-link first-page" data-translate="title" title="PDFFirstPage"><i class="material-icons">first_page</i></button>
+			<button type="button" class="btn btn-link previous-page" data-translate="title" title="PDFPreviousPage"><i class="material-icons">chevron_left</i></button>
+			<button type="button" class="btn btn-link page-number" data-translate="title" title="PDFPageSelect"></button>
+			<button type="button" class="btn btn-link next-page" data-translate="title" title="PDFNextPage"><i class="material-icons">chevron_right</i></button>
+			<button type="button" class="btn btn-link last-page" data-translate="title" title="PDFLastPage"><i class="material-icons">last_page</i></button>
+			<span class="nimbus-toolbar-separator"></span>
 		</div>
 
 		<div class="btn-group">
-			<button type="button" class="btn btn-dark zoom-out" data-translate="title" title="PDFZoomOut"><i class="material-icons">zoom_out</i></button>
+			<button type="button" class="btn btn-link zoom-out" data-translate="title" title="PDFZoomOut"><i class="material-icons">zoom_out</i></button>
 			<div class="btn-group">
-				<button type="button" class="btn btn-dark zoom-menu" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">80%</button>
+				<button type="button" class="btn btn-link zoom-menu" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">80%</button>
 				<div class="dropdown-menu">
 					<a href="#" class="dropdown-item zoom-real" data-translate="text">PDFZoomReal</a>
 					<a href="#" class="dropdown-item zoom-fit" data-translate="text">PDFZoomFit</a>
@@ -63,16 +64,17 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 					<a href="#" class="dropdown-item zoom-pct" data-value="400">400 %</a>
 				</div>
 			</div>
-			<button type="button" class="btn btn-dark zoom-in" data-translate="title" title="PDFZoomIn"><i class="material-icons">zoom_in</i></button>
+			<button type="button" class="btn btn-link zoom-in" data-translate="title" title="PDFZoomIn"><i class="material-icons">zoom_in</i></button>
 		</div>
 
 		<span class="btn-group large-screen">
-			<button type="button" class="btn btn-dark rotate-ccw" data-translate="title" title="PDFRotateCCW"><i class="material-icons">rotate_left</i></button>
-			<button type="button" class="btn btn-dark rotate-cw" data-translate="title" title="PDFRotateCW"><i class="material-icons">rotate_right</i></button>
+			<span class="nimbus-toolbar-separator"></span>
+			<button type="button" class="btn btn-link rotate-ccw" data-translate="title" title="PDFRotateCCW"><i class="material-icons">rotate_left</i></button>
+			<button type="button" class="btn btn-link rotate-cw" data-translate="title" title="PDFRotateCW"><i class="material-icons">rotate_right</i></button>
 		</span>
 
 		<div class="float-right dropdown small-screen">
-			<button type="button" class="btn btn-dark menu" data-translate="title" title="PDFMenu" data-toggle="dropdown"><i class="material-icons">menu</i></button>
+			<button type="button" class="btn btn-link menu" data-translate="title" title="PDFMenu" data-toggle="dropdown"><i class="material-icons">menu</i></button>
 			<div class="dropdown-menu dropdown-menu-right">
 				<a href="#" class="dropdown-item first-page" data-translate="text">PDFFirstPage</a>
 				<a href="#" class="dropdown-item previous-page" data-translate="text">PDFPreviousPage</a>
@@ -87,7 +89,7 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 		</div>
 
 		<div class="float-right large-screen">
-			<button type="button" class="btn btn-dark about" data-toggle="modal" data-target="#about-modal" data-translate="title" title="PDFAbout"><i class="material-icons">info</i></button>
+			<button type="button" class="btn btn-link about" data-toggle="modal" data-target="#about-modal" data-translate="title" title="PDFAbout"><i class="material-icons">info</i></button>
 		</div>
 	</header>
 	<main>
@@ -263,6 +265,7 @@ NIMBUS.init(['pdf.js'], function() {
 					canvasContext: canvasContext,
 					viewport: viewport
 				};
+				main.scrollTop(0);
 				var renderTask = page.render(renderContext);
 				renderTask.promise.then(function() {
 					pageRendering = false;
@@ -326,6 +329,7 @@ NIMBUS.init(['pdf.js'], function() {
 	});
 	// Afficher / Choisir le numéro de page
 	var pageNumberButton = header.find('.page-number').popover({
+		selector: true, // pour que le "title" du bouton reste présent
 		html: true,
 		placement: 'bottom',
 		content: function() {
