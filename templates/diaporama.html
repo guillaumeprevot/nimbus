@@ -22,6 +22,7 @@
 	<header>
 		<div class="float-left">
 			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<button type="button" class="btn btn-link diaporama-rotate-left" data-translate="title" title="DiaporamaRotateLeft"><i class="material-icons">rotate_left</i></button>
 		</div>
 
 		<div class="btn-group diaporama-manual">
@@ -39,13 +40,24 @@
 		</div>
 
 		<div class="float-right">
-			<button type="button" class="btn btn-link diaporama-ratio" data-translate="title" title="DiaporamaAspectRatio"><i class="material-icons">aspect_ratio</i></button>
+			<div class="btn-group">
+				<button id="optionsButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="DiaporamaOptions" aria-haspopup="true" aria-expanded="false"><i class="material-icons">settings</i></button>
+				<div id="optionsMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsButton">
+					<button class="dropdown-item active" data-aspect="0" data-translate="text">DiaporamaAspectScaleDown</button>
+					<button class="dropdown-item" data-aspect="1" data-translate="text">DiaporamaAspectContain</button>
+					<button class="dropdown-item" data-aspect="2" data-translate="text">DiaporamaAspectCover</button>
+					<div class="dropdown-divider"></div>
+					<button class="dropdown-item active" data-mode="0" data-translate="text">DiaporamaModeDefault</button>
+					<button class="dropdown-item" data-mode="1" data-translate="text">DiaporamaModeRepeat</button>
+					<button class="dropdown-item" data-mode="2" data-translate="text">DiaporamaModeRandom</button>
+				</div>
+			</div>
 			<button type="button" class="btn btn-link diaporama-fullscreen" data-translate="title" title="DiaporamaFullscreen"><i class="material-icons">fullscreen</i></button>
 			<button type="button" class="btn btn-link diaporama-restore nimbus-hidden" data-translate="title" title="DiaporamaRestore"><i class="material-icons">fullscreen_exit</i></button>
 		</div>
 	</header>
-	<main>
-		<img style="width: 100%; height: 100%; object-fit: scale-down; " />
+	<main style="overflow: hidden; ">
+		<canvas style="width: 100%; height: 100%; "></canvas>
 	</main>
 	<footer>
 		<div style="float: left; padding-right: 10px; font-size: small; font-family: mono; color: white; ">
@@ -60,12 +72,21 @@
 "use strict";
 
 function Diaporama(items, index) {
-	// L'image dans laquelle afficher
-	this.image = document.querySelector('img');
+	// Le canvas dans lequel dessiner les images
+	this.canvas = document.querySelector('canvas');
+	// L'image non affichée directement mais pour charger le contenu
+	this.image = new Image();
+	this.image.onload = this.draw.bind(this);
 	// La liste des éléments à afficher
 	this.items = items;
 	// La position de l'image en cours
 	this.index = index;
+	// La rotation en cours, par défaut 0, puis -90, -180, -270 puis à nouveau 0
+	this.rotation = 0;
+	// L'aspect utilisé pour afficher l'image
+	this.aspect = 0;
+	// Le mode de lecture utilisé
+	this.mode = 0;
 	// Par défaut, le diaporama ne se lance pas
 	this.interval = null;
 	// Par défaut, le diaporama défilerait toutes les 3 secondes
@@ -79,6 +100,41 @@ function Diaporama(items, index) {
 }
 
 $.extend(Diaporama.prototype, {
+	draw: function() {
+		// draw "image" in "canvas" with proper "rotation" and "aspect";
+		var context = this.canvas.getContext('2d');
+		var aspect = Diaporama.aspects[this.aspect];
+		var rotated = this.rotation === 90 || this.rotation === 270;
+		var iw = this.image.naturalWidth;
+		var ih = this.image.naturalHeight;
+		var cw = this.canvas.offsetWidth;
+		var ch = this.canvas.offsetHeight;
+		var scale = aspect.scale(rotated ? ih : iw, rotated ? iw : ih, cw, ch);;
+		this.canvas.width = cw;
+		this.canvas.height = ch;
+		context.save();
+		context.translate(cw / 2, ch / 2);
+		context.rotate(this.rotation * Math.PI / 180);
+		context.scale(scale[0], scale[1]);
+		context.drawImage(this.image, -iw / 2, -ih / 2, iw, ih);
+		context.restore();
+	},
+	rotateLeft: function() {
+		this.rotation = (this.rotation === 0) ? 270 : (this.rotation - 90);
+		this.draw();
+	},
+	rotateRight: function(degrees) {
+		this.rotation = (this.rotation === 270) ? 0 : (this.rotation + 90);
+		this.draw();
+	},
+	setAspect: function(aspect) {
+		this.aspect = aspect;
+		this.draw();
+	},
+	setMode: function(mode) {
+		this.mode = mode;
+		// see "next" for "mode" usage"
+	},
 	play: function() {
 		this.interval = setInterval(this.next.bind(this), this.intervalSeconds * 1000);
 		this.triggerSlideshowChanged();
@@ -113,7 +169,7 @@ $.extend(Diaporama.prototype, {
 		var item = this.items[index];
 		// On note la position
 		this.index = index;
-		// On ajuste le contenu de l'image
+		// On ajuste le contenu de l'image ("onload" appellera "draw")
 		this.image.src = item.url;
 		// On prévient le reste de l'IHM
 		this.triggerIndexChanged();
@@ -125,15 +181,15 @@ $.extend(Diaporama.prototype, {
 		this.show(this.index > 0 ? (this.index - 1) : (this.items.length - 1));
 	},
 	next: function() {
-		this.show(this.index < this.items.length - 1 ? (this.index + 1) : 0);
+		var mode = Diaporama.modes[this.mode];
+		var next = mode.next(this.index, this.items.length);
+		if (next === false)
+			this.pause();
+		else
+			this.show(next);
 	},
 	last: function() {
 		this.show(this.items.length - 1);
-	},
-	changeRatio: function() {
-		var options = ['fill', 'contain', 'cover', 'scale-down'];
-		var index = options.indexOf(this.image.style.objectFit);
-		this.image.style.objectFit = options[(index + 1) % options.length];
 	},
 	triggerSpeedChanged: function() {
 		$(this).trigger('speedchanged', [this.intervalSeconds]);
@@ -145,6 +201,53 @@ $.extend(Diaporama.prototype, {
 		$(this).trigger('indexchanged', [this.index]);
 	},
 });
+
+// 3 sizes matching CSS3 "object-fit" property values ("fill" is not used beacuse is does not keep the original aspect ratio)
+Diaporama.aspects = [{
+	// Real size if smaller than the container or shrinked to fit
+	name: 'scaleDown',
+	scale: function(iw, ih, cw, ch) {
+		var ratio = Math.min(cw / iw, ch / ih, 1);
+		return [ratio, ratio];
+	}
+}, {
+	// Resized to fit the container, with margins if the aspect ratio does not match
+	name: 'contain',
+	scale: function(iw, ih, cw, ch) {
+		var ratio = Math.min(cw / iw, ch / ih);
+		return [ratio, ratio];
+	}
+}, {
+	// Resized to fit the container, without margins but the image may be clipped
+	name: 'cover',
+	scale: function(iw, ih, cw, ch) {
+		var ratio = Math.max(cw / iw, ch / ih);
+		return [ratio, ratio];
+	}
+}];
+
+// 3 playing modes modifying what 'next' song means
+Diaporama.modes = [{
+	// 0..N then stop
+	name: 'default',
+	next: function(index, count) {
+		if (index === count - 1)
+			return false;
+		return index + 1;
+	}
+}, {
+	// 0..N then starts again
+	name: 'repeat',
+	next: function(index, count) {
+		return (index + 1) % count;
+	}
+}, {
+	// randomly switch between songs
+	name: 'random',
+	next: function(index, count) {
+		return (index + Math.ceil(Math.random() * (count - 1))) % count;
+	}
+}];
 
 //Initialiser la page
 NIMBUS.init(['image.js'], function() {
@@ -189,7 +292,7 @@ function run(items, play, selection) {
 				p.push(NIMBUS.translate('DiaporamaDepth', [item.depth]))
 			$('.diaporama-index').text('' + (index + 1));
 			$('.diaporama-description').text(item.name + ' - ' + p.join(', '));
-			diaporama.image.title = item.name + '\n' + p.join(', ');
+			diaporama.canvas.title = item.name + '\n' + p.join(', ');
 		});
 
 	// Lancer le diaporama, si c'est demandé
@@ -197,6 +300,7 @@ function run(items, play, selection) {
 		diaporama.play();
 
 	// Manipuler le diaporama grâce à l'IHM
+	$('.diaporama-rotate-left').click(() => diaporama.rotateLeft());
 	$('.diaporama-first').click(diaporama.first.bind(diaporama));
 	$('.diaporama-previous').click(diaporama.previous.bind(diaporama));
 	$('.diaporama-play').click(diaporama.play.bind(diaporama));
@@ -205,7 +309,16 @@ function run(items, play, selection) {
 	$('.diaporama-decelerate').click(diaporama.decelerate.bind(diaporama));
 	$('.diaporama-pause').click(diaporama.pause.bind(diaporama));
 	$('.diaporama-accelerate').click(diaporama.accelerate.bind(diaporama));
-	$('.diaporama-ratio').click(diaporama.changeRatio.bind(diaporama));
+	$('#optionsMenu').on('click', '[data-aspect]', function(event) {
+		var entry = $(event.target).closest('[data-aspect]');
+		entry.addClass('active').siblings('[data-aspect]').removeClass('active');
+		diaporama.setAspect(parseInt(entry.attr('data-aspect')));
+	});
+	$('#optionsMenu').on('click', '[data-mode]', function(event) {
+		var entry = $(event.target).closest('[data-mode]');
+		entry.addClass('active').siblings('[data-mode]').removeClass('active');
+		diaporama.setMode(parseInt(entry.attr('data-mode')));
+	});
 
 	// Entrer en plein-écran / Sortir du plein-écran
 	var fullscreenElement = document.body;
@@ -240,8 +353,13 @@ function run(items, play, selection) {
 		'Space': () => diaporama.toggle(),
 		'+': () => diaporama.accelerate(),
 		'-': () => diaporama.decelerate(),
+		'Alt-ArrowLeft': () => diaporama.rotateLeft(),
+		'Alt-ArrowRight': () => diaporama.rotateRight(),
 		'F11': () => $('.diaporama-fullscreen').hasClass('nimbus-hidden') ? $('.diaporama-restore').click() : $('.diaporama-fullscreen').click(),
 	});
+
+	// Redessiner quand la taille de la page change
+	$(window).on('resize', () => diaporama.draw());
 }
 </script>
 
