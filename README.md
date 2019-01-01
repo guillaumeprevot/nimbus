@@ -23,7 +23,7 @@ Autres thèmes : [thème par défaut](./doc/main-page-1-default.png), [thème Ub
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
 [Spark](http://sparkjava.com/) | Java | 2.8.0 | Apache 2.0 | Framework Java pour application web
-[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | 3.8.2 | Apache 2.0 | Persistance
+[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | 3.9.1 | Apache 2.0 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | 2.6 | Apache 2.0 | Utilitaire
 [FreeMarker](https://freemarker.apache.org/) | Java | 2.3.28 | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | 2.8.5 | Apache 2.0 | Support du format JSON
@@ -35,16 +35,16 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | 2.2.5 | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | 0.9.1 | MIT | Support des fichiers MP3
 [jQuery](http://api.jquery.com/) | JS | 3.3.1 | ~MIT | Kit de départ pour le JS
-[Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.1.3 | MIT | Kit de départ pour l'IHM
-[Popper.js](https://popper.js.org/) | JS | 1.14.4 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
-[Bootswatch](https://bootswatch.com/) | CSS | 4.1.3 | MIT | Thèmes pour Boostrap
+[Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.2.1 | MIT | Kit de départ pour l'IHM
+[Popper.js](https://popper.js.org/) | JS | 1.14.6 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
+[Bootswatch](https://bootswatch.com/) | CSS | 4.2.1 | MIT | Thèmes pour Boostrap
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
 [JSZip](https://github.com/Stuk/jszip/releases) | plugin JS | 3.1.5 | MIT or GPLv3 | Dépendances de ePub.js
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 1.10.100 | Apache 2.0 | Support des fichiers PDF
 [Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.5.2 | MIT | Prévisualisation du Markdown
 [Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.15.0 | MIT | Coloration syntaxique des blocs de code
-[CodeMirror](https://codemirror.net/) | plugin JS | 5.42.0 | MIT | Editeur de code avec coloration syntaxique notamment
+[CodeMirror](https://codemirror.net/) | plugin JS | 5.42.2 | MIT | Editeur de code avec coloration syntaxique notamment
 
 ## Fonctionnalités
 

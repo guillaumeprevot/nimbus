@@ -82,7 +82,7 @@
 			<version>1.7.25</version>
 		</dependency>
 		<!--
-			3.8.2
+			3.9.1
 			https://mongodb.github.io/mongo-java-driver/
 			https://www.mvnrepository.com/artifact/org.mongodb/mongodb-driver
 		-->
