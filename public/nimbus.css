@@ -12,9 +12,9 @@
 #progress { display: none; }
 #progress > :first-child { flex: auto; }
 #progress > :last-child { flex: none; min-width: 6em; text-align: center; font-size: .75rem; }
-#alert-container { padding: 10px 10px 0; }
+#alert-container { padding: 5px; }
 #alert-container:empty { display: none; }
-#alert-container > .alert { margin-bottom: 10px; }
+#alert-container > .alert { margin: 5px; }
 #usage-menu-entry { height: 2.5em; }
 #itemcount:empty { display: none; }
 #itemcount::before { content: "("; }

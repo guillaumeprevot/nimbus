@@ -51,12 +51,14 @@ var NIMBUS = (function() {
 	};
 
 	NIMBUS.message = function(text, isError) {
+		// https://getbootstrap.com/docs/4.2/components/alerts/
 		return $('<div class="alert" />')
-			.toggleClass('alert-danger', isError)
-			.toggleClass('alert-primary', !isError)
+			.addClass(isError ? 'alert-danger' : 'alert-primary')
+			.attr('role', isError ? 'alert' : 'status')
+			.attr('aria-live', isError ? 'assertive' : 'polite')
 			.text(text)
 			.appendTo('#alert-container');
-	},
+	};
 
 	// (key) ou (key, p1, p2, ...) ou (key, [p1, p2, ...])
 	NIMBUS.translate = function(key) {
