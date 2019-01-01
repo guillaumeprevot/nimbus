@@ -52,25 +52,19 @@
 		</div>
 
 		<label data-translate="text">PreferencesGridOtherOptions</label>
-		<div class="checkbox">
-			<label>
-				<input id="showItemTags" type="checkbox" ${showItemTags?then("checked","")}>
-				<span data-translate="text">PreferencesShowItemTagsLabel</span>
-			</label>
+		<div class="checkbox custom-control custom-switch">
+			<input type="checkbox" class="custom-control-input" id="showItemTags" ${showItemTags?then("checked","")}>
+			<label class="custom-control-label" for="showItemTags" data-translate="text">PreferencesShowItemTagsLabel</label>
 		</div>
 
-		<div class="checkbox">
-			<label>
-				<input id="showItemDescription" type="checkbox" ${showItemDescription?then("checked","")}>
-				<span data-translate="text">PreferencesShowItemDescriptionLabel</span>
-			</label>
+		<div class="checkbox custom-control custom-switch">
+			<input type="checkbox" class="custom-control-input" id="showItemDescription" ${showItemDescription?then("checked","")}>
+			<label class="custom-control-label" for="showItemDescription" data-translate="text">PreferencesShowItemDescriptionLabel</label>
 		</div>
 
-		<div class="checkbox">
-			<label>
-				<input id="showItemThumbnail" type="checkbox" ${showItemThumbnail?then("checked","")}>
-				<span data-translate="text">PreferencesShowItemThumbnailLabel</span>
-			</label>
+		<div class="checkbox custom-control custom-switch">
+			<input type="checkbox" class="custom-control-input" id="showItemThumbnail" ${showItemThumbnail?then("checked","")}>
+			<label class="custom-control-label" for="showItemThumbnail" data-translate="text">PreferencesShowItemThumbnailLabel</label>
 		</div>
 	</fieldset>
 	</div>

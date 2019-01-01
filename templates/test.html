@@ -572,9 +572,9 @@ function fillTests(add) {
 	add("PREFERENCES / Vérifier les préférences par défaut", function() {
 		return $.get("/preferences.html").then((result) => assertString(result,
 				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"\" />", true,
-				"<input id=\"showItemTags\" type=\"checkbox\" checked>", true,
-				"<input id=\"showItemDescription\" type=\"checkbox\" checked>", true,
-				"<input id=\"showItemThumbnail\" type=\"checkbox\" checked>", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemTags\" checked>", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemDescription\" checked>", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemThumbnail\" checked>", true,
 				"visibleItemColumns.val([]);", true));
 	});
 	add("PREFERENCES / Modifier les préférences", function() {
@@ -596,9 +596,9 @@ function fillTests(add) {
 	add("PREFERENCES / Vérifier que les préférences sont bien prises en compte", function() {
 		return $.get("/preferences.html").then((result) => assertString(result,
 				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"Administrateur\" />", true,
-				"<input id=\"showItemTags\" type=\"checkbox\" >", true,
-				"<input id=\"showItemDescription\" type=\"checkbox\" checked>", true,
-				"<input id=\"showItemThumbnail\" type=\"checkbox\" >", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemTags\" >", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemDescription\" checked>", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemThumbnail\" >", true,
 				"visibleItemColumns.val(['length','createDate','updateDate']);", true));
 	});
 	add("PREFERENCES / Choisir les préférences par défaut de l'adm", function() {
