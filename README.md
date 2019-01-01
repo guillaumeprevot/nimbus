@@ -38,6 +38,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.2.1 | MIT | Kit de départ pour l'IHM
 [Popper.js](https://popper.js.org/) | JS | 1.14.6 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
 [Bootswatch](https://bootswatch.com/) | CSS | 4.2.1 | MIT | Thèmes pour Boostrap
+[Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | CSS | v14 | OFL | WebFont pour les thèmes Flatly et Darkly
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
 [JSZip](https://github.com/Stuk/jszip/releases) | plugin JS | 3.1.5 | MIT or GPLv3 | Dépendances de ePub.js
