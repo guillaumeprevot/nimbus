@@ -221,7 +221,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 			'Ctrl-+': () => $('#largerButton').click(),
 			'Ctrl--': () => $('#smallerButton').click(),
 			<#if markdown>
-			'Ctrl-p': () => $('#previewButton').click(),
+			'Ctrl-p': () => $('#previewButton,#editButton').filter(':visible').click(),
 			// 'Ctrl-e': () => $('#exportButton').click(), // ne fonctionne pas :-(, peut-être car ça simule un clic sur un lien ?
 			</#if>
 		});
@@ -234,7 +234,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 			if (swipe.duration > 200)
 				return;
 			if ('right' === swipe.direction || 'left' === swipe.direction)
-				$('#previewButton').click()
+				$('#previewButton,#editButton').filter(':visible').click()
 		});
 		</#if>
 	});
