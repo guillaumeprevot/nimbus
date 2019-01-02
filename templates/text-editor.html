@@ -13,7 +13,7 @@
 <#if markdown><link type="text/css" rel="stylesheet" href="/libs/prism/prism.min.css" /></#if>
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
-textarea { padding: 1em; width: 100%; height: 99%; }
+textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; white-space: pre; font-family: monospace; color: inherit; background-color: transparent; }
 <#if markdown>#preview { padding: 1em; }</#if>
 .larger { font-size: larger; height: 100%; }
 .smaller { font-size: smaller; height: 100%; }
@@ -54,12 +54,10 @@ textarea { padding: 1em; width: 100%; height: 99%; }
 		</div>
 	</header>
 	<main>
-		<textarea class="nimbus-hidden" autofocus data-translate="placeholder" placeholder="TextEditorPlaceholder"
-			style="font-family: monospace; white-space: pre; overflow: auto; border: 0; "></textarea>
+		<textarea class="nimbus-hidden" autofocus data-translate="placeholder" placeholder="TextEditorPlaceholder"></textarea>
 		<#if markdown><div id="preview" class="nimbus-hidden"></div></#if>
 	</main>
-	<footer>
-	</footer>
+	<footer></footer>
 <script>
 "use strict";
 
