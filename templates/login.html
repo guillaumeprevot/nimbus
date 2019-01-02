@@ -38,18 +38,8 @@
 		</div>
 		<input type="hidden" name="urlToLoad" value="${urlToLoad}" />
 		<button class="btn btn-primary btn-block" data-translate="text" type="submit">LoginButton</button>
-		<div class="btn-group">
-			<button class="btn btn-link btn-block dropdown-toggle" data-toggle="dropdown" data-translate="text" type="button" aria-haspopup="true" aria-expanded="false">LoginThemeLabel</button>
-			<div class="dropdown-menu">
-				<button class="dropdown-item" data-translate="text" data-theme="bootstrap" type="button">LoginThemeDefault</button>
-				<button class="dropdown-item" data-translate="text" data-theme="darkly" type="button">LoginThemeDarkly</button>
-				<button class="dropdown-item" data-translate="text" data-theme="flatly" type="button">LoginThemeFlatly</button>
-				<button class="dropdown-item" data-translate="text" data-theme="materia" type="button">LoginThemeMateria</button>
-				<button class="dropdown-item" data-translate="text" data-theme="united" type="button">LoginThemeUnited</button>
-				<div class="dropdown-divider"></div>
-				<a class="dropdown-item disabled" data-translate="text" target="_blank" href="https://bootswatch.com/">LoginThemeCredits</a>
-			</div>
-		</div>
+		<#if theme == "dark"><button class="btn btn-link" data-theme="light" data-translate="text" type="button">LoginEnableLightTheme</button></#if>
+		<#if theme == "light"><button class="btn btn-link" data-theme="dark" data-translate="text" type="button">LoginEnableDarkTheme</button></#if>
 	</fieldset>
 </form>
 
@@ -66,7 +56,7 @@ NIMBUS.init([], function() {
 		$.get('/preferences/theme', { theme: theme}).then(function() {
 			window.location.reload();
 		});
-	}).filter('[data-theme="${theme}"]').addClass('active');
+	});
 
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');

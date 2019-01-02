@@ -10,11 +10,9 @@ Le développement du projet s'organise selon 4 axes :
 - *des extensions JavaScript* côté client définissant le comportement en fonction du fichier (affichage, propriétés, actions, ...)
 - *des applications annexes* (lecteur audio, éditeur de texte, ...) utilisant le cloud comme espace de stockage
 
-![Nimbus avec le thème clair](./doc/main-page-2-flatly.png)
+![Nimbus avec le thème clair](./doc/main-page-1-light-theme.png)
 
-![Nimbus avec le thème sombre](./doc/main-page-3-darkly.png)
-
-Autres thèmes : [thème par défaut](./doc/main-page-1-default.png), [thème Ubuntu](./doc/main-page-4-united.png) et [thème Material Design](./doc/main-page-5-materia.png)
+![Nimbus avec le thème sombre](./doc/main-page-2-dark-theme.png)
 
 ## Technologies
 
@@ -37,7 +35,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [jQuery](http://api.jquery.com/) | JS | 3.3.1 | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.2.1 | MIT | Kit de départ pour l'IHM
 [Popper.js](https://popper.js.org/) | JS | 1.14.6 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
-[Bootswatch](https://bootswatch.com/) | CSS | 4.2.1 | MIT | Thèmes pour Boostrap
+[Bootswatch](https://bootswatch.com/) | CSS | 4.2.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
 [Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | CSS | v14 | OFL | WebFont pour les thèmes Flatly et Darkly
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub

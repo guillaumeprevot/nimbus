@@ -628,12 +628,12 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Préparer la zone de choix du thème */
-	function prepareThemeMenu(theme) {
-		$('#theme-selector').on('click', '[data-theme]', function(event) {
-			$.get('/preferences/theme', { theme: $(event.target).closest('button').attr('data-theme') }).then(function() {
+	function prepareThemeMenu() {
+		$('.nimbus-menu [data-theme]').click(function(event) {
+			$.get('/preferences/theme', { theme: $(event.target).closest('a').attr('data-theme') }).then(function() {
 				window.location.reload();
 			});
-		}).find('[data-theme="' + theme + '"]').removeClass('btn-secondary').addClass('btn-primary');
+		});
 	}
 
 	/** Obtenir l'id du dossier actuellement affiché */
@@ -1141,7 +1141,7 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Initialiser la page principale */
-	function init(columns, trashCount, theme) {
+	function init(columns, trashCount) {
 		// Préparation de la grille
 		prepareTable(columns);
 		// Après chargement de la page, se positionner sur l'élément demandé
@@ -1169,7 +1169,7 @@ NIMBUS.navigation = (function() {
 		// Affichage du quota dans le menu
 		updateUsageMenu();
 		// Choix du thème
-		prepareThemeMenu(theme);
+		prepareThemeMenu();
 		// Clic sur le bouton "Supprimer", on prépare et on affiche la fenêtre
 		$('#delete-button').click(function(event) { getSelectedItemIds(deleteItems); });
 		// Clic sur le bouton "Télécharger" afin de télécharger un fichier ou un zip des éléments sélectionnés

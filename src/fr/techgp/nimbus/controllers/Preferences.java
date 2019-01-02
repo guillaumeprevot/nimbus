@@ -19,7 +19,10 @@ public class Preferences extends Controller {
 	 */
 	public static final Route stylesheet = (request, response) -> {
 		String theme = getUserTheme(request);
-		response.redirect("/themes/" + theme + "/bootstrap.min.css");
+		if ("dark".equals(theme))
+			response.redirect("/libs/bootswatch/darkly.min.css");
+		else
+			response.redirect("/libs/bootswatch/flatly.min.css");
 		return null;
 	};
 

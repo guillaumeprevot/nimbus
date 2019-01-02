@@ -151,17 +151,17 @@ function shouldUpload(content, mimetype, filename, id) {
 //==========
 	
 function fillTests(add) {
-	add("Réinitialiser le thème sur Bootstrap", function() {
-		return $.get("/preferences/theme?theme=bootstrap").then(assertEmpty);
+	add("Réinitialiser le thème sur 'light'", function() {
+		return $.get("/preferences/theme?theme=light").then(assertEmpty);
 	});
-	add("Utiliser par défaut le thème Bootstrap", function() {
-		return $.get("/preferences/theme.css").then((result) => assertString(result, "https://getbootstrap.com/", true, "https://bootswatch.com", false));
+	add("Vérifier que le thème utilisé est 'flatly'", function() {
+		return $.get("/preferences/theme.css").then((result) => assertString(result, "https://bootswatch.com", true, "--blue: #2C3E50", true, "--blue: #375a7f", false));
 	});
-	add("Personnaliser le thème", function() {
-		return $.get("/preferences/theme?theme=flatly").then(assertEmpty);
+	add("Activer le thème 'dark'", function() {
+		return $.get("/preferences/theme?theme=dark").then(assertEmpty);
 	});
-	add("Utiliser ensuite le thème personnalisé", function() {
-		return $.get("/preferences/theme.css").then((result) => assertContains(result, "https://bootswatch.com"));
+	add("Vérifier que le thème utilisé est 'darkly'", function() {
+		return $.get("/preferences/theme.css").then((result) => assertString(result, "https://bootswatch.com", true, "--blue: #2C3E50", false, "--blue: #375a7f", true));
 	});
 
 	add("Bloquer l'accès à la page principale sans identification", function() {

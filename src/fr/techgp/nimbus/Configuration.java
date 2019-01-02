@@ -66,7 +66,7 @@ public class Configuration {
 		this.serverAbsoluteUrl = getString("server.absolute.url", (this.serverKeystore != null ? "https" : "http") + "://localhost:" + this.serverPort);
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
-		this.clientDefaultTheme = getString("client.default.theme", "bootstrap");
+		this.clientDefaultTheme = getString("client.default.theme", "light");
 		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,audio,image,markdown,code,text,windows-shortcut,default-open,default-after").split(",");
 		this.clientQuotaWarning = getInt("client.quota.warning", 75);
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
