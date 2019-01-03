@@ -108,9 +108,6 @@
 			fr: {
 				CodeActionEdit: "Ouvrir dans l'éditeur de code",
 				CodeEditorTitle: "Editeur de code",
-				CodeEditorTheme: "Thèmes",
-				CodeEditorThemeNone: "Sans thème",
-				CodeEditorThemeDefault: "Thème par défaut",
 				CodeEditorOptions: "Options",
 				CodeEditorOptionsIndentWithTabs: "Indentation avec tabulation",
 				CodeEditorOptionsRTLDirection: "Texte de droite à gauche",
@@ -120,9 +117,6 @@
 			en: {
 				CodeActionEdit: "Open in code editor",
 				CodeEditorTitle: "Code editor",
-				CodeEditorTheme: "Themes",
-				CodeEditorThemeNone: "No theme",
-				CodeEditorThemeDefault: "Default theme",
 				CodeEditorOptions: "Options",
 				CodeEditorOptionsIndentWithTabs: "Indent with tabs",
 				CodeEditorOptionsRTLDirection: "Right-to-left text",

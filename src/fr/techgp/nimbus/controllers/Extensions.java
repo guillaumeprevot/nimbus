@@ -119,6 +119,7 @@ public class Extensions extends Controller {
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
+				"theme", getUserTheme(request),
 				"lang", SparkUtils.getRequestLang(request));
 	};
 
