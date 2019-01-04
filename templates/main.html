@@ -67,13 +67,13 @@
 				<span data-translate="text">MainToolbarTrash</span>
 				<span></span>
 			</a>
-			<#if theme == "dark">
+			<#if theme != "light">
 			<a class="dropdown-item" href="#" data-theme="light">
 				<i class="material-icons">invert_colors</i>
 				<span data-translate="text">MainToolbarEnableLightTheme</span>
 			</a>
 			</#if>
-			<#if theme == "light">
+			<#if theme != "dark">
 			<a class="dropdown-item" href="#" data-theme="dark">
 				<i class="material-icons">invert_colors</i>
 				<span data-translate="text">MainToolbarEnableDarkTheme</span>

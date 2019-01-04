@@ -38,8 +38,8 @@
 		</div>
 		<input type="hidden" name="urlToLoad" value="${urlToLoad}" />
 		<button class="btn btn-primary btn-block" data-translate="text" type="submit">LoginButton</button>
-		<#if theme == "dark"><button class="btn btn-link" data-theme="light" data-translate="text" type="button">LoginEnableLightTheme</button></#if>
-		<#if theme == "light"><button class="btn btn-link" data-theme="dark" data-translate="text" type="button">LoginEnableDarkTheme</button></#if>
+		<#if theme != "light"><button class="btn btn-link btn-block" data-theme="light" data-translate="text" type="button">LoginEnableLightTheme</button></#if>
+		<#if theme != "dark"><button class="btn btn-link btn-block" data-theme="dark" data-translate="text" type="button">LoginEnableDarkTheme</button></#if>
 	</fieldset>
 </form>
 
