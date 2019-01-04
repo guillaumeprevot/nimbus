@@ -10,9 +10,9 @@ Le développement du projet s'organise selon 4 axes :
 - *des extensions JavaScript* côté client définissant le comportement en fonction du fichier (affichage, propriétés, actions, ...)
 - *des applications annexes* (lecteur audio, éditeur de texte, ...) utilisant le cloud comme espace de stockage
 
-![Nimbus avec le thème clair](./doc/main-page-1-light-theme.png)
+![Nimbus avec le thème clair](./doc/theme-light.png)
 
-![Nimbus avec le thème sombre](./doc/main-page-2-dark-theme.png)
+![Nimbus avec le thème sombre](./doc/theme-dark.png)
 
 ## Technologies
 
@@ -61,13 +61,93 @@ Fait | Gestion des partages de fichier (protégé par mot de passe et avec expir
 Fait | Gestion de la corbeille
 Fait | Extraction automatique des propriétés (dimension des images, durée d'une vidéo, auteur d'un MP3, ...)
 Fait | Support extensible de différents types de fichiers côté client (plugins)
-Fait | Support des thèmes grâce à Bootstrap (default) et Bootswatch (flatly, darkly, ...)
+Fait | Support des thèmes clair et sombre (Flatly/Darkly pour l'IHM + création de 2 thèmes pour CodeMirror)
 Fait | Import, export et téléchargement simplifié des fichiers/dossiers
-Fait | Applications annexes (d'autres à ajouter au fur et à mesure)
-Partiel | Installation simplifiée
-Partiel | Tests automatisables
-Partiel | Synchronisation en local (Fait : local>serveur, serveur>local. A faire : bi-directionnelle et temps réel)
-A faire | Documentation
+Fait | Tests automatisés (mais à compléter au fur et à mesure)
+Fait | Installation simplifiée
+Fait | Documentation (présentation, technologies, installation, import, synchronisation)
+A faire | Documentation (types de fichier supportés, facets, plugins, applications) 
+Fait | Applications annexes (player audio, éditeur de code/texte/Markdown, diaporama, lecteur ePub et PDF, lecteur vidéo)
+A faire | Applications annexes (contacts, note, calendrier, messagerie, ... il y a tellement de possibilités !)
+Fait | Synchronisation (dossier local vers serveur et serveur vers dossier local)
+A faire | Synchronisation (bi-directionnelle et/ou temps réel)
+
+## Installation
+
+**Pré-requis**
+
+Pour fonctionner, `Nimbus` a besoin de [MongoDB](https://www.mongodb.com/download-center/community), [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html), [Git](https://git-scm.com/) et [Maven](https://maven.apache.org/download.cgi).
+
+**Installation**
+
+Tout d'abord, on récupère le code sur `GitHub` et on compile avec `Maven`
+
+```bash
+git clone https://github.com/guillaumeprevot/nimbus.git
+cd nimbus
+mvn install
+```
+
+**Configuration**
+
+Ensuite, on configure l'application en éditant `nimbus.conf`
+
+```bash
+# Linux
+nano nimbus.conf
+# Windows
+notepad nimbus.conf
+```
+
+Par défaut :
+- le serveur tourne en HTTP sur le port 10001
+    - les propriétés `server.*` permettent d'ajuster cette partie
+- le serveur à MongoDB en local, sur le port 27017 et créer la base "nimbus"
+    - les propriétés `mongo.*` permettent d'ajuster cette partie
+- les fichiers sont stockés dans le sous-dossier "storage"
+    - la propriété `storage.path` vous permet d'indiquer un autre chemin (relatif ou absolu)
+- tous les plugins sont activés côté client (javascript)
+    - la propriété `client.plugins` vous permet de limiter les plugins chargés
+- seuls les plugins serveur (java) n'utilisant *que* la JRE sont activés
+    - les propriétés `facet.*` vous permettent d'activer d'autres plugins sur le serveur
+
+**Exécution**
+
+Enfin, on lance l'application 
+
+```bash
+# Linux
+java -cp ./bin:./lib/*:./lib/image4j/*:./lib/javazoom/*:./lib/jave/* fr.techgp.nimbus.Application
+# Windows
+java -cp .\bin;.\lib\*;.\lib\image4j\*;.\lib\javazoom\*;.\lib\jave\* fr.techgp.nimbus.Application
+```
+
+La page d'accueil est alors accessible [par défaut ici](http://localhost:10001).
+
+**Première connexion**
+
+A la première connexion, le login et le mot de passe entrés serviront à créer un compte avec les privilèges de l'`administrateur`.
+
+![install-login.png](./doc/install-login.png)
+
+Une fois le premier compte créé, on arrive sur la page principale.
+
+![install-homepage.png](./doc/install-homepage.png)
+ 
+A vous de jouer !
+
+**Mise à jour**
+
+Pour mettre à jour, il suffit de quelques commandes
+
+```bash
+cd /path/to/nimbus
+kill $(ps aux | grep '[n]imbus' | awk '{print $2}');
+rm -rf ./bin/*
+rm ./lib/*.jar
+git pull
+mvn install
+```
 
 ## Import
 
