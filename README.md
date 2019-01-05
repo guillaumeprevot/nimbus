@@ -1,11 +1,11 @@
 # Nimbus
 
 - [Présentation](#user-content-présentation)
-- [Technologies][#user-content-technologies)
-- [Fonctionnalités][#user-content-fonctionnalités)
-- [Installation][#user-content-installation)
-- [Import][#user-content-import)
-- [Synchronisation][#user-content-synchronisation)
+- [Technologies](#user-content-technologies)
+- [Fonctionnalités](#user-content-fonctionnalités)
+- [Installation](#user-content-installation)
+- [Import](#user-content-import)
+- [Synchronisation](#user-content-synchronisation)
 
 ## Présentation
 
