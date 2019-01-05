@@ -67,7 +67,7 @@ Fait | Tests automatisés (mais à compléter au fur et à mesure)
 Fait | Installation simplifiée
 Fait | Documentation (présentation, technologies, installation, import, synchronisation)
 A faire | Documentation (types de fichier supportés, facets, plugins, applications) 
-Fait | Applications annexes (player audio, éditeur de code/texte/Markdown, diaporama, lecteur ePub et PDF, lecteur vidéo)
+Fait | Applications annexes (diaporama, lecteur audio/vidéo/ePub/PDF, éditeur de code/texte/Markdown)
 A faire | Applications annexes (contacts, note, calendrier, messagerie, ... il y a tellement de possibilités !)
 Fait | Synchronisation (dossier local vers serveur et serveur vers dossier local)
 A faire | Synchronisation (bi-directionnelle et/ou temps réel)
@@ -124,9 +124,11 @@ java -cp .\bin;.\lib\*;.\lib\image4j\*;.\lib\javazoom\*;.\lib\jave\* fr.techgp.n
 
 La page d'accueil est alors accessible [par défaut ici](http://localhost:10001).
 
+NB: pour la suite, les scripts `nimbus.sh` et `nimbus.bat` pourront servir de base afin d'automatiser le lancement, l'arrêt, la mise à jour et la sauvegarde de l'application.
+
 **Première connexion**
 
-A la première connexion, le login et le mot de passe entrés serviront à créer un compte avec les privilèges de l'`administrateur`.
+A la [première connexion](http://localhost:10001), le login et le mot de passe entrés serviront à créer un compte avec les privilèges de l'`administrateur`.
 
 ![install-login.png](./doc/install-login.png)
 
@@ -199,16 +201,16 @@ Options :
 
 Comportement :
 - le programme commence par demander à l'utilisateur les options non précisées en ligne de commande
-- la demande de mot de passe se fait de manière sécurisée, si possible grâce à [Console.readPassword()](https://docs.oracle.com/javase/8/docs/api/java/io/Console.html), sinon grâce à un [JPasswordField](https://docs.oracle.com/javase/8/docs/api/javax/swing/JPasswordField.html) 
+- la demande de mot de passe se fait de manière sécurisée, si possible grâce à [Console.readPassword()](https://docs.oracle.com/javase/8/docs/api/java/io/Console.html), sinon grâce à un [JPasswordField](https://docs.oracle.com/javase/8/docs/api/javax/swing/JPasswordField.html)
 - l'arborescence du dossier du serveur est ensuite chargée récursivement
 - l'arborescence est ensuite complétée récursivement avec le contenu du dossier local
-- en cas d'upload 
-    - un fichier local sera ajouté sur le serveur s'il n'existe pas encore 
+- en cas d'upload
+    - un fichier local sera ajouté sur le serveur s'il n'existe pas encore
     - un fichier du serveur sera remplacé s'il est différent du fichier local
     - un fichier du serveur n'existant pas/plus en local sera supprimé du serveur
     - la date de modification sur le serveur sera ajustée pour correspondre à celle du fichier
-- en cas de download 
-    - un fichier du serveur sera copié en local s'il n'existe pas encore 
+- en cas de download
+    - un fichier du serveur sera copié en local s'il n'existe pas encore
     - un fichier local sera remplacé par celui du serveur s'il est différent
     - un fichier local n'existant pas/plus sur le serveur sera supprimé en local
     - la date de modification du fichier sera ajustée pour correspondre à celle du serveur
@@ -219,7 +221,7 @@ Exemple 1 : envoyer le dossier "/home/user/documents" dans le dossier n°1 de l'
 java -Dnimbus.login=adm -Dnimbus.localFolder=/home/user/documents -Dnimbus.serverFolderId=1 -Dnimbus.direction=u fr.techgp.nimbus.Sync
 ```
 
-Exemple 2 : sauvegarder sur clef USB le dossier n°1 de l'utilisateur "adm" 
+Exemple 2 : sauvegarder sur clef USB le dossier n°1 de l'utilisateur "adm"
 ```bash
 java -Dnimbus.login=adm -Dnimbus.localFolder=/home/usb/storage -Dnimbus.serverFolderId=1 -Dnimbus.direction=d fr.techgp.nimbus.Sync
 ```
