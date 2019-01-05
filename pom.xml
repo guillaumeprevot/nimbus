@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.techgp.nimbus</groupId>
-	<artifactId>nimbus-app</artifactId>
+	<artifactId>nimbus</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5</version>
+	<version>1.0</version>
 	<name>Nimbus</name>
 
 	<properties>
@@ -150,21 +150,21 @@
 		-->
 
 		<dependency>
-			<groupId>fr.techgpdeps</groupId>
+			<groupId>fr.techgp.deps</groupId>
 			<artifactId>image4j</artifactId>
 			<version>0.7.1</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/image4j/image4j-0.7.1.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>fr.techgpdeps</groupId>
+			<groupId>fr.techgp.deps</groupId>
 			<artifactId>jave</artifactId>
 			<version>1.0.2</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/jave/jave-1.0.2.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>fr.techgpdeps</groupId>
+			<groupId>fr.techgp.deps</groupId>
 			<artifactId>javazoom</artifactId>
 			<version>2010</version>
 			<scope>system</scope>

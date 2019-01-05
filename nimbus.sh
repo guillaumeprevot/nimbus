@@ -31,7 +31,7 @@ export STORAGE=${STORAGE:-storage}
 #### COMMAND SELECTION ####
 ###########################
 
-echo "Commande ? [start, stop, update, backup, test]"
+echo "Command ? [start, stop, update, backup, compile, test]"
 read cmd
 
 case $cmd in
@@ -59,6 +59,9 @@ case $cmd in
         mongoexport --host $MONGO_HOST:$MONGO_PORT --db $MONGO_DATABASE --collection counters --out $d-nimbus/counters.json
         mongodump --host $MONGO_HOST:$MONGO_PORT --db $MONGO_DATABASE --out $d-nimbus
         tar -czf $d-nimbus/files.gz $STORAGE
+        ;;
+    compile )
+        mvn compile
         ;;
     test )
         echo conf=$CONF

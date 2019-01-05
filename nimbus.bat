@@ -32,7 +32,7 @@ REM #### COMMAND SELECTION ####
 REM ###########################
 
 REM /C pour les choix, /T pour timeout, /D pour default, /N pour cacher le message par défaut et /M pour message
-CHOICE /C 12345 /T 6 /D 4 /N /M "Action ? [1=start, 2=stop, 3=update, 4=backup, 5=test] ?"
+CHOICE /C 123456 /T 6 /D 6 /N /M "Command ? [1=start, 2=stop, 3=update, 4=backup, 5=compile, 6=test] ?"
 set CURRENT_DATETIME=%date:~6,4%-%date:~3,2%-%date:~0,2%-%time:~0,2%-%time:~3,2%
 
 IF %ERRORLEVEL% == 1 (
@@ -58,6 +58,9 @@ IF %ERRORLEVEL% == 1 (
     7z.exe a -r -tzip "nimbus-%CURRENT_DATETIME%/files.zip" %STORAGE%
 
 ) ELSE IF %ERRORLEVEL% == 5 (
+    mvn compile
+
+) ELSE IF %ERRORLEVEL% == 6 (
     echo conf=%CONF%
     echo folder=%FOLDER%
     echo options=%OPTIONS%

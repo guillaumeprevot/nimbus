@@ -1,5 +1,12 @@
 # Nimbus
 
+- [Présentation](#user-content-présentation)
+- [Technologies][#user-content-technologies)
+- [Fonctionnalités][#user-content-fonctionnalités)
+- [Installation][#user-content-installation)
+- [Import][#user-content-import)
+- [Synchronisation][#user-content-synchronisation)
+
 ## Présentation
 
 `Nimbus` est un projet de *cloud personnel* qui se veut facile à installer, extensible et respectueux de votre vie privée.
