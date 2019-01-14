@@ -1109,25 +1109,34 @@ NIMBUS.navigation = (function() {
 		// Récupérer le parent des entrées de menu qui vont être ajoutées 
 		var list = dialog.find('.list-group');
 		if (list.is(':empty')) {
-			// La 1ère fois, générer la liste des actions mais n'afficher que les actions de l'élément cliqué
+			// La 1ère fois, générer la liste des actions
 			list.append(NIMBUS.plugins.actions.map(function(action) {
 				// <a href="#" class="list-group-item list-group-item-action" id="action-navigate"><i class="material-icons">folder_open</i> <span data-translate="text">ActionNavigate</span></a>
-				return $('<a href="#" class="list-group-item list-group-item-action" />')
+				return $('<a href="#" class="list-group-item list-group-item-action nimbus-hidden" />')
 					.attr('id', 'action-' + action.name)
 					.data('action', action)
-					.toggleClass('nimbus-hidden', !action.accept(item, extension))
 					.append($('<i class="material-icons" />').text(action.icon))
 					.append('&nbsp;')
 					.append($('<span />').text(NIMBUS.translate(action.caption)))
 					[0];
 			}));
 		} else {
-			// Ensuite, jouer sur la visibilité des actions
-			NIMBUS.plugins.actions.forEach(function(action) {
-				list.children('#action-' + action.name)
-					.toggleClass('nimbus-hidden', !action.accept(item, extension));
-			});
+			// Les fois suivantes, commencer par cacher toutes les actions
+			list.children().addClass('nimbus-hidden');
 		}
+		// Jouer ensuite sur la visibilité des actions
+		NIMBUS.plugins.actions.forEach(function(action) {
+			// La méthode "accept" peut retourner un booléen ou un "thenable" (Promise, Deferred, ...)
+			var accept = action.accept(item, extension);
+			if (typeof accept === 'boolean')
+				// Si c'est un booléen, l'IHM est réactive car on peut ajuster la visibilité dès maintenant
+				list.children('#action-' + action.name).toggleClass('nimbus-hidden', !accept);
+			else
+				// Si c'est une Promise, elle sera résolue avec un booléen indiquant si l'élément est accepté
+				accept.then(function(accepted) {
+					list.children('#action-' + action.name).toggleClass('nimbus-hidden', !accepted);
+				});
+		});
 		// Ouvrir la "modal" donnant la liste des actions
 		dialog.modal({keyboard: true}).off('click', 'a.list-group-item').on('click', 'a.list-group-item', function(event) {
 			var id = $(event.target).closest('.list-group-item').attr('id');
