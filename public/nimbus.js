@@ -201,8 +201,8 @@ NIMBUS.utils = (function() {
 	// - Fichiers de test : https://hpr.dogphilosophy.net/test/
 	var audioElement = document.createElement("audio");
 	function isBrowserSupportedAudio(item, extension) {
-		return !item.folder && (extension === 'ogg' && audioElement.canPlayType('audio/ogg; codecs="vorbis"')
-			|| item.mimetype.indexOf("audio/") === 0 && audioElement.canPlayType(item.mimetype)); 
+		return !item.folder && (extension === 'ogg' && !!audioElement.canPlayType('audio/ogg; codecs="vorbis"')
+			|| item.mimetype.indexOf("audio/") === 0 && !!audioElement.canPlayType(item.mimetype)); 
 	}
 
 	// Détection du support video
@@ -212,7 +212,7 @@ NIMBUS.utils = (function() {
 	// - Fichiers de test : http://samplephotovideo.com/ ou https://www.sample-videos.com/ 
 	var videoElement = document.createElement("video");
 	function isBrowserSupportedVideo(item, extension) {
-		return !item.folder && item.mimetype.indexOf('video/') === 0 && videoElement.canPlayType(item.mimetype); 
+		return !item.folder && item.mimetype.indexOf('video/') === 0 && !!videoElement.canPlayType(item.mimetype); 
 	}
 
 	// Détection du support des images

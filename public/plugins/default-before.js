@@ -23,7 +23,7 @@
 			{
 				name: 'folder',
 				accept: function(item, extension) {
-					return !!item.folder;
+					return item.folder;
 				},
 				image: function(item, thumbnail) {
 					if (thumbnail && item.iconURL)

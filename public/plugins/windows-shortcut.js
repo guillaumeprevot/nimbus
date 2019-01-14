@@ -25,7 +25,7 @@
 			icon: 'open_in_new',
 			caption: 'WindowsShortcutOpen',
 			accept: function(item, extension) {
-				return item.url && ('url' === extension);
+				return !!item.url && ('url' === extension);
 			},
 			execute: function(item) {
 				window.open(item.url);

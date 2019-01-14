@@ -22,7 +22,7 @@
 				caption: 'ActionDownloadRefresh',
 				accept: function(item, extension) {
 					// Fonction dispo pour les fichiers téléchargés depuis une URL "source"
-					return !item.folder && item.sourceURL;
+					return !item.folder && !!item.sourceURL;
 				},
 				execute: function(item) {
 					$.post('/download/refresh?itemId=' + item.id).done(function() {
@@ -35,7 +35,7 @@
 				caption: 'ActionDownloadDone',
 				accept: function(item, extension) {
 					// Fonction dispo pour les fichiers téléchargés dont le statut a changé
-					return !item.folder && item.sourceURL && item.status;
+					return !item.folder && !!item.sourceURL && !!item.status;
 				},
 				execute: function(item) {
 					$.post('/download/done?itemId=' + item.id).done(function() {
