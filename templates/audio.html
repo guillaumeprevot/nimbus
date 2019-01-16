@@ -108,6 +108,7 @@ function Player() {
 	this.sortColumn = null;
 	this.sortAscending = false;
 	this.audio.addEventListener('ended', this.playNext.bind(this));
+	this.eventTarget = new EventTarget();
 }
 
 Player.prototype.update = function(items, play) {
@@ -263,12 +264,16 @@ Player.prototype.playLast = function() {
 	this.play(this.items.length - 1, false);
 };
 
+Player.prototype.on = function(type, listener) {
+	this.eventTarget.addEventListener(type, listener);
+};
+
 Player.prototype.triggerListChanged = function() {
-	$(this).trigger('listchanged', [this.items]);
+	this.eventTarget.dispatchEvent(new CustomEvent('listchanged', { detail: this.items }));
 };
 
 Player.prototype.triggerIndexChanged = function() {
-	$(this).trigger('indexchanged', [this.index]);
+	this.eventTarget.dispatchEvent(new CustomEvent('indexchanged', { detail: this.index }));
 };
 
 /*
@@ -335,7 +340,9 @@ NIMBUS.init(['audio.js'], function() {
 	});
 
 	// Dessiner la grille quand le player nous le dit
-	$(player).on('listchanged', function(event, items) {
+	player.on('listchanged', function(event) {
+		// Récupérer les éléments
+		var items = event.detail;
 		// Sauvegarder la playlist en cours
 		localStorage.setItem('playlist', JSON.stringify(items));
 		// Remplir la table
@@ -353,7 +360,8 @@ NIMBUS.init(['audio.js'], function() {
 	});
 
 	// Indiquer la ligne en cours de lecture quand le player nous prévient
-	$(player).on('indexchanged', function(event, index) {
+	player.on('indexchanged', function(event) {
+		var index = event.detail;
 		$('tbody > tr.table-active').removeClass('table-active');
 		if (index !== -1)
 			$('tbody > tr:eq(' + index + ')').addClass('table-active');
