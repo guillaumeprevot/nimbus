@@ -426,9 +426,12 @@ NIMBUS.navigation = (function() {
 		});
 		// Validation de la fenêtre
 		validateButton.click(function() {
+			var name = input.val();
+			if (name.indexOf('.') === -1)
+				name = name + '.txt';
 			$.post('/files/touch', {
 				parentId: getCurrentPathId(),
-				name: input.val()
+				name: name
 			}).fail(function() {
 				input.addClass('is-invalid');
 			}).done(function(idString) {
