@@ -358,7 +358,11 @@ NIMBUS.navigation = (function() {
 			// dropSelector: document,
 			// abortOnEscape: true,
 			extraParams: function(files) {
-				return { parentId: getCurrentPathId() };
+				var params = { parentId: getCurrentPathId() };
+				for (var i = 0; i < files.length; i++) {
+					params['updateDate' + i] = files[i].lastModified;
+				}
+				return params;
 			},
 			onstart: function(files) {
 				// Mettre de côté l'id de l'élément dans lequel les fichiers seront ajoutés

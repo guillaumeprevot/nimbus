@@ -125,11 +125,13 @@ function wait(seconds) {
 	}, seconds * 1000);
 	return defer;
 }
-function upload(content, mimetype, filename) {
+function upload(content, mimetype, filename, updateDate) {
 	var blob = new Blob([content], { type: mimetype });
 	var formData = new FormData();
 	formData.append("parentId", ""); // à la racine
 	formData.append("files", blob, filename);
+	if (updateDate)
+		formData.append("updateDate", updateDate.getTime());
 	return $.ajax({
 		method: "POST",
 		url: "/files/upload",
@@ -256,6 +258,7 @@ function fillTests(add) {
 	add("Mettre à jour le contenu d'un fichier d'id 1", function() {
 		var blob = new Blob([totoTxtContent], { type: "text/plain" });
 		var formData = new FormData();
+		formData.append("updateDate", 0);
 		formData.append("file", blob, "unused.txt");
 		return $.ajax({
 			method: "POST",
@@ -267,6 +270,9 @@ function fillTests(add) {
 			cache: false,
 			timeout: 0
 		}).then(assertEmpty);
+	});
+	add("Vérifier le contenu de 'toto.txt'", function() {
+		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.updateDate === 0 && r.lines === 2));
 	});
 
 	var sharePassword;
@@ -454,6 +460,7 @@ function fillTests(add) {
 	});
 
 	var stringOf520KB = "0123456789".repeat(52).repeat(1024);
+	var uploadDate = new Date(2019, 0, 15, 22, 0, 0, 0);
 	add("QUOTA / Descendre le quota disque à 1Mo", function() {
 		return $.post("/user/update/adm?name=&admin=true&quota=1").then((result) => assertObject(result, (o) => o.quota === 1));
 	});
@@ -461,7 +468,10 @@ function fillTests(add) {
 		return $.post("/items/duplicate?itemId=0&name=fichier7.txt").then((result) => assertEquals(result, "7"));
 	});
 	add("QUOTA / Vérifier que le quota autorise d'uploader 510KB dans 'file.txt'", function() {
-		return upload(stringOf520KB, "text/plain", "file.txt").then((result) => assertArray(result, 1, (first) => first === 0));
+		return upload(stringOf520KB, "text/plain", "file.txt", uploadDate).then((result) => assertArray(result, 1, (first) => first === 0));
+	});
+	add("QUOTA / Vérifier la date de modification de 'file.txt'", function() {
+		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && r.updateDate === uploadDate.getTime()));
 	});
 	add("QUOTA / Vérifier que le quota empêche de dupliquer à nouveau 'file.txt'", function() {
 		return shoudBeAnError($.post("/items/duplicate?itemId=0&name=fichier8.txt"), 507);

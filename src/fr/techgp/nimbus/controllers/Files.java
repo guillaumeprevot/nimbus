@@ -37,8 +37,10 @@ public class Files extends Controller {
 	/**
 	 * Ajoute un ou plusieurs fichiers "files" dans le dossier "parentId" (facultatif).
 	 * Le formulaire est envoyé en POST et encodé en "multipart/form-data".
+	 * L'appelant peut préciser une date qui servira de date de mise à jour pour
+	 * l'ensemble des fichiers reçus.
 	 *
-	 * (files, parentId) => [id1, id2, ...]
+	 * (files, parentId[, updateDate]) => [id1, id2, ...]
 	 */
 	public static final Route upload = (request, response) -> {
 		// Récupérer l'utilisateur pour connaitre son quota
@@ -93,14 +95,18 @@ public class Files extends Controller {
 
 		// OK, lancer l'intégration
 		JsonArray results = new JsonArray();
+		// Récupérer, si elle est précisée, la date de mise à jour à utiliser pour les fichiers uploadés
+		long generalUpdateDate = SparkUtils.queryParamLong(request, "updateDate", System.currentTimeMillis());
 		for (int i = 0; i < parts.size(); i++) {
 			Part part = parts.get(i);
 			Item item = items.get(i);
 			// Ajouter l'élément s'il n'existe pas encore
 			if (item == null)
 				item = Item.add(userLogin, parent, false, part.getSubmittedFileName(), null);
+			// Récupérer, si elle est précisée, la date de mise à jour à utiliser pour ce fichier en particulier
+			Date updateDate = new Date(SparkUtils.queryParamLong(request, "updateDate" + i, generalUpdateDate));
 			// Enregistrement sur disque
-			updateFileFromFilePart(part, item);
+			updateFileFromFilePart(part, item, updateDate);
 			// Renvoyer la liste des ids créés
 			results.add(item.id);
 		}
@@ -110,8 +116,10 @@ public class Files extends Controller {
 	/**
 	 * Met à jour le contenu "file" d'un fichier identifié par son "itemId" (obligatoire).
 	 * Le formulaire est envoyé en POST et encodé en "multipart/form-data".
+	 * L'appelant peut préciser une date qui servira de date de mise à jour (par exemple
+	 * celle du fichier associé sur un disque synchronisé.
 	 *
-	 * (file, itemId) => ""
+	 * (file, itemId[, updateDate]) => ""
 	 */
 	public static final Route update = (request, response) -> {
 		// Récupérer l'utilisateur connecté
@@ -140,8 +148,9 @@ public class Files extends Controller {
 			}
 		}
 
-		// OK, lancer l'intégration
-		updateFileFromFilePart(filePart, item);
+		// OK, lancer l'intégration à la date demandée (par défaut, maintenant)
+		long updateDate = SparkUtils.queryParamLong(request, "updateDate", System.currentTimeMillis());
+		updateFileFromFilePart(filePart, item, new Date(updateDate));
 		return "";
 	};
 
@@ -271,7 +280,7 @@ public class Files extends Controller {
 
 	/** Met à jour le fichier à partir du fichier uploadé, recalcule les méta-données et les sauvegarde en base */
 	@SuppressWarnings("deprecation")
-	private static final void updateFileFromFilePart(Part filePart, Item item) throws IOException {
+	private static final void updateFileFromFilePart(Part filePart, Item item, Date updateDate) throws IOException {
 		File storedFile = getFile(item);
 		// NB1 : utiliser "part.getInputStream()" n'est pas efficace quand le fichier
 		//       a été écrit sur disque car on le copie inutilement à sa destination
@@ -308,7 +317,7 @@ public class Files extends Controller {
 		// Mettre à jour les infos du fichier
 		updateFile(item);
 		// Sauvegarde des métadonnées
-		item.updateDate = new Date();
+		item.updateDate = updateDate;
 		Item.update(item);
 	}
 
