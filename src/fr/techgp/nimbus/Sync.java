@@ -108,13 +108,11 @@ public class Sync {
 				// L'idée est de ne pas intégrer HttpClient pour si peu
 				try (MultiPartAdapter adapter = new MultiPartAdapter(c, "******")) {
 					adapter.addFormField("parentId", parentId == null ? "" : parentId.toString());
+					adapter.addFormField("updateDate", Long.toString(file.lastModified()));
 					adapter.addFileUpload("files", SyncItem.this.name, file);
 				}
 				boolean result = c.getResponseCode() == HttpServletResponse.SC_OK;
-				// Adjust "lastModified" to match "updateDate" on server item.
-				// It will prevent the file to be sent again the next time.
 				if (result) {
-					file.setLastModified(System.currentTimeMillis() - DATE_EPSILON);
 					this.nimbusDate = file.lastModified();
 					this.nimbusFolder = false;
 					this.nimbusLength = file.length();
