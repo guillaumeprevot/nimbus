@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -299,6 +300,27 @@ public class Sync {
 		});
 	}
 
+	public final void minimize(ArrayList<SyncItem> items) {
+		Iterator<SyncItem> it = items.iterator();
+		while (it.hasNext()) {
+			SyncItem item = it.next();
+			// Fichier identique des 2 côtés, on peut le zapper
+			if (item.isSkipable(this.skipExistingWithSameDateAndSize)) {
+				it.remove();
+				continue;
+			}
+			// Dossier au contenu identique des 2 côtés, on peut le zapper
+			if (item.isNimbusFolder() && item.isLocalFolder()) {
+				if (item.children != null)
+					this.minimize(item.children);
+				if (item.children == null || item.children.isEmpty()) {
+					it.remove();
+					continue;
+				}
+			}
+		}
+	}
+
 	public final void toLocal(String jsessionid, ArrayList<SyncItem> items, File folder, String prefix) throws IOException {
 		if (items == null)
 			return;
@@ -347,7 +369,7 @@ public class Sync {
 				}
 				// Télécharger le fichier si nécessaire (différents) ou forcé (option)
 				if (item.isSkipable(this.skipExistingWithSameDateAndSize)) {
-					// System.out.println(prefix + "|- [SKIP] " + item.name);
+					this.ontrace.accept(prefix + "|- " + item.name);
 				} else {
 					if (item.isLocalFile())
 						this.ontrace.accept(prefix + "|- [UPDATE] " + item.name);
@@ -408,7 +430,7 @@ public class Sync {
 				}
 				// Téléverser le fichier si nécessaire (différents) ou forcé (option)
 				if (item.isSkipable(this.skipExistingWithSameDateAndSize)) {
-					// System.out.println(prefix + "|- [SKIP] " + item.name);
+					this.ontrace.accept(prefix + "|- " + item.name);
 				} else {
 					if (item.isNimbusFile())
 						this.ontrace.accept(prefix + "|- [UPDATE] " + item.name);
@@ -550,6 +572,8 @@ public class Sync {
 			ArrayList<SyncItem> items = export.buildTreeFromJSON(array, export.serverFolderId);
 			// Merge info from existing items found on disk
 			export.mergeContentFromLocalFolder(items, export.localFolder);
+			// Minimize modification tree
+			export.minimize(items);
 			// Run synchronization ...
 			if (direction.equalsIgnoreCase("u"))
 				// ... from local folder to server
