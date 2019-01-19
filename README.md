@@ -196,6 +196,7 @@ La classe exécutable `fr.techgp.nimbus.Sync` permet la synchronisation dans un 
 Usage : `java [OPTIONS] fr.techgp.nimbus.Sync `
 
 Options :
+- `-Dnimbus.log=...` : le nom d'un fichier de log plutôt que d'écrire sur la sortie standard
 - `-Dnimbus.url=...` : l'URL de votre serveur, par exemple *https://localhost:10001*
 - `-Dnimbus.login=...` : votre nom d'utilisateur Nimbus
 - `-Dnimbus.password=...` : votre mot de passe Nimbus

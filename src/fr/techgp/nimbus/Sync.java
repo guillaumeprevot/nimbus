@@ -2,10 +2,13 @@ package fr.techgp.nimbus;
 
 import java.io.Console;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -13,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,6 +32,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
 import fr.techgp.nimbus.utils.WebUtils.MultiPartAdapter;
 
@@ -190,6 +195,8 @@ public class Sync {
 	public boolean traceOnly;
 	public boolean skipExistingWithSameDateAndSize;
 	public boolean forceHTTPSCertificate;
+	public Consumer<String> ontrace = System.out::println;
+	public Consumer<String> onerror = System.err::println;
 
 	public final String authenticateAndGetJSESSIONID() throws IOException {
 		String query = "/login.html";
@@ -214,7 +221,7 @@ public class Sync {
 
 			// Si ça fonctionne, le serveur doit nous renvoyer un code 302 redirigeant vers la page demandée "/"
 			if (connection.getResponseCode() != HttpServletResponse.SC_FOUND) {
-				System.err.println("Echec : authentification incorrecte");
+				this.onerror.accept("Echec : authentification incorrecte");
 				return null;
 			}
 
@@ -222,14 +229,14 @@ public class Sync {
 			// JSESSIONID=.....;Path=/;Secure;HttpOnly
 			String cookieLine = connection.getHeaderField("Set-Cookie");
 			if (cookieLine == null) {
-				System.err.println("Echec : cookie absent");
+				this.onerror.accept("Echec : cookie absent");
 				return null;
 			}
 
 			// Extraction de la valeur de JSESSIONID
 			String[] cookieEntry = cookieLine.split(";", 2)[0].split("=", 2);
 			if (! "JSESSIONID".equals(cookieEntry[0])) {
-				System.err.println("Echec : cookie inattendu " + cookieEntry[0]);
+				this.onerror.accept("Echec : cookie inattendu " + cookieEntry[0]);
 				return null;
 			}
 
@@ -301,9 +308,9 @@ public class Sync {
 			// Absent du serveur, il faut le supprimer en local
 			if (item.nimbusId == null) {
 				if (item.localFolder)
-					System.out.println(prefix + "+- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "+- [DELETE] " + item.name);
 				else
-					System.out.println(prefix + "|- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "|- [DELETE] " + item.name);
 				if (!this.traceOnly)
 					item.deleteLocal(file);
 				continue;
@@ -313,15 +320,15 @@ public class Sync {
 			if (item.nimbusFolder) {
 				// Si un fichier local a le même nom qu'un dossier Nimbus, on supprime le fichier local
 				if (file.isFile()) {
-					System.out.println(prefix + "|- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "|- [DELETE] " + item.name);
 					if (!this.traceOnly)
 						item.deleteLocal(file);
 				}
 				// Si le dossier local est absent, on le crée
 				if (file.exists()) {
-					System.out.println(prefix + "+- " + item.name);
+					this.ontrace.accept(prefix + "+- " + item.name);
 				} else {
-					System.out.println(prefix + "+- [++++++] " + item.name);
+					this.ontrace.accept(prefix + "+- [++++++] " + item.name);
 					if (!this.traceOnly)
 						item.createLocalFolder(file);
 				}
@@ -334,7 +341,7 @@ public class Sync {
 			if (!item.nimbusFolder) {
 				// Si un dossier local a le même nom d'un fichier Nimbus, on supprime le dossier local
 				if (file.isDirectory()) {
-					System.out.println(prefix + "+- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "+- [DELETE] " + item.name);
 					if (!this.traceOnly)
 						item.deleteLocal(file);
 				}
@@ -343,9 +350,9 @@ public class Sync {
 					// System.out.println(prefix + "|- [SKIP] " + item.name);
 				} else {
 					if (item.isLocalFile())
-						System.out.println(prefix + "|- [UPDATE] " + item.name);
+						this.ontrace.accept(prefix + "|- [UPDATE] " + item.name);
 					else
-						System.out.println(prefix + "|- [++++++] " + item.name);
+						this.ontrace.accept(prefix + "|- [++++++] " + item.name);
 					if (!this.traceOnly)
 						item.updateLocalFile(this, jsessionid, file);
 				}
@@ -362,9 +369,9 @@ public class Sync {
 			// Absent en local, il faut le supprimer du serveur
 			if (!file.exists()) {
 				if (item.nimbusFolder)
-					System.out.println(prefix + "+- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "+- [DELETE] " + item.name);
 				else
-					System.out.println(prefix + "|- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "|- [DELETE] " + item.name);
 				if (!this.traceOnly)
 					item.deleteNimbus(this, jsessionid);
 				continue;
@@ -374,15 +381,15 @@ public class Sync {
 			if (item.localFolder) {
 				// Si un fichier sur le serveur a le même nom qu'un dossier local, on supprime le fichier du serveur
 				if (item.isNimbusFile()) {
-					System.out.println(prefix + "|- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "|- [DELETE] " + item.name);
 					if (!this.traceOnly)
 						item.deleteNimbus(this, jsessionid);
 				}
 				// Si le dossier est absent du serveur, on le crée
 				if (item.isNimbusFolder()) {
-					System.out.println(prefix + "+- " + item.name);
+					this.ontrace.accept(prefix + "+- " + item.name);
 				} else {
-					System.out.println(prefix + "+- [++++++] " + item.name);
+					this.ontrace.accept(prefix + "+- [++++++] " + item.name);
 					if (!this.traceOnly)
 						item.createNimbusFolder(this, jsessionid, parentId);
 				}
@@ -395,7 +402,7 @@ public class Sync {
 			if (!item.localFolder) {
 				// Si un dossier sur le serveur a le même nom d'un fichier local, on supprime le dossier du serveur
 				if (item.isNimbusFolder()) {
-					System.out.println(prefix + "+- [DELETE] " + item.name);
+					this.ontrace.accept(prefix + "+- [DELETE] " + item.name);
 					if (!this.traceOnly)
 						item.deleteNimbus(this, jsessionid);
 				}
@@ -404,9 +411,9 @@ public class Sync {
 					// System.out.println(prefix + "|- [SKIP] " + item.name);
 				} else {
 					if (item.isNimbusFile())
-						System.out.println(prefix + "|- [UPDATE] " + item.name);
+						this.ontrace.accept(prefix + "|- [UPDATE] " + item.name);
 					else
-						System.out.println(prefix + "|- [++++++] " + item.name);
+						this.ontrace.accept(prefix + "|- [++++++] " + item.name);
 					if (!this.traceOnly)
 						item.updateNimbusFile(this, jsessionid, parentId, file);
 				}
@@ -438,9 +445,9 @@ public class Sync {
 		Console console = System.console();
 		while (s == null || s.trim().length() == 0 || !check.apply(s)) {
 			if (console != null)
-				s = console.readLine(label);
+				s = console.readLine(label + ": ");
 			else {
-				System.out.println(label);
+				System.out.println(label + ": ");
 				s = new Scanner(System.in).nextLine();
 			}
 		}
@@ -453,7 +460,7 @@ public class Sync {
 		Console console = System.console();
 		while (p.length == 0 || !check.apply(p)) {
 			if (console != null)
-				p = console.readPassword(label);
+				p = console.readPassword(label + ": ");
 			else {
 				JPasswordField field = new JPasswordField();
 				int result = JOptionPane.showConfirmDialog(null, field, label, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -467,6 +474,19 @@ public class Sync {
 	}
 
 	public static void main(String[] args) {
+		// Logger
+		String log = System.getProperty("nimbus.log");
+		PrintWriter writer = null;
+		if (StringUtils.isNotBlank(log)) {
+			File file = new File(log);
+			try {
+				writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8));
+			} catch (FileNotFoundException ex) {
+				System.err.println("Could not open log file \"" + log + "\"");
+				ex.printStackTrace();
+				return;
+			}
+		}
 		try {
 			String url = getPropertyAsString(
 					"nimbus.url",
@@ -517,6 +537,11 @@ public class Sync {
 			export.traceOnly = "y".equalsIgnoreCase(traceOnly);
 			export.skipExistingWithSameDateAndSize = "y".equalsIgnoreCase(skipExistingWithSameDateAndSize);
 			export.forceHTTPSCertificate = "y".equalsIgnoreCase(forceHTTPSCertificate);
+			if (writer != null) {
+				PrintWriter w = writer;
+				export.ontrace = (s) -> { w.format(s + "\n"); };
+				export.onerror = (s) -> { w.format(s + "\n"); System.err.println(s); System.exit(1); };
+			}
 			// Authentication
 			String jsessionid = export.authenticateAndGetJSESSIONID();
 			// Extract content from Nimbus
@@ -535,6 +560,9 @@ public class Sync {
 		} catch (Exception ex) {
 			System.err.println("Export failed due to an unexpected error");
 			ex.printStackTrace();
+		} finally {
+			if (writer != null)
+				writer.close();
 		}
 	}
 
