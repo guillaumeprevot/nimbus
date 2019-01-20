@@ -191,9 +191,9 @@ java fr.techgp.nimbus.Import adm /media/usb/storage 1
 
 Par la suite, il peut être intéressant de sauvegarder un dossier local sur Nimbus (*upload*) ou, inversement, d'extraire un dossier de Nimbus en local (*download*).
 
-La classe exécutable `fr.techgp.nimbus.Sync` permet la synchronisation dans un sens *ou* dans l'autre (la synchro bi-directionnelle ou temps réelle est prévue mais n'est pas encore disponible). 
+La classe exécutable `fr.techgp.nimbus.sync.SyncMain` permet la synchronisation dans un sens *ou* dans l'autre (la synchro bi-directionnelle ou temps réelle est prévue mais n'est pas encore disponible). 
 
-Usage : `java [OPTIONS] fr.techgp.nimbus.Sync `
+Usage : `java [OPTIONS] fr.techgp.nimbus.sync.SyncMain <indexes>`
 
 Options en ligne de commande :
 - `-Dnimbus.log=...` : le nom d'un fichier de log à utiliser. Sinon, les traces vont sur la sortie standard
@@ -203,12 +203,12 @@ Options obligatoires : en ligne de commande (*-Doption=valeur*), dans le fichier
 - `nimbus.url` : l'URL de votre serveur, par exemple *https://localhost:10001*
 - `nimbus.login` : votre nom d'utilisateur Nimbus
 - `nimbus.password` : votre mot de passe Nimbus
-- `nimbus.localFolder` : le chemin complet vers le dossier local, existant, qui sera utilisé pour la synchronisation
-- `nimbus.serverFolderId` : l'identifiant du dossier dans Nimbus qui sera utilisé pour la synchronisation (la colonne *N°* peut aider)
 - `nimbus.direction`(*d* ou *u*) : le sens de synchronisation qui peut être *u* pour *u*pload (local>serveur) ou *d* pour *d*ownload (serveur>local)
 - `nimbus.traceOnly` (*y* ou *n*) : si *y*, aucune modification ne sera faite mais le programme indiquera les différences détectées pour permettre de vérifier avant
 - `nimbus.skipExistingWithSameDateAndSize` (*y* ou *n*) : si *y*, deux fichiers local/serveur de même date et même taille seront considérés identiques et zappés
 - `nimbus.forceHTTPSCertificate` (*y* ou *n*) : si *y*, désactive la vérification du certificat HTTPS présenté par le serveur. C'est déconseillé en dehors des tests
+- `nimbus.[index].localFolder` : le chemin complet vers le dossier local, existant, qui sera utilisé pour la synchronisation
+- `nimbus.[index].serverFolderId` : l'identifiant du dossier dans Nimbus qui sera utilisé pour la synchronisation (la colonne *N°* peut aider)
 
 Comportement :
 - la demande de mot de passe se fait de manière sécurisée, si possible grâce à [Console.readPassword()](https://docs.oracle.com/javase/8/docs/api/java/io/Console.html), sinon grâce à un [JPasswordField](https://docs.oracle.com/javase/8/docs/api/javax/swing/JPasswordField.html)
@@ -235,3 +235,5 @@ Exemple 2 : sauvegarder sur clef USB le dossier n°1 de l'utilisateur "adm"
 ```bash
 java -Dnimbus.login=adm -Dnimbus.localFolder=/home/usb/storage -Dnimbus.serverFolderId=1 -Dnimbus.direction=d fr.techgp.nimbus.Sync
 ```
+
+Le dossier `doc` contient un exemple de fichier de configuration [sync-example.conf](./doc/sync-example.conf) ainsi qu'un exemple de script [sync-example.bat](./doc/sync-example.bat).
