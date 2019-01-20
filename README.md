@@ -195,20 +195,22 @@ La classe exécutable `fr.techgp.nimbus.Sync` permet la synchronisation dans un 
 
 Usage : `java [OPTIONS] fr.techgp.nimbus.Sync `
 
-Options :
-- `-Dnimbus.log=...` : le nom d'un fichier de log plutôt que d'écrire sur la sortie standard
-- `-Dnimbus.url=...` : l'URL de votre serveur, par exemple *https://localhost:10001*
-- `-Dnimbus.login=...` : votre nom d'utilisateur Nimbus
-- `-Dnimbus.password=...` : votre mot de passe Nimbus
-- `-Dnimbus.localFolder=...` : le chemin complet vers le dossier local, existant, qui sera utilisé pour la synchronisation
-- `-Dnimbus.serverFolderId=...` : l'identifiant du dossier dans Nimbus qui sera utilisé pour la synchronisation (la colonne *N°* peut aider)
-- `-Dnimbus.direction=u|d` : le sens de synchronisation qui peut être *u* pour *u*pload (local>serveur) ou *d* pour *d*ownload (serveur>local)
-- `-Dnimbus.traceOnly=y|n` : si *y*, aucune modification ne sera faite mais le programme indiquera les différences détectées pour permettre de vérifier avant
-- `-Dnimbus.skipExistingWithSameDateAndSize=y|n` : si *y*, deux fichiers local/serveur de même date et même taille seront considérés identiques et zappés
-- `-Dnimbus.forceHTTPSCertificate=y|n` : si *y*, désactive la vérification du certificat HTTPS présenté par le serveur. C'est déconseillé en dehors des tests
+Options en ligne de commande :
+- `-Dnimbus.log=...` : le nom d'un fichier de log à utiliser. Sinon, les traces vont sur la sortie standard
+- `-Dnimbus.conf=...` : le nom d'un fichier de configuration. Sinon, les options sont passées dans la commande ou demandées à l'utilisateur
+
+Options obligatoires : en ligne de commande (*-Doption=valeur*), dans le fichier de configuration (*option=valeur*) ou de manière interactive (le programme les demandera à l'utilisateur)
+- `nimbus.url` : l'URL de votre serveur, par exemple *https://localhost:10001*
+- `nimbus.login` : votre nom d'utilisateur Nimbus
+- `nimbus.password` : votre mot de passe Nimbus
+- `nimbus.localFolder` : le chemin complet vers le dossier local, existant, qui sera utilisé pour la synchronisation
+- `nimbus.serverFolderId` : l'identifiant du dossier dans Nimbus qui sera utilisé pour la synchronisation (la colonne *N°* peut aider)
+- `nimbus.direction`(*d* ou *u*) : le sens de synchronisation qui peut être *u* pour *u*pload (local>serveur) ou *d* pour *d*ownload (serveur>local)
+- `nimbus.traceOnly` (*y* ou *n*) : si *y*, aucune modification ne sera faite mais le programme indiquera les différences détectées pour permettre de vérifier avant
+- `nimbus.skipExistingWithSameDateAndSize` (*y* ou *n*) : si *y*, deux fichiers local/serveur de même date et même taille seront considérés identiques et zappés
+- `nimbus.forceHTTPSCertificate` (*y* ou *n*) : si *y*, désactive la vérification du certificat HTTPS présenté par le serveur. C'est déconseillé en dehors des tests
 
 Comportement :
-- le programme commence par demander à l'utilisateur les options non précisées en ligne de commande
 - la demande de mot de passe se fait de manière sécurisée, si possible grâce à [Console.readPassword()](https://docs.oracle.com/javase/8/docs/api/java/io/Console.html), sinon grâce à un [JPasswordField](https://docs.oracle.com/javase/8/docs/api/javax/swing/JPasswordField.html)
 - l'arborescence du dossier du serveur est ensuite chargée récursivement
 - l'arborescence est ensuite complétée récursivement avec le contenu du dossier local
@@ -222,7 +224,7 @@ Comportement :
     - un fichier local sera remplacé par celui du serveur s'il est différent
     - un fichier local n'existant pas/plus sur le serveur sera supprimé en local
     - la date de modification du fichier sera ajustée pour correspondre à celle du serveur
-- dans les 2 cas, les modifications sont tracées sur la sortie standard
+- dans les 2 cas, les modifications sont tracées dans le fichier de log (si précisé) ou sur la sortie standard
 
 Exemple 1 : envoyer le dossier "/home/user/documents" dans le dossier n°1 de l'utilisateur "adm"
 ```bash

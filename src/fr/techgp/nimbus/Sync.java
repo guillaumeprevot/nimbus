@@ -2,13 +2,16 @@ package fr.techgp.nimbus;
 
 import java.io.Console;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -16,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -496,6 +500,25 @@ public class Sync {
 	}
 
 	public static void main(String[] args) {
+		// Conf
+		String conf = System.getProperty("nimbus.conf");
+		if (StringUtils.isNotBlank(conf)) {
+			File file = new File(conf);
+			if (file.exists()) {
+				Properties p = new Properties();
+				try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+					p.load(reader);
+					for (Map.Entry<Object, Object> entry : p.entrySet()) {
+						System.setProperty((String) entry.getKey(), (String) entry.getValue());
+					}
+				} catch (IOException ex) {
+					System.err.println("Could not load configuration file \"" + conf + "\"");
+					ex.printStackTrace();
+					return;
+				}
+			}
+		}
+
 		// Logger
 		String log = System.getProperty("nimbus.log");
 		PrintWriter writer = null;
@@ -509,6 +532,7 @@ public class Sync {
 				return;
 			}
 		}
+
 		try {
 			String url = getPropertyAsString(
 					"nimbus.url",
