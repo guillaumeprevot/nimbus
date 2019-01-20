@@ -273,9 +273,10 @@ public class Controller {
 	 * @param item l'élément représentant un fichier dans le cloud
 	 */
 	protected static final void updateFile(Item item) {
-		configuration.updateStoredFile(item, (facet, ex) -> {
+		configuration.updateStoredFile(item, (facet, th) -> {
 			if (Controller.logger.isErrorEnabled())
-				Controller.logger.error("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")");
+				Controller.logger.error("{} dans {} sur l'élément n°{} ({}) : {}",
+						th.getClass().getName(), facet.getClass().getSimpleName(), item.id, item.name, th.getMessage());
 		});
 	}
 

@@ -233,7 +233,7 @@ public class Configuration {
 	 * @param item l'élément représentant un fichier dans le cloud
 	 * @param errorConsumer appelé en cas d'erreur lancée par une facet
 	 */
-	public final void updateStoredFile(Item item, BiConsumer<Facet, Exception> errorConsumer) {
+	public final void updateStoredFile(Item item, BiConsumer<Facet, Throwable> errorConsumer) {
 		// Informations sur l'élément
 		File storedFile = getStoredFile(item);
 		String extension = FilenameUtils.getExtension(item.name).toLowerCase();
@@ -245,7 +245,7 @@ public class Configuration {
 			try {
 				if (facet.supports(extension))
 					facet.updateMetadata(storedFile, extension, item.content);
-			} catch (Exception ex) {
+			} catch (Throwable ex) {
 				if (errorConsumer != null)
 					errorConsumer.accept(facet, ex);
 			}

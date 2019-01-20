@@ -192,9 +192,10 @@ public class Import {
 			}
 			// Mettre à jour les infos du fichier
 			if (!existingWithSameSize || updateMetadataExistingWithSameSize) {
-				this.configuration.updateStoredFile(item, (facet, ex) -> {
+				this.configuration.updateStoredFile(item, (facet, th) -> {
 					if (logger.isWarnEnabled())
-						logger.warn("Erreur de la facet " + facet.getClass().getSimpleName() + " sur l'élément n°" + item.id + " (" + item.name + ")");
+						logger.warn("{} dans {} sur l'élément n°{} ({}) : {}",
+								th.getClass().getName(), facet.getClass().getSimpleName(), item.id, item.name, th.getMessage());
 				});
 				skipped = false;
 			}
