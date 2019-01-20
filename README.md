@@ -228,12 +228,12 @@ Comportement :
 
 Exemple 1 : envoyer le dossier "/home/user/documents" dans le dossier n°1 de l'utilisateur "adm"
 ```bash
-java -Dnimbus.login=adm -Dnimbus.localFolder=/home/user/documents -Dnimbus.serverFolderId=1 -Dnimbus.direction=u fr.techgp.nimbus.Sync
+java -Dnimbus.login=adm -Dnimbus.0.localFolder=/home/user/documents -Dnimbus.0.serverFolderId=1 -Dnimbus.direction=u fr.techgp.nimbus.sync.SyncMain 0
 ```
 
 Exemple 2 : sauvegarder sur clef USB le dossier n°1 de l'utilisateur "adm"
 ```bash
-java -Dnimbus.login=adm -Dnimbus.localFolder=/home/usb/storage -Dnimbus.serverFolderId=1 -Dnimbus.direction=d fr.techgp.nimbus.Sync
+java -Dnimbus.login=adm -Dnimbus.0.localFolder=/home/usb/storage -Dnimbus.0.serverFolderId=1 -Dnimbus.direction=d fr.techgp.nimbus.sync.SyncMain 0
 ```
 
 Le dossier `doc` contient un exemple de fichier de configuration [sync-example.conf](./doc/sync-example.conf) ainsi qu'un exemple de script [sync-example.bat](./doc/sync-example.bat).
