@@ -10,7 +10,7 @@
 			name: 'markdown',
 			accept: accept,
 			image: function(item, thumbnail) {
-				return '<i class="material-icons">art_track</i>';
+				return '<i class="material-icons">list_alt</i>';
 			},
 			describe: function describe(item) {
 				if (typeof item.lines !== 'number')
@@ -24,7 +24,7 @@
 		}],
 		actions: [{
 			name: 'markdown-edit',
-			icon: 'art_track',
+			icon: 'list_alt',
 			caption: 'MarkdownActionEdit',
 			accept: accept,
 			execute: function(item) {

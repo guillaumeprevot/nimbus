@@ -109,6 +109,21 @@ public class Extensions extends Controller {
 	};
 
 	/**
+	 * Cette route affiche la page de l'éditeur HTML
+	 * 
+	 * () => HTML
+	 */
+	public static final Route htmlEditor = (request, response) -> {
+		// Générer la page
+		return renderTemplate("html-editor.html",
+				"baseURL", configuration.getServerAbsoluteUrl(),
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
+				"lang", SparkUtils.getRequestLang(request));
+	};
+
+	/**
 	 * Cette route affiche la page de l'éditeur de code basé sur CodeMirror
 	 * 
 	 * () => HTML

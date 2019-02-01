@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-static-toolbars">
+<head>
+<title data-translate="text">HTMLEditorTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+blockquote { margin: 15px 40px; }
+.material-icons-placeholder { display: inline-block; width: 24px; height: 24px; text-align: center; }
+.dropdown-menu button > small:empty { display: none; }
+.dropdown-menu button > small::before { content: " ("; }
+.dropdown-menu button > small::after { content: ")"; }
+@media print {
+	.nimbus-viewer { height: auto; }
+	header, footer { display: none; }
+}
+</style>
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+	<header class="bg-primary">
+		<div class="float-left">
+			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="HTMLEditorSave"><i class="material-icons">save</i></button>
+		</div>
+
+		<div class="float-right">
+			<div class="btn-group">
+				<button id="optionsButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="HTMLEditorOptions" aria-haspopup="true" aria-expanded="false"><i class="material-icons">settings</i></button>
+				<div id="optionsMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsButton">
+					<div class="text-muted px-3" data-translate="text">HTMLEditorJustify</div>
+					<div class="mx-3 mt-1" style="text-align: center;">
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyLeft" title="HTMLEditorJustifyLeft"><i class="material-icons">format_align_left</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyCenter" title="HTMLEditorJustifyCenter"><i class="material-icons">format_align_center</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyRight" title="HTMLEditorJustifyRight"><i class="material-icons">format_align_right</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyFull" title="HTMLEditorJustifyFull"><i class="material-icons">format_align_justify</i></button>
+					</div>
+					<div class="dropdown-divider"></div>
+					<div class="text-muted px-3" data-translate="text">HTMLEditorSelection</div>
+					<div class="mx-3 mt-1" style="text-align: center;">
+						<button type="button" class="btn btn-link" data-translate="title" data-command="subscript" title="HTMLEditorSubscript"><i class="material-icons-placeholder">x<sub>2</sub></i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="superscript" title="HTMLEditorSuperscript"><i class="material-icons-placeholder">x<sup>2</sup></i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="decreaseFontSize" title="HTMLEditorDecreaseFontSize"><i class="material-icons-placeholder">A<small>A</small></i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="increaseFontSize" title="HTMLEditorIncreaseFontSize"><i class="material-icons-placeholder"><small>A</small>A</i></button>
+					</div>
+					<div class="dropdown-divider disappear-1"></div>
+					<button type="button" class="dropdown-item disappear-1" data-command="outdent"><i class="material-icons">format_indent_decrease</i> <span data-translate="text">HTMLEditorOutdent</span></button>
+					<button type="button" class="dropdown-item disappear-1" data-command="indent"><i class="material-icons">format_indent_increase</i> <span data-translate="text">HTMLEditorIndent</span></button>
+					<div class="dropdown-divider disappear-2"></div>
+					<button type="button" class="dropdown-item disappear-5" id="tableButton2"><i class="material-icons">grid_on</i> <span data-translate="text">HTMLEditorInsertTable</span></button>
+					<button type="button" class="dropdown-item disappear-4" id="linkButton2"><i class="material-icons">link</i> <span data-translate="text">HTMLEditorLink</span></button>
+					<button type="button" class="dropdown-item disappear-4" data-command="unlink"><i class="material-icons">link_off</i> <span data-translate="text">HTMLEditorUnlink</span></button>
+					<button type="button" class="dropdown-item disappear-3" id="imageButton2"><i class="material-icons">image</i> <span data-translate="text">HTMLEditorInsertImage</span></button>
+					<button type="button" class="dropdown-item disappear-2" id="videoButton2"><i class="material-icons">movie</i> <span data-translate="text">HTMLEditorInsertVideo</span></button>
+					<button type="button" class="dropdown-item disappear-2" id="audioButton2"><i class="material-icons">audiotrack</i> <span data-translate="text">HTMLEditorInsertAudio</span></button>
+					<button type="button" class="dropdown-item disappear-2" data-command="insertHorizontalRule"><i class="material-icons">vertical_align_center</i> <span data-translate="text">HTMLEditorInsertHR</span></button>
+					<div class="dropdown-divider"></div>
+					<button type="button" class="dropdown-item" data-translate="text" id="pasteAsHTMLButton">HTMLEditorPasteAsHTML</button>
+					<button type="button" class="dropdown-item active" data-translate="text" id="pasteAsTextButton">HTMLEditorPasteAsText</button>
+					<div class="dropdown-divider"></div>
+					<button type="button" class="dropdown-item" data-translate="text" id="printButton">HTMLEditorPrint</button>
+					<button type="button" class="dropdown-item" data-translate="text" id="sourceButton">HTMLEditorSource</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="btn-group">
+			<button type="button" class="btn btn-link" data-translate="title" data-command="removeFormat" title="HTMLEditorRemoveFormat"><i class="material-icons">format_clear</i></button>
+			<span class="nimbus-toolbar-separator"></span>
+		</div>
+
+		<div class="btn-group" id="fontFamily">
+			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorFontFamilyAgain"></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorFontFamilySelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+			<div class="dropdown-menu dropdown-menu-right"></div>
+		</div>
+
+		<div class="btn-group" id="fontSize">
+			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorFontSizeAgain"></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorFontSizeSelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+			<div class="dropdown-menu dropdown-menu-right"></div>
+		</div>
+
+		<div class="btn-group" id="foreColor">
+			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorForeColorAgain"><i class="material-icons">format_color_text</i></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorForeColorSelect"></button>
+			<input type="color" style="display: none; " />
+		</div>
+
+		<div class="btn-group" id="backColor">
+			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorBackColorAgain"><i class="material-icons">format_color_fill</i></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorBackColorSelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+			<div class="dropdown-menu dropdown-menu-right">
+				<button class="dropdown-item" data-family="text">Arial <small class="text-muted"> (sans-serif)</small></button>
+			</div>
+		</div>
+
+		<div class="btn-group">
+			<span class="nimbus-toolbar-separator"></span>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="bold" title="HTMLEditorBold"><i class="material-icons">format_bold</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="italic" title="HTMLEditorItalic"><i class="material-icons">format_italic</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="underline" title="HTMLEditorUnderline"><i class="material-icons">format_underlined</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="strikeThrough" title="HTMLEditorStrikeThrough"><i class="material-icons">format_strikethrough</i></button>
+		</div>
+		<div class="btn-group">
+			<span class="nimbus-toolbar-separator"></span>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="insertUnorderedList" title="HTMLEditorInsertUnorderedList"><i class="material-icons">format_list_bulleted</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="insertOrderedList" title="HTMLEditorInsertOrderedList"><i class="material-icons">format_list_numbered</i></button>
+			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="outdent" title="HTMLEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
+			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="indent" title="HTMLEditorIndent"><i class="material-icons">format_indent_increase</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="formatBlock" data-command-params="BLOCKQUOTE" title="HTMLEditorQuote"><i class="material-icons">format_quote</i></button>
+		</div>
+		<div class="btn-group">
+			<span class="nimbus-toolbar-separator disappear-5"></span>
+			<button type="button" class="btn btn-link disappear-5" data-translate="title" id="tableButton" title="HTMLEditorInsertTable"><i class="material-icons">grid_on</i></button>
+			<button type="button" class="btn btn-link disappear-4" data-translate="title" id="linkButton" title="HTMLEditorLink"><i class="material-icons">link</i></button>
+			<button type="button" class="btn btn-link disappear-4" data-translate="title" data-command="unlink" title="HTMLEditorUnlink"><i class="material-icons">link_off</i></button>
+			<button type="button" class="btn btn-link disappear-3" data-translate="title" id="imageButton" title="HTMLEditorInsertImage"><i class="material-icons">image</i></button>
+			<button type="button" class="btn btn-link disappear-2" data-translate="title" id="videoButton" title="HTMLEditorInsertVideo"><i class="material-icons">movie</i></button>
+			<button type="button" class="btn btn-link disappear-2" data-translate="title" id="audioButton" title="HTMLEditorInsertAudio"><i class="material-icons">audiotrack</i></button>
+			<button type="button" class="btn btn-link disappear-2" data-translate="title" data-command="insertHorizontalRule" title="HTMLEditorInsertHR"><i class="material-icons">vertical_align_center</i></button>
+		</div>
+	</header>
+	<main id="editor"></main>
+	<footer></footer>
+<script>
+"use strict";
+
+var defaultFontSize = 14;
+var defaultFontFamily = 'Lato';
+var defaultForeColor = '#FF0000';
+var defaultBackColor = '#FFFF00';
+
+function fontSizeOptions() {
+	return [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
+}
+
+function fontFamilyOptions() {
+	return [
+		{ name: 'Arial', type: 'sans-serif' },
+		{ name: 'Calibri', type: 'sans-serif' },
+		{ name: 'Century Gothic', type: 'sans-serif' },
+		{ name: 'Consolas', type: 'monospace' },
+		{ name: 'Courier', type: 'monospace' },
+		{ name: 'Courier New', type: 'monospace' },
+		{ name: 'DejaVu Sans', type: 'sans-serif' },
+		{ name: 'DejaVu Serif', type: 'serif' },
+		{ name: 'Garamond', type: 'serif' },
+		{ name: 'Helvetica', type: 'sans-serif' },
+		{ name: 'Lato', type: 'sans-serif' },
+		{ name: 'Mistral', type: 'cursive' },
+		{ name: 'Roboto', type: 'sans-serif' },
+		{ name: 'Tahoma', type: 'sans-serif' },
+		{ name: 'Times New Roman', type: 'serif' },
+		{ name: 'Webdings', type: 'fantasy' }
+	];
+}
+
+function promptButton(target, command, promptTitle, defaultValue, transform) {
+	target.prop('disabled', !document.queryCommandSupported(command)).click(function() {
+		var value = window.prompt(NIMBUS.translate(promptTitle), defaultValue);
+		if (value !== null) {
+			if (typeof transform === 'string')
+				value = transform.replace('%VALUE%', value);
+			else if (typeof transform === 'function')
+				value = transform(value);
+			document.execCommand(command, null, value);
+		}
+	});
+}
+
+//Initialiser la page
+NIMBUS.init(['text.js', 'html.js'], function() {
+	// En haut à gauche, le bouton "Retour"
+	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+	// L'IHM est prête, on l'affiche
+	var body = $(document.body).removeClass('nimbus-hidden');
+	// Identifiant de l'élément édité
+	var itemId = ${itemId};
+	// Récupération du contenu du fichier
+	$.get({
+		url: '/files/stream/' + itemId,
+		dataType: 'text'
+	}).then(function(content, textStatus, jqXHR) {
+		var editor = $('#editor'),
+			saveButton = $('#saveButton'),
+			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
+
+		$('title').text(filename);
+
+		editor.html(content).attr('contenteditable', 'true').css('padding', '1em').on('input', function() {
+			saveButton.removeClass('nimbus-hidden');
+			updateToolbar();
+		});
+
+		saveButton.on('click', function() {
+			var text = editor.html();
+			NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
+				saveButton.addClass('nimbus-hidden');
+				editor.removeClass('border border-danger')
+				updateToolbar();
+			}, function() {
+				editor.addClass('border border-danger');
+			});
+		});
+
+		// s'assurer que "styleWithCSS" est bien à faux. Sinon, le choix de la taille de police ne fonctionne pas sous Chrome
+		document.execCommand('styleWithCSS', null, false);
+		// les flèches pour ajouter et la croix pour supprimer des lignes et des colonnes dans les tableaux
+		document.execCommand('enableInlineTableEditing', null, true);
+		// les carrés pour changer les dimensions des éléments, comme des tableaux ou des images
+		document.execCommand('enableObjectResizing', null, true);
+
+		// les boutons les plus simples
+		$('button[data-command]').each(function(event) {
+			this.disabled = !document.queryCommandSupported(this.getAttribute('data-command'));
+		}).click(function(event) {
+			var e = $(event.target).closest('button');
+			var command = e.attr('data-command');
+			var params = e.attr('data-command-params') || null;
+			document.execCommand(command, null, params);
+		});
+
+		// Police de caractères
+		editor.css('font-family', defaultFontFamily);
+		var fontFamily = $('#fontFamily').toggle(!!document.queryCommandSupported('fontName'));
+		var fontFamilyButton = fontFamily.children(':first-child').text(defaultFontFamily).click(function() {
+			document.execCommand('fontName', null, fontFamilyButton.text());
+		});
+		var fontFamilyMenu = fontFamily.children('.dropdown-menu').append(fontFamilyOptions().map(function(f) {
+			var b = $('<button class="dropdown-item"><span></span><small class="text-muted"></small></button>');
+			b.children().first().text(f.name);
+			b.children().last().text(f.type);
+			return b[0];
+		})).on('click', 'button', function(event) {
+			var value = $(event.target).closest('button').children().first().text();
+			fontFamilyButton.text(value).click();
+		});
+
+		// Taille du texte
+		editor.css('font-size', defaultFontSize + 'px');
+		var fontSize = $('#fontSize').toggle(!!document.queryCommandSupported('fontSize'));
+		var fontSizeButton = fontSize.children(':first-child').text('' + defaultFontSize).click(function() {
+			// Idée trouvée ici : https://stackoverflow.com/questions/5868295/document-execcommand-fontsize-in-pixels
+			// Ne fonctionnerait pas si on avait appellé : document.execCommand('styleWithCSS', null, _true_)
+			document.execCommand('fontSize', false, 7);
+			editor.find('font[size=7]').removeAttr('size').css('font-size', fontSizeButton.text() + 'px');
+		});
+		var fontSizeMenu = fontSize.children('.dropdown-menu').append(fontSizeOptions().map(function(s, i, a) {
+			var b = $('<button class="dropdown-item"><span></span><small class="text-muted"></small></button>');
+			var t = (i === 0) ? 'HTMLEditorFontSizeMinimal' : (i === a.length - 1) ? 'HTMLEditorFontSizeMaximal' : (s === defaultFontSize) ? 'HTMLEditorFontSizeDefault' : '';
+			b.children().first().text('' + s);
+			b.children().last().text(t ? NIMBUS.translate(t) : '');
+			return b[0];
+		})).on('click', 'button', function(event) {
+			var value = $(event.target).closest('button').children().first().text();
+			fontSizeButton.text(value).click();
+		});;
+
+		// Couleur du texte
+		var foreColor = $('#foreColor').toggle(!!document.queryCommandSupported('foreColor'));
+		var foreColorButton = foreColor.children(':first-child').css('color', defaultForeColor).attr('data-color', defaultForeColor).click(function() {
+			document.execCommand('foreColor', null, foreColorButton.attr('data-color'));
+		});
+		var foreColorInput = foreColor.children('input').val(defaultForeColor).change(function() {
+			var color = foreColorInput.val();
+			foreColorButton.css('color', color).attr('data-color', color).click();
+		});
+		foreColorButton.children('material-icons').css('color', 'inherit');
+		foreColor.children('button:last-of-type').click(function() {
+			foreColorInput.click();
+		});
+
+		// Couleur de fond
+		var backColor = $('#backColor').toggle(!!document.queryCommandSupported('backColor'));
+		var backColorButton = backColor.children(':first-child').css('color', defaultBackColor).attr('data-color', defaultBackColor).click(function() {
+			document.execCommand('backColor', null, backColorButton.attr('data-color'));
+		});
+		var backColorInput = backColor.children('input').val(defaultBackColor).change(function() {
+			var color = backColorInput.val();
+			backColorButton.css('color', color).attr('data-color', color).click();
+		});
+		backColorButton.children('material-icons').css('color', 'inherit');
+		backColor.children('button:last-of-type').click(function() {
+			backColorInput.click();
+		});
+
+		// Création de tableau
+		promptButton($('#tableButton,#tableButton2'), 'insertHTML', 'HTMLEditorInsertTablePrompt', '3x3', function(size) {
+			var html = '<table class="table table-bordered  table-hover table-sm /*table-striped table-responsive*/" style="width: auto; max-width: 100%; word-break: break-all; ">';
+			var rows = parseInt(size);
+			var cols = parseInt(size.substring(size.indexOf('x') + 1));
+			for (var row = 0; row < rows; row++) {
+				html += '<tr>';
+				for (var col = 0; col < cols; col++) {
+					html += '<td />';
+				}
+				html += '</tr>';
+			}
+			html += '</table>';
+			return html;
+		});
+		// Création de lien
+		promptButton($('#linkButton,#linkButton2'), 'createLink', 'HTMLEditorLinkPrompt', 'https://', null);
+		// Insertion d'image
+		promptButton($('#imageButton,#imageButton2'), 'insertHTML'/*insertImage*/, 'HTMLEditorInsertImagePrompt', 'https://dummyimage.com/160x90', '<img class="img-fluid" src="%VALUE%" />'/*null*/);
+		// Insert de vidéos
+		promptButton($('#videoButton,#videoButton2'), 'insertHTML', 'HTMLEditorInsertVideoPrompt', 'https://interactive-examples.mdn.mozilla.net/media/examples/flower.webm', '<video width="320" height="240" controls src="%VALUE%"></video>');
+		// Insert de pistes audio
+		promptButton($('#audioButton,#audioButton2'), 'insertHTML', 'HTMLEditorInsertAudioPrompt', 'https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3', '<audio controls src="%VALUE%"></audio>');
+
+		// Coller depuis le presse-papier en HTML ou en texte
+		var pasteAsHTMLButton = $('#pasteAsHTMLButton');
+		var pasteAsTextButton = $('#pasteAsTextButton');
+		if (document.queryCommandSupported('insertHTML') && document.queryCommandSupported('insertText')) {
+			pasteAsHTMLButton.click(function() {
+				pasteAsHTMLButton.addClass('active').next().removeClass('active');
+			});
+			pasteAsTextButton.click(function() {
+				pasteAsTextButton.addClass('active').prev().removeClass('active');
+			});
+			editor.on('paste', function(event) {
+				if (pasteAsHTMLButton.hasClass('active')) {
+					var html = event.originalEvent.clipboardData.getData('text/html');
+					document.execCommand('insertHTML', null, html);
+				} else {
+					var text = event.originalEvent.clipboardData.getData('text/plain');
+					document.execCommand('insertText', null, text);
+				}
+				event.preventDefault();
+			});
+		} else {
+			pasteAsHTMLButton.prev().hide();
+			pasteAsHTMLButton.hide();
+			pasteAsTextButton.hide();
+		}
+
+		// Bouton d'impression
+		$('#printButton').click(function(event) {
+			var style = $('link[href$="theme.css"]')[0].href;
+			var html = '<!DOCTYPE html>'
+				+ '\n<html>'
+				+ '\n  <head>'
+				+ '\n    <title>' + filename + '</title>'
+				+ '\n    <meta charset="UTF-8">'
+				+ '\n    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
+				+ '\n    <link type="text/css" rel="stylesheet" href="' + style + '" />'
+				+ '\n    <style>blockquote { margin: 15px 40px; }</style>'
+				+ '\n  </head>'
+				+ '\n  <body>'
+				+ '\n    <div style="font-family:' + defaultFontFamily + ', Roboto, Arial, sans-serif; font-size:' + defaultFontSize + 'px; padding: 1em; ">'
+				+ '\n      ' + editor.html()
+				+ '\n    </div>'
+				+ '\n  </body>'
+				+ '\n</html>';
+			// Fonctionne mais la sauvegarde de la page ouverte sauvegarde la page actuelle car l'URL est l'URL actuelle
+			var w = window.open('about:blank', '_blank', '');
+			w.document.write(html);
+			w.document.close();
+		});
+
+		// Bouton "Voir le source"
+		$('#sourceButton').click(function(event) {
+			var w = window.open('', filename, '');
+			// Un vieux tag html marqué obsolète mais peu importe ;-)
+			// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/plaintext
+			w.document.write('<PLAINTEXT>' + editor.html() + '</PLAINTEXT>');
+			w.document.close();
+		});
+
+		// Ajustement de la barre d'outils
+		function updateToolbar() {
+			var i, n, e = $('header > :last-child');
+			for (i = 1, n = 1; n > 0; i++) {
+				n = $('.disappear-' + i).show().length;
+				$('#optionsMenu .disappear-' + i).hide();
+			}
+			for (i = 1, n = 1; e.offset().top > 10 && n > 0; i++) {
+				n = $('.disappear-' + i).hide().length;
+				$('#optionsMenu .disappear-' + i).show();
+			}
+		}
+		$(window).resize(updateToolbar);
+		updateToolbar();
+
+		// Manipulation au clavier
+		// https://help.libreoffice.org/6.1/fr/text/swriter/04/01020000.html
+		// https://support.google.com/docs/answer/179738
+		// https://support.office.com/en-us/article/Keyboard-shortcuts-for-Microsoft-Word-on-Windows-95EF89DD-7142-4B50-AFB2-F762F663CEB2
+		var keystrokes = {};
+		body.keystrokes({
+			'Ctrl-s': () => saveButton.click(),
+			'Ctrl-b': () => document.execCommand('bold'),
+			'Ctrl-i': () => document.execCommand('italic'),
+			'Ctrl-u': () => document.execCommand('underline'),
+			'Ctrl-!': () => document.execCommand('strikeThrough'), // custom
+			'Ctrl-m': () => document.execCommand('removeFormat'), // LO = Ctrl-m / GD = Ctrl-Alt-0
+			'Ctrl-k': () => $('#linkButton').click(),
+			'Tab': () => document.execCommand('indent'), // GD = Ctrl-] / MO = Ctrl-m
+			'Shift-Tab': () => document.execCommand('outdent'), // GD = Ctrl-[ / MO = Shift-Ctrl-M
+			'Shift-Ctrl-L': () => document.execCommand('justifyLeft'), // GD = Shift-Ctrl-l / LO = Ctrl+l
+			'Shift-Ctrl-E': () => document.execCommand('justifyCenter'), // GD = Shift-Ctrl-e / LO = Ctrl+e
+			'Shift-Ctrl-R': () => document.execCommand('justifyRight'), // GD = Shift-Ctrl-r / LO = Ctrl+r
+			'Shift-Ctrl-J': () => document.execCommand('justifyFull'), // GD = Shift-Ctrl-j / LO = Ctrl+j
+			'Shift-Ctrl-O': () => document.execCommand('insertOrderedList'), // LO = F12 / GD = Shift-Ctrl-7
+			'Shift-Ctrl-U': () => document.execCommand('insertUnorderedList'), // LO = Shift+F12 / GD = Shift-Ctrl-8
+		});
+	});
+});
+</script>
+
+</body>
+</html>
