@@ -243,7 +243,7 @@ function fillTests(add) {
 		return shouldUpload(totoTxtContent, "text/plain", "toto.txt", 1);
 	});
 	add("Streamer le fichier 'toto.txt' de longueur définie", function() {
-		return $.get("/files/stream/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+		return $.get("/files/browseTo/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
 	});
 	add("Télécharger le fichier 'toto.txt' de longueur définie", function() {
 		return $.get("/files/download/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));

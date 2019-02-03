@@ -15,19 +15,13 @@
 	}
 
 	// Pour les fichiers audio, NIMBUS partage la méthode détection
-	addOpenAction('audio-open', 'play_arrow', function(item, extension) {
-		return NIMBUS.utils.isBrowserSupportedAudio(item, extension)
-	});
+	addOpenAction('audio-open', 'play_arrow', NIMBUS.utils.isBrowserSupportedAudio);
 
 	// Pour les fichiers vidéo, NIMBUS partage la méthode détection
-	addOpenAction('video-open', 'videocam', function(item, extension) {
-		return NIMBUS.utils.isBrowserSupportedVideo(item, extension)
-	});
+	addOpenAction('video-open', 'videocam', NIMBUS.utils.isBrowserSupportedVideo);
 
 	// Pour les images, NIMBUS partage la méthode détection
-	addOpenAction('image-open', 'image', function(item, extension) {
-		return NIMBUS.utils.isBrowserSupportedImage(item, extension)
-	});
+	addOpenAction('image-open', 'image', NIMBUS.utils.isBrowserSupportedImage);
 
 	// Les fichiers PDF semblent bien supportés pas les navigateur.
 	// En tout cas au moins par Firefox, Chrome et Edge.
@@ -42,10 +36,7 @@
 	});
 
 	// Pour les fichiers texte, on considérera tous les types MIME commençant par "text/" + une liste de type MIME supplémentaires
-	var textExtensions = ['js', 'json', 'srt', 'ts', 'xml'];
-	addOpenAction('text-open', 'text_fields', function(item, extension) {
-		return !item.folder && (item.mimetype.indexOf('text/') === 0 || textExtensions.indexOf(extension) >= 0);
-	});
+	addOpenAction('text-open', 'text_fields', NIMBUS.utils.isTextFile);
 
 	// Enregistrement du plugin
 	NIMBUS.plugins.add({
