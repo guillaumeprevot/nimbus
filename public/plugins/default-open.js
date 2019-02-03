@@ -9,7 +9,7 @@
 			caption: 'DefaultOpen',
 			accept: accept,
 			execute: function(item) {
-				window.open('/files/stream/' + item.id);
+				window.open('/files/browseTo/' + item.id);
 			}
 		});
 	}

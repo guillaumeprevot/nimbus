@@ -6,9 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -204,6 +207,29 @@ public class Files extends Controller {
 		}
 		// Renvoyer le fichier au bout du chemin
 		return returnFile(response, item, false, null, null);
+	};
+
+	/**
+	 * Calcule le chemin dans l'arborescence du fichier ":itemId" et redirige
+	 * vers l'URL associée "/files/browse/path/to/filename.ext".
+	 *
+	 * (itemId) => redirect
+	 */
+	public static final Route browseTo = (request, response) -> {
+		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
+			StringBuilder url = new StringBuilder("/files/browse/");
+			if (StringUtils.isNotBlank(item.path)) {
+				String[] path = item.path.substring(0, item.path.length() - 1).split(",");
+				Arrays.stream(path).map(s -> Item.findById(Long.valueOf(s)).name).forEach((name) -> url.append(name).append('/'));
+			}
+			url.append(item.name);
+			try {
+				response.redirect(new URI(url.toString().replace(" ", "%20")).toASCIIString());
+			} catch (URISyntaxException ex) {
+				ex.printStackTrace();
+			}
+			return null;
+		});
 	};
 
 	/**

@@ -72,6 +72,7 @@ public class Controller {
 		Spark.post("/files/update/:itemId", Files.update);
 		Spark.post("/files/touch", Files.touch);
 		Spark.get("/files/browse/*", Files.browse);
+		Spark.get("/files/browseTo/:itemId", Files.browseTo);
 		Spark.get("/files/stream/:itemId", Files.stream);
 		Spark.get("/files/download/:itemId", Files.download);
 		Spark.get("/files/thumbnail/:itemId", Files.thumbnail);
