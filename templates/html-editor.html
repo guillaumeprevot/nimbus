@@ -136,7 +136,7 @@ blockquote { margin: 15px 40px; }
 <script>
 "use strict";
 
-var defaultFontSize = 14;
+var defaultFontSize = 12;
 var defaultFontFamily = 'Lato';
 var defaultForeColor = '#FF0000';
 var defaultBackColor = '#FFFF00';
@@ -248,13 +248,13 @@ NIMBUS.init(['text.js', 'html.js'], function() {
 		});
 
 		// Taille du texte
-		editor.css('font-size', defaultFontSize + 'px');
+		editor.css('font-size', defaultFontSize + 'pt');
 		var fontSize = $('#fontSize').toggle(!!document.queryCommandSupported('fontSize'));
 		var fontSizeButton = fontSize.children(':first-child').text('' + defaultFontSize).click(function() {
 			// Idée trouvée ici : https://stackoverflow.com/questions/5868295/document-execcommand-fontsize-in-pixels
 			// Ne fonctionnerait pas si on avait appellé : document.execCommand('styleWithCSS', null, _true_)
 			document.execCommand('fontSize', false, 7);
-			editor.find('font[size=7]').removeAttr('size').css('font-size', fontSizeButton.text() + 'px');
+			editor.find('font[size=7]').removeAttr('size').css('font-size', fontSizeButton.text() + 'pt');
 		});
 		var fontSizeMenu = fontSize.children('.dropdown-menu').append(fontSizeOptions().map(function(s, i, a) {
 			var b = $('<button class="dropdown-item"><span></span><small class="text-muted"></small></button>');
@@ -358,7 +358,7 @@ NIMBUS.init(['text.js', 'html.js'], function() {
 				+ '\n    <style>blockquote { margin: 15px 40px; }</style>'
 				+ '\n  </head>'
 				+ '\n  <body>'
-				+ '\n    <div style="font-family:' + defaultFontFamily + ', Roboto, Arial, sans-serif; font-size:' + defaultFontSize + 'px; padding: 1em; ">'
+				+ '\n    <div style="font-family:' + defaultFontFamily + ', Roboto, Arial, sans-serif; font-size:' + defaultFontSize + 'pt; padding: 1em; ">'
 				+ '\n      ' + editor.html()
 				+ '\n    </div>'
 				+ '\n  </body>'
@@ -374,7 +374,7 @@ NIMBUS.init(['text.js', 'html.js'], function() {
 			var w = window.open('', filename, '');
 			// Un vieux tag html marqué obsolète mais peu importe ;-)
 			// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/plaintext
-			w.document.write('<PLAINTEXT>' + editor.html() + '</PLAINTEXT>');
+			w.document.write('<PLAINTEXT>' + editor.html());
 			w.document.close();
 		});
 
