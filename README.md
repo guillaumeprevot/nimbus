@@ -28,7 +28,7 @@ Le développement du projet s'organise selon 4 axes :
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
 [Spark](http://sparkjava.com/) | Java | 2.8.0 | Apache 2.0 | Framework Java pour application web
-[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | 3.9.1 | Apache 2.0 | Persistance
+[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | 3.10.1 | Apache 2.0 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | 2.6 | Apache 2.0 | Utilitaire
 [FreeMarker](https://freemarker.apache.org/) | Java | 2.3.28 | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | 2.8.5 | Apache 2.0 | Support du format JSON
@@ -39,19 +39,19 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JavaZoom](http://www.javazoom.net/index.shtml) | plugin Java | 2010 | LGPL | Support des fichiers MP3 et OGG
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | 2.2.5 | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | 0.9.1 | MIT | Support des fichiers MP3
-[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | 1.60 | MIT | Dépendance de iTextPDF pour lire certains documents
+[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | 1.61 | MIT | Dépendance de iTextPDF pour lire certains documents
 [jQuery](http://api.jquery.com/) | JS | 3.3.1 | ~MIT | Kit de départ pour le JS
-[Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.2.1 | MIT | Kit de départ pour l'IHM
-[Bootswatch](https://bootswatch.com/) | CSS | 4.2.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
+[Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.3.1 | MIT | Kit de départ pour l'IHM
+[Bootswatch](https://bootswatch.com/) | CSS | 4.3.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 1.10.100 | Apache 2.0 | Support des fichiers PDF
-[Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.5.2 | MIT | Prévisualisation du Markdown
+[Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.6.1 | MIT | Prévisualisation du Markdown
 [Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.15.0 | MIT | Coloration syntaxique des blocs de code
 [CodeMirror](https://codemirror.net/) | plugin JS | 5.42.2 | MIT | Editeur de code avec coloration syntaxique notamment
-[Popper.js](https://popper.js.org/) | transitive | 1.14.6 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
+[Popper.js](https://popper.js.org/) | transitive | 1.14.7 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
 [Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | transitive | v14 | OFL | WebFont pour les thèmes Flatly et Darkly
-[JSZip](https://github.com/Stuk/jszip/releases) | transitive | 3.1.5 | MIT or GPLv3 | Dépendances de ePub.js
+[JSZip](https://github.com/Stuk/jszip/releases) | transitive | 3.2.0 | MIT or GPLv3 | Dépendances de ePub.js
 
 ## Fonctionnalités
 
@@ -110,7 +110,7 @@ notepad nimbus.conf
 Par défaut :
 - le serveur tourne en HTTP sur le port 10001
     - les propriétés `server.*` permettent d'ajuster cette partie
-- le serveur à MongoDB en local, sur le port 27017 et créer la base "nimbus"
+- le serveur accède à MongoDB en local, sur le port 27017 et crée la base "nimbus"
     - les propriétés `mongo.*` permettent d'ajuster cette partie
 - les fichiers sont stockés dans le sous-dossier "storage"
     - la propriété `storage.path` vous permet d'indiquer un autre chemin (relatif ou absolu)

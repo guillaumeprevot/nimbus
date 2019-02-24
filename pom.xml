@@ -102,14 +102,14 @@
 			<version>RELEASE</version>
 		</dependency>
 		<!--
-			1.60
+			1.61
 			https://www.bouncycastle.org/latest_releases.html
 			https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
 		-->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.60</version>
+			<version>RELEASE</version>
 		</dependency>
 		<!--
 			0.9.1
@@ -119,10 +119,10 @@
 		<dependency>
 			<groupId>com.mpatric</groupId>
 			<artifactId>mp3agic</artifactId>
-			<version>0.9.1</version>
+			<version>RELEASE</version>
 		</dependency>
 		<!--
-			2.2.5
+			2.2.5 dans repository ci-dessus
 			http://www.jthink.net/jaudiotagger/index.jsp
 			https://bitbucket.org/ijabz/jaudiotagger/src/master/README.md?fileviewer=file-view-default
 		-->
