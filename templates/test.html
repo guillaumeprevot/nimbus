@@ -532,7 +532,7 @@ function fillTests(add) {
 
 	var autocompleteResult;
 	add("DOWNLOAD / Vérifier l'auto-complétion des vidéos YouTube", function() {
-		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=8TCxE0bWQeQ" }).then((result) => assertArray(result, 4, (r) => { autocompleteResult = r; return r.name && r.value && r.label && r.value.indexOf("http") === 0; }));
+		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=8TCxE0bWQeQ" }).then((result) => assertArray(result, 2, (r) => { autocompleteResult = r; return r.name && r.value && r.label && r.value.indexOf("http") === 0; }));
 	});
 	add("DOWNLOAD / Vérifier que l'autocomplétion YouTube échoue si la vidéo est inconnue", function() {
 		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=hg-i47g1TKY" }).then((result) => assertArray(result, 0));
