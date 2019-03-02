@@ -45,7 +45,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Bootswatch](https://bootswatch.com/) | CSS | 4.3.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
-[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 1.10.100 | Apache 2.0 | Support des fichiers PDF
+[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 2.0.943 | Apache 2.0 | Support des fichiers PDF
 [Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.6.1 | MIT | Prévisualisation du Markdown
 [Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.15.0 | MIT | Coloration syntaxique des blocs de code
 [CodeMirror](https://codemirror.net/) | plugin JS | 5.42.2 | MIT | Editeur de code avec coloration syntaxique notamment

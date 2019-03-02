@@ -148,7 +148,7 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
-<script type="text/javascript" src="/libs/pdfjs/pdf.js"></script>
+<script type="text/javascript" src="/libs/pdfjs/pdf.min.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
@@ -185,7 +185,7 @@ function parsePDFDate(s) {
 /** Cette fonction crée un "div" pour un morceau de texte de la page */
 function createTextChunk(viewport, item, styles) {
 	var style = styles[item.fontName];
-	var tx = PDFJS.Util.transform(viewport.transform, item.transform);
+	var tx = window.pdfjsLib.Util.transform(viewport.transform, item.transform);
 	//var pos = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
 	var fontHeight = Math.sqrt((tx[2] * tx[2]) + (tx[3] * tx[3]));
 	var fontAscent = fontHeight * (style.ascent ? style.ascent : (style.descent ? (1 + style.descent) : 1));
@@ -244,9 +244,9 @@ NIMBUS.init(['pdf.js'], function() {
 			// OK, dessiner la page demandée
 			pageRendering = true;
 			pdf.getPage(index).then(function(page) {
-				// console.log(page); // page = { pageIndex: 0, pageInfo: { rotate: 0, view:[t,l,w,h]} }
+				// console.log(page); // page = { pageIndex: 0, rotate: getter, ..., _pageInfo: { rotate: 0, view:[t,l,w,h]} }
 
-				var viewport = page.getViewport(scale / 100.0, rotation + page.pageInfo.rotate);
+				var viewport = page.getViewport(scale / 100.0, rotation + page.rotate);
 				canvas.show().attr({
 					width: viewport.width,
 					height: viewport.height
@@ -401,7 +401,7 @@ NIMBUS.init(['pdf.js'], function() {
 	});
 
 	// Affichage de la première page
-	PDFJS.getDocument('${url}').then(function(pdfDoc) {
+	window.pdfjsLib.getDocument('${url}').promise.then(function(pdfDoc) {
 		pdf = pdfDoc;
 		pageNumberButton.closest('.btn-group').toggleClass('nimbus-hidden', pdf.numPages === 1);
 		renderPage(1);
