@@ -125,28 +125,44 @@ function wait(seconds) {
 	}, seconds * 1000);
 	return defer;
 }
-function upload(content, mimetype, filename, updateDate) {
-	var blob = new Blob([content], { type: mimetype });
-	var formData = new FormData();
-	formData.append("parentId", ""); // à la racine
-	formData.append("files", blob, filename);
+
+function TestUpload(parentId, updateDate) {
+	this.formData = new FormData();
+	this.formData.append("parentId", parentId ? parentId.toString() : "");
 	if (updateDate)
-		formData.append("updateDate", updateDate.getTime());
-	return $.ajax({
+		this.formData.append("updateDate", updateDate.getTime());
+}
+
+TestUpload.prototype.addFile = function(content, mimetype, filename) {
+	var blob = new Blob([content], { type: mimetype });
+	this.formData.append("files", blob, filename);
+	return this;
+};
+
+TestUpload.prototype.send = function() {
+	this.ajax = $.ajax({
 		method: "POST",
 		url: "/files/upload",
-		data: formData,
+		data: this.formData,
 		dataType: "json",
 		contentType: false,
 		processData: false,
 		cache: false,
 		timeout: 0
 	});
+	return this;
 }
-function shouldUpload(content, mimetype, filename, id) {
-	return upload(content, mimetype, filename)
-		.then((result) => assertArray(result, 1, (newId) => newId === id));
-}
+
+TestUpload.prototype.shouldSucceedWithIds = function(ids) {
+	return this.ajax.then((result) => assertArray(result, ids.length, (newId) => newId === ids[0] && result.every((e, i) => ids[i] === e)));
+};
+
+TestUpload.prototype.shouldFailWithErrorCode = function(code) {
+	return this.ajax.then(
+		(result) => $.Deferred().reject("Devrait lancer une erreur"),
+		(error) => (code && (code !== error.status)) ? $.Deferred().reject("Lance une erreur '" + error.status + "' au lieu de '" + code + "'") : "OK"
+	);
+};
 
 //==========
 //========== La suite des tests AJAX pour vérifier le comportement du serveur
@@ -240,7 +256,7 @@ function fillTests(add) {
 
 	var totoTxtContent = "Un fichier\ntexte";
 	add("Uploader un fichier texte à la racine qui aura pour id 1", function() {
-		return shouldUpload(totoTxtContent, "text/plain", "toto.txt", 1);
+		return new TestUpload().addFile(totoTxtContent, "text/plain", "toto.txt").send().shouldSucceedWithIds([1]);
 	});
 	add("Streamer le fichier 'toto.txt' de longueur définie", function() {
 		return $.get("/files/browseTo/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
@@ -312,7 +328,7 @@ function fillTests(add) {
 		while (n--) {
 			content[n] = bstr.charCodeAt(n);
 		}
-		return shouldUpload(content, "image/png", "favicon.png", 2);
+		return new TestUpload().addFile(content, "image/png", "favicon.png").send().shouldSucceedWithIds([2]);
 	});
 	add("Vérifier que l'image 'favicon.png' a la bonne taille", function() {
 		return $.get("/files/stream/2").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
@@ -468,7 +484,7 @@ function fillTests(add) {
 		return $.post("/items/duplicate?itemId=0&name=fichier7.txt").then((result) => assertEquals(result, "7"));
 	});
 	add("QUOTA / Vérifier que le quota autorise d'uploader 510KB dans 'file.txt'", function() {
-		return upload(stringOf520KB, "text/plain", "file.txt", uploadDate).then((result) => assertArray(result, 1, (first) => first === 0));
+		return new TestUpload(null, uploadDate).addFile(stringOf520KB, "text/plain", "file.txt").send().shouldSucceedWithIds([0]);
 	});
 	add("QUOTA / Vérifier la date de modification de 'file.txt'", function() {
 		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && r.updateDate === uploadDate.getTime()));
@@ -477,7 +493,7 @@ function fillTests(add) {
 		return shoudBeAnError($.post("/items/duplicate?itemId=0&name=fichier8.txt"), 507);
 	});
 	add("QUOTA / Vérifier que le quota empêche d'uploader à nouveau 510KB dans 'fichier7.txt'", function() {
-		return shoudBeAnError(upload(stringOf520KB, "text/plain", "fichier7.txt"), 507);
+		return new TestUpload().addFile(stringOf520KB, "text/plain", "fichier7.txt").send().shouldFailWithErrorCode(507);
 	});
 	add("QUOTA / Repasser le quota disque à 100Mo", function() {
 		return $.post("/user/update/adm?name=&admin=true&quota=100").then((result) => assertObject(result, (o) => o.quota === 100));
