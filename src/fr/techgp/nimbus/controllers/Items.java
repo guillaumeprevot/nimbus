@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -225,20 +224,8 @@ public class Items extends Controller {
 		String nextPattern = request.queryParams("nextPattern");
 		if (StringUtils.isBlank(newName) && (StringUtils.isBlank(firstPattern) || StringUtils.isBlank(nextPattern)))
 			return SparkUtils.haltBadRequest();
-		// Méthode de renommage de l'élément
-		Function<Item, String> renamer = (item) -> {
-			if (StringUtils.isNotBlank(newName))
-				return newName;
-			String result = firstPattern.replace("{0}", item.name);
-			int i = 1;
-			while (Item.hasItemWithName(item.userLogin, item.parentId, result)) {
-				i++;
-				result = nextPattern.replace("{0}", Integer.toString(i)).replace("{1}", item.name);
-			}
-			return result;
-		};
 		return actionOnSingleItem(request, request.queryParams("itemId"), (source) -> {
-			// Vérifier que le nom choisi pour la copie est correct
+			// Vérifier que le nom proposé pour la copie est correct
 			if (StringUtils.isNotBlank(newName) && Item.hasItemWithName(source.userLogin, source.parentId, newName))
 				return SparkUtils.haltConflict();
 
@@ -246,8 +233,10 @@ public class Items extends Controller {
 			if (!source.folder)
 				checkQuotaAndHaltIfNecessary(source.userLogin, source.content.getLong("length"));
 
+			// Trouver un nom unique pour la copie, si le nom n'est pas fourni
+			String duplicateName = StringUtils.isNotBlank(newName) ? newName : Item.findName(source, firstPattern, nextPattern);
 			// Dupliquer l'élément
-			Item item = Item.duplicate(source, renamer.apply(source));
+			Item item = Item.duplicate(source, duplicateName);
 			// Copier le fichier
 			if (! item.folder) {
 				File sourceFile = getFile(source);
@@ -396,14 +385,14 @@ public class Items extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
 		String itemIds = request.queryParams("itemIds");
+		String conflict = SparkUtils.queryParamString(request, "conflict", "skip");
+		String firstConflictPattern = SparkUtils.queryParamString(request, "firstConflictPattern", "Conflict of {0}");
+		String nextConflictPattern = SparkUtils.queryParamString(request, "nextConflictPattern", "Conflict ({1}) of {0}");
 		Long targetParentId = SparkUtils.queryParamLong(request, "targetParentId", null);
 		// Récupérer et vérifier l'accès à la cible
-		Item targetParent = null;
-		if (targetParentId != null) {
-			targetParent = Item.findById(targetParentId);
-			if (targetParent == null || !targetParent.userLogin.equals(userLogin))
-				return SparkUtils.haltBadRequest();
-		}
+		Item targetParent = targetParentId == null ? null : Item.findById(targetParentId);
+		if (targetParentId != null && (targetParent == null || !targetParent.userLogin.equals(userLogin)))
+			return SparkUtils.haltBadRequest();
 		// Le chemin concaténé jusqu'à la cible
 		String path = targetParent == null ? "" : (targetParent.path + targetParent.id + ",");
 		// Parcourir chaque élément
@@ -414,29 +403,98 @@ public class Items extends Controller {
 			// Erreur si on tente de déplacer un élément dans lui-même ou un de ses descendants
 			if (path.startsWith(item.path + item.id + ","))
 				return;
-			// Retirer l'élément de son ancien parent
-			if (item.parentId != null)
-				Item.notifyFolderContentChanged(item.parentId, -1);
-			item.parentId = targetParentId;
-			/*
-			 * Avant de sauvegarder le nouveau chemin pour "item", il faut mettre à jour le chemin pour tous les
-			 * sous-éléments de "item". Hors, MongoDB ne nous permet pas de le faire de manière atomique. On ne met donc
-			 * à jour le chemin qu'une fois tous les sous-éléments déplacés. Ainsi, en cas de souci, on peut reprendre
-			 * l'opération en cours (parentId !== path signifie qu'un déplacement est en cours). Pour plus d'info,
-			 * regarder le fonctionnement de Item.updatePath.
-			 */
-			// item.path = path;
-
-			// pas de changement de updateDate car le contenu reste le même
-			// item.updateDate = new Date();
-			Item.update(item);
-
-			// Ajouter l'élément dans son nouveau parent
-			if (item.parentId != null)
-				Item.notifyFolderContentChanged(item.parentId, 1);
-			Item.updatePath(item.path, path, item.id);
+			// Lancer l'opération pour cet élément
+			move(item, targetParent, conflict, firstConflictPattern, nextConflictPattern);
 		});
 	};
+
+	private static final boolean move(Item item, Item targetParent, String conflict, String firstConflictPattern, String nextConflictPattern) {
+		// Vérifier la présence d'un élément portant le même nom dans la destination, qui représenterait un conflit
+		Long targetParentId = targetParent == null ? null : targetParent.id;
+		Item existingItem = Item.findItemWithName(item.userLogin, targetParentId, item.name);
+
+		// Les conflits entre fichier et dossier ne sont pas gérés. On stoppe l'opération dans ces cas de figure
+		if (existingItem != null && (existingItem.folder != item.folder)) {
+			SparkUtils.haltConflict();
+			return false; // peu importe car haltConflict lance une exception
+		}
+
+		if (! item.folder) {
+		
+			// Fichier inexistant dans la destination, il suffit de le déplacer
+			if (existingItem == null) {
+				Item.move(item, targetParent, null);
+				return true;
+			}
+			// Fichier existant dans la destination, il faut résoudre le conflit comme demandé
+			boolean done = true;
+			switch (conflict) {
+			case "keepsource":
+				Controller.getFile(existingItem).delete();
+				Item.erase(existingItem);
+				Item.move(item, targetParent, null);
+				break;
+			case "keeptarget":
+				Controller.getFile(item).delete();
+				Item.erase(item);
+				break;
+			case "renamesource":
+				Item.move(item, targetParent, () -> Item.findName(item, firstConflictPattern, nextConflictPattern));
+				break;
+			case "renametarget":
+				Item.rename(existingItem, Item.findName(existingItem, firstConflictPattern, nextConflictPattern));
+				Item.move(item, targetParent, null);
+				break;
+			case "keepnewest":
+				if (item.updateDate.after(existingItem.updateDate)) {
+					Controller.getFile(existingItem).delete();
+					Item.erase(existingItem);
+					Item.move(item, targetParent, null);
+				} else {
+					Controller.getFile(item).delete();
+					Item.erase(item);
+				}
+				break;
+			case "skip":
+				done = false;
+				break;
+			case "abort":
+				SparkUtils.haltConflict();
+				break;
+			}
+			return done;
+
+		} else {
+
+			// Récupérer le contenu du dossier "item"
+			List<Item> children = Item.findAll(item.userLogin, item.id, false, null, false, null, null, null, null, null);
+			// Pour des dossiers vides n'existant pas dans la destination, il suffit de les déplacer
+			if (existingItem == null && children.isEmpty()) {
+				Item.move(item, targetParent, null);
+				return true;
+			}
+			// Pour les dossiers non vides, on déplacera les sous-éléments un par un dans la destination
+			if (existingItem == null) {
+				existingItem = Item.add(item.userLogin, targetParent, true, item.name, (i) -> {
+					if (item.tags != null) {
+						i.tags = new ArrayList<>();
+						i.tags.addAll(item.tags);
+					}
+					i.content.append("iconURL", item.content.getString("iconURL"));
+					i.content.append("iconURLCache", item.content.getString("iconURLCache"));
+				});
+			}
+			// Déplacer chaque sous-élément de "item" vers "existingItem"
+			boolean allMoved = true;
+			for (Item child : children) {
+				allMoved &= move(child, existingItem, conflict, firstConflictPattern, nextConflictPattern);
+			}
+			// Si tous les éléments ont été déplacés, le dossier source est vide et peut être supprimé
+			if (allMoved)
+				Item.erase(item);
+			return allMoved;
+		}
+	}
 
 	/**
 	 * Retourne un fichier zip contenant les éléments "itemIds" et leurs éventuels sous-éléments.

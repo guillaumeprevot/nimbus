@@ -70,14 +70,8 @@ public class Trash extends Controller {
 	public static final Route delete = (request, response) -> {
 		// Extraire la requête
 		String itemIds = request.queryParams("itemIds");
-		// Parcourir chaque élément
-		return actionOnMultipleItems(request, itemIds, (item) -> {
-			// ... pour le supprimer
-			Item.delete(item);
-			// un de - dans le parent
-			if (item.parentId != null)
-				Item.notifyFolderContentChanged(item.parentId, -1);
-		});
+		// Parcourir chaque élément pour le supprimer
+		return actionOnMultipleItems(request, itemIds, Item::delete);
 	};
 
 	/**
@@ -91,14 +85,8 @@ public class Trash extends Controller {
 	public static final Route restore = (request, response) -> {
 		// Extraire la requête
 		String itemIds = request.queryParams("itemIds");
-		// Parcourir chaque élément
-		return actionOnMultipleItems(request, itemIds, (item) -> {
-			// ... pour le restaurer
-			Item.restore(item);
-			// un de + dans le parent
-			if (item.parentId != null)
-				Item.notifyFolderContentChanged(item.parentId, 1);
-		});
+		// Parcourir chaque élément pour le restaurer
+		return actionOnMultipleItems(request, itemIds, Item::restore);
 	};
 
 	/**

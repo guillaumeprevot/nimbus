@@ -811,7 +811,8 @@ NIMBUS.navigation = (function() {
 	function moveItems(itemIds) {
 		var dialog = $('#move-dialog');
 		var validateButton = dialog.find('.btn-primary').prop('disabled', true);
-		var rootLI = dialog.find('.modal-body > ul > li:first-child').removeClass('list-group-item-info');
+		var conflictSelect = dialog.find('#move-conflict').val('skip');
+		var rootLI = dialog.find('.modal-body ul > li:first-child').removeClass('list-group-item-info');
 
 		// Méthode qui charge en AJAX les sous-dossiers
 		function load(ul) {
@@ -865,13 +866,19 @@ NIMBUS.navigation = (function() {
 			var targetId = dialog.find('li.list-group-item-info').attr('data-itemId');
 			// Déplacement des éléments
 			$.post('/items/move', {
+				itemIds: itemIds.join(','),
 				targetParentId: targetId,
-				itemIds: itemIds.join(',')
+				conflict: conflictSelect.val(),
+				firstConflictPattern: NIMBUS.translate('MainMoveConflictFirstPattern'),
+				nextConflictPattern: NIMBUS.translate('MainMoveConflictNextPattern')
 			}).done(function() {
 				refreshItems(false);
 				$('#move-dialog').modal('hide');
 			}).fail(function(result) {
-				if (result.responseText)
+				if (result.status === 409) { // Conflict
+					refreshItems(false);
+					$('#move-dialog').modal('hide');
+				} else if (result.responseText)
 					NIMBUS.message(result.responseText, true);
 			});
 		});

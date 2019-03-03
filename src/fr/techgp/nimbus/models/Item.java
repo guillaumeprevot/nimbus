@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.bson.BsonInt32;
@@ -17,7 +18,6 @@ import org.bson.conversions.Bson;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
 
 import fr.techgp.nimbus.utils.StringUtils;
@@ -68,17 +68,29 @@ public class Item {
 	}
 
 	public static final void delete(Item item) {
+		// Marquer comme supprimé
 		item.deleteDate = new Date();
 		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$set", new Document("deleteDate", item.deleteDate)));
+		// Décrémenter le nombre d'éléments du parent
+		if (item.parentId != null)
+			Item.notifyFolderContentChanged(item.parentId, -1);
 	}
 
 	public static final void restore(Item item) {
+		// Retirer l'indicateur de suppression
 		item.deleteDate = null;
 		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$unset", new Document("deleteDate", "")));
+		//Incrémenter le nombre d'éléments du parent
+		if (item.parentId != null)
+			Item.notifyFolderContentChanged(item.parentId, 1);
 	}
 
 	public static final void erase(Item item) {
+		// Supprimer définitivement l'élément
 		getWriteCollection().deleteOne(Filters.eq("_id", item.id));
+		// Décrémenter le nombre d'éléments du parent si "item" n'était pas encore supprimé
+		if (item.deleteDate == null && item.parentId != null)
+			Item.notifyFolderContentChanged(item.parentId, -1);
 	}
 
 	public static final Item add(String userLogin, Long parentId, boolean folder, String name, Consumer<Item> init) {
@@ -143,32 +155,50 @@ public class Item {
 		return duplicate;
 	}
 
+	public static final String findName(Item item, String firstPattern, String nextPattern) {
+		// Renommage l'élément en fonction des patterns donnés
+		String newName = firstPattern.replace("{0}", item.name).replace("{1}", Integer.toString(1));
+		int i = 1;
+		while (Item.hasItemWithName(item.userLogin, item.parentId, newName)) {
+			i++;
+			newName = nextPattern.replace("{0}", item.name).replace("{1}", Integer.toString(i));
+		}
+		return newName;
+	}
+
+	public static final void rename(Item item, String newName) {
+		// Renommage l'élément en fonction des patterns donnés
+		item.name = newName;
+		// pas de changement de updateDate car le contenu reste le même
+		//item.updateDate = new Date();
+		Item.update(item);
+		// Ajuster la date de modification du dossier parent
+		if (item.parentId != null)
+			Item.notifyFolderContentChanged(item.parentId, 0);
+	}
+
+	public static final void move(Item item, Item targetParent, Supplier<String> newName) {
+		// Retirer l'élément de son ancien parent
+		if (item.parentId != null)
+			Item.notifyFolderContentChanged(item.parentId, -1);
+		// Mettre à jour l'élément
+		item.parentId = targetParent == null ? null : targetParent.id;
+		item.path = targetParent == null ? "" : (targetParent.path + targetParent.id + ",");
+		if (newName != null)
+			item.name = newName.get();
+		// pas de changement de updateDate car le contenu reste le même
+		// item.updateDate = new Date();
+		Item.update(item);
+		// Ajouter l'élément dans son nouveau parent
+		if (item.parentId != null)
+			Item.notifyFolderContentChanged(item.parentId, 1);
+	}
+
 	public static final boolean notifyFolderContentChanged(Long folderId, int itemCountIncrement) {
 		Document modifications = new Document()
 				.append("$inc", new Document("content.itemCount", itemCountIncrement))
 				.append("$set", new Document("updateDate", new Date()));
 		return 1 == getWriteCollection().updateOne(Filters.eq("_id", folderId), modifications).getModifiedCount();
-	}
-
-	public static final void updatePath(String oldPath, String newPath, Long itemId) {
-		// Récupérer la collection
-		MongoCollection<Document> collection = getWriteCollection();
-		// Marquer que l'élément est en cours de déplacement (pour la récupération en cas d'interruption)
-		collection.updateOne(Filters.eq("_id", itemId), new Document("$set", new Document("newPath", newPath)));
-		// Préparer les substitutions de chemin pour les sous-éléments
-		String fullOldPath = oldPath + itemId + ",";
-		String fullNewPath = newPath + itemId + ",";
-		// Préparer le consumer qui mettre à jour le chemin d'un sous-éléments à la fois
-		Consumer<Document> updatePathConsumer = (document) -> {
-			// Nouveau chemin de l'élément
-			String path = fullNewPath + document.getString("path").substring(fullOldPath.length());
-			// Update pour cet élément
-			collection.updateOne(Filters.eq("_id", document.getLong("_id")), new Document("$set", new Document("path", path)));
-		};
-		// Rechercher les sous-éléments pointant sur l'ancien chemin
-		collection.find().filter(Filters.regex("path", "^" + fullOldPath)).projection(Projections.include("_id", "path")).forEach(updatePathConsumer);
-		// Une fois tous les sous-éléments mis à jour, on peut stocker le nouveau chemin de l'élément déplacé
-		collection.updateOne(Filters.eq("_id", itemId), new Document("$set", new Document("path", newPath)).append("$unset", new Document("newPath", "")));
 	}
 
 	public static final Item findById(Long id) {
@@ -363,6 +393,8 @@ public class Item {
 		checker.accept(item.id != null, "id ne doit pas être null");
 		checker.accept(item.path != null, "path ne doit pas être null");
 		checker.accept(item.path.isEmpty() || item.path.endsWith(","), "path doit finir par une virgule ou être vide");
+		checker.accept(item.parentId != null || item.path.isEmpty(), "path doit être vide pour les éléments à la racine");
+		checker.accept(item.parentId == null || item.path.endsWith(item.parentId + ","), "path doit correspondre au parent des sous-éléments");
 		checker.accept(StringUtils.isNotBlank(item.userLogin), "userLogin ne doit pas être vide");
 		checker.accept(StringUtils.isNotBlank(item.name), "name ne doit pas être vide");
 	}

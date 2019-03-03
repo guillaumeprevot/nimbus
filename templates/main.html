@@ -346,9 +346,23 @@
 				<h5 class="modal-title" data-translate="text">MainMoveTitle</h5>
 			</div>
 			<div class="modal-body">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item list-group-item-action"><div data-translate="text">MainMoveRootFolder</div></li>
-				</ul>
+				<div class="form-group">
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item list-group-item-action"><div data-translate="text">MainMoveRootFolder</div></li>
+					</ul>
+				</div>
+				<div class="form-group">
+					<label for="move-conflict-action" data-translate="text">MainMoveConflict</label>
+					<select class="form-control" id="move-conflict">
+						<option value="keepsource" data-translate="text">MainMoveConflictKeepSource</option>
+						<option value="keeptarget" data-translate="text">MainMoveConflictKeepTarget</option>
+						<option value="renamesource" data-translate="text">MainMoveConflictRenameSource</option>
+						<option value="renametarget" data-translate="text">MainMoveConflictRenameTarget</option>
+						<option value="keepnewest" data-translate="text">MainMoveConflictKeepNewest</option>
+						<option value="skip" data-translate="text">MainMoveConflictSkip</option>
+						<option value="abort" data-translate="text">MainMoveConflictAbort</option>
+					</select>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-translate="text" autofocus="autofocus" data-dismiss="modal">MainMoveCancelButton</button>

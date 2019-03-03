@@ -434,7 +434,7 @@ function fillTests(add) {
 		return shoudBeAnError($.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}"), 400);
 	});
 	add("Réussir par contre à copier le sous-dossier 'Dossier5' avec id 6", function() {
-		return $.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}&nextPattern=Copie%20{0}%20de%20{1}").then((result) => assertEquals(result, "6"));
+		return $.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}&nextPattern=Copie%20{1}%20de%20{0}").then((result) => assertEquals(result, "6"));
 	});
 
 	add("TAGS / Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {
@@ -634,6 +634,85 @@ function fillTests(add) {
 			showItemTags: true, showItemDescription: true, showItemThumbnail: true,
 			visibleItemColumns: ["length", "createDate", "updateDate", "shared", "mimetype"]
 		}).then(assertEmpty);
+	});
+
+	add("MOVE / Résolution des conflits lors d'un déplacement", function() {
+		return new TestUpload(4)
+			.addFile("aaa", "text/plain", "aaa.txt")
+			.addFile("bbb", "text/plain", "bbb.txt")
+			.addFile("ccc", "text/plain", "ccc.txt")
+			.addFile("ddd", "text/plain", "ddd.txt")
+			.addFile("eee", "text/plain", "eee.txt")
+			.addFile("fff", "text/plain", "fff.txt")
+			.addFile("ggg", "text/plain", "ggg.txt")
+			.send()
+			.shouldSucceedWithIds([10, 11, 12, 13, 14, 15, 16])
+			.then(function() {
+				return new TestUpload(6)
+					.addFile("aa", "text/plain", "aaa.txt")
+					.addFile("bb", "text/plain", "bbb.txt")
+					.addFile("cc", "text/plain", "ccc.txt")
+					.addFile("dd", "text/plain", "ddd.txt")
+					.addFile("ee", "text/plain", "eee.txt")
+					.addFile("ff", "text/plain", "fff.txt")
+					.addFile("gg", "text/plain", "ggg.txt")
+					.send()
+					.shouldSucceedWithIds([17, 18, 19, 20, 21, 22, 23])
+			});
+	});
+	add("MOVE / Résolution des conflits 'keepsource'", function() {
+		return $.post("/items/move?itemIds=10&targetParentId=6&conflict=keepsource&firstConflictPattern=[C]{0}")
+			.then(assertEmpty)
+			.then(() => shoudBeAnError($.get("/items/info/17")))
+			.then(() => $.get("/items/info/10"))
+			.then((result) => assertObject(result, (r) => r.id === 10 && r.parentId === 6 && r.name === "aaa.txt"));
+	});
+	add("MOVE / Résolution des conflits 'keeptarget'", function() {
+		return $.post("/items/move?itemIds=11&targetParentId=6&conflict=keeptarget&firstConflictPattern=[C]{0}")
+			.then(assertEmpty)
+			.then(() => shoudBeAnError($.get("/items/info/11")))
+			.then(() => $.get("/items/info/18"))
+			.then((result) => assertObject(result, (r) => r.id === 18 && r.parentId === 6 && r.name === "bbb.txt"));
+	});
+	add("MOVE / Résolution des conflits 'renamesource'", function() {
+		return $.post("/items/move?itemIds=12&targetParentId=6&conflict=renamesource&firstConflictPattern=[C]{0}")
+			.then(assertEmpty)
+			.then(() => $.get("/items/info/12"))
+			.then((result) => assertObject(result, (r) => r.id === 12 && r.parentId === 6 && r.name === "[C]ccc.txt"))
+			.then(() => $.get("/items/info/19"))
+			.then((result) => assertObject(result, (r) => r.id === 19 && r.parentId === 6 && r.name === "ccc.txt"));
+	});
+	add("MOVE / Résolution des conflits 'renametarget'", function() {
+		return $.post("/items/move?itemIds=13&targetParentId=6&conflict=renametarget&firstConflictPattern=[C]{0}")
+			.then(assertEmpty)
+			.then(() => $.get("/items/info/13"))
+			.then((result) => assertObject(result, (r) => r.id === 13 && r.parentId === 6 && r.name === "ddd.txt"))
+			.then(() => $.get("/items/info/20"))
+			.then((result) => assertObject(result, (r) => r.id === 20 && r.parentId === 6 && r.name === "[C]ddd.txt"));
+	});
+	add("MOVE / Résolution des conflits 'keepnewest'", function() {
+		return $.post("/items/move?itemIds=14&targetParentId=6&conflict=keepnewest&firstConflictPattern=[C]{0}")
+			.then(assertEmpty)
+			.then(() => shoudBeAnError($.get("/items/info/14")))
+			.then(() => $.get("/items/info/21"))
+			.then((result) => assertObject(result, (r) => r.id === 21 && r.parentId === 6 && r.name === "eee.txt"));
+	});
+	add("MOVE / Résolution des conflits 'skip'", function() {
+		return $.post("/items/move?itemIds=15&targetParentId=6&conflict=skip&firstConflictPattern=[C]{0}")
+			.then(assertEmpty)
+			.then(() => $.get("/items/info/15"))
+			.then((result) => assertObject(result, (r) => r.id === 15 && r.parentId === 4 && r.name === "fff.txt"))
+			.then(() => $.get("/items/info/22"))
+			.then((result) => assertObject(result, (r) => r.id === 22 && r.parentId === 6 && r.name === "fff.txt"));
+	});
+	add("MOVE / Résolution des conflits 'abort'", function() {
+		return shoudBeAnError($.post("/items/move?itemIds=16,15&targetParentId=6&conflict=abort&firstConflictPattern=[C]{0}"), 409)
+			.then(() => $.get("/items/info/16"))
+			.then((result) => assertObject(result, (r) => r.id === 16 && r.parentId === 4 && r.name === "ggg.txt"))
+			.then(() => $.get("/items/info/15"))
+			.then((result) => assertObject(result, (r) => r.id === 15 && r.parentId === 4 && r.name === "fff.txt"))
+			.then(() => $.get("/items/info/23"))
+			.then((result) => assertObject(result, (r) => r.id === 23 && r.parentId === 6 && r.name === "ggg.txt"));
 	});
 
 	add("Déconnecter ramène sur la page de connexion", function() {

@@ -18,7 +18,7 @@
 #itemcount:empty { display: none; }
 #itemcount::before { content: "("; }
 #itemcount::after { content: ")"; }
-#move-dialog ul { margin: 0; padding: 0; }
+#move-dialog ul { margin: 0 0 1rem; padding: 0; }
 #move-dialog li { margin: 0; padding: 0 0 0 15px; }
 #move-dialog li > div { padding: 8px 15px 8px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 #move-dialog li:not(.expanded) > ul { display: none; }
