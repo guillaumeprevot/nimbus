@@ -50,9 +50,9 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 			<div class="btn-group">
 				<button type="button" class="btn btn-link zoom-menu" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">80%</button>
 				<div class="dropdown-menu">
-					<a href="#" class="dropdown-item zoom-real" data-translate="text">PDFZoomReal</a>
 					<a href="#" class="dropdown-item zoom-fit" data-translate="text">PDFZoomFit</a>
 					<a href="#" class="dropdown-item zoom-width" data-translate="text">PDFZoomWidth</a>
+					<a href="#" class="dropdown-item zoom-height" data-translate="text">PDFZoomHeight</a>
 					<div class="dropdown-divider"></div>
 					<a href="#" class="dropdown-item zoom-pct" data-value="50">50 %</a>
 					<a href="#" class="dropdown-item zoom-pct" data-value="75">75 %</a>
@@ -276,7 +276,7 @@ NIMBUS.init(['pdf.js'], function() {
 					}
 				});
 
-				if (showTextLayer) {
+				if (showTextLayer && (rotation === 0)) {
 					page.getTextContent(/*{ normalizeWhitespace: true }*/).then(function(textContent) {
 						// console.log($.map(textContent.items, (i) => i.str).join(' '));
 						var textItems = textContent.items;
@@ -290,16 +290,29 @@ NIMBUS.init(['pdf.js'], function() {
 	}
 
 	// Changer le zoom et redessiner la page
-	function changeScale(value) {
+	function changeScale(value, button) {
 		scale = value;
 		header.find('.zoom-menu').text(Math.floor(scale) + '%');
 		renderPage(pageIndex);
+
+		// On quitte le mode de zoom en cours
+		if (zoomModeButton)
+			zoomModeButton.removeClass('active');
+		// On conserve le bouton du mode activé (ou null)
+		zoomModeButton = button;
+		// On entre en mode "zoom-fit", "zoom-width" ou "zoom-height"
+		if (zoomModeButton)
+			zoomModeButton.addClass('active');
 	}
 
 	// Changer la rotation et redessiner la page
 	function changeRotation(offset) {
 		rotation = (rotation + 360 + offset) % 360;
 		renderPage(pageIndex);
+		// On quitte le mode de zoom en cours
+		if (zoomModeButton)
+			zoomModeButton.removeClass('active');
+		zoomModeButton = null;
 	};
 
 	// Manipulation par la barre d'outils
@@ -343,38 +356,47 @@ NIMBUS.init(['pdf.js'], function() {
 				})
 		}
 	});
+	// Le bouton du mode de zoom actuellement actif (zoom-fit, zoom-width ou zoom-height)
+	var zoomModeButton = null;
+	$(window).on('resize', function applyZoomMode() {
+		if (zoomModeButton)
+			zoomModeButton.click();
+	});
 	// Zoomer un peu moins (-10 entre 0 et 100, -20 entre 100 et 200, -30 entre 200 et 300, ...)
 	var zoomOutButton = header.find('.zoom-out').click(function() {
 		var decrement = (Math.floor(scale / 100) + 1) * 10;
-		changeScale(Math.max(10, scale - decrement));
+		changeScale(Math.max(10, scale - decrement), null);
 	});
 	// Zoomer un peu plus (+10 entre 0 et 100, +20 entre 100 et 200, +30 entre 200 et 300, ...)
 	var zoomInButton = header.find('.zoom-in').click(function() {
 		var increment = (Math.floor(scale / 100) + 1) * 10;
-		changeScale(scale + increment);
-	});
-	// Positionner le zoom à 100% (taille réelle)
-	var zoomRealButton = header.find('.zoom-real').click(function() {
-		changeScale(100);
+		changeScale(scale + increment, null);
 	});
 	// Ajuster le zoom pour que la page s'affiche en entière
-	var zoomFit = header.find('.zoom-fit').click(function() {
-		var height = main.height(),
+	var zoomFitButton = header.find('.zoom-fit').click(function() {
+		var height = main.height() - 17/*if scrollbar are visible*/,
 			width = main.width() - 17/*if scrollbar are visible*/,
 			heightFactor = height / canvas[0].height,
 			widthFactor = width / canvas[0].width;
-		changeScale(scale * Math.min(widthFactor, heightFactor));
+		changeScale(scale * Math.min(widthFactor, heightFactor), zoomFitButton);
 	});
 	// Ajuster le zoom pour que la page s'affiche en pleine largeur
-	var zoomWidth = header.find('.zoom-width').click(function() {
+	var zoomWidthButton = header.find('.zoom-width').click(function() {
 		var newWidth = main.width() - 17/*if scrollbar are visible*/,
 			currentWidth = canvas[0].width,
 			currentScale = scale;
-		changeScale(currentScale * newWidth / currentWidth);
+		changeScale(currentScale * newWidth / currentWidth, zoomWidthButton);
+	});
+	// Ajuster le zoom pour que la page s'affiche en pleine hauteur
+	var zoomHeightButton = header.find('.zoom-height').click(function() {
+		var newHeight = main.height() - 17/*if scrollbar are visible*/,
+			currentHeight = canvas[0].height,
+			currentScale = scale;
+		changeScale(currentScale * newHeight / currentHeight, zoomHeightButton);
 	});
 	// Zoomer à une valeur définie par le menu
 	header.on('click', 'a.zoom-pct', function(event) {
-		changeScale(parseInt($(event.target).attr('data-value')));
+		changeScale(parseInt($(event.target).attr('data-value')), null);
 	});
 	// Faire pivoter la page dans le sens des aiguilles d'une montre
 	var rotateCWButton = header.find('.rotate-cw').click(function() {
@@ -415,7 +437,7 @@ NIMBUS.init(['pdf.js'], function() {
 		'End': () => lastPageButton.click(),
 		'Ctrl-+': () => zoomInButton.click(),
 		'Ctrl--': () => zoomOutButton.click(),
-		'Ctrl-0': () => zoomFit.click(),
+		'Ctrl-0': () => zoomFitButton.click(),
 		'Alt-ArrowLeft': () => changeRotation(-90),
 		'Alt-ArrowRight': () => changeRotation(90),
 	});
