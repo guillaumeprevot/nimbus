@@ -1201,10 +1201,6 @@ NIMBUS.navigation = (function() {
 		$('#move-button').click(function(event) { getSelectedItemIds(moveItems); });
 	}
 
-	function todo() {
-		alert('TODO');
-	}
-
 	return {
 		init: init,
 		refreshItems: refreshItems,

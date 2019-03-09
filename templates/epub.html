@@ -175,6 +175,18 @@ NIMBUS.init(['epub.js'], function() {
 		positionButton.attr('title', percentage + ' %');
 	});
 
+	// Sauvegarder la position dans le document
+	rendition.on('relocated', function(location) {
+		localStorage.setItem(book.key() + '-last-location', location.start.cfi);
+	});
+
+	// Recharger, si présente, la dernière position dans le document
+	book.loaded.navigation.then(function(toc) {
+		var cfi = localStorage.getItem(book.key() + '-last-location');
+		if (cfi)
+			rendition.display(cfi);
+	});
+
 	// Afficher la liste des chapitres en combo
 	book.loaded.navigation.then(function(toc) {
 		var fragment = document.createDocumentFragment();
