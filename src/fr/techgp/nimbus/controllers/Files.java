@@ -224,7 +224,7 @@ public class Files extends Controller {
 			}
 			url.append(item.name);
 			try {
-				response.redirect(new URI(url.toString().replace(" ", "%20")).toASCIIString());
+				response.redirect(new URI(null, null, url.toString(), null, null).toASCIIString());
 			} catch (URISyntaxException ex) {
 				ex.printStackTrace();
 			}
