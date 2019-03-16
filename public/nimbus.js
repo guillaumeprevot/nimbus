@@ -1156,10 +1156,12 @@ NIMBUS.navigation = (function() {
 			var id = $(event.target).closest('.list-group-item').attr('id');
 			// Ne pas toucher au hash de l'URL
 			event.preventDefault();
-			// Exécuter l'action demandée
-			$(event.target).closest('.list-group-item').data('action').execute(item);
 			// Et fermer la fenêtre
-			dialog.modal('hide');
+			dialog.modal('hide').one('hidden.bs.modal', function() {
+				// Exécuter l'action demandée après avoir attendu que la fenêtre modale listant les actions ait disparue.
+				// L'action cliquée ("Renommer", "Déplacer", ...) peut ainsi gérer correctement l'apparition des scrollbars.
+				$(event.target).closest('.list-group-item').data('action').execute(item);
+			})
 		});;
 	}
 
