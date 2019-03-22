@@ -511,23 +511,28 @@ NIMBUS.init(['audio.js'], function() {
 	var addSortBy = addDialog.find('.nav-link.active').attr('data-sort');
 	var addNoResult = addDialog.find('.modal-body>.alert');
 	var addResults = addDialog.find('.modal-body>.list-group');
-
+	var addLastQuery = null; // pour détecter la dernière requête AJAX partie
 	function addSearch() {
 		// console.log('Searching "' + addInput.val() + '" in "' + (addSearchBy || 'name') + '"');
 		var searchText = addInput.val();
 		if (!searchText) {
 			addResults.empty();
 			addNoResult.show();
+			addLastQuery = null;
 			return;
 		}
-		$.get('/items/list', {
+		addLastQuery = $.get('/items/list', {
 			recursive: true,
 			folders: false,
 			deleted: false,
 			searchText: addInput.val(),
 			searchBy: addSearchBy,
 			extensions: 'aac,m3u,mid,midi,mp3,oga,ogg,wav,weba,wma'
-		}).then(function(results) {
+		});
+		addLastQuery.then(function(results, textStatus, jqXHR) {
+			if (jqXHR !== addLastQuery)
+				return;
+			addLastQuery = null;
 			// Effacer les résultats précédents
 			addResults.empty();
 			// Ne conserver que les fichiers audio qu'on pourra jouer dans le navigateur
