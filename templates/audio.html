@@ -104,7 +104,7 @@ main { padding: 1em; }
 				</div>
 				<div class="modal-body">
 					<div class="alert alert-light" data-translate="text">AudioAddModalNoResultMessage</div>
-					<table class="table table-hover table-sm" style="cursor: pointer;"></table>
+					<div class="list-group"></div>
 				</div>
 				<div class="modal-footer" style="display: none; ">
 					<button type="button" class="btn btn-secondary" data-translate="text" autofocus="autofocus" data-dismiss="modal">AudioAddModalCloseButton</button>
@@ -510,7 +510,8 @@ NIMBUS.init(['audio.js'], function() {
 	var addSearchBy = addDialog.find('.nav-link.active').attr('data-search');
 	var addSortBy = addDialog.find('.nav-link.active').attr('data-sort');
 	var addNoResult = addDialog.find('.modal-body>.alert');
-	var addResults = addDialog.find('.modal-body>table');
+	var addResults = addDialog.find('.modal-body>.list-group');
+
 	function addSearch() {
 		// console.log('Searching "' + addInput.val() + '" in "' + (addSearchBy || 'name') + '"');
 		var searchText = addInput.val();
@@ -547,6 +548,7 @@ NIMBUS.init(['audio.js'], function() {
 				};
 				return c(item1[addSortBy], item2[addSortBy])
 					|| c(item1.artist, item2.artist)
+					|| c(item1.year, item2.year)
 					|| c(item1.album, item2.album)
 					|| c(item1.track, item2.track)
 					|| c(item1.title, item2.title)
@@ -554,12 +556,19 @@ NIMBUS.init(['audio.js'], function() {
 			});
 			// Afficher les résultats
 			addResults.append(results.map(function(result) {
-				return $('<tr />').data('item', result)
-					.append($('<td />').text(result.title || '').toggleClass('text-muted', addSortBy !== 'title'))
-					.append($('<td />').text(result.album || '').toggleClass('text-muted', addSortBy !== 'album'))
-					.append($('<td />').text(result.artist || '').toggleClass('text-muted', addSortBy !== 'artist'))
-					.append($('<td />').text(result.name).toggleClass('text-muted', addSortBy !== 'name'))
-					.get(0);
+				var div = $(''
+						+ '<div class="list-group-item list-group-item-action">'
+						+ '  <div class="d-flex w-100 justify-content-between">'
+						+ '    <p class="mb-1"></p>'
+						+ '    <small></small>'
+						+ '  </div>'
+						+ '  <span class="text-success"></span>'
+						+ '</div>');
+				div.find('p').text(result.name);
+				if (result.duration)
+					div.find('small').text(NIMBUS.formatDuration(result.duration / 1000));
+				div.find('span').text([result.artist, result.year, result.album, result.track, result.title].filter(function(p) { return !!p; }).join(' - '));
+				return div.get(0);
 			}));
 		});
 	}
@@ -573,8 +582,8 @@ NIMBUS.init(['audio.js'], function() {
 		a.addClass('active').parent().siblings().children().removeClass('active');
 		addSearch();
 	});
-	addResults.on('click', 'td', function(event) {
-		var item = $(event.target).closest('tr').data('item');
+	addResults.on('click', '.list-group-item', function(event) {
+		var item = $(event.target).closest('.list-group-item').data('item');
 		player.update([item], false);
 	});
 });
