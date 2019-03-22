@@ -257,7 +257,7 @@ public class Item {
 
 		// Extensions recherchées
 		if (StringUtils.isNotBlank(extensions))
-			filters.add(Filters.or(Filters.eq("folder", true), Filters.regex("name", ".*\\.(" + extensions.replace(",", "|") + ")", "i")));
+			filters.add(Filters.or(Filters.eq("folder", true), Filters.regex("name", ".*\\.(" + extensions.replace(",", "|") + ")$", "i")));
 
 		// Tri de la recherche
 		Bson sort;
