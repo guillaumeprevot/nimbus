@@ -573,7 +573,7 @@ NIMBUS.init(['audio.js'], function() {
 				if (result.duration)
 					div.find('small').text(NIMBUS.formatDuration(result.duration / 1000));
 				div.find('span').text([result.artist, result.year, result.album, result.track, result.title].filter(function(p) { return !!p; }).join(' - '));
-				return div.get(0);
+				return div.data('item', result).get(0);
 			}));
 		});
 	}
@@ -590,6 +590,8 @@ NIMBUS.init(['audio.js'], function() {
 	addResults.on('click', '.list-group-item', function(event) {
 		var item = $(event.target).closest('.list-group-item').data('item');
 		player.update([item], false);
+		if (player.index === -1)
+			player.playLast();
 	});
 });
 </script>
