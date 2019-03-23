@@ -23,8 +23,8 @@
 	<classpathentry kind="lib" path="lib/mongodb-driver-3.10.1.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.10.1.jar"/>
 	<classpathentry kind="lib" path="lib/mp3agic-0.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.26.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.26.jar"/>
 	<classpathentry kind="lib" path="lib/spark-core-2.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/spark-template-freemarker-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-api-9.4.12.v20180830.jar"/>
