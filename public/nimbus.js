@@ -637,7 +637,8 @@ NIMBUS.navigation = (function() {
 	/** Préparer la zone de choix du thème */
 	function prepareThemeMenu() {
 		$('.nimbus-menu [data-theme]').click(function(event) {
-			$.get('/preferences/theme', { theme: $(event.target).closest('a').attr('data-theme') }).then(function() {
+			var theme = $(event.target).closest('[data-theme]').attr('data-theme');
+			$.get('/preferences/theme', { theme: theme }).then(function() {
 				window.location.reload();
 			});
 		});

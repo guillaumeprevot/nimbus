@@ -51,9 +51,8 @@
 <script>
 NIMBUS.init([], function() {
 	$('button[data-theme]').on('click', function(event) {
-		var button = $(event.target).closest('button');
-		var theme = button.attr('data-theme');
-		$.get('/preferences/theme', { theme: theme}).then(function() {
+		var theme = $(event.target).closest('button').attr('data-theme');
+		$.get('/preferences/theme', { theme: theme }).then(function() {
 			window.location.reload();
 		});
 	});
