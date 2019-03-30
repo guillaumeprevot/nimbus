@@ -46,6 +46,7 @@ public class Preferences extends Controller {
 		User user = User.findByLogin(request.session().attribute("userLogin"));
 		// Générer la page
 		return renderTemplate("preferences.html",
+				"fromUrl", request.headers("Referer"),
 				"lang", SparkUtils.getRequestLang(request),
 				"plugins", configuration.getClientPlugins(),
 				"name", user.name,

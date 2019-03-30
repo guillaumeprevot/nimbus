@@ -649,14 +649,20 @@ NIMBUS.navigation = (function() {
 		return currentPath.length === 0 ? null : currentPath[currentPath.length - 1].id;
 	}
 
-	/** Au chargement de la page, se positionner sur le dossier inidqué par "location.hash" */
-	function goToLocationHashAndRefreshItems() {
-		var hash = location.hash;
-		var ids = (hash && hash != '#') ? hash.substring(1).split(',') : [];
+	/** Au chargement de la page, se positionner sur le dossier indiqué par "location.pathname" */
+	function goToLocationAndRefreshItems() {
+		// "location.pathname" est de la forme "/nav/id1/id2". On retire le "/nav"
+		var path = location.pathname.substring(4);
+		// S'il reste plus que "/", par exemple "/id1/id2", on le transforme en tableau [id1, id2]
+		var ids = (path && path != '/') ? path.substring(1).split('/') : [];
 		getItemsByIds(ids, function(items) {
 			// On change le chemin en ne gardant qu'un élément, la racine et en ajoutant "items"
 			updatePath(0, items);
 		});
+		// En cas d'utilisation des bouton Précédent / Suivant, ajuster l'IHM en fonction de "location.pathname"
+		window.onpopstate = function(event) {
+			goToLocationAndRefreshItems();
+		};
 	}
 
 	/** L'utilisateur clique sur le bouton "Home" */
@@ -700,12 +706,29 @@ NIMBUS.navigation = (function() {
 
 	/** Mettre à jour "currentPath" comme demandé, en conservant "keepCount" dossier et en ajoutant "appendItems" */
 	function updatePath(keepCount, appendItems) {
+		// Keep the first "keepCount" folders, if asked
 		currentPath.length = keepCount;
-		appendItems.forEach(function(item) {
-			currentPath.push(item);
-		});
+		// Append specified folders "appendItems" in path "currentPath"
+		Array.prototype.push.apply(currentPath, appendItems);
+		// Clear search
 		$('#search-input').val('');
 		$('#search-clear').addClass('nimbus-hidden');
+		// Update path in toolbar
+		var pathDiv = $('#path');
+		var location = '/nav';
+		pathDiv.children(':not(:first-child)').remove();
+		currentPath.forEach(function(item, index) {
+			location = location + '/' + item.id;
+			$('<li class="nav-item" />').appendTo(pathDiv)
+				.append($('<a class="nav-link" />').text(item.name).attr('href', location));
+		});
+		// Update path in browser using "pushState", if needed
+		if (window.location.pathname !== location)
+			history.pushState(
+					{ folder: currentPath.length === 0 ? null : currentPath[currentPath.length - 1].id  },
+					{ folder: currentPath.length === 0 ? 'Nimbus' : currentPath[currentPath.length - 1].name  },
+					location);
+		// Update table content
 		refreshItems(true);
 	}
 
@@ -987,17 +1010,6 @@ NIMBUS.navigation = (function() {
 		$('#items tbody').empty();
 		updateSelectionCount(0);
 
-		// Update path in toolbar && url hash
-		var pathDiv = $('#path');
-		var hash = '';
-		pathDiv.children(':not(:first-child)').remove();
-		currentPath.forEach(function(item, index) {
-			hash = hash + (hash ? ',' : '#') + item.id;
-			$('<li class="nav-item" />').appendTo(pathDiv)
-				.append($('<a class="nav-link" />').text(item.name).attr('href', hash));
-		});
-		location.hash = hash;
-
 		// Get search options
 		var searchText = $('#search-input').val();
 		var searchFolders = !!searchText && $('#search-option-folders').is('.active');
@@ -1171,7 +1183,7 @@ NIMBUS.navigation = (function() {
 		// Préparation de la grille
 		prepareTable(columns);
 		// Après chargement de la page, se positionner sur l'élément demandé
-		goToLocationHashAndRefreshItems();
+		goToLocationAndRefreshItems();
 		// Le bouton 'home' en Ajax pour éviter un rechargement de la page
 		$('#path').on('click', 'li:first-child', goToHomeAndRefreshItems);
 		// Les autres boutons du fil d'ariane permettent de remonter à un niveau en particulier

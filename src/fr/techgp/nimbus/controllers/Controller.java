@@ -22,6 +22,7 @@ import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.TemplateModelException;
 import spark.ModelAndView;
 import spark.Request;
+import spark.Response;
 import spark.Spark;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
@@ -37,22 +38,22 @@ public class Controller {
 		Controller.configuration = configuration;
 		Controller.templateEngine = prepareTemplateEngine(dev);
 
-		Spark.before("/main.html", Filters.filterAuthenticatedOrRedirect);
-		Spark.get("/main.html", (request, response) -> {
-			String login = request.session().attribute("userLogin");
-			User user = User.findByLogin(login);
-			return renderTemplate("main.html",
-					"lang", SparkUtils.getRequestLang(request),
-					"plugins", configuration.getClientPlugins(),
-					"theme", getUserTheme(request),
-					"name", StringUtils.withDefault(user.name, user.login),
-					"admin", user.admin,
-					"trashCount", Item.trashCount(login),
-					"textFileExtensions", configuration.getTextFileExtensions(),
-					"showItemTags", user.showItemTags,
-					"showItemDescription", user.showItemDescription,
-					"showItemThumbnail", user.showItemThumbnail,
-					"visibleItemColumns", user.visibleItemColumns == null ? Collections.emptyList() : user.visibleItemColumns);
+		Spark.redirect.get("/", "/nav");
+
+		Spark.before("/nav", Filters.filterAuthenticatedOrRedirect);
+		Spark.before("/nav/*", Filters.filterAuthenticatedOrRedirect);
+		Spark.get("/nav", Controller::nav);
+		Spark.get("/nav/*", (request, response) -> {
+			String[] splat = request.splat();
+			if (splat.length == 0) // "/nav/"
+				return nav(request, response);
+			String[] path = splat[0].split("/");
+			return actionOnSingleItem(request, path[path.length - 1], (item) -> {
+				if (item.folder)
+					return nav(request, response);
+				response.redirect("/files/stream/" + item.id);
+				return null;
+			});
 		});
 
 		Spark.get("/login.html", Authentication.page); // URL publique
@@ -149,6 +150,23 @@ public class Controller {
 			return renderTemplate("test.html",
 					"serverAbsoluteUrl", configuration.getServerAbsoluteUrl());
 		});
+	}
+
+	private static final Object nav(Request request, Response response) {
+		String login = request.session().attribute("userLogin");
+		User user = User.findByLogin(login);
+		return renderTemplate("main.html",
+				"lang", SparkUtils.getRequestLang(request),
+				"plugins", configuration.getClientPlugins(),
+				"theme", getUserTheme(request),
+				"name", StringUtils.withDefault(user.name, user.login),
+				"admin", user.admin,
+				"trashCount", Item.trashCount(login),
+				"textFileExtensions", configuration.getTextFileExtensions(),
+				"showItemTags", user.showItemTags,
+				"showItemDescription", user.showItemDescription,
+				"showItemThumbnail", user.showItemThumbnail,
+				"visibleItemColumns", user.visibleItemColumns == null ? Collections.emptyList() : user.visibleItemColumns);
 	}
 
 	/**

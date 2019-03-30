@@ -51,7 +51,6 @@ public class Application {
 
 			// Configure routes
 			Controller.init(logger, configuration, dev);
-			Spark.redirect.get("/", "/main.html");
 
 			// Enable GZIP for all responses
 			/*

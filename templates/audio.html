@@ -420,7 +420,7 @@ NIMBUS.init(['audio.js'], function() {
 		player.update(update.items, update.play);
 	}
 
-	// Réception des évènements alimentant la liste de lecture depuis "main.html"
+	// Réception des évènements alimentant la liste de lecture depuis la page principale
 	window.addEventListener('storage', function(event) {
 		if (event.key === 'updatePlaylist' && !!event.newValue) {
 			var update = JSON.parse(event.newValue);

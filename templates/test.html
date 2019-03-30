@@ -183,7 +183,7 @@ function fillTests(add) {
 	});
 
 	add("Bloquer l'accès à la page principale sans identification", function() {
-		return $.get("/main.html").then(assertLoginPage);
+		return $.get("/nav").then(assertLoginPage);
 	});
 	add("Créer un premier compte quand la base est vide", function() {
 		return $.post("/login.html?login=adm&password=adm").then(assertMainPage);
@@ -719,7 +719,7 @@ function fillTests(add) {
 		return $.get("/logout").then(assertLoginPage);
 	});
 	add("Bloquer à nouveau l'accès à la page principale une fois déconnecté", function() {
-		return $.get("/main.html").then(assertLoginPage);
+		return $.get("/nav").then(assertLoginPage);
 	});
 }
 

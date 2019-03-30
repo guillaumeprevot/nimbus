@@ -56,7 +56,7 @@
 					// remove last element which is ''
 					pathArray.pop();
 					// open path in new window
-					window.open('/main.html#' + pathArray.join(','));
+					window.open('/nav/' + pathArray.join('/'));
 				}
 			}, {
 				name: 'rename',

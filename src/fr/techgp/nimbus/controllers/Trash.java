@@ -21,6 +21,7 @@ public class Trash extends Controller {
 	 */
 	public static final Route page = (request, response) -> {
 		return renderTemplate("trash.html",
+				"fromUrl", request.headers("Referer"),
 				"lang", SparkUtils.getRequestLang(request));
 	};
 

@@ -18,6 +18,7 @@ public class Users extends Controller {
 	 */
 	public static final Route page = (request, response) -> {
 		return renderTemplate("users.html",
+				"fromUrl", request.headers("Referer"),
 				"lang", SparkUtils.getRequestLang(request));
 	};
 

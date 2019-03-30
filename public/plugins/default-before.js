@@ -60,7 +60,7 @@
 					return item.folder;
 				},
 				execute: function(item) {
-					window.open('/main.html#' + item.path + item.id);
+					window.open('/nav/' + item.path.replace(',', '/') + item.id);
 				}
 			}
 		]
