@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="nimbus-viewer nimbus-static-toolbars">
 <head>
-<title data-translate="text">HTMLEditorTitle</title>
+<title data-translate="text">NoteEditorTitle</title>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -33,102 +33,102 @@ blockquote { margin: 15px 40px; }
 	<header class="bg-primary">
 		<div class="float-left">
 			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
-			<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="HTMLEditorSave"><i class="material-icons">save</i></button>
+			<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="NoteEditorSave"><i class="material-icons">save</i></button>
 		</div>
 
 		<div class="float-right">
 			<div class="btn-group">
-				<button id="optionsButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="HTMLEditorOptions" aria-haspopup="true" aria-expanded="false"><i class="material-icons">settings</i></button>
+				<button id="optionsButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="NoteEditorOptions" aria-haspopup="true" aria-expanded="false"><i class="material-icons">settings</i></button>
 				<div id="optionsMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsButton">
-					<div class="text-muted px-3" data-translate="text">HTMLEditorJustify</div>
+					<div class="text-muted px-3" data-translate="text">NoteEditorJustify</div>
 					<div class="mx-3 mt-1" style="text-align: center;">
-						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyLeft" title="HTMLEditorJustifyLeft"><i class="material-icons">format_align_left</i></button>
-						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyCenter" title="HTMLEditorJustifyCenter"><i class="material-icons">format_align_center</i></button>
-						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyRight" title="HTMLEditorJustifyRight"><i class="material-icons">format_align_right</i></button>
-						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyFull" title="HTMLEditorJustifyFull"><i class="material-icons">format_align_justify</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyLeft" title="NoteEditorJustifyLeft"><i class="material-icons">format_align_left</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyCenter" title="NoteEditorJustifyCenter"><i class="material-icons">format_align_center</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyRight" title="NoteEditorJustifyRight"><i class="material-icons">format_align_right</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="justifyFull" title="NoteEditorJustifyFull"><i class="material-icons">format_align_justify</i></button>
 					</div>
 					<div class="dropdown-divider"></div>
-					<div class="text-muted px-3" data-translate="text">HTMLEditorSelection</div>
+					<div class="text-muted px-3" data-translate="text">NoteEditorSelection</div>
 					<div class="mx-3 mt-1" style="text-align: center;">
-						<button type="button" class="btn btn-link" data-translate="title" data-command="subscript" title="HTMLEditorSubscript"><i class="material-icons-placeholder">x<sub>2</sub></i></button>
-						<button type="button" class="btn btn-link" data-translate="title" data-command="superscript" title="HTMLEditorSuperscript"><i class="material-icons-placeholder">x<sup>2</sup></i></button>
-						<button type="button" class="btn btn-link" data-translate="title" data-command="decreaseFontSize" title="HTMLEditorDecreaseFontSize"><i class="material-icons-placeholder">A<small>A</small></i></button>
-						<button type="button" class="btn btn-link" data-translate="title" data-command="increaseFontSize" title="HTMLEditorIncreaseFontSize"><i class="material-icons-placeholder"><small>A</small>A</i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="subscript" title="NoteEditorSubscript"><i class="material-icons-placeholder">x<sub>2</sub></i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="superscript" title="NoteEditorSuperscript"><i class="material-icons-placeholder">x<sup>2</sup></i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="decreaseFontSize" title="NoteEditorDecreaseFontSize"><i class="material-icons-placeholder">A<small>A</small></i></button>
+						<button type="button" class="btn btn-link" data-translate="title" data-command="increaseFontSize" title="NoteEditorIncreaseFontSize"><i class="material-icons-placeholder"><small>A</small>A</i></button>
 					</div>
 					<div class="dropdown-divider disappear-1"></div>
-					<button type="button" class="dropdown-item disappear-1" data-command="outdent"><i class="material-icons">format_indent_decrease</i> <span data-translate="text">HTMLEditorOutdent</span></button>
-					<button type="button" class="dropdown-item disappear-1" data-command="indent"><i class="material-icons">format_indent_increase</i> <span data-translate="text">HTMLEditorIndent</span></button>
+					<button type="button" class="dropdown-item disappear-1" data-command="outdent"><i class="material-icons">format_indent_decrease</i> <span data-translate="text">NoteEditorOutdent</span></button>
+					<button type="button" class="dropdown-item disappear-1" data-command="indent"><i class="material-icons">format_indent_increase</i> <span data-translate="text">NoteEditorIndent</span></button>
 					<div class="dropdown-divider disappear-2"></div>
-					<button type="button" class="dropdown-item disappear-5" id="tableButton2"><i class="material-icons">grid_on</i> <span data-translate="text">HTMLEditorInsertTable</span></button>
-					<button type="button" class="dropdown-item disappear-4" id="linkButton2"><i class="material-icons">link</i> <span data-translate="text">HTMLEditorLink</span></button>
-					<button type="button" class="dropdown-item disappear-4" data-command="unlink"><i class="material-icons">link_off</i> <span data-translate="text">HTMLEditorUnlink</span></button>
-					<button type="button" class="dropdown-item disappear-3" id="imageButton2"><i class="material-icons">image</i> <span data-translate="text">HTMLEditorInsertImage</span></button>
-					<button type="button" class="dropdown-item disappear-2" id="videoButton2"><i class="material-icons">movie</i> <span data-translate="text">HTMLEditorInsertVideo</span></button>
-					<button type="button" class="dropdown-item disappear-2" id="audioButton2"><i class="material-icons">audiotrack</i> <span data-translate="text">HTMLEditorInsertAudio</span></button>
-					<button type="button" class="dropdown-item disappear-2" data-command="insertHorizontalRule"><i class="material-icons">vertical_align_center</i> <span data-translate="text">HTMLEditorInsertHR</span></button>
+					<button type="button" class="dropdown-item disappear-5" id="tableButton2"><i class="material-icons">grid_on</i> <span data-translate="text">NoteEditorInsertTable</span></button>
+					<button type="button" class="dropdown-item disappear-4" id="linkButton2"><i class="material-icons">link</i> <span data-translate="text">NoteEditorLink</span></button>
+					<button type="button" class="dropdown-item disappear-4" data-command="unlink"><i class="material-icons">link_off</i> <span data-translate="text">NoteEditorUnlink</span></button>
+					<button type="button" class="dropdown-item disappear-3" id="imageButton2"><i class="material-icons">image</i> <span data-translate="text">NoteEditorInsertImage</span></button>
+					<button type="button" class="dropdown-item disappear-2" id="videoButton2"><i class="material-icons">movie</i> <span data-translate="text">NoteEditorInsertVideo</span></button>
+					<button type="button" class="dropdown-item disappear-2" id="audioButton2"><i class="material-icons">audiotrack</i> <span data-translate="text">NoteEditorInsertAudio</span></button>
+					<button type="button" class="dropdown-item disappear-2" data-command="insertHorizontalRule"><i class="material-icons">vertical_align_center</i> <span data-translate="text">NoteEditorInsertHR</span></button>
 					<div class="dropdown-divider"></div>
-					<button type="button" class="dropdown-item" data-translate="text" id="pasteAsHTMLButton">HTMLEditorPasteAsHTML</button>
-					<button type="button" class="dropdown-item active" data-translate="text" id="pasteAsTextButton">HTMLEditorPasteAsText</button>
+					<button type="button" class="dropdown-item" data-translate="text" id="pasteAsHTMLButton">NoteEditorPasteAsHTML</button>
+					<button type="button" class="dropdown-item active" data-translate="text" id="pasteAsTextButton">NoteEditorPasteAsText</button>
 					<div class="dropdown-divider"></div>
-					<button type="button" class="dropdown-item" data-translate="text" id="printButton">HTMLEditorPrint</button>
-					<button type="button" class="dropdown-item" data-translate="text" id="sourceButton">HTMLEditorSource</button>
+					<button type="button" class="dropdown-item" data-translate="text" id="printButton">NoteEditorPrint</button>
+					<button type="button" class="dropdown-item" data-translate="text" id="sourceButton">NoteEditorSource</button>
 				</div>
 			</div>
 		</div>
 
 		<div class="btn-group">
-			<button type="button" class="btn btn-link" data-translate="title" data-command="removeFormat" title="HTMLEditorRemoveFormat"><i class="material-icons">format_clear</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="removeFormat" title="NoteEditorRemoveFormat"><i class="material-icons">format_clear</i></button>
 			<span class="nimbus-toolbar-separator"></span>
 		</div>
 
 		<div class="btn-group" id="fontFamily">
-			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorFontFamilyAgain"></button>
-			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorFontFamilySelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+			<button type="button" class="btn btn-link" data-translate="title" title="NoteEditorFontFamilyAgain"></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="NoteEditorFontFamilySelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
 			<div class="dropdown-menu dropdown-menu-right"></div>
 		</div>
 
 		<div class="btn-group" id="fontSize">
-			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorFontSizeAgain"></button>
-			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorFontSizeSelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+			<button type="button" class="btn btn-link" data-translate="title" title="NoteEditorFontSizeAgain"></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="NoteEditorFontSizeSelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
 			<div class="dropdown-menu dropdown-menu-right"></div>
 		</div>
 
 		<div class="btn-group" id="foreColor">
-			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorForeColorAgain"><i class="material-icons">format_color_text</i></button>
-			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorForeColorSelect"></button>
+			<button type="button" class="btn btn-link" data-translate="title" title="NoteEditorForeColorAgain"><i class="material-icons">format_color_text</i></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="NoteEditorForeColorSelect"></button>
 			<input type="color" style="display: none; " />
 		</div>
 
 		<div class="btn-group" id="backColor">
-			<button type="button" class="btn btn-link" data-translate="title" title="HTMLEditorBackColorAgain"><i class="material-icons">format_color_fill</i></button>
-			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="HTMLEditorBackColorSelect"></button>
+			<button type="button" class="btn btn-link" data-translate="title" title="NoteEditorBackColorAgain"><i class="material-icons">format_color_fill</i></button>
+			<button type="button" class="btn btn-link dropdown-toggle dropdown-toggle-split" data-translate="title" title="NoteEditorBackColorSelect"></button>
 			<input type="color" style="display: none; " />
 		</div>
 
 		<div class="btn-group">
 			<span class="nimbus-toolbar-separator"></span>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="bold" title="HTMLEditorBold"><i class="material-icons">format_bold</i></button>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="italic" title="HTMLEditorItalic"><i class="material-icons">format_italic</i></button>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="underline" title="HTMLEditorUnderline"><i class="material-icons">format_underlined</i></button>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="strikeThrough" title="HTMLEditorStrikeThrough"><i class="material-icons">format_strikethrough</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="bold" title="NoteEditorBold"><i class="material-icons">format_bold</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="italic" title="NoteEditorItalic"><i class="material-icons">format_italic</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="underline" title="NoteEditorUnderline"><i class="material-icons">format_underlined</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="strikeThrough" title="NoteEditorStrikeThrough"><i class="material-icons">format_strikethrough</i></button>
 		</div>
 		<div class="btn-group">
 			<span class="nimbus-toolbar-separator"></span>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="insertUnorderedList" title="HTMLEditorInsertUnorderedList"><i class="material-icons">format_list_bulleted</i></button>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="insertOrderedList" title="HTMLEditorInsertOrderedList"><i class="material-icons">format_list_numbered</i></button>
-			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="outdent" title="HTMLEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
-			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="indent" title="HTMLEditorIndent"><i class="material-icons">format_indent_increase</i></button>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="formatBlock" data-command-params="BLOCKQUOTE" title="HTMLEditorQuote"><i class="material-icons">format_quote</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="insertUnorderedList" title="NoteEditorInsertUnorderedList"><i class="material-icons">format_list_bulleted</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="insertOrderedList" title="NoteEditorInsertOrderedList"><i class="material-icons">format_list_numbered</i></button>
+			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="outdent" title="NoteEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
+			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="indent" title="NoteEditorIndent"><i class="material-icons">format_indent_increase</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-command="formatBlock" data-command-params="BLOCKQUOTE" title="NoteEditorQuote"><i class="material-icons">format_quote</i></button>
 		</div>
 		<div class="btn-group">
 			<span class="nimbus-toolbar-separator disappear-5"></span>
-			<button type="button" class="btn btn-link disappear-5" data-translate="title" id="tableButton" title="HTMLEditorInsertTable"><i class="material-icons">grid_on</i></button>
-			<button type="button" class="btn btn-link disappear-4" data-translate="title" id="linkButton" title="HTMLEditorLink"><i class="material-icons">link</i></button>
-			<button type="button" class="btn btn-link disappear-4" data-translate="title" data-command="unlink" title="HTMLEditorUnlink"><i class="material-icons">link_off</i></button>
-			<button type="button" class="btn btn-link disappear-3" data-translate="title" id="imageButton" title="HTMLEditorInsertImage"><i class="material-icons">image</i></button>
-			<button type="button" class="btn btn-link disappear-2" data-translate="title" id="videoButton" title="HTMLEditorInsertVideo"><i class="material-icons">movie</i></button>
-			<button type="button" class="btn btn-link disappear-2" data-translate="title" id="audioButton" title="HTMLEditorInsertAudio"><i class="material-icons">audiotrack</i></button>
-			<button type="button" class="btn btn-link disappear-2" data-translate="title" data-command="insertHorizontalRule" title="HTMLEditorInsertHR"><i class="material-icons">vertical_align_center</i></button>
+			<button type="button" class="btn btn-link disappear-5" data-translate="title" id="tableButton" title="NoteEditorInsertTable"><i class="material-icons">grid_on</i></button>
+			<button type="button" class="btn btn-link disappear-4" data-translate="title" id="linkButton" title="NoteEditorLink"><i class="material-icons">link</i></button>
+			<button type="button" class="btn btn-link disappear-4" data-translate="title" data-command="unlink" title="NoteEditorUnlink"><i class="material-icons">link_off</i></button>
+			<button type="button" class="btn btn-link disappear-3" data-translate="title" id="imageButton" title="NoteEditorInsertImage"><i class="material-icons">image</i></button>
+			<button type="button" class="btn btn-link disappear-2" data-translate="title" id="videoButton" title="NoteEditorInsertVideo"><i class="material-icons">movie</i></button>
+			<button type="button" class="btn btn-link disappear-2" data-translate="title" id="audioButton" title="NoteEditorInsertAudio"><i class="material-icons">audiotrack</i></button>
+			<button type="button" class="btn btn-link disappear-2" data-translate="title" data-command="insertHorizontalRule" title="NoteEditorInsertHR"><i class="material-icons">vertical_align_center</i></button>
 		</div>
 	</header>
 	<main id="editor"></main>
@@ -180,7 +180,7 @@ function promptButton(target, command, promptTitle, defaultValue, transform) {
 }
 
 //Initialiser la page
-NIMBUS.init(['text.js', 'html.js'], function() {
+NIMBUS.init(['text.js', 'note.js'], function() {
 	// En haut à gauche, le bouton "Retour"
 	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 	// L'IHM est prête, on l'affiche
@@ -258,7 +258,7 @@ NIMBUS.init(['text.js', 'html.js'], function() {
 		});
 		var fontSizeMenu = fontSize.children('.dropdown-menu').append(fontSizeOptions().map(function(s, i, a) {
 			var b = $('<button class="dropdown-item"><span></span><small class="text-muted"></small></button>');
-			var t = (i === 0) ? 'HTMLEditorFontSizeMinimal' : (i === a.length - 1) ? 'HTMLEditorFontSizeMaximal' : (s === defaultFontSize) ? 'HTMLEditorFontSizeDefault' : '';
+			var t = (i === 0) ? 'NoteEditorFontSizeMinimal' : (i === a.length - 1) ? 'NoteEditorFontSizeMaximal' : (s === defaultFontSize) ? 'NoteEditorFontSizeDefault' : '';
 			b.children().first().text('' + s);
 			b.children().last().text(t ? NIMBUS.translate(t) : '');
 			return b[0];
@@ -296,7 +296,7 @@ NIMBUS.init(['text.js', 'html.js'], function() {
 		});
 
 		// Création de tableau
-		promptButton($('#tableButton,#tableButton2'), 'insertHTML', 'HTMLEditorInsertTablePrompt', '3x3', function(size) {
+		promptButton($('#tableButton,#tableButton2'), 'insertHTML', 'NoteEditorInsertTablePrompt', '3x3', function(size) {
 			var html = '<table class="table table-bordered  table-hover table-sm /*table-striped table-responsive*/" style="width: auto; max-width: 100%; word-break: break-all; ">';
 			var rows = parseInt(size);
 			var cols = parseInt(size.substring(size.indexOf('x') + 1));
@@ -311,13 +311,13 @@ NIMBUS.init(['text.js', 'html.js'], function() {
 			return html;
 		});
 		// Création de lien
-		promptButton($('#linkButton,#linkButton2'), 'createLink', 'HTMLEditorLinkPrompt', 'https://', null);
+		promptButton($('#linkButton,#linkButton2'), 'createLink', 'NoteEditorLinkPrompt', 'https://', null);
 		// Insertion d'image
-		promptButton($('#imageButton,#imageButton2'), 'insertHTML'/*insertImage*/, 'HTMLEditorInsertImagePrompt', 'https://dummyimage.com/160x90', '<img class="img-fluid" src="%VALUE%" />'/*null*/);
+		promptButton($('#imageButton,#imageButton2'), 'insertHTML'/*insertImage*/, 'NoteEditorInsertImagePrompt', 'https://dummyimage.com/160x90', '<img class="img-fluid" src="%VALUE%" />'/*null*/);
 		// Insert de vidéos
-		promptButton($('#videoButton,#videoButton2'), 'insertHTML', 'HTMLEditorInsertVideoPrompt', 'https://interactive-examples.mdn.mozilla.net/media/examples/flower.webm', '<video width="320" height="240" controls src="%VALUE%"></video>');
+		promptButton($('#videoButton,#videoButton2'), 'insertHTML', 'NoteEditorInsertVideoPrompt', 'https://interactive-examples.mdn.mozilla.net/media/examples/flower.webm', '<video width="320" height="240" controls src="%VALUE%"></video>');
 		// Insert de pistes audio
-		promptButton($('#audioButton,#audioButton2'), 'insertHTML', 'HTMLEditorInsertAudioPrompt', 'https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3', '<audio controls src="%VALUE%"></audio>');
+		promptButton($('#audioButton,#audioButton2'), 'insertHTML', 'NoteEditorInsertAudioPrompt', 'https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3', '<audio controls src="%VALUE%"></audio>');
 
 		// Coller depuis le presse-papier en HTML ou en texte
 		var pasteAsHTMLButton = $('#pasteAsHTMLButton');

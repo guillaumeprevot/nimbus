@@ -109,13 +109,13 @@ public class Extensions extends Controller {
 	};
 
 	/**
-	 * Cette route affiche la page de l'éditeur HTML
+	 * Cette route affiche la page de l'éditeur de notes
 	 * 
 	 * () => HTML
 	 */
-	public static final Route htmlEditor = (request, response) -> {
+	public static final Route noteEditor = (request, response) -> {
 		// Générer la page
-		return renderTemplate("html-editor.html",
+		return renderTemplate("note-editor.html",
 				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
