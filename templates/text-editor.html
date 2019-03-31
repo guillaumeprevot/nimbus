@@ -74,17 +74,29 @@ function formatLines(content, separator) {
 }
 
 <#if markdown>
+var relativeURLRoot = null;
+var xhrForFinalURL = new XMLHttpRequest();
+function markdownURL(href) {
+	// Récupérer le préfixe pour les URLs relatives
+	if (relativeURLRoot == null) {
+		var parts = xhrForFinalURL.responseURL.split('/');
+		parts.pop();
+		relativeURLRoot = parts.join('/') + '/';
+	}
+	// Résoudre les URLS relatives (./* ou ../*) et conserver les autres
+	return new URL(href, relativeURLRoot).toString();
+}
 function markdownToHtml(text) {
 	// https://marked.js.org/#/USING_PRO.md#renderer
 	var renderer = new marked.Renderer();
 	renderer.link = function(href, title, text) {
 		var t = title ? ' title="' + title + '"' : '';
-		return '<a target="_blank" href="' + href + '"' + t + '>' + text + '</a>';
+		return '<a target="_blank" href="' + markdownURL(href) + '"' + t + '>' + text + '</a>';
 	};
 	renderer.image = function(href, title, alt) {
 		var t = title ? ' title="' + title + '"' : '';
 		var a = alt ? ' alt="' + alt + '"' : '';
-		return '<img class="img-fluid" src="' + href + '"' + t + a + ' />';
+		return '<img class="img-fluid" src="' + markdownURL(href) + '"' + t + a + ' />';
 	};
 	renderer.table = function(header, body) {
 		var h = header ? '<thead>' + header + '</thead>' : '';
@@ -125,7 +137,13 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 	var itemId = ${itemId};
 	// Récupération du contenu du fichier
 	$.get({
+		<#if markdown>
+		url: '/files/browseTo/' + itemId,
+		xhr: function() { return xhrForFinalURL; },
+		</#if>
+		<#if !markdown>
 		url: '/files/stream/' + itemId,
+		</#if>
 		dataType: 'text'
 	}).then(function(content, textStatus, jqXHR) {
 		var lineSeparator = getLineSeparator(content),
