@@ -3,6 +3,7 @@
 - [Présentation](#user-content-présentation)
 - [Technologies](#user-content-technologies)
 - [Fonctionnalités](#user-content-fonctionnalités)
+- [Fichiers supportés](#user-content-fichiers-supportés)
 - [Installation](#user-content-installation)
 - [Import](#user-content-import)
 - [Synchronisation](#user-content-synchronisation)
@@ -82,9 +83,34 @@ A faire | Synchronisation (bi-directionnelle et/ou temps réel)
 
 ## Fichiers supportés
 
-Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions supplémentaires sont disponibles pour certains d'entre eux :
+Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions supplémentaires sont disponibles pour certains d'entre eux.
 
-TODO
+- Documents ePUB :
+    - les documents `.epub` peuvent être consultés dans Nimbus, grâce à [EPUB.js](https://github.com/futurepress/epub.js), en utilisant l'action *Lire*
+- Documents PDF :
+    - les documents `.pdf` peuvent être consultés dans Nimbus, grâce à [PDF.js](https://github.com/mozilla/pdf.js), en utilisant l'action *Lire*
+    - de plus, 2 propriétés permettent d'afficher le nombre de pages et la taille des pages lors de la navigation
+- Raccourcis Windows :
+    - les raccourcis `.url`, créés au départ dans Windows, peuvent être ouverts depuis Nimbus en utilisant l'action *Ouvrir ce raccourci*
+    - de plus, l'icône éventuelle sert de miniature si ces dernières sont activées lors de la navigation
+- Vidéos :
+    - les vidéos (`.mp4`, `.ogg`, `.webm`, ...) [supportées par le navigateur](https://www.w3schools.com/tags/tag_video.asp) peuvent être visionnées dans Nimbus en utilisant l'action *Lancer la vidéo*
+    - les sous-titres WebVTT (`.vtt`) sont détectés et proposés lors de la lecture d'une vidéo
+    - les sous-titres SubRip (`.srt`) peuvent être convertis en WebVTT (vtt) en utilisant l'action `Convertir en WebVTT`, basée sur [ce code](http://www.webvtt.org/)
+    - plusieurs propriétés (durée, codecs, ...) sont extraites de nombreux formats afin d'être disponibles lors de la navigation
+- Audio :
+    - les fichiers audio (`.mp3`, `.ogg`, `wav`, ...) [supportés par le navigateur](https://www.w3schools.com/tags/tag_audio.asp) peuvent être écoutés dans Nimbus en utilisant les actions `Ouvrir` ou `Ajouter`
+    - plusieurs propriétés (durée, auteur, album, ...) sont extraites de nombreux formats afin d'être disponibles lors de la navigation
+- Images :
+    - les images (`.jpeg`, `.png`, ...) [supportées par le navigateur](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Img) peuvent être visualisées dans le `Diaporama` de Nimbus
+    - plusieurs propriétés (dimensions, coordonnées GPS, ...) peuvent être extraites de différents formats afin d'être disponibles lors de la navigation
+- Fichiers texte :
+    - les fichiers texte (cf *text.file.extensions* dans *nimbus.conf*) peuvent être édités dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur de texte`
+    - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées en HTML, dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked) et [Prism.js](https://github.com/PrismJS/prism)
+    - les notes au format HTML (`.note` pour Nimbus), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
+    - le `code source` peut être édité dans Nimbus grâce à [CodeMirror](https://codemirror.net/) en utilisant l'action `Ouvrir dans l'éditeur de code`
+
+Enfin, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
 
 ## Installation
 
