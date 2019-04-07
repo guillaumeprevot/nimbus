@@ -461,39 +461,41 @@ public class Items extends Controller {
 			case "abort":
 				SparkUtils.haltConflict();
 				break;
+			default:
+				SparkUtils.haltBadRequest();
+				break;
 			}
 			return done;
 
-		} else {
-
-			// Récupérer le contenu du dossier "item"
-			List<Item> children = Item.findAll(item.userLogin, item.id, false, null, false, null, null, null, null, null);
-			// Pour des dossiers vides n'existant pas dans la destination, il suffit de les déplacer
-			if (existingItem == null && children.isEmpty()) {
-				Item.move(item, targetParent, null);
-				return true;
-			}
-			// Pour les dossiers non vides, on déplacera les sous-éléments un par un dans la destination
-			if (existingItem == null) {
-				existingItem = Item.add(item.userLogin, targetParent, true, item.name, (i) -> {
-					if (item.tags != null) {
-						i.tags = new ArrayList<>();
-						i.tags.addAll(item.tags);
-					}
-					i.content.append("iconURL", item.content.getString("iconURL"));
-					i.content.append("iconURLCache", item.content.getString("iconURLCache"));
-				});
-			}
-			// Déplacer chaque sous-élément de "item" vers "existingItem"
-			boolean allMoved = true;
-			for (Item child : children) {
-				allMoved &= move(child, existingItem, conflict, firstConflictPattern, nextConflictPattern);
-			}
-			// Si tous les éléments ont été déplacés, le dossier source est vide et peut être supprimé
-			if (allMoved)
-				Item.erase(item);
-			return allMoved;
 		}
+
+		// Récupérer le contenu du dossier "item"
+		List<Item> children = Item.findAll(item.userLogin, item.id, false, null, false, null, null, null, null, null);
+		// Pour des dossiers vides n'existant pas dans la destination, il suffit de les déplacer
+		if (existingItem == null && children.isEmpty()) {
+			Item.move(item, targetParent, null);
+			return true;
+		}
+		// Pour les dossiers non vides, on déplacera les sous-éléments un par un dans la destination
+		if (existingItem == null) {
+			existingItem = Item.add(item.userLogin, targetParent, true, item.name, (i) -> {
+				if (item.tags != null) {
+					i.tags = new ArrayList<>();
+					i.tags.addAll(item.tags);
+				}
+				i.content.append("iconURL", item.content.getString("iconURL"));
+				i.content.append("iconURLCache", item.content.getString("iconURLCache"));
+			});
+		}
+		// Déplacer chaque sous-élément de "item" vers "existingItem"
+		boolean allMoved = true;
+		for (Item child : children) {
+			allMoved &= move(child, existingItem, conflict, firstConflictPattern, nextConflictPattern);
+		}
+		// Si tous les éléments ont été déplacés, le dossier source est vide et peut être supprimé
+		if (allMoved)
+			Item.erase(item);
+		return allMoved;
 	}
 
 	/**

@@ -22,7 +22,6 @@ import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.TemplateModelException;
 import spark.ModelAndView;
 import spark.Request;
-import spark.Response;
 import spark.Spark;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
@@ -42,15 +41,15 @@ public class Controller {
 
 		Spark.before("/nav", Filters.filterAuthenticatedOrRedirect);
 		Spark.before("/nav/*", Filters.filterAuthenticatedOrRedirect);
-		Spark.get("/nav", Controller::nav);
+		Spark.get("/nav", (request, response) -> nav(request));
 		Spark.get("/nav/*", (request, response) -> {
 			String[] splat = request.splat();
 			if (splat.length == 0) // "/nav/"
-				return nav(request, response);
+				return nav(request);
 			String[] path = splat[0].split("/");
 			return actionOnSingleItem(request, path[path.length - 1], (item) -> {
 				if (item.folder)
-					return nav(request, response);
+					return nav(request);
 				response.redirect("/files/stream/" + item.id);
 				return null;
 			});
@@ -152,7 +151,7 @@ public class Controller {
 		});
 	}
 
-	private static final Object nav(Request request, Response response) {
+	private static final Object nav(Request request) {
 		String login = request.session().attribute("userLogin");
 		User user = User.findByLogin(login);
 		return renderTemplate("main.html",

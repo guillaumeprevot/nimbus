@@ -143,6 +143,7 @@ public class SyncMain {
 		return null;
 	}
 
+	@SuppressWarnings("resource")
 	private static final String getPropertyAsString(String name, String label, Function<String, Boolean> check) {
 		String s = System.getProperty(name);
 		Console console = System.console();

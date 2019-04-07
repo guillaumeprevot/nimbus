@@ -137,7 +137,7 @@ public final class WebUtils {
 
 		@Override
 		public void close() throws IOException {
-			this.write("--" + boundary + "--\r\n");
+			this.write("--" + this.boundary + "--\r\n");
 			this.stream.flush();
 			this.stream.close();
 		} 

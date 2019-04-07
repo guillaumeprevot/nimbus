@@ -69,7 +69,7 @@ public class SyncItem {
 		this.nimbusDate = System.currentTimeMillis();
 		this.nimbusFolder = true;
 		this.nimbusLength = null;
-		String query = "/items/add/folder?name=" + URLEncoder.encode(name, "UTF-8") + "&parentId=" + (parentId == null ? "" : parentId.toString());
+		String query = "/items/add/folder?name=" + URLEncoder.encode(this.name, "UTF-8") + "&parentId=" + (parentId == null ? "" : parentId.toString());
 		this.nimbusId = sync.sendRequest(jsessionid, query, true, false, true, (c) -> {
 			if (c.getResponseCode() != HttpServletResponse.SC_OK)
 				return null;
@@ -78,7 +78,7 @@ public class SyncItem {
 		return this.nimbusId != null;
 	}
 
-	public boolean createLocalFolder(File file) throws IOException {
+	public boolean createLocalFolder(File file) {
 		this.localDate = this.nimbusDate;
 		this.localFolder = true;
 		this.localLength = null;
@@ -109,8 +109,8 @@ public class SyncItem {
 		boolean success = sync.sendRequest(jsessionid, query, false, false, true, (c) -> {
 			if (c.getResponseCode() != HttpServletResponse.SC_OK)
 				return false;
-			InputStream is = c.getInputStream();
-			try (OutputStream os = new FileOutputStream(file)) {
+			try (InputStream is = c.getInputStream();
+					OutputStream os = new FileOutputStream(file)) {
 				IOUtils.copyLarge(is, os);
 			}
 			return true;

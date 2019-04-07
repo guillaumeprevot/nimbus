@@ -28,11 +28,11 @@ public class Import {
 	// Get expected system properties
 	private static final String logPath = System.getProperty("nimbus.log", "nimbus.log");
 	private static final String confPath = System.getProperty("nimbus.conf", "nimbus.conf");
-	private static final boolean updateFileExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateFileExistingWithSameSize", "false"));
-	private static final boolean updateMetadataExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateMetadataExistingWithSameSize", "false"));
-	private static final boolean updateTimestampsExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateTimestampsExistingWithSameSize", "false"));
+	protected static final boolean updateFileExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateFileExistingWithSameSize", "false"));
+	protected static final boolean updateMetadataExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateMetadataExistingWithSameSize", "false"));
+	protected static final boolean updateTimestampsExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateTimestampsExistingWithSameSize", "false"));
 	// Apply log configuration as soon as possible
-	private static final Logger logger = prepareLogger();
+	protected static final Logger logger = prepareLogger();
 
 	private static final Logger prepareLogger() {
 		if (!"none".equals(logPath))
@@ -119,6 +119,10 @@ public class Import {
 		public int fileCount = 0;
 		public int folderCount = 0;
 		public long totalSize = 0L;
+
+		public CountFileVisitor() {
+			//
+		}
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
