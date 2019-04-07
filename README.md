@@ -80,6 +80,12 @@ A faire | Applications annexes (contacts, note, calendrier, messagerie, ... il y
 Fait | Synchronisation (dossier local vers serveur et serveur vers dossier local)
 A faire | Synchronisation (bi-directionnelle et/ou temps réel)
 
+## Fichiers supportés
+
+Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions supplémentaires sont disponibles pour certains d'entre eux :
+
+TODO
+
 ## Installation
 
 **Pré-requis**
