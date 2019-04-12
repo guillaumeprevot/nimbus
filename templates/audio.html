@@ -502,6 +502,8 @@ NIMBUS.init(['audio.js'], function() {
 		'PageDown': () => player.playNext(),
 		'End': () => player.playLast(),
 		'Space': () => player.audio.paused ? $('.resume').focus() : $('.pause').focus(),
+	}, function filter(event) {
+		return !addDialog.is('.show');
 	});
 
 	// Boite modale d'ajout de contenu
