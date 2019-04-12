@@ -41,14 +41,14 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | 2.2.5 | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | 0.9.1 | MIT | Support des fichiers MP3
 [Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | 1.61 | MIT | Dépendance de iTextPDF pour lire certains documents
-[jQuery](http://api.jquery.com/) | JS | 3.3.1 | ~MIT | Kit de départ pour le JS
+[jQuery](http://api.jquery.com/) | JS | 3.4.0 | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.3.1 | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | 4.3.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
 [Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 2.0.943 | Apache 2.0 | Support des fichiers PDF
-[Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.6.1 | MIT | Prévisualisation du Markdown
-[Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.15.0 | MIT | Coloration syntaxique des blocs de code
+[Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.6.2 | MIT | Prévisualisation du Markdown
+[Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.16.0 | MIT | Coloration syntaxique des blocs de code
 [CodeMirror](https://codemirror.net/) | plugin JS | 5.42.2 | MIT | Editeur de code avec coloration syntaxique notamment
 [Popper.js](https://popper.js.org/) | transitive | 1.14.7 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
 [Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | transitive | v14 | OFL | WebFont pour les thèmes Flatly et Darkly
@@ -75,9 +75,9 @@ Fait | Import, export et téléchargement simplifié des fichiers/dossiers
 Fait | Tests automatisés (mais à compléter au fur et à mesure)
 Fait | Installation simplifiée
 Fait | Documentation (présentation, technologies, installation, import, synchronisation)
-A faire | Documentation (types de fichier supportés, facets, plugins, applications) 
-Fait | Applications annexes (diaporama, lecteur audio/vidéo/ePub/PDF, éditeur de code/texte/Markdown)
-A faire | Applications annexes (contacts, note, calendrier, messagerie, ... il y a tellement de possibilités !)
+En cours | Documentation (types de fichier supportés, facets, plugins, applications) 
+Fait | Applications annexes (diaporama, lecteur audio/vidéo/ePub/PDF, éditeur de code/texte/Markdown/note)
+A faire | Applications annexes (contacts, calendrier, messagerie, ... il y a tellement de possibilités !)
 Fait | Synchronisation (dossier local vers serveur et serveur vers dossier local)
 A faire | Synchronisation (bi-directionnelle et/ou temps réel)
 
