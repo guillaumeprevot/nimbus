@@ -85,7 +85,7 @@
 		});
 	};
 
-	$.fn.keystrokes = function(options) {
+	$.fn.keystrokes = function(options, filter) {
 		// Map pour transformer les valeurs de "event.key" en nom utilisés ici
 		var keyMap = {
 			' ': 'Space',
@@ -124,7 +124,7 @@
 		return this.addClass('keystrokes').keydown(function(event) {
 			var keystroke = keystrokeFromEvent(event);
 			var callback = keystrokes[keystroke];
-			if (callback) {
+			if (callback && (!filter || filter(event))) {
 				callback();
 				return false;
 			}
