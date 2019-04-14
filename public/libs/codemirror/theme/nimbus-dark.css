@@ -1,6 +1,6 @@
 /* Mixed from "lesser-dark" and "eclipse" themes provided by CodeMirror */
 
-.cm-s-nimbus-dark.CodeMirror { background-color: #222; color: #eee; }
+.cm-s-nimbus-dark { background-color: #222; color: #eee; }
 .cm-s-nimbus-dark .CodeMirror-gutters { background-color: #222; border-right: 1px solid #888; }
 .cm-s-nimbus-dark .CodeMirror-linenumber { color: #888; }
 .cm-s-nimbus-dark .CodeMirror-cursor { border-left: 1px solid white; }

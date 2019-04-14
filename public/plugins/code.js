@@ -1,6 +1,6 @@
 (function() {
 
-	var support = {
+	var supports = {
 		asc: { mode: 'asciiarmor', mime: 'application/pgp', alias: 'pgp,sig' },
 		c: { mode: 'clike', mime: 'text/x-csrc', alias: 'h,ino' },
 		coffee: { mode: 'coffeescript', mime: 'application/vnd.coffeescript' },
@@ -46,24 +46,44 @@
 		yml: { mode: 'yaml', mime: 'text/x-yaml' },
 	};
 
-	for (var ext in support) {
-		if (! support.hasOwnProperty(ext))
+	for (var ext in supports) {
+		if (! supports.hasOwnProperty(ext))
 			continue;
-		var def = support[ext];
+		var def = supports[ext];
 		if (! def.alias)
 			continue;
 		var aliases = def.alias;
 		delete def.alias;
 		aliases.split(',').forEach(function(alias) {
-			support[alias] = def;
+			supports[alias] = def;
 		});
 	}
 
 	function accept(item, extension) {
-		return support.hasOwnProperty(extension);
+		return supports.hasOwnProperty(extension);
 	}
 
-	NIMBUS.utils.codeMirrorSupport = support;
+	function loadMode(mode) {
+		var src, element;
+		if (mode === 'null')
+			return;
+		src = '/libs/codemirror/mode/' + mode + '/' + mode + '.js';
+		element = document.querySelector('script[src="' + src + '"]');
+		if (element)
+			return;
+		$('<script type="text/javascript" />').attr('src', src).appendTo(document.head);
+	}
+
+	function loadSupport(extension) {
+		// Get file support definition (shared by 'code.js' into the NIMBUS.utils object)
+		var support = supports[extension];
+		// Load CodeMirror mode scripts
+		if (support)
+			support.mode.split(',').forEach(loadMode);
+		return support;
+	}
+
+	NIMBUS.utils.codeMirrorLoadSupport = loadSupport;
 
 	NIMBUS.plugins.add({
 		name: 'code',
@@ -75,10 +95,10 @@
 			},
 			image: function(item, thumbnail) {
 				var extension = item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
-				var support = NIMBUS.utils.codeMirrorSupport[extension];
+				var support = supports[extension];
 				if (!support)
 					return '<i class="material-icons">subject</i>'; // defaults to text file
-				if (support && support.icon)
+				if (support.icon)
 					return '<i class="material-icons">' + support.icon + '</i>'; // customized icons
 				return '<i class="material-icons">code</i>';
 			},

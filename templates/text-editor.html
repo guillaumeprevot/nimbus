@@ -10,7 +10,9 @@
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
 <link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
-<#if markdown><link type="text/css" rel="stylesheet" href="/libs/prism/prism.min.css" /></#if>
+<#if markdown && highlighter == "prism"><link type="text/css" rel="stylesheet" href="/libs/prism/prism.min.css" /></#if>
+<#if markdown && highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" /></#if>
+<#if markdown && highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-dark.css" /></#if>
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
 textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; white-space: pre; font-family: monospace; color: inherit; background-color: transparent; }
@@ -22,7 +24,8 @@ textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; wh
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <#if markdown><script type="text/javascript" src="/libs/marked/marked.min.js"></script></#if>
-<#if markdown><script type="text/javascript" src="/libs/prism/prism.min.js" data-manual></script></#if>
+<#if markdown && highlighter == "prism"><script type="text/javascript" src="/libs/prism/prism.min.js" data-manual></script></#if>
+<#if markdown && highlighter == "codemirror"><script type="text/javascript" src="/libs/codemirror/addon/runmode/runmode-standalone.js"></script></#if>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
@@ -107,6 +110,7 @@ function markdownToHtml(text) {
 		return '<blockquote class="border-left ml-4 pl-2 border-dark">' + text + '</blockquote>';
 	};
 	renderer.code = function(code, language, escaped) {
+		<#if highlighter == "prism">
 		if (typeof Prism === 'undefined' || !language || !Prism.languages[language])
 			return '<pre class="language-none"><code>' + code + '</code></pre>';
 		var c = Prism.highlight(code, Prism.languages[language]);
@@ -115,6 +119,22 @@ function markdownToHtml(text) {
 			+ '  <pre class="language-' + language + '"><code>' + c + '</code></pre>'
 			+ '  <div class="toolbar"><div class="toolbar-item"><span>' + language + '</span></div></div>'
 			+ '</div>';
+		<#else>
+		var pre = $('<pre style="border-left: 2px solid #eee; background-color: #222; color: #eee; padding: 0.5em 1em; "><code></code></pre>');
+		<#if highlighter == "codemirror">
+		var support = language && NIMBUS.utils.codeMirrorLoadSupport(language);
+		pre.addClass('cm-s-nimbus-dark');
+		if (support)
+			CodeMirror.runMode(code, support.mime, pre.children('code')[0]);
+		else
+			pre.children('code').text(code);
+		<#else>
+		pre.children('code').text(code);
+		</#if>
+		if (language)
+			pre.prepend($('<span style="float: right; border-bottom: 1px solid #eee; " />').text(language));
+		return pre[0].outerHTML;
+		</#if>
 	};
 	// https://marked.js.org/#/USING_ADVANCED.md#options
 	return marked(text || '', {
@@ -128,7 +148,7 @@ function markdownToHtml(text) {
 </#if>
 
 //Initialiser la page
-NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
+NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirror">, 'code.js'</#if></#if>], function() {
 	// En haut à gauche, le bouton "Retour"
 	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 	// L'IHM est prête, on l'affiche
@@ -197,8 +217,14 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'</#if>], function() {
 				+ '\n\t\t<title>' + filename + '</title>'
 				+ '\n\t\t<meta charset="UTF-8">'
 				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/preferences/theme.css" />'
+				<#if highlighter == "prism">
 				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/libs/prism/prism.min.css" />'
 				+ '\n\t\t<script type="text/javascript" src="${baseURL}/libs/prism/prism.min.js"><' + '/script>'
+				</#if>
+				<#if highlighter == "codemirror">
+				+ '\n\t\t<link type="text/css" rel="stylesheet" href="${baseURL}/libs/codemirror/lib/codemirror.css" />'
+				+ '\n\t\t<link type="text/css" rel="stylesheet" href="${baseURL}/libs/codemirror/theme/nimbus-dark.css" />'
+				</#if>
 				+ '\n\t</head>'
 				+ '\n\t<body class="m-3">'
 				+ '\n' + markdownToHtml(textarea.val())

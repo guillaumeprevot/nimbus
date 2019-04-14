@@ -39,6 +39,7 @@ public class Configuration {
 	private final String[] clientPlugins;
 	private final int clientQuotaWarning;
 	private final int clientQuotaDanger;
+	private final String clientCodeHighlighter;
 	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
 	private final Map<String, String> mimetypes;
@@ -70,6 +71,7 @@ public class Configuration {
 		this.clientPlugins = getString("client.plugins", "default-before,epub,pdf,video,audio,image,markdown,note,code,text,windows-shortcut,default-open,default-after").split(",");
 		this.clientQuotaWarning = getInt("client.quota.warning", 75);
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
+		this.clientCodeHighlighter = getString("client.code.highlighter", "codemirror");
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md,note").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class);
 		this.facets.forEach((f) -> f.init(this));
@@ -167,6 +169,10 @@ public class Configuration {
 
 	public int getClientQuotaDanger() {
 		return this.clientQuotaDanger;
+	}
+
+	public String getClientCodeHighlighter() {
+		return this.clientCodeHighlighter;
 	}
 
 	public Set<String> getTextFileExtensions() {

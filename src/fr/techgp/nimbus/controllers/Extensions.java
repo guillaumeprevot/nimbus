@@ -101,6 +101,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate("text-editor.html",
 				"markdown", true,
+				"highlighter", SparkUtils.queryParamString(request, "highlighter", configuration.getClientCodeHighlighter()),
 				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
