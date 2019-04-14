@@ -49,7 +49,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 2.0.943 | Apache 2.0 | Support des fichiers PDF
 [Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.6.2 | MIT | Prévisualisation du Markdown
 [Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.16.0 | MIT | Coloration syntaxique des blocs de code
-[CodeMirror](https://codemirror.net/) | plugin JS | 5.42.2 | MIT | Editeur de code avec coloration syntaxique notamment
+[CodeMirror](https://codemirror.net/) | plugin JS | 5.45.0 | MIT | Editeur de code avec coloration syntaxique notamment
 [Popper.js](https://popper.js.org/) | transitive | 1.14.7 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
 [Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | transitive | v14 | OFL | WebFont pour les thèmes Flatly et Darkly
 [JSZip](https://github.com/Stuk/jszip/releases) | transitive | 3.2.0 | MIT or GPLv3 | Dépendances de ePub.js
