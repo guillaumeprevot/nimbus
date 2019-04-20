@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="robots" content="noindex, nofollow" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
 <link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons-custom.css" />
@@ -48,7 +48,7 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 		<div class="btn-group">
 			<button type="button" class="btn btn-link zoom-out" data-translate="title" title="PDFZoomOut"><i class="material-icons">zoom_out</i></button>
 			<div class="btn-group">
-				<button type="button" class="btn btn-link zoom-menu" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">80%</button>
+				<button type="button" class="btn btn-link zoom-menu" data-translate="title" title="PDFZoomMenu" data-toggle="dropdown">100%</button>
 				<div class="dropdown-menu">
 					<a href="#" class="dropdown-item zoom-fit" data-translate="text">PDFZoomFit</a>
 					<a href="#" class="dropdown-item zoom-width" data-translate="text">PDFZoomWidth</a>
@@ -153,6 +153,13 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 <script>
+/** Par défaut, le PDF est flou. La variable "canvasQuality" permet de multiplier la densité de pixels */
+var canvasQuality = 2;
+/** Ratio de conversion de pt vers dots (96 dot per inch / 72pt per inch) */
+var cssUnits = 96 / 72;
+/** Echelle par défaut = 100% */
+var initialScale = 100;
+
 /** Cette fonction parse une date telle que retournée par le fichier PDF */
 function parsePDFDate(s) {
 	var text = s;
@@ -204,9 +211,9 @@ function createTextChunk(viewport, item, styles) {
 	*/
 
 	var textDiv = document.createElement('div');
-	textDiv.style.left = left + 'px';
-	textDiv.style.top = top + 'px';
-	textDiv.style.fontSize = fontHeight + 'px';
+	textDiv.style.left = (left / canvasQuality) + 'px';
+	textDiv.style.top = (top / canvasQuality) + 'px';
+	textDiv.style.fontSize = (fontHeight / canvasQuality) + 'px';
 	textDiv.style.fontFamily = item.fontName;
 	if (item.dir === 'rtl')
 		textDiv.style.direction = 'rtl';
@@ -225,14 +232,17 @@ NIMBUS.init(['pdf.js'], function() {
 	var showTextLayer = true;
 	var textLayer = main.children('div');
 	var canvas = main.children('canvas');
-	var canvasContext = canvas[0].getContext('2d');
+	canvas[0].mozOpaque = true;
+	var canvasContext = canvas[0].getContext('2d', {
+		alpha: false
+	});
 
 	// Préparation des variables concernant le document PDF
 	var pdf = null;
 	var pageIndex = 1;
 	var pageRendering = false;
 	var pageIndexPending = null;
-	var scale = 80;
+	var scale = initialScale;
 	var rotation = 0;
 
 	// Méthode affichant la page indiquée
@@ -246,13 +256,16 @@ NIMBUS.init(['pdf.js'], function() {
 			pdf.getPage(index).then(function(page) {
 				// console.log(page); // page = { pageIndex: 0, rotate: getter, ..., _pageInfo: { rotate: 0, view:[t,l,w,h]} }
 
-				var viewport = page.getViewport(scale / 100.0, rotation + page.rotate);
-				canvas.show().attr({
-					width: viewport.width,
-					height: viewport.height
+				var viewport = page.getViewport(canvasQuality * cssUnits * scale / 100.0, rotation + page.rotate);
+				canvas.show().css({
+					width: Math.round(viewport.width / canvasQuality) + 'px',
+					height: Math.round(viewport.height / canvasQuality) + 'px'
+				}).attr({
+					width: Math.round(viewport.width),
+					height: Math.round(viewport.height)
 				});
 				if (showTextLayer)
-					textLayer.text('').css('width', viewport.width + 'px');
+					textLayer.text('').css('width', (viewport.width / canvasQuality) + 'px');
 				// Changement de page
 				pageIndex = index;
 				firstPageButton.prop('disabled', pageIndex === 1);
@@ -378,21 +391,21 @@ NIMBUS.init(['pdf.js'], function() {
 			width = main.width() - 17/*if scrollbar are visible*/,
 			heightFactor = height / canvas[0].height,
 			widthFactor = width / canvas[0].width;
-		changeScale(scale * Math.min(widthFactor, heightFactor), zoomFitButton);
+		changeScale(canvasQuality * scale * Math.min(widthFactor, heightFactor), zoomFitButton);
 	});
 	// Ajuster le zoom pour que la page s'affiche en pleine largeur
 	var zoomWidthButton = header.find('.zoom-width').click(function() {
 		var newWidth = main.width() - 17/*if scrollbar are visible*/,
 			currentWidth = canvas[0].width,
 			currentScale = scale;
-		changeScale(currentScale * newWidth / currentWidth, zoomWidthButton);
+		changeScale(canvasQuality * currentScale * newWidth / currentWidth, zoomWidthButton);
 	});
 	// Ajuster le zoom pour que la page s'affiche en pleine hauteur
 	var zoomHeightButton = header.find('.zoom-height').click(function() {
 		var newHeight = main.height() - 17/*if scrollbar are visible*/,
 			currentHeight = canvas[0].height,
 			currentScale = scale;
-		changeScale(currentScale * newHeight / currentHeight, zoomHeightButton);
+		changeScale(canvasQuality * currentScale * newHeight / currentHeight, zoomHeightButton);
 	});
 	// Zoomer à une valeur définie par le menu
 	header.on('click', 'a.zoom-pct', function(event) {
