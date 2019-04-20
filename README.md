@@ -28,8 +28,8 @@ Le développement du projet s'organise selon 4 axes :
 
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
-[Spark](http://sparkjava.com/) | Java | 2.8.0 | Apache 2.0 | Framework Java pour application web
-[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | 3.10.1 | Apache 2.0 | Persistance
+[Spark](http://sparkjava.com/) | Java | 2.9.0 | Apache 2.0 | Framework Java pour application web
+[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | 3.10.2 | Apache 2.0 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | 2.6 | Apache 2.0 | Utilitaire
 [FreeMarker](https://freemarker.apache.org/) | Java | 2.3.28 | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | 2.8.5 | Apache 2.0 | Support du format JSON
