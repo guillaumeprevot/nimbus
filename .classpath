@@ -5,9 +5,10 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.61.jar"/>
 	<classpathentry kind="lib" path="lib/bson-3.10.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/fontbox-2.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.28.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.8.5.jar"/>
-	<classpathentry kind="lib" path="lib/itextpdf-5.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/jaudiotagger-2.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-client-9.4.15.v20190215.jar"/>
@@ -23,6 +24,7 @@
 	<classpathentry kind="lib" path="lib/mongodb-driver-3.10.2.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.10.2.jar"/>
 	<classpathentry kind="lib" path="lib/mp3agic-0.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox-2.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.26.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.26.jar"/>
 	<classpathentry kind="lib" path="lib/spark-core-2.9.0.jar"/>

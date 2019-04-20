@@ -10,14 +10,15 @@
 		name: 'pdf',
 		properties: [
 			{ name: 'pageCount', caption: 'PDFPageCount', align: 'right', sortBy: 'content.pageCount', format: (i) => NIMBUS.formatInteger(i.pageCount) },
-			{ name: 'pageSize', caption: 'PDFPageSize', align: 'right', sortBy: 'content.pageWidthInMillimeters', format: (i) => i.pageWidthInMillimeters + ' x ' + i.pageHeightInMillimeters + ' mm' },
+			{ name: 'pageSize', caption: 'PDFPageSize', align: 'right', sortBy: 'content.pageWidthInMillimeters', format: (i) => i.pageWidthInMillimeters ? (i.pageWidthInMillimeters + ' x ' + i.pageHeightInMillimeters + ' mm') : '' },
 		],
 		facets: [{
 			name: 'pdf',
 			accept: accept,
 			image: function(item, thumbnail) {
+				if (thumbnail && item.thumbnail)
+					return '<img src="' + item.thumbnail + '" style="width: 24px; height: 24px; object-fit: scale-down; " />';
 				return '<i class="material-icons">picture_as_pdf</i>';
-				//return '<img src="' + pdfImage + '" style="width: 24px; height: 24px;" />';
 			},
 			describe: function describe(item) {
 				if (typeof item.pageCount !== 'number')
