@@ -3,6 +3,7 @@ package fr.techgp.nimbus.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -88,6 +89,7 @@ public class Controller {
 		Spark.post("/items/add/folder", Items.addFolder);
 		Spark.post("/items/duplicate", Items.duplicate);
 		Spark.post("/items/rename", Items.rename);
+		Spark.post("/items/refresh", Items.refresh);
 		Spark.post("/items/metadata", Items.metadata);
 		Spark.post("/items/move", Items.move);
 		Spark.get("/items/zip", Items.zip);
@@ -290,13 +292,21 @@ public class Controller {
 	 * Cette méthode met à jour les méta-données de l'élément "item".
 	 *
 	 * @param item l'élément représentant un fichier dans le cloud
+	 * @param date nouvelle date de modification, si le contenu du fichier a changé, ou null poru ne pas y toucher
+	 * @param save indique si on sauvegarde l'élément dans la base de données
 	 */
-	protected static final void updateFile(Item item) {
+	protected static final void updateFile(Item item, Date date, boolean save) {
 		configuration.updateStoredFile(item, (facet, th) -> {
 			if (Controller.logger.isErrorEnabled())
 				Controller.logger.error("{} dans {} sur l'élément n°{} ({}) : {}",
 						th.getClass().getName(), facet.getClass().getSimpleName(), item.id, item.name, th.getMessage());
 		});
+		// Mettre à jour la date de modification, si demandé (= dans le cas où le contenu du fichier a changé)
+		if (date != null)
+			item.updateDate = date;
+		// Sauvegarder dans la base, si demandé
+		if (save)
+			Item.update(item);
 	}
 
 	/**

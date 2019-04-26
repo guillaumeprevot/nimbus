@@ -69,6 +69,18 @@
 					$('#rename-dialog').data('item', item).modal();
 				}
 			}, {
+				name: 'refresh',
+				icon: 'restore_page',
+				caption: 'ActionRefresh',
+				accept: function(item, extension) {
+					return true;
+				},
+				execute: function(item) {
+					$.post('/items/refresh?itemId=' + item.id).done(function() {
+						NIMBUS.navigation.refreshItems(false);
+					});
+				}
+			}, {
 				name: 'share',
 				icon: 'share',
 				caption: 'ActionShare',

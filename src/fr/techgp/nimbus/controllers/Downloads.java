@@ -210,7 +210,7 @@ public class Downloads extends Controller {
 				}
 
 				// Extraire les méta-données du fichier, y compris "length"
-				updateFile(this.item);
+				updateFile(this.item, null, false);
 				// Mark item as success
 				this.item.content.put("status", "success");
 			} catch (Exception ex) {

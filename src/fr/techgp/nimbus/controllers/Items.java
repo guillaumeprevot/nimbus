@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -297,9 +299,54 @@ public class Items extends Controller {
 	};
 
 	/**
-	 * Met à jour les méta-données de l'élément "itemId" :
-	 * - si demandé avec "refresh", les méta-données seront recalculées côté serveur
-	 * - via la liste "metadata", les méta-données seront ajustées comme demandées côté client
+	 * Met à jour (récursivement) les méta-données de l'élément "itemId" gérées par les Facets.
+	 *
+	 * (itemId) => ""
+	 */
+	public static final Route refresh = (request, response) -> {
+		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+			if (!item.folder) {
+				// On recalcule et on sauvegarde les méta-données
+				updateFile(item, null, true);
+			} else {
+				// On récupère le contenu du dossier RECURSIVEMENT
+				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, null, null, null, false, null);
+				// On prépare une map des dossiers, pour compter les éléments que chacun contient
+				Map<Long, Integer> itemCountByFolderId = new HashMap<>();
+				// Premier parcours = MAJ des fichiers + comptage des éléments dans chaque dossier
+				for (Item child : children) {
+					if (!child.folder) {
+						// On recalcule et on sauvegarde les méta-données
+						updateFile(child, null, true);
+					}
+					// On comptabilise le nombre d'éléments
+					Integer itemCount = itemCountByFolderId.getOrDefault(child.parentId, 0);
+					itemCountByFolderId.put(child.parentId, itemCount + 1);
+				}
+				// Second parcours = sauvegarde du nombre d'éléments dans chaque dossier
+				for (Item child : children) {
+					if (child.folder) {
+						// On sauvegarde le nombre d'éléments dans chaque sous-dossier
+						Integer itemCount = itemCountByFolderId.getOrDefault(child.id, 0);
+						child.content.put("itemCount", itemCount);
+						Item.update(item);
+					}
+				}
+				// Enfin, on sauvegarde le nombre d'éléments dans le dossier de départ 
+				Integer itemCount = itemCountByFolderId.getOrDefault(item.id, 0);
+				item.content.put("itemCount", itemCount);
+				Item.update(item);
+			}
+
+			// Ajuster la date de modification du dossier parent
+			if (item.parentId != null)
+				Item.notifyFolderContentChanged(item.parentId, 0);
+			return "";
+		});
+	};
+
+	/**
+	 * Met à jour les méta-données de l'élément "itemId" gérées côté client.
 	 * 
 	 * Chaque entrée de méta-donnée se compose des propriétés suivantes :
 	 * - "name", le nom de la propriété
@@ -307,19 +354,15 @@ public class Items extends Controller {
 	 * - "value", la valeur de la popriété, dans le cas où "action" est égal à "set"
 	 * - "type", le type de la propriété ("boolean", "integer", "long", "double", "datetime" ou "string")
 	 *
-	 * (itemId, refresh, metadata) => ""
+	 * (itemId, metadata[]) => ""
 	 */
 	public static final Route metadata = (request, response) -> {
 		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
 			// Extraire la requête
-			boolean refresh = SparkUtils.queryParamBoolean(request, "refresh", false);
 			String json = request.queryParams("metadata");
 			JsonElement element = new JsonParser().parse(json);
 			if (!element.isJsonArray())
 				return SparkUtils.haltBadRequest();
-			// Si demandé avec "refresh", les méta-données seront recalculées côté serveur 
-			if (refresh)
-				updateFile(item);
 			// Via la liste "metadata", les méta-données seront ajustées comme demandées côté client
 			JsonArray array = element.getAsJsonArray();
 			for (int i = 0; i < array.size(); i++) {

@@ -230,10 +230,11 @@ NIMBUS.lang = {
 
 	ActionNavigate: "Ouvrir",
 	ActionNavigateTab: "Ouvrir dans un nouvel onglet",
-	ActionDownloadRefresh: "Actualiser",
+	ActionDownloadRefresh: "Télécharger à nouveau",
 	ActionDownloadDone: "Marquer comme vu",
 	ActionLocate: "Localiser",
 	ActionRename: "Renommer",
+	ActionRefresh: "Actualiser",
 	ActionShare: "Partager",
 	ActionShareUpdate: "Gérer le partage",
 	ActionDuplicate: "Dupliquer",

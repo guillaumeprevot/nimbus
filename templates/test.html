@@ -566,7 +566,7 @@ function fillTests(add) {
 		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && !r.testserver && !r.testinteger));
 	});
 	add("METADATA / Recalculer les méta-données gérées côté serveur", function() {
-		return $.post("/items/metadata?itemId=9&refresh=true&metadata=[]").then(assertEmpty);
+		return $.post("/items/refresh?itemId=9").then(assertEmpty);
 	});
 	add("METADATA / Vérifier l'apparition d'une méta-donnée", function() {
 		return $.get("/items/info/9")
@@ -574,7 +574,7 @@ function fillTests(add) {
 			.then(undefined, (error) => $.Deferred().reject("Résultat inattendu. Pensez à activer la TestFacet pour l'exécution des tests"));
 	});
 	add("METADATA / Demander à conserver 3 méta-données", function() {
-		return $.post("/items/metadata?itemId=9&refresh=false&metadata=" + JSON.stringify([
+		return $.post("/items/metadata?itemId=9&metadata=" + JSON.stringify([
 			{ action:"set", name:"testboolean", type:"boolean", value:true },
 			{ action:"set", name:"testinteger", type:"integer", value:123 },
 			{ action:"set", name:"testlong", type:"long", value:456 }
@@ -584,7 +584,7 @@ function fillTests(add) {
 		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && r.testinteger === 123 && r.testlong === 456 && !r.testdouble));
 	});
 	add("METADATA / En supprimer 1 et en ajouter les 3 autres méta-données", function() {
-		return $.post("/items/metadata?itemId=9&refresh=false&metadata=" + JSON.stringify([
+		return $.post("/items/metadata?itemId=9&metadata=" + JSON.stringify([
 			{ action:"set", name:"testdouble", type:"double", value:123456.789 },
 			{ action:"remove", name:"testinteger" },
 			{ action:"set", name:"testdatetime", type:"datetime", value:metadataDatetime },

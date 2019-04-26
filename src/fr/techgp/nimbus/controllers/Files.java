@@ -340,11 +340,8 @@ public class Files extends Controller {
 				}
 			}
 		}
-		// Mettre à jour les infos du fichier
-		updateFile(item);
-		// Sauvegarde des métadonnées
-		item.updateDate = updateDate;
-		Item.update(item);
+		// Mettre à jour les infos du fichier et sauvegarder
+		updateFile(item, updateDate, true);
 	}
 
 	private static final Object returnFile(Response response, Item item, boolean download, Integer thumbnailWidth, Integer thumbnailHeight) {

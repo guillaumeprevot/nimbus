@@ -2,6 +2,8 @@
 	var lastAudioFolderCheckItems = [];
 
 	function isAudioFolder(item, extension) {
+		if (!item.folder)
+			return false;
 		return $.get('/items/list?recursive=false&folders=false&deleted=false&parentId=' + item.id).then(function(items) {
 			lastAudioFolderCheckItems = items.filter(function(item) {
 				var extension = item.name.substring(item.name.lastIndexOf('.') + 1);

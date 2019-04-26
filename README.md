@@ -89,7 +89,7 @@ Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions
     - les documents `.epub` peuvent être consultés dans Nimbus, grâce à [EPUB.js](https://github.com/futurepress/epub.js), en utilisant l'action *Lire*
 - Documents PDF :
     - les documents `.pdf` peuvent être consultés dans Nimbus, grâce à [PDF.js](https://github.com/mozilla/pdf.js), en utilisant l'action *Lire*
-    - de plus, 2 propriétés permettent d'afficher le nombre de pages et la taille des pages lors de la navigation
+    - le nombre de pages, la taille des pages et les minatures sont disponibles lors de la navigation grâce à [PDFBox](https://pdfbox.apache.org/)
 - Raccourcis Windows :
     - les raccourcis `.url`, créés au départ dans Windows, peuvent être ouverts depuis Nimbus en utilisant l'action *Ouvrir ce raccourci*
     - de plus, l'icône éventuelle sert de miniature si ces dernières sont activées lors de la navigation
