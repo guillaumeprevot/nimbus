@@ -114,6 +114,9 @@ main { padding: 1em; }
 		</div>
 	</div>
 	<footer>
+		<div style="float: left; padding-right: 10px; font-size: small; font-family: mono; color: white; ">
+			<span class="track"></span>
+		</div>
 		<div style="float: right; padding-left: 10px; font-size: small; font-family: mono; color: white; ">
 			<span class="position"></span> / <span class="duration text-muted"></span>
 		</div>
@@ -305,11 +308,26 @@ Player.prototype.on = function(type, listener) {
 };
 
 Player.prototype.triggerListChanged = function() {
-	this.eventTarget.dispatchEvent(new CustomEvent('listchanged', { detail: this.items }));
+	this.eventTarget.dispatchEvent(new CustomEvent('player.listchanged', { detail: this }));
 };
 
 Player.prototype.triggerIndexChanged = function() {
-	this.eventTarget.dispatchEvent(new CustomEvent('indexchanged', { detail: this.index }));
+	this.eventTarget.dispatchEvent(new CustomEvent('player.indexchanged', { detail: this }));
+};
+
+Player.prototype.getCurrentTrack = function() {
+	var item, text = '';
+	if (this.index !== -1) {
+		item = this.items[this.index];
+		if (! item.title)
+			text = item.name;
+		else {
+			text = item.title;
+			if (item.artist)
+				text += ' (' + item.artist + ')'; 
+		}
+	}
+	return text;
 };
 
 /*
@@ -376,13 +394,13 @@ NIMBUS.init(['audio.js'], function() {
 	});
 
 	// Dessiner la grille quand le player nous le dit
-	player.on('listchanged', function(event) {
-		// Récupérer les éléments
-		var items = event.detail;
+	player.on('player.listchanged', function(event) {
+		// Récupérer le lecteur
+		var player = event.detail;
 		// Sauvegarder la playlist en cours
-		localStorage.setItem('playlist', JSON.stringify(items));
+		localStorage.setItem('playlist', JSON.stringify(player.items));
 		// Remplir la table
-		$('tbody').empty().append(items.map(function(item) {
+		$('tbody').empty().append(player.items.map(function(item) {
 			return $('<tr />').append(player.columns.map(function(column) {
 				return $('<td />')
 					.addClass('column-' + column.name)
@@ -396,11 +414,15 @@ NIMBUS.init(['audio.js'], function() {
 	});
 
 	// Indiquer la ligne en cours de lecture quand le player nous prévient
-	player.on('indexchanged', function(event) {
-		var index = event.detail;
+	player.on('player.indexchanged', function(event) {
+		// Récupérer le lecteur
+		var player = event.detail;
+		// Indiquer quelle est la ligne active dans la table
 		$('tbody > tr.table-active').removeClass('table-active');
-		if (index !== -1)
-			$('tbody > tr:eq(' + index + ')').addClass('table-active');
+		if (player.index !== -1)
+			$('tbody > tr:eq(' + player.index + ')').addClass('table-active');
+		// Indiquer le morceau en cours en bas à gauche
+		$('footer .track').text(player.getCurrentTrack());
 	});
 
 	// Indiquer les erreurs de lecture
