@@ -44,7 +44,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [jQuery](http://api.jquery.com/) | JS | 3.4.0 | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.3.1 | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | 4.3.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
-[Material Icons](https://material.io/icons/) | CSS | 3.0.1 | Apache 2.0 | Icônes sous forme de WebFont
+[Material Icons](https://material.io/icons/) | CSS | v48 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 2.0.943 | Apache 2.0 | Support des fichiers PDF
 [Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.6.2 | MIT | Prévisualisation du Markdown
