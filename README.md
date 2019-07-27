@@ -41,18 +41,18 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | 2.2.5 | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | 0.9.1 | MIT | Support des fichiers MP3
 [Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | 1.61 | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
-[jQuery](http://api.jquery.com/) | JS | 3.4.0 | ~MIT | Kit de départ pour le JS
+[jQuery](http://api.jquery.com/) | JS | 3.4.1 | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.3.1 | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | 4.3.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
 [Material Icons](https://material.io/icons/) | CSS | v48 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
-[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 2.0.943 | Apache 2.0 | Support des fichiers PDF
-[Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.6.2 | MIT | Prévisualisation du Markdown
+[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 2.1.266 | Apache 2.0 | Support des fichiers PDF
+[Marked.js](https://github.com/markedjs/marked) | plugin JS | 0.7.0 | MIT | Prévisualisation du Markdown
 [Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.16.0 | MIT | Coloration syntaxique des blocs de code
 [CodeMirror](https://codemirror.net/) | plugin JS | 5.48.2 | MIT | Editeur de code avec coloration syntaxique notamment
-[Popper.js](https://popper.js.org/) | transitive | 1.14.7 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
+[Popper.js](https://popper.js.org/) | transitive | 1.15.0 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
 [Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | transitive | v16 | OFL | WebFont pour les thèmes Flatly et Darkly
-[JSZip](https://github.com/Stuk/jszip/releases) | transitive | 3.2.0 | MIT or GPLv3 | Dépendances de ePub.js
+[JSZip](https://github.com/Stuk/jszip/releases) | transitive | 3.2.2 | MIT or GPLv3 | Dépendances de ePub.js
 
 ## Fonctionnalités
 
