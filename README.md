@@ -51,7 +51,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Prism.js](https://github.com/PrismJS/prism) | plugin JS | 1.16.0 | MIT | Coloration syntaxique des blocs de code
 [CodeMirror](https://codemirror.net/) | plugin JS | 5.48.2 | MIT | Editeur de code avec coloration syntaxique notamment
 [Popper.js](https://popper.js.org/) | transitive | 1.14.7 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
-[Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | transitive | v14 | OFL | WebFont pour les thèmes Flatly et Darkly
+[Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | transitive | v16 | OFL | WebFont pour les thèmes Flatly et Darkly
 [JSZip](https://github.com/Stuk/jszip/releases) | transitive | 3.2.0 | MIT or GPLv3 | Dépendances de ePub.js
 
 ## Fonctionnalités
