@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Nimbus (dev)",
+            "request": "launch",
+            "mainClass": "fr.techgp.nimbus.Application",
+            "projectName": "nimbus",
+            "vmArgs": "-Dnimbus.log=none -Dnimbus.conf=nimbus-dev.conf",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "Nimbus (test)",
+            "request": "launch",
+            "mainClass": "fr.techgp.nimbus.Application",
+            "projectName": "nimbus",
+            "vmArgs": "-Dnimbus.log=none -Dnimbus.conf=nimbus-test.conf",
+            "console": "integratedTerminal"
+        }
+    ]
+}

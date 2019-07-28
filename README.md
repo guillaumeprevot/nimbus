@@ -28,19 +28,19 @@ Le développement du projet s'organise selon 4 axes :
 
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
-[Spark](http://sparkjava.com/) | Java | 2.9.0 | Apache 2.0 | Framework Java pour application web
+[Spark](http://sparkjava.com/) | Java | 2.9.1 | Apache 2.0 | Framework Java pour application web
 [MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | 3.10.2 | Apache 2.0 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | 2.6 | Apache 2.0 | Utilitaire
 [FreeMarker](https://freemarker.apache.org/) | Java | 2.3.28 | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | 2.8.5 | Apache 2.0 | Support du format JSON
-[PDFBox](https://pdfbox.apache.org/) | plugin Java | 2.0.15 | Apache 2.0 | Support des fichiers PDF
+[PDFBox](https://pdfbox.apache.org/) | plugin Java | 2.0.16 | Apache 2.0 | Support des fichiers PDF
 [Image4j](http://image4j.sourceforge.net/) | plugin Java | 0.7.1 | LGPL | Support des fichiers ICO et BMP
-[MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/releases) | plugin Java | 2.11.0 | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
+[MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/releases) | plugin Java | 2.12.0 | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
 [Jave](http://www.sauronsoftware.it/projects/jave/download.php) | plugin Java | 1.0.2 | GPL | Support audio et vidéo grâce à FFmpeg
 [JavaZoom](http://www.javazoom.net/index.shtml) | plugin Java | 2010 | LGPL | Support des fichiers MP3 et OGG
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | 2.2.5 | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | 0.9.1 | MIT | Support des fichiers MP3
-[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | 1.61 | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
+[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | 1.62 | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
 [jQuery](http://api.jquery.com/) | JS | 3.4.1 | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.3.1 | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | 4.3.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
