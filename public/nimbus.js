@@ -1004,11 +1004,35 @@ NIMBUS.navigation = (function() {
 		$('#items').on('click', 'tbody tr', clickItem);
 	}
 
+	/**
+	 * Création d'un IntersectionObserver pour optiomiser le chargement des miniatures au moment où elles deviennent visibles
+	 * https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver
+	 */
+	var observer = new IntersectionObserver(function(entries) {
+		entries.forEach(entry => {
+			// When at least half of the image gets visible for the first time... 
+			if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && entry.target.classList.contains('lazy')) {
+				let elem = entry.target;
+				// - load image source (stored in "data-src" by refreshItems)
+				elem.src = elem.dataset.src;
+				// - and remove the 'lazy' indicator class
+				elem.classList.remove('lazy');
+			}
+		});
+	}, {
+		root: null, // body is scrolling
+		rootMargin: '0px', // body has no margin
+		threshold: 0.5 // trigger callback when at least half the image gets visible
+	});
+
 	/** Raffraichir la grille */
 	function refreshItems(withHeaders) {
 		// Clear previous content
 		$('#items tbody').empty();
 		updateSelectionCount(0);
+
+		// Clear previous IntersectionObserver
+		observer.disconnect();
 
 		// Get search options
 		var searchText = $('#search-input').val();
@@ -1073,7 +1097,13 @@ NIMBUS.navigation = (function() {
 				var icon = (typeof facet.icon === 'function') ? facet.icon(item) : facet.icon;
 				var thumbnail = (showItemThumbnail && typeof facet.thumbnail === 'function') ? facet.thumbnail(item) : null;
 				if (thumbnail) {
-					icon = $('<img style="width: 24px; height: 24px;" />').attr('src', thumbnail).attr('data-icon', icon).on('error', function(event) {
+					// Créer la miniature d'une taille 24x24
+					icon = $('<img style="width: 24px; height: 24px;" />');
+					// Ajouter le support du "lazy loading" grâce au IntersectionObserver créé un peu plus haut 
+					icon.addClass('lazy').attr('data-src', thumbnail);
+					observer.observe(icon[0]);
+					// En cas d'erreur, afficher en "fallback" l'icone de la facet
+					icon.attr('data-icon', icon).on('error', function(event) {
 						$(this).replaceWith('<i class="material-icons">' + this.dataset.icon + '</i>');
 					});
 				} else {
