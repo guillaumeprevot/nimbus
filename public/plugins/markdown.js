@@ -9,9 +9,8 @@
 		facets: [{
 			name: 'markdown',
 			accept: accept,
-			image: function(item, thumbnail) {
-				return '<i class="material-icons">list_alt</i>';
-			},
+			icon: 'list_alt',
+			thumbnail: null,
 			describe: function describe(item) {
 				if (typeof item.lines !== 'number')
 					return '';

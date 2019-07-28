@@ -11,11 +11,8 @@
 			accept: function(item, extension) {
 				return 'url' === extension;
 			},
-			image: function(item, thumbnail) {
-				if (thumbnail && item.iconURL)
-					return '<img src="' + item.iconURL + '" style="width: 24px; height: 24px;" />';
-				return '<i class="material-icons">link</i>';
-			},
+			icon: 'link',
+			thumbnail: function(item) { return item.iconURL; },
 			describe: function(item) {
 				return item.url || '';
 			}

@@ -9,9 +9,8 @@
 		facets: [{
 			name: 'note',
 			accept: accept,
-			image: function(item, thumbnail) {
-				return '<i class="material-icons">art_track</i>';
-			},
+			icon: 'art_track',
+			thumbnail: null,
 			describe: function describe(item) {
 				if (typeof item.lines !== 'number')
 					return '';

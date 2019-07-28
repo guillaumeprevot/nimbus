@@ -64,9 +64,8 @@
 		facets: [{
 			name: 'video',
 			accept: NIMBUS.utils.isBrowserSupportedVideo,
-			image: function(item, thumbnail) {
-				return '<i class="material-icons">local_movies</i>';
-			},
+			icon: 'local_movies',
+			thumbnail: null,
 			describe: function describe(item) {
 				var p = [];
 				if (item.duration)

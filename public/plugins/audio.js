@@ -43,9 +43,8 @@
 		facets: [{
 			name: 'audio',
 			accept: NIMBUS.utils.isBrowserSupportedAudio,
-			image: function(item, thumbnail) {
-				return '<i class="material-icons">audiotrack</i>';
-			},
+			icon: 'audiotrack',
+			thumbnail: null,
 			describe: function describe(item) {
 				var p = [];
 				if (item.duration)

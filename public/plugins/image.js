@@ -37,11 +37,8 @@
 		facets: [{
 			name: 'image',
 			accept: NIMBUS.utils.isBrowserSupportedImage,
-			image: function(item, thumbnail) {
-				if (thumbnail)
-					return '<img src="/files/thumbnail/' + item.id + '?size=24" />'; // style="width: 24px; height: 24px;"
-				return '<i class="material-icons">image</i>';
-			},
+			icon: 'image',
+			thumbnail: function(item) { return '/files/thumbnail/' + item.id + '?size=24'; },
 			describe: function describe(item) {
 				var p = [];
 				if (item.width && item.height)

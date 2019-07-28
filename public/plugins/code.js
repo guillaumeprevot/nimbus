@@ -93,15 +93,17 @@
 				// Deal with CodeMirror supported files and files configured as text
 				return accept(item, extension) || NIMBUS.utils.isTextFile(item, extension);
 			},
-			image: function(item, thumbnail) {
+			icon: function(item) {
 				var extension = item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
 				var support = supports[extension];
 				if (!support)
-					return '<i class="material-icons">subject</i>'; // defaults to text file
+					return 'subject'; // defaults to text file
 				if (support.icon)
-					return '<i class="material-icons">' + support.icon + '</i>'; // customized icons
-				return '<i class="material-icons">code</i>';
+					return support.icon; // customized icons
+				return 'code';
+
 			},
+			thumbnail: null,
 			describe: function describe(item) {
 				if (typeof item.lines !== 'number')
 					return '';

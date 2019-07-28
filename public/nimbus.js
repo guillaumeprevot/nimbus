@@ -1070,12 +1070,15 @@ NIMBUS.navigation = (function() {
 				// console.log(item.id, item.name, extension, facet.name);
 
 				// 1ère colonne : icône personnalisable
-				var icon = $(facet.image(item, showItemThumbnail));
-				icon.filter('img').on('error', (function(item, facet) {
-					return function(event) {
-						$(this).replaceWith(facet.image(item, false));
-					};
-				})(item, facet));
+				var icon = (typeof facet.icon === 'function') ? facet.icon(item) : facet.icon;
+				var thumbnail = (showItemThumbnail && typeof facet.thumbnail === 'function') ? facet.thumbnail(item) : null;
+				if (thumbnail) {
+					icon = $('<img style="width: 24px; height: 24px;" />').attr('src', thumbnail).attr('data-icon', icon).on('error', function(event) {
+						$(this).replaceWith('<i class="material-icons">' + this.dataset.icon + '</i>');
+					});
+				} else {
+					icon = $('<i class="material-icons">' + icon + '</i>');
+				}
 
 				// 2ème colonne : nom personnalisable
 				var name = $('<span />').html(item.name);

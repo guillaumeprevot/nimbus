@@ -7,9 +7,8 @@
 				accept: function(item, extension) {
 					return !item.folder;
 				},
-				image: function(item, thumbnail) {
-					return '<i class="material-icons">insert_drive_file</i>';
-				},
+				icon: 'insert_drive_file',
+				thumbnail: null,
 				describe: function(item) {
 					return '';
 				}

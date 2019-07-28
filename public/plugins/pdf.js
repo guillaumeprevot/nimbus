@@ -15,11 +15,8 @@
 		facets: [{
 			name: 'pdf',
 			accept: accept,
-			image: function(item, thumbnail) {
-				if (thumbnail && item.thumbnail)
-					return '<img src="' + item.thumbnail + '" style="width: 24px; height: 24px; object-fit: scale-down; " />';
-				return '<i class="material-icons">picture_as_pdf</i>';
-			},
+			icon: 'picture_as_pdf',
+			thumbnail: function(item) { return item.thumbnail; },
 			describe: function describe(item) {
 				if (typeof item.pageCount !== 'number')
 					return '';

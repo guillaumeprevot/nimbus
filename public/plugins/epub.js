@@ -10,9 +10,8 @@
 		facets: [{
 			name: 'epub',
 			accept: accept,
-			image: function(item, thumbnail) {
-				return '<i class="material-icons">chrome_reader_mode</i>';
-			},
+			icon: 'chrome_reader_mode',
+			thumbnail: null,
 			describe: function describe(item) {
 				return '';
 			}

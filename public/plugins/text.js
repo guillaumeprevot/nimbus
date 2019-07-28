@@ -8,9 +8,8 @@
 		facets: [{
 			name: 'text',
 			accept: NIMBUS.utils.isTextFile,
-			image: function(item, thumbnail) {
-				return '<i class="material-icons">subject</i>';
-			},
+			icon: 'subject',
+			thumbnail: null,
 			describe: function describe(item) {
 				if (typeof item.lines !== 'number')
 					return '';

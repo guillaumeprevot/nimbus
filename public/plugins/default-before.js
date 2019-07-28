@@ -25,11 +25,8 @@
 				accept: function(item, extension) {
 					return item.folder;
 				},
-				image: function(item, thumbnail) {
-					if (thumbnail && item.iconURL)
-						return '<img src="' + (item.iconURLCache || item.iconURL) + '" style="width: 24px; height: 24px;" />';
-					return '<i class="material-icons">folder</i>';
-				},
+				icon: 'folder',
+				thumbnail: function(item) { return item.iconURL ? (item.iconURLCache || item.iconURL) : null; },
 				describe: function(item) {
 					if (item.itemCount === 0)
 						return NIMBUS.translate('CommonFolderDescriptionEmpty');
