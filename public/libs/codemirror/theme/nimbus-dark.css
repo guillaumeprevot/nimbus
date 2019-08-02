@@ -9,6 +9,9 @@
 .cm-s-nimbus-dark .CodeMirror-line::-moz-selection, .cm-s-nimbus-dark .CodeMirror-line > span::-moz-selection, .cm-s-nimbus-dark .CodeMirror-line > span > span::-moz-selection { background: rgba(69, 68, 59, .99); }
 .cm-s-nimbus-dark .CodeMirror-activeline-background { background: #444; }
 .cm-s-nimbus-dark .CodeMirror-matchingbracket { outline:1px solid #888; color:white !important; }
+.cm-s-nimbus-dark .cm-tab { background-image: none; border-left: 1px solid #444; }
+.cm-s-nimbus-dark .cm-tab:first-child { border-left-width: 0px; }
+.cm-s-nimbus-dark .cm-trailingspace { border-bottom: 1px dotted #aaa; }
 
 .cm-s-nimbus-dark span.cm-header { color: white; } /* # ## ### de Markdown */
 .cm-s-nimbus-dark span.cm-quote { color: #00bc8c; }

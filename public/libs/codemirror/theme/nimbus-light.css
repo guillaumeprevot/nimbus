@@ -23,3 +23,6 @@
 
 .cm-s-nimbus-light .CodeMirror-activeline-background { background: #e8f2ff; }
 .cm-s-nimbus-light .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
+.cm-s-nimbus-light .cm-tab { background-image: none; border-left: 1px solid #e8f2ff; }
+.cm-s-nimbus-light .cm-tab:first-child { border-left-width: 0px; }
+.cm-s-nimbus-light .cm-trailingspace { border-bottom: 1px dotted grey; }
