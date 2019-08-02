@@ -11,6 +11,7 @@
 <link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" />
+<link type="text/css" rel="stylesheet" href="/libs/codemirror/addon/dialog/dialog.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/addon/fold/foldgutter.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/addon/hint/show-hint.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-${theme}.css" />
@@ -25,6 +26,7 @@
 <script type="text/javascript" src="/libs/codemirror/lib/codemirror.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/comment/comment.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/comment/continuecomment.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/dialog/dialog.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/matchbrackets.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/closebrackets.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/matchtags.js"></script>
@@ -132,6 +134,10 @@ function createCodeMirrorOptions(mime, content) {
 			'Ctrl-Alt-C': 'toggleComment',
 			'Ctrl-L': 'jumpToLine',
 			'Ctrl-Q': function(cm) { cm.foldCode(cm.getCursor()); }
+		},
+		phrases: {
+			'Jump to line:': NIMBUS.translate('CodeEditorJumpToLinePrompt'),
+			'(Use line:column or scroll% syntax)': NIMBUS.translate('CodeEditorJumpToLineFormat')
 		}
 	};
 	if (mime === 'text/x-markdown')

@@ -137,6 +137,8 @@
 				CodeEditorOptionsLineWrapping: "Retour automatique à la ligne",
 				CodeEditorOptionsLineNumbers: "Numérotation des lignes",
 				CodeEditorOptionsFoldGutter: "Afficher les blocs dans la marge",
+				CodeEditorJumpToLinePrompt: "Aller à la ligne :",
+				CodeEditorJumpToLineFormat: "(Format: ligne:colonne ou scroll%)",
 			},
 			en: {
 				CodeActionEdit: "Open in code editor",
@@ -147,6 +149,8 @@
 				CodeEditorOptionsLineWrapping: "Retour automatique à la ligne",
 				CodeEditorOptionsLineNumbers: "Numérotation des lignes",
 				CodeEditorOptionsFoldGutter: "Expand/Collapse blocs with gutter",
+				CodeEditorJumpToLinePrompt: "Jump to line:",
+				CodeEditorJumpToLineFormat: "(Use line:column or scroll% syntax)",
 			}
 		}
 	});
