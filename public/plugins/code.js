@@ -136,6 +136,7 @@
 				CodeEditorOptionsRTLDirection: "Texte de droite à gauche",
 				CodeEditorOptionsLineWrapping: "Retour automatique à la ligne",
 				CodeEditorOptionsLineNumbers: "Numérotation des lignes",
+				CodeEditorOptionsFoldGutter: "Afficher les blocs dans la marge",
 			},
 			en: {
 				CodeActionEdit: "Open in code editor",
@@ -145,6 +146,7 @@
 				CodeEditorOptionsRTLDirection: "Right-to-left text",
 				CodeEditorOptionsLineWrapping: "Retour automatique à la ligne",
 				CodeEditorOptionsLineNumbers: "Numérotation des lignes",
+				CodeEditorOptionsFoldGutter: "Expand/Collapse blocs with gutter",
 			}
 		}
 	});

@@ -11,6 +11,7 @@
 <link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" />
+<link type="text/css" rel="stylesheet" href="/libs/codemirror/addon/fold/foldgutter.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/addon/hint/show-hint.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-${theme}.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
@@ -30,7 +31,13 @@
 <script type="text/javascript" src="/libs/codemirror/addon/edit/closetag.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/continuelist.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/trailingspace.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/foldcode.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/foldgutter.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/brace-fold.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/fold/xml-fold.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/indent-fold.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/markdown-fold.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/comment-fold.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/hint/show-hint.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/hint/xml-hint.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/hint/javascript-hint.js"></script>
@@ -59,6 +66,7 @@
 					<button class="dropdown-item" id="optionsRTLDirection" data-translate="text">CodeEditorOptionsRTLDirection</button>
 					<button class="dropdown-item" id="optionsLineWrapping" data-translate="text">CodeEditorOptionsLineWrapping</button>
 					<button class="dropdown-item active" id="optionsLineNumbers" data-translate="text">CodeEditorOptionsLineNumbers</button>
+					<button class="dropdown-item active" id="optionsFoldGutter" data-translate="text">CodeEditorOptionsFoldGutter</button>
 				</div>
 			</div>
 			<div class="btn-group">
@@ -103,7 +111,11 @@ function createCodeMirrorOptions(mime, content) {
 		// rtlMoveVisually: true false,
 		// lineWrapping: false,
 		lineNumbers: true,
+		// firstLineNumber: 1,
+		// lineNumberFormatter: fn,
 		// scrollbarStyle: 'native' 'null' ...
+		gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+		foldGutter: true,
 		viewportMargin: Infinity,
 
 		styleActiveLine: true,
@@ -114,10 +126,12 @@ function createCodeMirrorOptions(mime, content) {
 		autoCloseTags: true,
 		showTrailingSpace: true,
 		// Defaults keymap : https://github.com/codemirror/CodeMirror/blob/master/src/input/keymap.js
+		// keyMap: 'default',
 		extraKeys: {
 			'Ctrl-Space': 'autocomplete',
 			'Ctrl-Alt-C': 'toggleComment',
-			'Ctrl-L': 'jumpToLine'
+			'Ctrl-L': 'jumpToLine',
+			'Ctrl-Q': function(cm) { cm.foldCode(cm.getCursor()); }
 		}
 	};
 	if (mime === 'text/x-markdown')
@@ -184,6 +198,10 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 		$('#optionsLineNumbers').click(function() {
 			var self = $(this).toggleClass('active');
 			cm.setOption('lineNumbers', self.hasClass('active'));
+		});
+		$('#optionsFoldGutter').click(function() {
+			var self = $(this).toggleClass('active');
+			cm.setOption('foldGutter', self.hasClass('active'));
 		});
 
 		// Implementing "save" command, invoked by default key maps on "Ctrl+S" or "Cmd+S".
