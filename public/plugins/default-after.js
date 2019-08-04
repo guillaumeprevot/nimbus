@@ -103,7 +103,7 @@
 				}
 			}, {
 				name: 'duplicate',
-				icon: 'dns',
+				icon: 'add_to_photos',
 				caption: 'ActionDuplicate',
 				accept: function(item, extension) {
 					return true;

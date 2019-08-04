@@ -110,7 +110,10 @@ Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions
     - les notes au format HTML (`.note` pour Nimbus), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
     - le `code source` peut être édité dans Nimbus grâce à [CodeMirror](https://codemirror.net/) en utilisant l'action `Ouvrir dans l'éditeur de code`
 - Notes chiffrées :
-    - les fichiers dont l'extension est `.secret` sont des notes chiffrées par AES-256 bits et éditables en utilisant l'action `Afficher ou modifier le contenu`
+    - les fichiers dont l'extension est `.secret` sont considérés comme des notes chiffrées par AES-256 bits et éditables en utilisant l'action `Afficher ou modifier le contenu`
+- Applications
+	- les fichiers dont l'extension est `.application` sont considérés comme des applications HTML que l'on peut lancer en utilisant l'action `Lancer cette application`
+	- un template est disponible dans `doc/template.application` pour montrer comment il est possible d'étendre le comportement
 
 Enfin, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
 

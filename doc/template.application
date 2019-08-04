@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-static-toolbars">
+<head>
+<title data-translate="text">TemplateTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+</style>
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-backtotop.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-fileupload.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-tagsinput.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<!--
+<link type="text/css" rel="stylesheet" href="./css/test.css" />
+<script type="text/javascript" src="./js/test.js"></script>
+-->
+</head>
+<body class="nimbus-hidden">
+	<header class="bg-primary">
+		<div class="float-left">
+			<button id="save-button" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="TemplateSave"><i class="material-icons">save</i></button>
+		</div>
+		<div class="btn-group">
+		</div>
+		<div class="float-right">
+			<button id="close-button" type="button" class="btn btn-link" data-translate="title" title="TemplateClose"><i class="material-icons">close</i></button>
+		</div>
+	</header>
+	<main></main>
+	<footer></footer>
+<script>
+var langs = {
+	fr: {
+		TemplateTitle: "Template d'application",
+		TemplateSave: "Sauvegarder les modifications",
+		TemplateClose: "Fermer l'application",
+	},
+	en: {
+		TemplateTitle: "Application template",
+		TemplateSave: "Save modifications",
+		TemplateClose: "Close application",
+	}
+}
+
+$(function() {
+	// Charger la langue la plus appropriée
+	var locale = (navigator.language && navigator.language.startsWith('fr')) ? 'fr' : 'en';
+	// Charger le fichier de langue par défaut de NIMBUS
+	$.getScript('/langs/' + locale + '.js').then(function() {
+		// Charger en plus la traduction de cette application
+		$.extend(NIMBUS.lang, langs[locale]);
+
+		//Initialiser la page
+		NIMBUS.init([/*'application.js'*/], function() {
+			// ...
+
+			// L'IHM est prête, on l'affiche
+			$(document.body).removeClass('nimbus-hidden');
+
+			// Bouton de sauvegarde
+			/*
+			$('#save-button').on('click', function() {
+				NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
+					saveButton.addClass('nimbus-hidden').removeClass('text-danger');
+				}, function() {
+					saveButton.addClass('text-danger');
+				});
+			});
+			*/
+
+			// Bouton de fermeture de l'application
+			$('#close-button').on('click', function() {
+				window.close();
+			});
+
+			// Clic sur la partie centrale pour afficher/cacher les barres d'outils
+			// Remplacer "nimbus-static-toolbars" par "nimbus-hideable-toolbars" si ce comportement est souhaité
+			/*
+			$('main').click(function(event) {
+				$('.nimbus-viewer').toggleClass('nimbus-hidden-toolbars');
+			});
+			*/
+
+			// Manipulation au clavier
+			/*
+			$(document.body).keystrokes({
+				'Shift-Cmd-Ctrl-Alt-a': () => alert('a'),
+			}, function filter(event) {
+				return true;
+			});
+			*/
+		});
+	});
+});
+</script>
+
+</body>
+</html>

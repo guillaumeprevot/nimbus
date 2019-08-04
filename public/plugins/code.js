@@ -1,6 +1,7 @@
 (function() {
 
 	var supports = {
+		application: { mode: 'xml,javascript,css,htmlmixed', mime: 'text/html', icon: 'settings_applications' },
 		asc: { mode: 'asciiarmor', mime: 'application/pgp', alias: 'pgp,sig' },
 		c: { mode: 'clike', mime: 'text/x-csrc', alias: 'h,ino' },
 		coffee: { mode: 'coffeescript', mime: 'application/vnd.coffeescript' },
