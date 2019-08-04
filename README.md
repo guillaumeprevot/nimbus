@@ -109,6 +109,8 @@ Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions
     - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées en HTML, dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked) et [Prism.js](https://github.com/PrismJS/prism)
     - les notes au format HTML (`.note` pour Nimbus), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
     - le `code source` peut être édité dans Nimbus grâce à [CodeMirror](https://codemirror.net/) en utilisant l'action `Ouvrir dans l'éditeur de code`
+- Notes chiffrées :
+    - les fichiers dont l'extension est `.secret` sont des notes chiffrées par AES-256 bits et éditables en utilisant l'action `Afficher ou modifier le contenu`
 
 Enfin, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
 

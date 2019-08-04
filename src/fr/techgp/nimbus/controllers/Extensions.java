@@ -139,4 +139,19 @@ public class Extensions extends Controller {
 				"lang", SparkUtils.getRequestLang(request));
 	};
 
+	/**
+	 * Cette route affiche la page permettant de déchiffrer, modifier puis rechiffrer du texte
+	 * 
+	 * () => HTML
+	 */
+	public static final Route secretEditor = (request, response) -> {
+		// Générer la page
+		return renderTemplate("secret-editor.html",
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
+				"theme", getUserTheme(request),
+				"lang", SparkUtils.getRequestLang(request));
+	};
+
 }
