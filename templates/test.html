@@ -437,6 +437,28 @@ function fillTests(add) {
 		return $.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}&nextPattern=Copie%20{1}%20de%20{0}").then((result) => assertEquals(result, "6"));
 	});
 
+	add("HIDDEN / Vérifier que 'fichier.txt' n'est pas masqué pour le moment", function() {
+		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && !r.hidden));
+	});
+	add("HIDDEN / Masquer l'élément", function() {
+		return $.post("/items/hide?itemId=0").then(assertEmpty);
+	});
+	add("HIDDEN / Vérifier que 'fichier.txt' est maintenant masqué", function() {
+		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && r.hidden));
+	});
+	add("HIDDEN / Ne plus masquer l'élément", function() {
+		return $.post("/items/hide?itemId=0&hidden=false").then(assertEmpty);
+	});
+	add("HIDDEN / Vérifier que 'fichier.txt' n'est plus masqué", function() {
+		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && !r.hidden));
+	});
+	add("HIDDEN / Masquer le dossier 'Dossier3'", function() {
+		return $.post("/items/hide?itemId=3").then(assertEmpty);
+	});
+	add("HIDDEN / Vérifier que 'Dossier3' est masqué", function() {
+		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.id === 3 && r.folder && r.hidden));
+	});
+
 	add("TAGS / Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {
 		return $.post("/items/rename?itemId=6&name=Dossier6&tags=tag1,tag2").then(assertEmpty);
 	});

@@ -68,6 +68,7 @@ Fait | Stockage des fichiers et organisation en dossier (arborescence)
 Fait | Gestion des quotas d'espace disque (par un des administrateurs)
 Fait | Gestion des partages de fichier (protégé par mot de passe et avec expiration si souhaitée)
 Fait | Gestion de la corbeille
+Fait | Gestion des fichiers et dossiers masqués
 Fait | Extraction automatique des propriétés (dimension des images, durée d'une vidéo, auteur d'un MP3, ...)
 Fait | Support extensible de différents types de fichiers côté client (plugins)
 Fait | Support des thèmes clair et sombre (Flatly/Darkly pour l'IHM + création de 2 thèmes pour CodeMirror)
