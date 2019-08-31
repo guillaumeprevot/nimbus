@@ -131,6 +131,37 @@
 					NIMBUS.navigation.moveItems([item.id]);
 				}
 			}, {
+				name: 'mark-as-hidden',
+				icon: 'visibility_off',
+				caption: 'ActionMarkAsHidden',
+				accept: function(item, extension) {
+					return !item.hidden;
+				},
+				execute: function(item) {
+					item.hidden = true;
+					$.post('/items/hide', {
+						itemId: item.id
+					}).done(function() {
+						NIMBUS.navigation.refreshItems(false);
+					});
+				}
+			}, {
+				name: 'unset-hidden-marker',
+				icon: 'visibility',
+				caption: 'ActionUnsetHiddenMarker',
+				accept: function(item, extension) {
+					return item.hidden;
+				},
+				execute: function(item) {
+					item.hidden = false;
+					$.post('/items/hide', {
+						itemId: item.id,
+						hidden: false
+					}).done(function() {
+						NIMBUS.navigation.refreshItems(false);
+					});
+				}
+			}, {
 				name: 'delete',
 				icon: 'delete',
 				caption: 'ActionDelete',

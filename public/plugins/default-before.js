@@ -3,7 +3,7 @@
 		name: 'default-before',
 		properties: [
 			{ name: 'id', caption: 'CommonPropertyId', align: 'right', width: 60, sortBy: '_id', format: (i) => NIMBUS.formatInteger(i.id) },
-			{ name: 'folder', caption: 'CommonPropertyFolder', align: 'center', sortBy: 'folder', format: (i) => NIMBUS.formatBoolean(i.folder, 'folder') },
+			{ name: 'folder', caption: 'CommonPropertyFolder', align: 'center', width: 80, sortBy: 'folder', format: (i) => NIMBUS.formatBoolean(i.folder, 'folder') },
 			{ name: 'length', caption: 'CommonPropertyLength', align: 'right', width: 100, sortBy: 'content.length', format: (i) => NIMBUS.formatLength(i.length) },
 			{ name: 'createDate', caption: 'CommonPropertyCreateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'createDate', format: (i) => NIMBUS.formatDatetime(i.createDate) },
 			{ name: 'updateDate', caption: 'CommonPropertyUpdateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'updateDate', format: (i) => NIMBUS.formatDatetime(i.updateDate) },
@@ -18,6 +18,7 @@
 			{ name: 'shared', caption: 'CommonPropertyShared', align: 'center', width: 80, sortBy: 'sharedPassword', format: (i) => NIMBUS.formatBoolean(!!i.sharedPassword, 'share') },
 			{ name: 'sharedDate', caption: 'CommonPropertySharedDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'sharedDate', format: (i) => NIMBUS.formatDatetime(i.sharedDate) },
 			{ name: 'sharedDuration', caption: 'CommonPropertySharedDuration', align: 'right', sortBy: 'sharedDuration', format: (i) => !i.sharedPassword ? '' : i.sharedDuration ? (NIMBUS.formatInteger(i.sharedDuration) + 'min') : '∞' },
+			{ name: 'hidden', caption: 'CommonPropertyHidden', align: 'center', width: 80, sortBy: 'hidden', format: (i) => NIMBUS.formatBoolean(i.hidden, 'visibility_off') },
 		],
 		facets: [
 			{

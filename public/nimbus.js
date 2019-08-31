@@ -1061,6 +1061,7 @@ NIMBUS.navigation = (function() {
 			$('#noitems').toggleClass('nimbus-hidden', items.length > 0);
 			$('#itemcount').text(items.length == 0 ? '' : items.length.toString());
 			var optionsMenu = $('#items-options').next();
+			var showHiddenItems = optionsMenu.children('[data-option=showHiddenItems]').is('.active');
 			var showItemTags = optionsMenu.children('[data-option=showItemTags]').is('.active');
 			var showItemDescription = optionsMenu.children('[data-option=showItemDescription]').is('.active');
 			var showItemThumbnail = optionsMenu.children('[data-option=showItemThumbnail]').is('.active');
@@ -1089,6 +1090,9 @@ NIMBUS.navigation = (function() {
 			for (var i = 0; i < items.length; i++) {
 				// L'élément à afficher
 				var item = items[i];
+				// Prise en compte de l'option pour masquer des éléments
+				if (item.hidden && !showHiddenItems)
+					continue;
 				// L'extension associée, si c'est un fichier
 				var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
 				// La facet qui gère l'affichage de l'élément. Par défaut, on tombera au moins sur "folder" ou "file" 

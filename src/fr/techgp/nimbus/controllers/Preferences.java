@@ -50,6 +50,7 @@ public class Preferences extends Controller {
 				"lang", SparkUtils.getRequestLang(request),
 				"plugins", configuration.getClientPlugins(),
 				"name", user.name,
+				"showHiddenItems", user.showHiddenItems,
 				"showItemTags", user.showItemTags,
 				"showItemDescription", user.showItemDescription,
 				"showItemThumbnail", user.showItemThumbnail,
@@ -75,6 +76,7 @@ public class Preferences extends Controller {
 		if (StringUtils.isNotBlank(password))
 			user.password = CryptoUtils.hashPassword(password);
 		user.name = request.queryParams("name");
+		user.showHiddenItems = "true".equals(request.queryParams("showHiddenItems"));
 		user.showItemTags = "true".equals(request.queryParams("showItemTags"));
 		user.showItemDescription = "true".equals(request.queryParams("showItemDescription"));
 		user.showItemThumbnail = "true".equals(request.queryParams("showItemThumbnail"));

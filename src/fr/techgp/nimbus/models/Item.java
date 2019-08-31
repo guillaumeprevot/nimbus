@@ -34,6 +34,8 @@ public class Item {
 	public String userLogin;
 	/** Indique si l'élément est un dossier ou un fichier */
 	public boolean folder;
+	/** Indique si l'élément est élément caché */
+	public boolean hidden;
 	/** Nom de l'élement */
 	public String name;
 	/** Date de création de l'élément */
@@ -110,6 +112,7 @@ public class Item {
 		child.path = checkedParent == null ? "" : (checkedParent.path + checkedParent.id + ',');
 		child.userLogin = userLogin;
 		child.folder = folder;
+		child.hidden = false;
 		child.name = name;
 		child.createDate = new Date();
 		child.updateDate = new Date();
@@ -138,6 +141,7 @@ public class Item {
 		duplicate.path = item.path;
 		duplicate.userLogin = item.userLogin;
 		duplicate.folder = item.folder;
+		duplicate.hidden = item.hidden;
 		duplicate.name = name;
 		duplicate.createDate = new Date();
 		duplicate.updateDate = new Date();
@@ -331,6 +335,7 @@ public class Item {
 		item.path = document.getString("path");
 		item.userLogin = document.getString("userLogin");
 		item.folder = document.getBoolean("folder").booleanValue();
+		item.hidden = document.getBoolean("hidden", false);
 		item.name = document.getString("name");
 		item.tags = (List<String>) document.get("tags");
 		item.sharedDate = document.getDate("sharedDate");
@@ -352,6 +357,7 @@ public class Item {
 			.append("path", item.path)
 			.append("userLogin", item.userLogin)
 			.append("folder", item.folder)
+			.append("hidden", item.hidden)
 			.append("name", item.name)
 			.append("tags", item.tags == null ? new ArrayList<>() : item.tags)
 			.append("createDate", item.createDate)

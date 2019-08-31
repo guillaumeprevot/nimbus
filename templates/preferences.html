@@ -53,6 +53,11 @@
 
 		<label data-translate="text">PreferencesGridOtherOptions</label>
 		<div class="checkbox custom-control custom-switch">
+			<input type="checkbox" class="custom-control-input" id="showHiddenItems" ${showHiddenItems?then("checked","")}>
+			<label class="custom-control-label" for="showHiddenItems" data-translate="text">PreferencesShowHiddenItemsLabel</label>
+		</div>
+
+		<div class="checkbox custom-control custom-switch">
 			<input type="checkbox" class="custom-control-input" id="showItemTags" ${showItemTags?then("checked","")}>
 			<label class="custom-control-label" for="showItemTags" data-translate="text">PreferencesShowItemTagsLabel</label>
 		</div>
@@ -102,6 +107,7 @@ NIMBUS.init([<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>], function() {
 			name: $('#name').val(),
 			password: $('#password').val(),
 			passwordConfirmation: $('#passwordConfirmation').val(),
+			showHiddenItems: $('#showHiddenItems').prop('checked'),
 			showItemTags: $('#showItemTags').prop('checked'),
 			showItemDescription: $('#showItemDescription').prop('checked'),
 			showItemThumbnail: $('#showItemThumbnail').prop('checked'),

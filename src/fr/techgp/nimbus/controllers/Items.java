@@ -299,6 +299,28 @@ public class Items extends Controller {
 	};
 
 	/**
+	 * Active ou désactive le statut "masqué" de l'élément "itemId"
+	 *
+	 * (itemId, hidden) =>
+	 */
+	public static final Route hide = (request, response) -> {
+		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+			// Extraire la requête
+			boolean hidden = SparkUtils.queryParamBoolean(request, "hidden", true);
+			// On met à jour l'élément
+			item.hidden = hidden;
+			// pas de changement de updateDate car le contenu reste le même
+			//item.updateDate = new Date();
+			Item.update(item);
+
+			// Ajuster la date de modification du dossier parent
+			if (item.parentId != null)
+				Item.notifyFolderContentChanged(item.parentId, 0);
+			return "";
+		});
+	};
+
+	/**
 	 * Met à jour (récursivement) les méta-données de l'élément "itemId" gérées par les Facets.
 	 *
 	 * (itemId) => ""
@@ -600,7 +622,7 @@ public class Items extends Controller {
 	/**
 	 * Cette méthode encode un élément "item" en un objet JSON pour être renvoyé côté client contenant :
 	 * <ul>
-	 * <li>les propriétés générales (id, parentId, path, folder?, name, share*, createDate, updateDate, deleteDate, tags)
+	 * <li>les propriétés générales (id, parentId, path, folder?, hidden?, name, share*, createDate, updateDate, deleteDate, tags)
 	 * <li>les propriétés des dossiers si c'est un dossier (itemCount, iconURL, iconURLCache)
 	 * <li>les propriétés des fichiers si c'est un fichier (mimetype, length, progress, status, sourceURL)
 	 * <li>les propriétés des fichiers gérées par les "Facet" si c'est un fichier image, video, audio, ...
@@ -616,6 +638,7 @@ public class Items extends Controller {
 		node.addProperty("path", item.path);
 		// node.addProperty("userLogin", item.userLogin);
 		node.addProperty("folder", item.folder);
+		node.addProperty("hidden", item.hidden);
 		node.addProperty("name", item.name);
 		if (StringUtils.isNotBlank(item.sharedPassword))
 			node.addProperty("sharedPassword", item.sharedPassword);

@@ -89,6 +89,7 @@ public class Controller {
 		Spark.post("/items/add/folder", Items.addFolder);
 		Spark.post("/items/duplicate", Items.duplicate);
 		Spark.post("/items/rename", Items.rename);
+		Spark.post("/items/hide", Items.hide);
 		Spark.post("/items/refresh", Items.refresh);
 		Spark.post("/items/metadata", Items.metadata);
 		Spark.post("/items/move", Items.move);
@@ -165,6 +166,7 @@ public class Controller {
 				"admin", user.admin,
 				"trashCount", Item.trashCount(login),
 				"textFileExtensions", configuration.getTextFileExtensions(),
+				"showHiddenItems", user.showHiddenItems,
 				"showItemTags", user.showItemTags,
 				"showItemDescription", user.showItemDescription,
 				"showItemThumbnail", user.showItemThumbnail,

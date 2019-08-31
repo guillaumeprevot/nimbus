@@ -598,6 +598,7 @@ function fillTests(add) {
 	add("PREFERENCES / Vérifier les préférences par défaut", function() {
 		return $.get("/preferences.html").then((result) => assertString(result,
 				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"\" />", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showHiddenItems\" >", true,
 				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemTags\" checked>", true,
 				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemDescription\" checked>", true,
 				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemThumbnail\" checked>", true,
@@ -607,7 +608,9 @@ function fillTests(add) {
 		return $.post("/preferences/save", {
 			name: "Administrateur", // changement
 			password: "aaa", passwordConfirmation: "aaa", // changement
-			showItemDescription: true, // showItemTags et showItemThumbnail passent à false
+			showHiddenItems: true, // showHiddenItems passe à true
+			showItemDescription: true, // showItemDescription reste à true
+			// showItemTags et showItemThumbnail passent à false
 			visibleItemColumns: ["length", "createDate", "updateDate"] // changement
 		}).then(assertEmpty);
 	});
@@ -622,6 +625,7 @@ function fillTests(add) {
 	add("PREFERENCES / Vérifier que les préférences sont bien prises en compte", function() {
 		return $.get("/preferences.html").then((result) => assertString(result,
 				"<input data-translate=\"placeholder\" id=\"name\" type=\"text\" class=\"form-control\" placeholder=\"PreferencesNamePlaceholder\" value=\"Administrateur\" />", true,
+				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showHiddenItems\" checked>", true,
 				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemTags\" >", true,
 				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemDescription\" checked>", true,
 				"<input type=\"checkbox\" class=\"custom-control-input\" id=\"showItemThumbnail\" >", true,
@@ -631,7 +635,7 @@ function fillTests(add) {
 		return $.post("/preferences/save", {
 			name: "Administrateur",
 			password: "adm", passwordConfirmation: "adm",
-			showItemTags: true, showItemDescription: true, showItemThumbnail: true,
+			showHiddenItems: false, showItemTags: true, showItemDescription: true, showItemThumbnail: true,
 			visibleItemColumns: ["length", "createDate", "updateDate", "shared", "mimetype"]
 		}).then(assertEmpty);
 	});
