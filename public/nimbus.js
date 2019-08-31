@@ -1010,13 +1010,17 @@ NIMBUS.navigation = (function() {
 	 */
 	var observer = new IntersectionObserver(function(entries) {
 		entries.forEach(entry => {
-			// When at least half of the image gets visible for the first time... 
+			var img;
+			// Chargement "lazy" dès que la moitié de l'image devient visible 
 			if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && entry.target.classList.contains('lazy')) {
-				let elem = entry.target;
-				// - load image source (stored in "data-src" by refreshItems)
-				elem.src = elem.dataset.src;
-				// - and remove the 'lazy' indicator class
-				elem.classList.remove('lazy');
+				// Pour ne pas recommencer si l'utilisateur scroll pendant le chargement
+				entry.target.classList.remove('lazy');
+				// Création de l'image
+				img = $('<img />').attr('src', entry.target.dataset.thumbnail);
+				// Affichage de l'image à la place de l'icône si le chargement fonctionne
+				img.on('load', function() {
+					$(entry.target).replaceWith(img);
+				});
 			}
 		});
 	}, {
@@ -1094,20 +1098,12 @@ NIMBUS.navigation = (function() {
 				// console.log(item.id, item.name, extension, facet.name);
 
 				// 1ère colonne : icône personnalisable
-				var icon = (typeof facet.icon === 'function') ? facet.icon(item) : facet.icon;
+				var icon = $('<i class="material-icons">' + ((typeof facet.icon === 'function') ? facet.icon(item) : facet.icon) + '</i>');
 				var thumbnail = (showItemThumbnail && typeof facet.thumbnail === 'function') ? facet.thumbnail(item) : null;
 				if (thumbnail) {
-					// Créer la miniature d'une taille 24x24
-					icon = $('<img style="width: 24px; height: 24px;" />');
-					// Ajouter le support du "lazy loading" grâce au IntersectionObserver créé un peu plus haut 
-					icon.addClass('lazy').attr('data-src', thumbnail);
+					// + affichage d'une miniature vers "thumbnail", en "lazy", si la facet le demande, qui remplacera l'icône si le chargement a fonctionné
+					icon.addClass('lazy').attr('data-thumbnail', thumbnail);
 					observer.observe(icon[0]);
-					// En cas d'erreur, afficher en "fallback" l'icone de la facet
-					icon.attr('data-icon', icon).on('error', function(event) {
-						$(this).replaceWith('<i class="material-icons">' + this.dataset.icon + '</i>');
-					});
-				} else {
-					icon = $('<i class="material-icons">' + icon + '</i>');
 				}
 
 				// 2ème colonne : nom personnalisable

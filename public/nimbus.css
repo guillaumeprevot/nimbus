@@ -33,6 +33,7 @@
 
 #items { width: 100%; table-layout: fixed; }
 #items .icon { width: 40px; text-align: center; }
+#items .icon img { max-width: 24px; max-height: 24px; }
 #items .name { width: auto; }
 #items .name > .badge { float: right; margin-right: 0.5em;  }
 #items .name > .description { font-size: small; display: inline; }
