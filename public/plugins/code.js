@@ -95,7 +95,7 @@
 				return accept(item, extension) || NIMBUS.utils.isTextFile(item, extension);
 			},
 			icon: function(item) {
-				var extension = item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
+				var extension = NIMBUS.utils.getFileExtensionFromItem(item);
 				var support = supports[extension];
 				if (!support)
 					return 'subject'; // defaults to text file

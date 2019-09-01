@@ -256,6 +256,14 @@ NIMBUS.utils = (function() {
 		return !item.folder && imageExtensions.indexOf(extension) >= 0;
 	}
 
+	function getFileExtensionFromItem(item) {
+		return item.folder ? '' : getFileExtensionFromString(item.name);
+	}
+
+	function getFileExtensionFromString(name) {
+		return name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+	}
+
 	function getFileNameFromContentDisposition(jqXHR) {
 		// inline; filename="toto.txt"
 		var cd = jqXHR.getResponseHeader('Content-Disposition');
@@ -302,6 +310,8 @@ NIMBUS.utils = (function() {
 		isBrowserSupportedAudio: isBrowserSupportedAudio,
 		isBrowserSupportedVideo: isBrowserSupportedVideo,
 		isBrowserSupportedImage: isBrowserSupportedImage,
+		getFileExtensionFromItem: getFileExtensionFromItem,
+		getFileExtensionFromString: getFileExtensionFromString,
 		getFileNameFromContentDisposition: getFileNameFromContentDisposition,
 		uploadFile: uploadFile,
 		updateFile: updateFile 
@@ -316,7 +326,7 @@ NIMBUS.navigation = (function() {
 	// Le nombre d'éléments actuellement sélectionnés (plus rapide que de compter les row.active)
 	var currentSelectionCount = 0;
 	// La propriété du tri en cours
-	var currentSortBy = '';
+	var currentSortProperty = null;
 	// L'ordre du tri en cours, ascendant=true ou descendant=false
 	var currentSortAscending = true;
 	// Le IntersectionObserver qui optimisera le chargement des miniatures au moment où elles deviennent visibles
@@ -914,9 +924,10 @@ NIMBUS.navigation = (function() {
 	/** Trier les éléments quand l'utilisateur clique sur l'en-tête d'une colonne*/
 	function sortItems(event) {
 		var th = $(event.target).closest('th'); // this is a "th"
-		if (!currentSortBy || currentSortBy != th.attr('data-sort')) {
+		var p = th.data('property');
+		if (currentSortProperty === null || currentSortProperty !== p) {
 			// Change sorted column
-			currentSortBy = th.attr('data-sort');
+			currentSortProperty = p;
 			currentSortAscending = true;
 			th.closest('tr').find('i.material-icons').remove();
 			$('<i class="material-icons">keyboard_arrow_up</i>').prependTo(th);
@@ -926,7 +937,7 @@ NIMBUS.navigation = (function() {
 			th.find('i.material-icons').text('keyboard_arrow_down');
 		} else {
 			// Cancel sort to restore default order
-			currentSortBy = '';
+			currentSortProperty = null;
 			currentSortAscending = true;
 			th.find('i.material-icons').remove();
 		}
@@ -988,7 +999,7 @@ NIMBUS.navigation = (function() {
 			}
 		});
 		// Clic sur les en-têtes de colonnes pour modifier le tri
-		$('#items > thead').on('click', 'th[data-sort]', sortItems);
+		$('#items > thead').on('click', 'th.sortable', sortItems);
 		// Clic sur le picto d'un élément (en fait la cellule du picto car plus pratique), on le sélectionne
 		$('#items').on('click', 'tbody tr td.icon', function(event) {
 			// Sélection
@@ -1027,11 +1038,15 @@ NIMBUS.navigation = (function() {
 		// Prise en compte de l'option pour masquer des éléments
 		var showHiddenItems = $('#show-hidden-items').is('.active') ? undefined : false;
 
+		// Prise en compte du tri
+		var sortBy = (currentSortProperty && typeof currentSortProperty.sortBy === 'string') ? currentSortProperty.sortBy : 'name';
+		var sortComparator = (currentSortProperty && typeof currentSortProperty.sortBy === 'function') ? currentSortProperty.sortBy : undefined;
+
 		// Get items from server
 		$.get('/items/list', {
 			parentId: getCurrentPathId(),
 			recursive: $('#search-input').val() ? $('#search-option-recursive').is('.active') : false,
-			sortBy: currentSortBy || 'name',
+			sortBy: sortBy,
 			sortAscending: currentSortAscending,
 			searchBy: null,
 			searchText: searchText,
@@ -1040,6 +1055,15 @@ NIMBUS.navigation = (function() {
 			deleted: false,
 			extensions: searchExtensions
 		}).done(function(items) {
+			if (sortComparator)
+				items.sort(function(i1, i2) {
+					if (i1.folder && !i2.folder)
+						return -1;
+					if (i2.folder && !i1.folder)
+						return 1;
+					var r = sortComparator(i1, i2);
+					return currentSortAscending ? r : -r;
+				});
 			$('#noitems').toggleClass('nimbus-hidden', items.length > 0);
 			$('#itemcount').text(items.length == 0 ? '' : items.length.toString());
 			var optionsMenu = $('#items-options').next();
@@ -1053,14 +1077,14 @@ NIMBUS.navigation = (function() {
 			if (withHeaders) {
 				$('#items thead > tr > th.name').nextAll(':not(.actions)').remove();
 				$(properties.map(function(p) {
-					var th = $('<th />').text(NIMBUS.translate(p.caption));
+					var th = $('<th />').data('property', p).text(NIMBUS.translate(p.caption));
 					if (p.align && (p.align !== 'left'))
 						th.css('text-align', p.align); 
 					if (typeof p.width === 'number')
 						th.css('width', p.width + 'px');
 					if (p.sortBy)
-						th.attr('data-sort', p.sortBy);
-					if (p.sortBy && (p.sortBy === currentSortBy))
+						th.addClass('sortable');
+					if (p === currentSortProperty)
 						$('<i class="material-icons" />').text(currentSortAscending ? 'keyboard_arrow_up' : 'keyboard_arrow_down').prependTo(th);
 					return th[0];
 				})).insertBefore($('#items thead > tr > th.actions'));
@@ -1072,7 +1096,7 @@ NIMBUS.navigation = (function() {
 				// L'élément à afficher
 				var item = items[i];
 				// L'extension associée, si c'est un fichier
-				var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
+				var extension = NIMBUS.utils.getFileExtensionFromItem(item);
 				// La facet qui gère l'affichage de l'élément. Par défaut, on tombera au moins sur "folder" ou "file" 
 				var facet = NIMBUS.plugins.facets.find(function(facet) {
 					return facet.accept(item, extension);
@@ -1141,7 +1165,7 @@ NIMBUS.navigation = (function() {
 	// Clic sur les boutons "...", on affiche les actions possibles
 	function showActionsForItem(item) {
 		// Récupérer l'extension de l'élement concerné
-		var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
+		var extension = NIMBUS.utils.getFileExtensionFromItem(item);
 		// Récupérer la fenêtre modale qui donnera la liste des actions possibles 
 		var dialog = $('#actions-dialog');
 		// Récupérer le parent des entrées de menu qui vont être ajoutées 

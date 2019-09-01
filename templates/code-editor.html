@@ -163,7 +163,7 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 		// Show filename as page title (=> in browser tab)
 		$('title').text(filename);
 		// Extract the file name extension for feature detection
-		var extension = filename.substring(filename.lastIndexOf('.') + 1);
+		var extension = NIMBUS.utils.getFileExtensionFromString(filename);
 		// Get file support definition (shared by 'code.js' into the NIMBUS.utils object)
 		var support = NIMBUS.utils.codeMirrorLoadSupport(extension);
 		// Get CodeMirror configuration options

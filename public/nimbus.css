@@ -38,7 +38,7 @@
 #items .name > .badge { float: right; margin-right: 0.5em;  }
 #items .name > .description { font-size: small; display: inline; }
 #items .actions { width: 50px; text-align: center; }
-#items > thead th[data-sort] { cursor: pointer; }
+#items > thead th.sortable { cursor: pointer; }
 #items > tbody { cursor: pointer; }
 #items > tbody > tr > td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
 #items > tbody > tr:not(.folder) > td.icon > .material-icons { color: gray; }

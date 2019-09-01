@@ -222,6 +222,7 @@ NIMBUS.lang = {
 	CommonPropertyItemCount: "Nombre d'éléments",
 	CommonPropertyIconURL: "URL de l'icône",
 	CommonPropertyLength: "Taille",
+	CommonPropertyExtension: "Extension",
 	CommonPropertyMimetype: "Type MIME",
 	CommonPropertyProgress: "Téléchargement",
 	CommonPropertyStatus: "Statut",

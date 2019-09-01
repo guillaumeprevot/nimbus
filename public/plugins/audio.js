@@ -6,7 +6,7 @@
 			return false;
 		return $.get('/items/list?recursive=false&folders=false&deleted=false&parentId=' + item.id).then(function(items) {
 			lastAudioFolderCheckItems = items.filter(function(item) {
-				var extension = item.name.substring(item.name.lastIndexOf('.') + 1);
+				var extension = NIMBUS.utils.getFileExtensionFromItem(item);
 				return NIMBUS.utils.isBrowserSupportedAudio(item, extension);
 			});
 			return lastAudioFolderCheckItems.length > 0;

@@ -562,7 +562,7 @@ NIMBUS.init(['audio.js'], function() {
 			// Ne conserver que les fichiers audio qu'on pourra jouer dans le navigateur
 			results = results.filter(function(result) {
 				// Récupérer l'extension de l'élement concerné
-				var extension = result.name.substring(result.name.lastIndexOf('.') + 1).toLowerCase();
+				var extension = NIMBUS.utils.getFileExtensionFromItem(result);
 				// Ne conserver que les fichiers audio qu'on pourra jouer dans le navigateur
 				return NIMBUS.utils.isBrowserSupportedAudio(result, extension);
 			});
