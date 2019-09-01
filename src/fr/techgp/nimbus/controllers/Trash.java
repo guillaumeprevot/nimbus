@@ -50,7 +50,7 @@ public class Trash extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Récupérer les éléments
-		List<Item> items = Item.findAll(userLogin, null, true, null, true, null, null, null, true, null);
+		List<Item> items = Item.findAll(userLogin, null, true, null, true, null, null, null, null, true, null);
 		// Retourner la liste en un document JSON
 		if (SparkUtils.queryParamBoolean(request, "pretty", false)) {
 			response.type("application/json");
@@ -106,7 +106,7 @@ public class Trash extends Controller {
 			if (item.folder) {
 				// Pour les dossiers, supprimer récursivement
 				// L'important ici est le paramètre "recursive=true" pour récupèrer toute la descendance en une boucle
-				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, null, null, null, null, null);
+				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, null, null, null, null, null, null);
 				for (Item child : children) {
 					if (! child.folder)
 						Controller.getFile(child).delete();

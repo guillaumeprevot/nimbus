@@ -309,16 +309,19 @@ NIMBUS.utils = (function() {
 })();
 
 NIMBUS.navigation = (function() {
-	//Le div dans lequel on affiche les éléments
+	// Le div dans lequel on affiche les éléments
 	var container = $('#items > tbody');
 	// Le chemin actuel dans l'arborescence
 	var currentPath = [];
-	// Conserve le nombre d'éléments actuellement sélectionnés (plus rapide que de compter les row.active)
+	// Le nombre d'éléments actuellement sélectionnés (plus rapide que de compter les row.active)
 	var currentSelectionCount = 0;
-	// indique la propriété du tri en cours
+	// La propriété du tri en cours
 	var currentSortBy = '';
-	// Indique si le tri est ascendant ou descendant
+	// L'ordre du tri en cours, ascendant=true ou descendant=false
 	var currentSortAscending = true;
+	// Le IntersectionObserver qui optimisera le chargement des miniatures au moment où elles deviennent visibles
+	// https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver
+	var thumbnailObserver = null;
 
 	/** Initialiser le comportement pour l'ajout de dossier */
 	function prepareAddFolder() {
@@ -1004,31 +1007,6 @@ NIMBUS.navigation = (function() {
 		$('#items').on('click', 'tbody tr', clickItem);
 	}
 
-	/**
-	 * Création d'un IntersectionObserver pour optiomiser le chargement des miniatures au moment où elles deviennent visibles
-	 * https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver
-	 */
-	var observer = new IntersectionObserver(function(entries) {
-		entries.forEach(entry => {
-			var img;
-			// Chargement "lazy" dès que la moitié de l'image devient visible 
-			if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && entry.target.classList.contains('lazy')) {
-				// Pour ne pas recommencer si l'utilisateur scroll pendant le chargement
-				entry.target.classList.remove('lazy');
-				// Création de l'image
-				img = $('<img />').attr('src', entry.target.dataset.thumbnail);
-				// Affichage de l'image à la place de l'icône si le chargement fonctionne
-				img.on('load', function() {
-					$(entry.target).replaceWith(img);
-				});
-			}
-		});
-	}, {
-		root: null, // body is scrolling
-		rootMargin: '0px', // body has no margin
-		threshold: 0.5 // trigger callback when at least half the image gets visible
-	});
-
 	/** Raffraichir la grille */
 	function refreshItems(withHeaders) {
 		// Clear previous content
@@ -1036,7 +1014,7 @@ NIMBUS.navigation = (function() {
 		updateSelectionCount(0);
 
 		// Clear previous IntersectionObserver
-		observer.disconnect();
+		thumbnailObserver.disconnect();
 
 		// Get search options
 		var searchText = $('#search-input').val();
@@ -1045,6 +1023,9 @@ NIMBUS.navigation = (function() {
 		var searchExtensions = (searchFiles || !searchText) ? null : $('#search-group .active[data-extensions]').get().map(function(a) { return a.getAttribute('data-extensions'); }).join(',');
 		searchFiles = searchFiles || !!searchExtensions;
 		searchFolders = (searchFolders === searchFiles) ? null : searchFolders ? true : false;
+
+		// Prise en compte de l'option pour masquer des éléments
+		var showHiddenItems = $('#show-hidden-items').is('.active') ? undefined : false;
 
 		// Get items from server
 		$.get('/items/list', {
@@ -1055,16 +1036,16 @@ NIMBUS.navigation = (function() {
 			searchBy: null,
 			searchText: searchText,
 			folders: searchFolders,
+			hidden: showHiddenItems,
 			deleted: false,
 			extensions: searchExtensions
 		}).done(function(items) {
 			$('#noitems').toggleClass('nimbus-hidden', items.length > 0);
 			$('#itemcount').text(items.length == 0 ? '' : items.length.toString());
 			var optionsMenu = $('#items-options').next();
-			var showHiddenItems = optionsMenu.children('[data-option=showHiddenItems]').is('.active');
-			var showItemTags = optionsMenu.children('[data-option=showItemTags]').is('.active');
-			var showItemDescription = optionsMenu.children('[data-option=showItemDescription]').is('.active');
-			var showItemThumbnail = optionsMenu.children('[data-option=showItemThumbnail]').is('.active');
+			var showItemTags = $('#show-item-tags').is('.active');
+			var showItemDescription = $('#show-item-description').is('.active');
+			var showItemThumbnail = $('#show-item-thumbnail').is('.active');
 			var properties = NIMBUS.plugins.properties.filter(function(p) { return optionsMenu.children('[data-property="' + p.name + '"]').is('.active'); });
 			var addLengthToDescription = ! properties.some(function(p) { return p.name === 'length'; });
 
@@ -1090,9 +1071,6 @@ NIMBUS.navigation = (function() {
 			for (var i = 0; i < items.length; i++) {
 				// L'élément à afficher
 				var item = items[i];
-				// Prise en compte de l'option pour masquer des éléments
-				if (item.hidden && !showHiddenItems)
-					continue;
 				// L'extension associée, si c'est un fichier
 				var extension = item.folder ? '' : item.name.substring(item.name.lastIndexOf('.') + 1).toLowerCase();
 				// La facet qui gère l'affichage de l'élément. Par défaut, on tombera au moins sur "folder" ou "file" 
@@ -1107,7 +1085,7 @@ NIMBUS.navigation = (function() {
 				if (thumbnail) {
 					// + affichage d'une miniature vers "thumbnail", en "lazy", si la facet le demande, qui remplacera l'icône si le chargement a fonctionné
 					icon.addClass('lazy').attr('data-thumbnail', thumbnail);
-					observer.observe(icon[0]);
+					thumbnailObserver.observe(icon[0]);
 				}
 
 				// 2ème colonne : nom personnalisable
@@ -1213,6 +1191,28 @@ NIMBUS.navigation = (function() {
 
 	/** Initialiser la page principale */
 	function init(columns, trashCount) {
+		// Préparation du IntersectionObserver qui optimisera le chargement des miniatures au moment où elles deviennent visibles
+		thumbnailObserver = new IntersectionObserver(function(entries) {
+			entries.forEach(entry => {
+				var img;
+				// Chargement "lazy" dès que la moitié de l'image devient visible 
+				if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && entry.target.classList.contains('lazy')) {
+					// Pour ne pas recommencer si l'utilisateur scroll pendant le chargement
+					entry.target.classList.remove('lazy');
+					// Création de l'image
+					img = $('<img />').attr('src', entry.target.dataset.thumbnail);
+					// Affichage de l'image à la place de l'icône si le chargement fonctionne
+					img.on('load', function() {
+						$(entry.target).replaceWith(img);
+					});
+				}
+			});
+		}, {
+			root: null, // body is scrolling
+			rootMargin: '0px', // body has no margin
+			threshold: 0.5 // trigger callback when at least half the image gets visible
+		});
+
 		// Préparation de la grille
 		prepareTable(columns);
 		// Après chargement de la page, se positionner sur l'élément demandé

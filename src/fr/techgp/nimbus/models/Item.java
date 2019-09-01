@@ -220,12 +220,13 @@ public class Item {
 	 * @param searchBy nom de la propriété dans laquelle chercher (par exemple content.artist), on null pour le comportement par défaut (name + tags)
 	 * @param searchText le texte recherché, ou vide par défaut
 	 * @param folders true/false/null pour chercher un dossier, un fichier ou peu importe
+	 * @param hidden true/false/null pour chercher un élément masqué, un élément non masqué ou peu importe
 	 * @param deleted true/false/null pour chercher un élément supprimé, un élément non supprimé ou peu importe
 	 * @param extensions liste des extensions, séparées par "," ou null pour ne pas limiter la recherche
 	 * @return la liste des éléments correspondant à la rechercher
 	 */
 	public static final List<Item> findAll(String userLogin, Long parentId, boolean recursive, String sortBy,
-			boolean sortAscending, String searchBy, String searchText, Boolean folders, Boolean deleted, String extensions) {
+			boolean sortAscending, String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions) {
 		// Filtres de la recherche
 		List<Bson> filters = new ArrayList<>(3);
 		filters.add(Filters.eq("userLogin", userLogin));
@@ -254,6 +255,12 @@ public class Item {
 		// Dossiers, Fichiers ou tout
 		if (folders != null)
 			filters.add(Filters.eq("folder", folders.booleanValue()));
+
+		// Masqués, non masqués ou tout
+		if (Boolean.TRUE.equals(hidden))
+			filters.add(Filters.eq("hidden", true)); // hidden=true
+		else if (Boolean.FALSE.equals(hidden))
+			filters.add(Filters.ne("hidden", true)); // hidden=false ou hidden=absent
 
 		// Eléments supprimés, non supprimés ou tout
 		if (deleted != null)
