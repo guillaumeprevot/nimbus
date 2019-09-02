@@ -41,15 +41,31 @@
 			</a>
 			<a class="dropdown-item" href="#" onclick="$('#add-file-input').click();">
 				<i class="material-icons">cloud_upload</i>
-				<span data-translate="text">MainToolbarUploadFile</span>
-			</a>
-			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#touch-file-dialog">
-				<i class="material-icons">note_add</i>
-				<span data-translate="text">MainToolbarTouchFile</span>
+				<span data-translate="text">MainToolbarUploadFiles</span>
 			</a>
 			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#add-url-dialog">
 				<i class="material-icons">link</i>
 				<span data-translate="text">MainToolbarDownloadURL</span>
+			</a>
+			<a class="dropdown-item" href="#" data-target="#touch-file-dialog">
+				<i class="material-icons">note_add</i>
+				<span data-translate="text">MainToolbarTouchFile</span>
+			</a>
+			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="txt" data-touch-editor="text-editor.html">
+				<i class="material-icons">subject</i>
+				<span data-translate="text">MainToolbarAddTextFile</span>
+			</a>
+			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="note" data-touch-editor="note-editor.html">
+				<i class="material-icons">art_track</i>
+				<span data-translate="text">MainToolbarAddNote</span>
+			</a>
+			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="secret" data-touch-editor="secret-editor.html">
+				<i class="material-icons">lock</i>
+				<span data-translate="text">MainToolbarAddSecretNote</span>
+			</a>
+			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="markdown" data-touch-editor="markdown-editor.html">
+				<i class="material-icons">list_alt</i>
+				<span data-translate="text">MainToolbarAddMarkdownNote</span>
 			</a>
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="/preferences.html">
@@ -107,7 +123,9 @@
 					<div class="dropdown-divider"></div>
 					<a href="#" data-translate="text" class="dropdown-item" id="search-option-folders">MainSearchInFolders</a>
 					<a href="#" data-translate="text" class="dropdown-item" id="search-option-files">MainSearchInFiles</a>
-					<a href="#" data-translate="text" class="dropdown-item" data-extensions="appcache,css,csv,html,html,js,json,less,md,md5,sha1,sha256,sha512,ts,txt,xml">MainSearchInTextFiles</a>
+					<a href="#" data-translate="text" class="dropdown-item" data-extensions="application">MainSearchInApplications</a>
+					<a href="#" data-translate="text" class="dropdown-item" data-extensions="url">MainSearchInShortcuts</a>
+					<a href="#" data-translate="text" class="dropdown-item" data-extensions="note,secret,appcache,css,csv,html,html,js,json,less,markdown,md,md5,sha1,sha256,sha512,ts,txt,xml">MainSearchInTextFiles</a>
 					<a href="#" data-translate="text" class="dropdown-item" data-extensions="aac,m3u,mid,midi,mp3,oga,ogg,wav,weba,wma">MainSearchInAudio</a>
 					<a href="#" data-translate="text" class="dropdown-item" data-extensions="3gp,avi,m4a,mkv,mov,mp4,mpeg,mpg,ogv,webm,wmv">MainSearchInVideo</a>
 					<a href="#" data-translate="text" class="dropdown-item" data-extensions="bmp,gif,ico,jpeg,jpg,png,svg,webp">MainSearchInImage</a>
@@ -206,7 +224,10 @@
 				<fieldset>
 					<div class="form-group">
 						<label for="touch-file-name" data-translate="text">MainTouchFileNameLabel</label>
-						<input id="touch-file-name" class="form-control" data-translate="placeholder" autofocus="autofocus" name="name" type="text" maxlength="128" placeholder="MainTouchFileNamePlaceholder" />
+						<div class="input-group">
+							<input id="touch-file-name" class="form-control" data-translate="placeholder" autofocus="autofocus" name="name" type="text" maxlength="128" placeholder="MainTouchFileNamePlaceholder" />
+							<div class="input-group-append"><span class="input-group-text"></span></div>
+						</div>
 						<div class="invalid-feedback" data-translate="text">MainTouchFileNameConflictErrorMessage</div>
 					</div>
 				</fieldset>
@@ -228,14 +249,14 @@
 			<div class="modal-body">
 				<fieldset>
 					<div class="form-group">
-						<label for="add-url-name" data-translate="text">MainAddURLNameLabel</label>
-						<input id="add-url-name" class="form-control" data-translate="placeholder" autofocus="autofocus" name="name" type="text" maxlength="128" placeholder="MainAddURLNamePlaceholder" />
-						<div class="invalid-feedback" data-translate="text">MainAddURLNameConflictErrorMessage</div>
+						<label for="add-url-input" data-translate="text">MainAddURLInputLabel</label>
+						<input id="add-url-input" class="form-control" data-translate="placeholder" autofocus="autofocus" name="input" type="text" maxlength="128" required="required" placeholder="MainAddURLInputPlaceholder" />
+						<div class="invalid-feedback" data-translate="text">MainAddURLInsufficientStorage</div>
 					</div>
 					<div class="form-group">
-						<label for="add-url-input" data-translate="text">MainAddURLInputLabel</label>
-						<input id="add-url-input" class="form-control" data-translate="placeholder" name="input" type="text" maxlength="128" required="required" placeholder="MainAddURLInputPlaceholder" />
-						<div class="invalid-feedback" data-translate="text">MainAddURLInsufficientStorage</div>
+						<label for="add-url-name" data-translate="text">MainAddURLNameLabel</label>
+						<input id="add-url-name" class="form-control" data-translate="placeholder" name="name" type="text" maxlength="128" placeholder="MainAddURLNamePlaceholder" />
+						<div class="invalid-feedback" data-translate="text">MainAddURLNameConflictErrorMessage</div>
 					</div>
 				</fieldset>
 			</div>
@@ -379,8 +400,15 @@
 
 <script>
 
+// Récupérer la liste des plugins demandés
+var plugins = [<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>];
+if (plugins.indexOf('text.js') === -1) $('[data-touch-extension="txt"]').hide();
+if (plugins.indexOf('note.js') === -1) $('[data-touch-extension="note"]').hide();
+if (plugins.indexOf('secret.js') === -1) $('[data-touch-extension="secret"]').hide();
+if (plugins.indexOf('markdown.js') === -1) $('[data-touch-extension="markdown"]').hide();
+
 //Initialiser la page
-NIMBUS.init([<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>], function() {
+NIMBUS.init(plugins, function() {
 	// Chargement des propriétés disponibles
 	var columns = [<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>];
 	// Chargement des extensions des fichiers texte

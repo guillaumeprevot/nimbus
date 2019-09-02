@@ -432,6 +432,8 @@ NIMBUS.navigation = (function() {
 		var dialog = $('#touch-file-dialog');
 		var input = $('#touch-file-name');
 		var validateButton = $('#touch-file-validate-button');
+		var touchExtension;
+		var touchEditor;
 		// Initialiser le statut de la fenêtre à l'ouverture
 		dialog.on('show.bs.modal', function() {
 			input.val('').removeClass('is-invalid');
@@ -444,17 +446,37 @@ NIMBUS.navigation = (function() {
 		// Validation de la fenêtre
 		validateButton.click(function() {
 			var name = input.val();
-			if (name.indexOf('.') === -1)
-				name = name + '.txt';
+			if (touchExtension)
+				name = name + '.' + touchExtension;
 			$.post('/files/touch', {
 				parentId: getCurrentPathId(),
 				name: name
 			}).fail(function() {
 				input.addClass('is-invalid');
 			}).done(function(idString) {
-				refreshItems(false);
-				dialog.modal('hide');
+				if (touchEditor) {
+					window.location.assign('/' + touchEditor + '?' + $.param({
+						itemId: idString,
+						fromUrl: window.location.href,
+						fromTitle: $('title').text()
+					}));
+				} else {
+					refreshItems(false);
+					dialog.modal('hide');
+				}
 			});
+		});
+		$('#menu-button').next().on('click', '[data-target="#touch-file-dialog"]', function(event) {
+			var entry = $(event.target).closest('[data-target]');
+			touchExtension = entry.attr('data-touch-extension');
+			touchEditor = entry.attr('data-touch-editor');
+			if (touchExtension) {
+				input.parent().addClass('input-group').find('.input-group-text').text('.' + touchExtension).parent().show();
+			} else {
+				input.parent().removeClass('input-group').find('.input-group-append').hide();
+			}
+			dialog.find('.modal-title').text(entry.children('span').text());
+			dialog.modal('show');
 		});
 	}
 
@@ -1038,7 +1060,7 @@ NIMBUS.navigation = (function() {
 		// Prise en compte de l'option pour masquer des éléments
 		var showHiddenItems = $('#show-hidden-items').is('.active') ? undefined : false;
 
-		// Prise en compte du tri
+		// Prise en compte du tri (sortBy côté MongoDB ou sortComparator côté client)
 		var sortBy = (currentSortProperty && typeof currentSortProperty.sortBy === 'string') ? currentSortProperty.sortBy : 'name';
 		var sortComparator = (currentSortProperty && typeof currentSortProperty.sortBy === 'function') ? currentSortProperty.sortBy : undefined;
 
@@ -1055,7 +1077,8 @@ NIMBUS.navigation = (function() {
 			deleted: false,
 			extensions: searchExtensions
 		}).done(function(items) {
-			if (sortComparator)
+			// Prise en compte du tri (sortBy côté MongoDB ou sortComparator côté client)
+			if (sortComparator) {
 				items.sort(function(i1, i2) {
 					if (i1.folder && !i2.folder)
 						return -1;
@@ -1064,6 +1087,7 @@ NIMBUS.navigation = (function() {
 					var r = sortComparator(i1, i2);
 					return currentSortAscending ? r : -r;
 				});
+			}
 			$('#noitems').toggleClass('nimbus-hidden', items.length > 0);
 			$('#itemcount').text(items.length == 0 ? '' : items.length.toString());
 			var optionsMenu = $('#items-options').next();
