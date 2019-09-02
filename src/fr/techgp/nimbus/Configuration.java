@@ -192,13 +192,13 @@ public class Configuration {
 	 * @return le type MIME pour cette extension
 	 */
 	public final String getMimeType(String extension) {
-		if (StringUtils.isBlank(extension))
-			return null;
-		String result = this.mimetypes.get(extension);
-		if (result != null)
-			return result;
-		if (this.textFileExtensions.contains(extension))
-			return "text/plain";
+		if (StringUtils.isNotBlank(extension)) {
+			String result = this.mimetypes.get(extension);
+			if (result != null)
+				return result;
+			if (this.textFileExtensions.contains(extension))
+				return "text/plain";
+		}
 		return "application/octet-stream";
 	}
 
