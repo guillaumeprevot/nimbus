@@ -31,7 +31,7 @@
 		</div>
 
 		<div class="btn-group">
-			<button type="button" class="btn btn-link play-toggle" data-translate="title" title="VideoPause">
+			<button type="button" class="btn btn-link play-toggle active" data-translate="title" title="VideoPause">
 				<i class="material-icons">pause_circle_outline</i>
 				<i class="material-icons">play_circle_outline</i>
 			</button>
@@ -234,7 +234,7 @@ NIMBUS.init(['video.js'], function() {
 
 	// On lance la vidéo
 	video.src = '/files/stream/${itemId}';
-	video.play();
+	//video.play();
 
 	// Get video info to get subtitles
 	$.get('/items/info/${itemId}').then(function(item) {
