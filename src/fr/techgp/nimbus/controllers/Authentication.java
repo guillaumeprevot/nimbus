@@ -1,12 +1,14 @@
 package fr.techgp.nimbus.controllers;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+import org.apache.commons.io.FilenameUtils;
 
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import spark.ModelAndView;
 import spark.Request;
 import spark.Route;
 
@@ -24,8 +26,7 @@ public class Authentication extends Controller {
 		boolean logout = Boolean.TRUE.equals(request.session().attribute("logout"));
 		request.session().removeAttribute("logout");
 		request.session().removeAttribute("urlToLoad");
-		Map<String, Object> attributes = attributes(request, false, logout, urlToLoad);
-		return Controller.templateEngine.render(new ModelAndView(attributes, "login.html"));
+		return renderLoginPage(request, false, logout, urlToLoad);
 	};
 
 	/**
@@ -46,8 +47,7 @@ public class Authentication extends Controller {
 		if (error != null) {
 			if (logger.isWarnEnabled())
 				logger.warn("Authentification échouée (" + login + " / " + request.ip() + ") : " + error);
-			Map<String, Object> attributes = attributes(request, true, false, urlToLoad);
-			return Controller.templateEngine.render(new ModelAndView(attributes, "login.html"));
+			return renderLoginPage(request, true, false, urlToLoad);
 		}
 		request.session().attribute("userLogin", login);
 		response.redirect(urlToLoad);
@@ -66,16 +66,34 @@ public class Authentication extends Controller {
 		return null;
 	};
 
-	private static final Map<String, Object> attributes(Request request, boolean error, boolean logout, String urlToLoad) {
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.put("lang", SparkUtils.getRequestLang(request));
-		attributes.put("theme", getUserTheme(request));
-		attributes.put("login", StringUtils.withDefault(request.queryParams("login"), ""));
-		attributes.put("urlToLoad", StringUtils.withDefault(urlToLoad, "/"));
-		attributes.put("error", error);
-		attributes.put("logout", logout);
-		attributes.put("install", User.count() == 0);
-		return attributes;
-	}
+	/**
+	 * Cette route renvoie l'image de fond de la page de login, si cette image est définie.
+	 * 
+	 * () => image
+	 */
+	public static final Route background = (request, response) -> {
+		String background = configuration.getClientLoginBackground();
+		if (StringUtils.isBlank(background))
+			return SparkUtils.haltNotFound();
+		File file = new File(configuration.getStorageFolder(), background);
+		if (!file.exists())
+			return SparkUtils.haltNotFound();
+		String extension = FilenameUtils.getExtension(background).toLowerCase();
+		String mimetype = configuration.getMimeType(extension);
+		try (InputStream stream = new FileInputStream(file)) {
+			return SparkUtils.renderStream(response, mimetype, stream);
+		}
+	};
 
+	private static final String renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {
+		return renderTemplate("login.html",
+				"lang", SparkUtils.getRequestLang(request),
+				"theme", getUserTheme(request),
+				"background", StringUtils.isNotBlank(configuration.getClientLoginBackground()),
+				"login", StringUtils.withDefault(request.queryParams("login"), ""),
+				"urlToLoad", StringUtils.withDefault(urlToLoad, "/"),
+				"error", error,
+				"logout", logout,
+				"install", User.count() == 0);
+	}
 }

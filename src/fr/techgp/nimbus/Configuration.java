@@ -36,6 +36,7 @@ public class Configuration {
 
 	private final File storageFolder;
 	private final String clientDefaultTheme;
+	private final String clientLoginBackground;
 	private final String[] clientPlugins;
 	private final int clientQuotaWarning;
 	private final int clientQuotaDanger;
@@ -68,6 +69,7 @@ public class Configuration {
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "light");
+		this.clientLoginBackground = getString("client.login.background", null);
 		this.clientPlugins = getString("client.plugins", "default-before,note,application,secret,epub,pdf,video,audio,image,markdown,code,text,windows-shortcut,default-open,default-after").split(",");
 		this.clientQuotaWarning = getInt("client.quota.warning", 75);
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
@@ -157,6 +159,10 @@ public class Configuration {
 
 	public String getClientDefaultTheme() {
 		return this.clientDefaultTheme;
+	}
+
+	public String getClientLoginBackground() {
+		return this.clientLoginBackground;
 	}
 
 	public String[] getClientPlugins() {

@@ -14,6 +14,8 @@
 </head>
 <body class="nimbus-hidden">
 
+<img id="background" class="nimbus-hidden" style="position: fixed; width: 100%; height: 100%; z-index: -2; object-fit: cover; opacity: 0.6; " />
+
 <form action="/login.html" method="post" style="display: block; width: 400px; max-width: 100%; margin: 0 auto; padding: 40px; ">
 	<fieldset>
 		<#if install>
@@ -62,6 +64,9 @@ NIMBUS.init([], function() {
 
 	// Donner le focus à la première entrée éditable
 	$('#login').focus();
+
+	// Charger l'image de fond si elle est paramétrée
+	<#if background>$('#background').attr('src', '/login/background').on('load', function() { this.className = ''; });</#if>
 });
 </script>
 </body>

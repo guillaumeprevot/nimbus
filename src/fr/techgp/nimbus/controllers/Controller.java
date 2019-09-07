@@ -56,6 +56,7 @@ public class Controller {
 			});
 		});
 
+		Spark.get("/login/background", Authentication.background); // URL publique
 		Spark.get("/login.html", Authentication.page); // URL publique
 		Spark.post("/login.html", Authentication.login); // URL publique
 		Spark.get("/logout", Authentication.logout); // URL publique
