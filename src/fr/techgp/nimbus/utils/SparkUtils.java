@@ -31,6 +31,11 @@ public final class SparkUtils {
 		//
 	}
 
+	public static final Object haltNotModified() {
+		Spark.halt(HttpServletResponse.SC_NOT_MODIFIED, ""); // 304
+		return null;
+	}
+
 	public static final Object haltBadRequest() {
 		Spark.halt(HttpServletResponse.SC_BAD_REQUEST, "Bad Request"); // 400
 		return null;
@@ -51,13 +56,13 @@ public final class SparkUtils {
 		return null;
 	}
 
-	public static final Object haltInternalServerError() {
-		Spark.halt(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error"); // 500
+	public static final Object haltConflict() {
+		Spark.halt(HttpServletResponse.SC_CONFLICT, "Conflict"); // 409
 		return null;
 	}
 
-	public static final Object haltConflict() {
-		Spark.halt(HttpServletResponse.SC_CONFLICT, "Conflict"); // 409
+	public static final Object haltInternalServerError() {
+		Spark.halt(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error"); // 500
 		return null;
 	}
 

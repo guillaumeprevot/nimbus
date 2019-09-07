@@ -40,6 +40,8 @@ public class Controller {
 
 		Spark.redirect.get("/", "/nav");
 
+		Spark.before("/*", new StaticFiles(configuration, "public"));
+
 		Spark.before("/nav", Filters.filterAuthenticatedOrRedirect);
 		Spark.before("/nav/*", Filters.filterAuthenticatedOrRedirect);
 		Spark.get("/nav", (request, response) -> nav(request));

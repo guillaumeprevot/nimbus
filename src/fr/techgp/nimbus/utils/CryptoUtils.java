@@ -1,6 +1,8 @@
 package fr.techgp.nimbus.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -249,6 +251,20 @@ public final class CryptoUtils {
 		for (int i = 0; i < a1.length && i < a2.length; i++)
 			diff |= a1[i] ^ a2[i];
 		return diff == 0;
+	}
+
+	/**
+	 * Calcule la checksum SHA-1 de la chaine donnée et renvoie la représentation en héxa du résultat
+	 */
+	public static final String sha1Hex(String value) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-1");
+			digest.update(value.getBytes(StandardCharsets.UTF_8));
+			byte[] digestBytes = digest.digest();
+			return bytes2string(digestBytes);
+		} catch (NoSuchAlgorithmException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 }

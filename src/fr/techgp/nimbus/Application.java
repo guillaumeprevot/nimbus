@@ -43,8 +43,10 @@ public class Application {
 			// Prepare MongoDB
 			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
 
+			// Replaced by the custom StaticFiles filter to deal with cache
+			// Spark.externalStaticFileLocation("public");
+
 			// Prepare server
-			Spark.externalStaticFileLocation("public");
 			if (configuration.getServerKeystore() != null)
 				Spark.secure(configuration.getServerKeystore(), configuration.getServerKeystorePassword(), null, null);
 			Spark.port(configuration.getServerPort());
