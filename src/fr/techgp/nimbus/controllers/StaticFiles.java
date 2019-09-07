@@ -29,9 +29,13 @@ public class StaticFiles implements Filter {
 
 	private static final DateFormat CACHE_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
 
+	private synchronized static final String formatHTTPDate(Date date) {
+		return CACHE_DATE_FORMAT.format(date); 
+	}
+
 	private final Configuration configuration;
 	private final ExternalResourceHandler handler;
-	
+
 	public StaticFiles(Configuration configuration, String folder) {
 		if (StringUtils.isBlank(folder))
 			throw new InvalidParameterException("'folder' is required");
@@ -50,11 +54,11 @@ public class StaticFiles implements Filter {
 		File file = r.getFile();
 		if (!file.isFile())
 			return;
-		System.out.println(file.getAbsolutePath());
+		// System.out.println(file.getAbsolutePath());
 
 		// Si le fichier est présent, sa date de modification sert comme date pour le cache
 		Date fileDate = new Date(file.lastModified());
-		String lastModified = CACHE_DATE_FORMAT.format(fileDate);
+		String lastModified = formatHTTPDate(fileDate);
 		String etag = CryptoUtils.sha1Hex(lastModified);
 
 		// En-têtes correspondantes aux infos calculées du cache

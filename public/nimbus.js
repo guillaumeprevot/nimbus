@@ -42,7 +42,13 @@ var NIMBUS = (function() {
 			var chain = defer;
 			plugins.forEach(function(name) {
 				chain = chain.then(function() {
-					return $.getScript('/plugins/' + name);
+					// $.getScript ne permet pas la mise en cache. On utilise $.ajax plutôt
+					// Plus d'infos ici : https://api.jquery.com/jQuery.getScript/#caching-requests
+					return $.ajax({
+						dataType: 'script',
+						cache: true,
+						url: '/plugins/' + name
+					});
 				});
 			});
 			defer.resolve('Go!');
