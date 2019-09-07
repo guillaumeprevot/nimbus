@@ -13,20 +13,6 @@ import spark.Route;
 public class Preferences extends Controller {
 
 	/**
-	 * Cette route redirige vers la feuille CSS appropriée : le thème souhaité ou Bootstrap par défaut
-	 * 
-	 * ($theme) => redirect
-	 */
-	public static final Route stylesheet = (request, response) -> {
-		String theme = getUserTheme(request);
-		if ("dark".equals(theme))
-			response.redirect("/libs/bootswatch/darkly.min.css");
-		else
-			response.redirect("/libs/bootswatch/flatly.min.css");
-		return null;
-	};
-
-	/**
 	 * Cette route permet de modifier le thème pour la session en cours
 	 * 
 	 * (theme) => ""
@@ -45,9 +31,8 @@ public class Preferences extends Controller {
 		// Récupérer l'utilisateur connecté
 		User user = User.findByLogin(request.session().attribute("userLogin"));
 		// Générer la page
-		return renderTemplate("preferences.html",
+		return renderTemplate(request, "preferences.html",
 				"fromUrl", request.headers("Referer"),
-				"lang", SparkUtils.getRequestLang(request),
 				"plugins", configuration.getClientPlugins(),
 				"name", user.name,
 				"showHiddenItems", user.showHiddenItems,

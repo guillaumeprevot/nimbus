@@ -44,6 +44,7 @@ var NIMBUS = (function() {
 				chain = chain.then(function() {
 					// $.getScript ne permet pas la mise en cache. On utilise $.ajax plutôt
 					// Plus d'infos ici : https://api.jquery.com/jQuery.getScript/#caching-requests
+					// Fonctionne sous Firefox mais pas sous Chrome car il n'envoie pas les en-tête HTTP nécessaires
 					return $.ajax({
 						dataType: 'script',
 						cache: true,

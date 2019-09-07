@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
-<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="${stylesheet}" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <#if markdown && highlighter == "prism"><link type="text/css" rel="stylesheet" href="/libs/prism/prism.min.css" /></#if>
 <#if markdown && highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" /></#if>
@@ -216,7 +216,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirr
 				+ '\n\t<head>'
 				+ '\n\t\t<title>' + filename + '</title>'
 				+ '\n\t\t<meta charset="UTF-8">'
-				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/preferences/theme.css" />'
+				+ '\n\t\t<link rel="stylesheet" href="${baseURL}${stylesheet}" />'
 				<#if highlighter == "prism">
 				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/libs/prism/prism.min.css" />'
 				+ '\n\t\t<script type="text/javascript" src="${baseURL}/libs/prism/prism.min.js"><' + '/script>'

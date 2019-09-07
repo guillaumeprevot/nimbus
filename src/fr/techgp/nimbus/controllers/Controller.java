@@ -121,7 +121,6 @@ public class Controller {
 
 		Spark.before("/preferences.html", Filters.filterAuthenticatedOrRedirect);
 		Spark.before("/preferences/save", Filters.filterAuthenticated);
-		Spark.get("/preferences/theme.css", Preferences.stylesheet); // URL publique
 		Spark.get("/preferences/theme", Preferences.theme); // URL publique
 		Spark.get("/preferences.html", Preferences.page);
 		Spark.post("/preferences/save", Preferences.save);
@@ -153,7 +152,7 @@ public class Controller {
 			Mongo.reset(true);
 			request.session().removeAttribute("userLogin");
 			request.session().removeAttribute("theme");
-			return renderTemplate("test.html",
+			return renderTemplate(request, "test.html",
 					"serverAbsoluteUrl", configuration.getServerAbsoluteUrl());
 		});
 	}
@@ -161,10 +160,8 @@ public class Controller {
 	private static final Object nav(Request request) {
 		String login = request.session().attribute("userLogin");
 		User user = User.findByLogin(login);
-		return renderTemplate("main.html",
-				"lang", SparkUtils.getRequestLang(request),
+		return renderTemplate(request, "main.html",
 				"plugins", configuration.getClientPlugins(),
-				"theme", getUserTheme(request),
 				"name", StringUtils.withDefault(user.name, user.login),
 				"admin", user.admin,
 				"trashCount", Item.trashCount(login),
@@ -212,18 +209,18 @@ public class Controller {
 	 * @param paramAndValues une suite de paramètres "name1:String, value1, name2:String, value2, ..."
 	 * @return le texte issu de la génération du template
 	 */
-	protected static final String renderTemplate(String name, Object... paramAndValues) {
-		Object model;
-		if (paramAndValues.length == 1)
-			model = paramAndValues;
-		else {
-			Map<String, Object> attributes = new HashMap<>();
-			for (int i = 0; i < paramAndValues.length; i += 2) {
-				attributes.put((String) paramAndValues[i], paramAndValues[i + 1]);
-			}
-			model = attributes;
+	protected static final String renderTemplate(Request request, String name, Object... paramAndValues) {
+		String theme = getUserTheme(request);
+
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put("lang", SparkUtils.getRequestLang(request));
+		attributes.put("theme", theme);
+		attributes.put("stylesheet", "dark".equals(theme) ? "/libs/bootswatch/darkly.min.css" : "/libs/bootswatch/flatly.min.css");
+
+		for (int i = 0; i < paramAndValues.length; i += 2) {
+			attributes.put((String) paramAndValues[i], paramAndValues[i + 1]);
 		}
-		return Controller.templateEngine.render(new ModelAndView(model, name));
+		return Controller.templateEngine.render(new ModelAndView(attributes, name));
 	}
 
 	/**

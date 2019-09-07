@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
-<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="${stylesheet}" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
@@ -347,7 +347,7 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 
 		// Bouton d'impression
 		$('#printButton').click(function(event) {
-			var style = $('link[href$="theme.css"]')[0].href;
+			var style = '${baseURL}${stylesheet}';
 			var html = '<!DOCTYPE html>'
 				+ '\n<html>'
 				+ '\n  <head>'

@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.io.EofException;
 
 import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.utils.CryptoUtils;
@@ -79,9 +80,12 @@ public class StaticFiles implements Filter {
 				String mimetype = this.configuration.getMimeType(extension);
 				response.type(mimetype != null ? mimetype : "application/octet-stream");
 				// Envoyer le fichier demandé
+				// System.out.println("sending file for " + file.getAbsolutePath());
 				try (InputStream is = r.getInputStream();
 						OutputStream os = response.raw().getOutputStream()/*GzipUtils.checkAndWrap(request.raw(), response.raw(), false)*/) {
 					IOUtils.copy(is, os);
+				} catch (EofException ex) {
+					// Requête interrompue par le client
 				}
 				Spark.halt();
 				return;
@@ -89,6 +93,7 @@ public class StaticFiles implements Filter {
 		}
 
 		// OK, la donnée en cache semble à jour, on renvoie le statut 304 (Not Modified)
+		// System.out.println("using cache for " + file.getAbsolutePath());
 		response.header("Content-Length", "0");
 		SparkUtils.haltNotModified();
 	}

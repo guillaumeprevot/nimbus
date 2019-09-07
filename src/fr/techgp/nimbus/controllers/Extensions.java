@@ -12,11 +12,10 @@ public class Extensions extends Controller {
 	 */
 	public static final Route epub = (request, response) -> {
 		// Générer la page
-		return renderTemplate("epub.html",
+		return renderTemplate(request, "epub.html",
 				"url", SparkUtils.queryParamUrl(request, "url", ""),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -26,11 +25,10 @@ public class Extensions extends Controller {
 	 */
 	public static final Route pdf = (request, response) -> {
 		// Générer la page
-		return renderTemplate("pdf.html",
+		return renderTemplate(request, "pdf.html",
 				"url", SparkUtils.queryParamUrl(request, "url", ""),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -40,11 +38,10 @@ public class Extensions extends Controller {
 	 */
 	public static final Route video = (request, response) -> {
 		// Générer la page
-		return renderTemplate("video.html",
+		return renderTemplate(request, "video.html",
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -54,10 +51,9 @@ public class Extensions extends Controller {
 	 */
 	public static final Route audio = (request, response) -> {
 		// Générer la page
-		return renderTemplate("audio.html",
+		return renderTemplate(request, "audio.html",
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -67,13 +63,12 @@ public class Extensions extends Controller {
 	 */
 	public static final Route diaporama = (request, response) -> {
 		// Générer la page
-		return renderTemplate("diaporama.html",
+		return renderTemplate(request, "diaporama.html",
 				"ids", SparkUtils.queryParamString(request, "ids", ""),
 				"play", SparkUtils.queryParamBoolean(request, "play", false),
 				"selection", SparkUtils.queryParamString(request, "selection", ""),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -83,13 +78,12 @@ public class Extensions extends Controller {
 	 */
 	public static final Route textEditor = (request, response) -> {
 		// Générer la page
-		return renderTemplate("text-editor.html",
+		return renderTemplate(request, "text-editor.html",
 				"markdown", false,
 				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -99,14 +93,13 @@ public class Extensions extends Controller {
 	 */
 	public static final Route markdownEditor = (request, response) -> {
 		// Générer la page
-		return renderTemplate("text-editor.html",
+		return renderTemplate(request, "text-editor.html",
 				"markdown", true,
 				"highlighter", SparkUtils.queryParamString(request, "highlighter", configuration.getClientCodeHighlighter()),
 				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -116,12 +109,11 @@ public class Extensions extends Controller {
 	 */
 	public static final Route noteEditor = (request, response) -> {
 		// Générer la page
-		return renderTemplate("note-editor.html",
+		return renderTemplate(request, "note-editor.html",
 				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -131,12 +123,10 @@ public class Extensions extends Controller {
 	 */
 	public static final Route codeEditor = (request, response) -> {
 		// Générer la page
-		return renderTemplate("code-editor.html",
+		return renderTemplate(request, "code-editor.html",
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"theme", getUserTheme(request),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 	/**
@@ -146,12 +136,10 @@ public class Extensions extends Controller {
 	 */
 	public static final Route secretEditor = (request, response) -> {
 		// Générer la page
-		return renderTemplate("secret-editor.html",
+		return renderTemplate(request, "secret-editor.html",
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""),
-				"theme", getUserTheme(request),
-				"lang", SparkUtils.getRequestLang(request));
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
 }

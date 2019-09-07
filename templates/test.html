@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
-<link type="text/css" rel="stylesheet" href="/preferences/theme.css" />
+<link type="text/css" rel="stylesheet" href="${stylesheet}" />
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 </head>
 <body>
@@ -173,13 +173,13 @@ function fillTests(add) {
 		return $.get("/preferences/theme?theme=light").then(assertEmpty);
 	});
 	add("Vérifier que le thème utilisé est 'flatly'", function() {
-		return $.get("/preferences/theme.css").then((result) => assertString(result, "https://bootswatch.com", true, "--blue: #2C3E50", true, "--blue: #375a7f", false));
+		return $.get("/").then((result) => assertString(result, "/libs/bootswatch/flatly.min.css", true, "/libs/bootswatch/darkly.min.css", false));
 	});
 	add("Activer le thème 'dark'", function() {
 		return $.get("/preferences/theme?theme=dark").then(assertEmpty);
 	});
 	add("Vérifier que le thème utilisé est 'darkly'", function() {
-		return $.get("/preferences/theme.css").then((result) => assertString(result, "https://bootswatch.com", true, "--blue: #2C3E50", false, "--blue: #375a7f", true));
+		return $.get("/").then((result) => assertString(result, "/libs/bootswatch/flatly.min.css", false, "/libs/bootswatch/darkly.min.css", true));
 	});
 
 	add("Bloquer l'accès à la page principale sans identification", function() {

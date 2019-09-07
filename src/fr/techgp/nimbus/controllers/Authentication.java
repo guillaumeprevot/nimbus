@@ -86,9 +86,7 @@ public class Authentication extends Controller {
 	};
 
 	private static final String renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {
-		return renderTemplate("login.html",
-				"lang", SparkUtils.getRequestLang(request),
-				"theme", getUserTheme(request),
+		return renderTemplate(request, "login.html",
 				"background", StringUtils.isNotBlank(configuration.getClientLoginBackground()),
 				"login", StringUtils.withDefault(request.queryParams("login"), ""),
 				"urlToLoad", StringUtils.withDefault(urlToLoad, "/"),

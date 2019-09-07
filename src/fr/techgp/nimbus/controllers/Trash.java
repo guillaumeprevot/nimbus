@@ -20,9 +20,8 @@ public class Trash extends Controller {
 	 * () => HTML
 	 */
 	public static final Route page = (request, response) -> {
-		return renderTemplate("trash.html",
-				"fromUrl", request.headers("Referer"),
-				"lang", SparkUtils.getRequestLang(request));
+		return renderTemplate(request, "trash.html",
+				"fromUrl", request.headers("Referer"));
 	};
 
 	/**
