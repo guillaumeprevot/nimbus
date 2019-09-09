@@ -995,23 +995,42 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Préparer la table principale */
-	function prepareTable(columns) {
+	function prepareTable(options, autosave) {
+		// Chargement des préférences d'affichage éventuellement sauvegardées localement dans le navigateur
+		if (autosave)
+			options = JSON.parse(localStorage.getItem('navigation') || 'null') || options;
+		// Options d'affichage
+		var optionsMenu = $('#items-options').next();
+		$('#show-hidden-items').toggleClass('active', options.showHiddenItems);
+		$('#show-item-tags').toggleClass('active', options.showItemTags);
+		$('#show-item-description').toggleClass('active', options.showItemDescription);
+		$('#show-item-thumbnail').toggleClass('active', options.showItemThumbnail);
 		// Liste des colonnes disponibles
-		$('#items-options').next().append(NIMBUS.plugins.properties.map(function(p) {
+		optionsMenu.append(NIMBUS.plugins.properties.map(function(p) {
 			return $('<a class="dropdown-item" href="#"></a>')
 				.attr('data-property', p.name)
 				.text(NIMBUS.translate(p.caption))
-				.toggleClass('active', columns.indexOf(p.name) >= 0)
+				.toggleClass('active', options.columns.indexOf(p.name) >= 0)
 				.get(0);
 		}));
 		// Clic sur une des options de la grille
-		$('#items-options').next().on('click', '.dropdown-item', function(event) {
+		optionsMenu.on('click', '.dropdown-item', function(event) {
 			// Ne pas toucher au hash de l'URL
 			event.preventDefault();
 			// Inverser la sélection de l'option
 			$(event.target).closest('.dropdown-item').toggleClass('active');
 			// Raffraichir la grille avec les nouvelles options
 			refreshItems(true);
+			// Sauvegarder les préférences
+			if (autosave) {
+				localStorage.setItem('navigation', JSON.stringify({
+					columns: optionsMenu.children('[data-property].active').map(function() { return this.dataset.property; }).get(),
+					showHiddenItems: $('#show-hidden-items').is('.active'),
+					showItemTags: $('#show-item-tags').is('.active'),
+					showItemDescription: $('#show-item-description').is('.active'),
+					showItemThumbnail: $('#show-item-thumbnail').is('.active'),
+				}));
+			}
 			// Laisser le menu ouvert pour permettre de changer d'autres options facilement
 			return false;
 		});
@@ -1245,7 +1264,7 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Initialiser la page principale */
-	function init(columns, trashCount) {
+	function init(options, trashCount) {
 		// Préparation du IntersectionObserver qui optimisera le chargement des miniatures au moment où elles deviennent visibles
 		thumbnailObserver = new IntersectionObserver(function(entries) {
 			entries.forEach(entry => {
@@ -1269,7 +1288,7 @@ NIMBUS.navigation = (function() {
 		});
 
 		// Préparation de la grille
-		prepareTable(columns);
+		prepareTable(options, true/*autosave*/);
 		// Après chargement de la page, se positionner sur l'élément demandé
 		goToLocationAndRefreshItems();
 		// Le bouton 'home' en Ajax pour éviter un rechargement de la page

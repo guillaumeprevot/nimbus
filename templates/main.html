@@ -175,10 +175,10 @@
 					<button class="btn btn-link dropdown-toggle" type="button" id="items-options" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-translate="title" title="MainTableOptions"></button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="items-options" style="max-height: 300px; overflow-y: auto;">
 						<h6 class="dropdown-header" data-translate="text">MainTableGridOptions</h6>
-						<a href="#" data-translate="text" class="dropdown-item ${showHiddenItems?then("active","")}" id="show-hidden-items">MainTableGridOptionHidden</a>
-						<a href="#" data-translate="text" class="dropdown-item ${showItemTags?then("active","")}" id="show-item-tags">MainTableGridOptionTags</a>
-						<a href="#" data-translate="text" class="dropdown-item ${showItemDescription?then("active","")}" id="show-item-description">MainTableGridOptionDescription</a>
-						<a href="#" data-translate="text" class="dropdown-item ${showItemThumbnail?then("active","")}" id="show-item-thumbnail">MainTableGridOptionThumbnail</a>
+						<a href="#" data-translate="text" class="dropdown-item" id="show-hidden-items">MainTableGridOptionHidden</a>
+						<a href="#" data-translate="text" class="dropdown-item" id="show-item-tags">MainTableGridOptionTags</a>
+						<a href="#" data-translate="text" class="dropdown-item" id="show-item-description">MainTableGridOptionDescription</a>
+						<a href="#" data-translate="text" class="dropdown-item" id="show-item-thumbnail">MainTableGridOptionThumbnail</a>
 						<h6 class="dropdown-header" data-translate="text">MainTableGridProperties</h6>
 					</div>
 				</div>
@@ -409,14 +409,20 @@ if (plugins.indexOf('markdown.js') === -1) $('[data-touch-extension="markdown"]'
 
 //Initialiser la page
 NIMBUS.init(plugins, function() {
-	// Chargement des propriétés disponibles
-	var columns = [<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>];
+	// Chargement des options d'affichage par défaut
+	var options = {
+		columns: [<#list visibleItemColumns as c>'${c}'<#sep>,</#sep></#list>],
+		showHiddenItems: ${showHiddenItems?then("true","false")},
+		showItemTags: ${showItemTags?then("true","false")},
+		showItemDescription: ${showItemDescription?then("true","false")},
+		showItemThumbnail: ${showItemThumbnail?then("true","false")},
+	};
 	// Chargement des extensions des fichiers texte
 	NIMBUS.utils.textFileExtensions = [<#list textFileExtensions as e>'${e}'<#sep>,</#sep></#list>];
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
 	// Initialisation de la bavigation
-	NIMBUS.navigation.init(columns, ${trashCount});
+	NIMBUS.navigation.init(options, ${trashCount});
 });
 </script>
 </body>
