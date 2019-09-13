@@ -7,7 +7,7 @@
 export CONF=nimbus.conf
 export FOLDER=`pwd`
 export OPTIONS=-Djdk.tls.ephemeralDHKeySize=2048 -Djdk.tls.rejectClientInitiatedRenegotiation=true
-# export PATH=/path/to/jre8/bin:$PATH
+# export PATH=/path/to/openjdk-12/bin:$PATH
 # export PATH=/path/to/maven/bin:$PATH
 # export PATH=/path/to/mongodb/bin:$PATH
 

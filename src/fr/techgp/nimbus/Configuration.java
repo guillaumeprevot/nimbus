@@ -111,7 +111,7 @@ public class Configuration {
 			if (s == null)
 				break;
 			try {
-				T instance = Class.forName(s).asSubclass(clazz).newInstance();
+				T instance = Class.forName(s).asSubclass(clazz).getDeclaredConstructor().newInstance();
 				instances.add(instance);
 			} catch (Exception ex) {
 				ex.printStackTrace();
