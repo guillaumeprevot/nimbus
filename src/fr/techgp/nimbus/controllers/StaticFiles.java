@@ -1,6 +1,8 @@
 package fr.techgp.nimbus.controllers;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
@@ -56,8 +58,11 @@ public class StaticFiles implements Filter {
 		if (!file.isFile())
 			return;
 		// System.out.println(file.getAbsolutePath());
+		cacheable(request, response, this.configuration, file);
+	}
 
-		// Si le fichier est présent, sa date de modification sert comme date pour le cache
+	public static final void cacheable(Request request, Response response, Configuration configuration, File file) throws IOException {
+		// La date de modification du fichier sert de date pour le cache
 		Date fileDate = new Date(file.lastModified());
 		String lastModified = formatHTTPDate(fileDate);
 		String etag = CryptoUtils.sha1Hex(lastModified);
@@ -77,18 +82,18 @@ public class StaticFiles implements Filter {
 				response.header("Date", lastModified);
 				// Indiquer le bon type MIME
 				String extension = FilenameUtils.getExtension(file.getName());
-				String mimetype = this.configuration.getMimeType(extension);
+				String mimetype = configuration.getMimeType(extension);
 				response.type(mimetype != null ? mimetype : "application/octet-stream");
 				// Envoyer le fichier demandé
 				// System.out.println("sending file for " + file.getAbsolutePath());
-				try (InputStream is = r.getInputStream();
+				try (InputStream is = new FileInputStream(file);
 						OutputStream os = response.raw().getOutputStream()/*GzipUtils.checkAndWrap(request.raw(), response.raw(), false)*/) {
 					IOUtils.copy(is, os);
+					Spark.halt();
+					return;
 				} catch (EofException ex) {
 					// Requête interrompue par le client
 				}
-				Spark.halt();
-				return;
 			}
 		}
 

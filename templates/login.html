@@ -14,7 +14,7 @@
 </head>
 <body class="nimbus-hidden">
 
-<img id="background" class="nimbus-hidden" style="position: fixed; width: 100%; height: 100%; z-index: -2; object-fit: cover; opacity: 0.6; " />
+<#if background><img id="background" src="/login/background" style="position: fixed; width: 100%; height: 100%; z-index: -2; object-fit: cover; opacity: 0.6; " /></#if>
 
 <form action="/login.html" method="post" style="display: block; width: 400px; max-width: 100%; margin: 0 auto; padding: 40px; ">
 	<fieldset>
@@ -65,8 +65,8 @@ NIMBUS.init([], function() {
 	// Donner le focus à la première entrée éditable
 	$('#login').focus();
 
-	// Charger l'image de fond si elle est paramétrée
-	<#if background>$('#background').attr('src', '/login/background').on('load', function() { this.className = ''; });</#if>
+	// Supprimer l'image de fond en cas d'erreur (fichier paramétré mais non présent ou format d'image non supporté par le navigateur)
+	<#if background>$('#background').on('error', function() { this.className = 'nimbus-hidden'; });</#if>
 });
 </script>
 </body>

@@ -1,10 +1,6 @@
 package fr.techgp.nimbus.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
-import org.apache.commons.io.FilenameUtils;
 
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.SparkUtils;
@@ -78,11 +74,8 @@ public class Authentication extends Controller {
 		File file = new File(configuration.getStorageFolder(), background);
 		if (!file.exists())
 			return SparkUtils.haltNotFound();
-		String extension = FilenameUtils.getExtension(background).toLowerCase();
-		String mimetype = configuration.getMimeType(extension);
-		try (InputStream stream = new FileInputStream(file)) {
-			return SparkUtils.renderStream(response, mimetype, stream);
-		}
+		StaticFiles.cacheable(request, response, configuration, file);
+		return null;
 	};
 
 	private static final String renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {
