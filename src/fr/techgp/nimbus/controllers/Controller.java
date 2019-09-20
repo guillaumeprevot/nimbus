@@ -314,7 +314,7 @@ public class Controller {
 
 	/**
 	 * Cette méthode vérifie si l'espace dispo de l'utilisateur est supérieur ou égal à neededSpace.
-	 * Si l'espace est insuffisant, la méthode SparkUtils.haltInsufficientStorage() est appelé pour interrompre le traitement.
+	 * Si l'espace est insuffisant, la méthode SparkUtils.haltInsufficientStorage() est appelée pour interrompre le traitement.
 	 * 
 	 * @param userLogin l'utilisateur donc il faudra vérifier le quota et l'espace utilisé
 	 * @param neededSpace l'espace nécessaire pour accomplir l'opération en cours (upload, duplicate, ...)

@@ -49,7 +49,6 @@ public class Files extends Controller {
 		// Récupérer l'utilisateur pour connaitre son quota
 		String userLogin = request.session().attribute("userLogin");
 		User user = User.findByLogin(userLogin);
-		long availableSpace = user.quota == null ? Long.MAX_VALUE : (user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin));
 
 		// Configurer le traitement de la requête multi-part (Seuil et dossier pour écriture sur disque)
 		prepareUploadRequest(request, configuration);
@@ -77,19 +76,21 @@ public class Files extends Controller {
 		// Récupérer les fichiers uploadés, les éventuels items correspondants et l'espace disque nécessaire
 		List<Part> parts = new ArrayList<>();
 		List<Item> items = new ArrayList<>();
+		long requiredSpace = 0;
 		for (Part part : request.raw().getParts()) {
 			if (!"files".equals(part.getName()))
 				continue;
 			Item item = Item.findItemWithName(userLogin, parentId, part.getSubmittedFileName());
 			parts.add(part);
 			items.add(item);
-			availableSpace -= part.getSize();
+			requiredSpace += part.getSize();
 			if (item != null && item.content.getLong("length") != null)
-				availableSpace += item.content.getLong("length").longValue();
+				requiredSpace -= item.content.getLong("length").longValue();
 		}
 
 		// Vérifier avant de commencer que l'espace disque est suffisant
-		if (availableSpace < 0) {
+		long availableSpace = user.quota == null ? configuration.getStorageFolder().getFreeSpace() : (user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin));
+		if (availableSpace < requiredSpace) {
 			for (Part part : requestParts) {
 				part.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
 			}
