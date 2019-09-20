@@ -176,9 +176,10 @@ var NIMBUS = (function() {
 
 			// Ajout d'un bouton "Back to top" en fils de document.body
 			if ($.fn.backToTop) {
-				$(document.body).backToTop({
+				$(document).backToTop({
 					title: NIMBUS.translate('CommonBackToTop'),
-					contentHTML: '<i class="material-icons">keyboard_arrow_up</i>'
+					contentHTML: '<i class="material-icons">keyboard_arrow_up</i>',
+					container: document.body
 				});
 			}
 		}
