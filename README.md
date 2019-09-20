@@ -114,7 +114,7 @@ Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions
     - les fichiers dont l'extension est `.secret` sont considérés comme des notes chiffrées par AES-256 bits et éditables en utilisant l'action `Afficher ou modifier le contenu`
 - Applications
 	- les fichiers dont l'extension est `.application` sont considérés comme des applications HTML que l'on peut lancer en utilisant l'action `Lancer cette application`
-	- un template est disponible dans `doc/template.application` pour montrer comment il est possible d'étendre le comportement
+	- [une application fonctionnelle](./doc/template.application.png) est disponible dans `doc/template.application`. Elle permet de générer des squelettes d'application personnalisables
 
 Enfin, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
 

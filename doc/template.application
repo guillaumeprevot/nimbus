@@ -25,41 +25,358 @@ document.write('<link type="text/css" rel="stylesheet" href="' + stylesheet + '"
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
-<script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
-<script type="text/javascript" src="/libs/gp/gp-backtotop.js"></script>
-<script type="text/javascript" src="/libs/gp/gp-fileupload.js"></script>
-<script type="text/javascript" src="/libs/gp/gp-tagsinput.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
-<!--
-<link type="text/css" rel="stylesheet" href="./css/test.css" />
-<script type="text/javascript" src="./js/test.js"></script>
--->
 </head>
 <body class="nimbus-hidden">
 	<header class="bg-primary">
 		<div class="float-left">
-			<button id="save-button" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="TemplateSave"><i class="material-icons">save</i></button>
-		</div>
-		<div class="btn-group">
+			<button id="generate-button" type="button" class="btn btn-link" data-translate="title" title="TemplateGenerate"><i class="material-icons">check</i></button>
 		</div>
 		<div class="float-right">
 			<button id="close-button" type="button" class="btn btn-link" data-translate="title" title="TemplateClose"><i class="material-icons">close</i></button>
 		</div>
 	</header>
-	<main></main>
+	<main>
+		<div class="container" style="padding-top: 2em; ">
+			<div role="alert" data-translate="text" style="display: none;" class="alert alert-success">TemplateGenerateSuccessCreate</div>
+			<div role="alert" data-translate="text" style="display: none;" class="alert alert-success">TemplateGenerateSuccessUpdate</div>
+			<div role="alert" data-translate="text" style="display: none;" class="alert alert-warning">TemplateGenerateWarningExists</div>
+			<div role="alert" data-translate="text" style="display: none;" class="alert alert-danger">TemplateGenerateErrorGeneric</div>
+			<div class="form-group">
+				<label for="name" data-translate="text">TemplateName</label>
+				<input id="name" type="text" class="form-control" required aria-describedby="nameHelp" data-translate="placeholder" placeholder="TemplateNamePlaceholder" />
+				<div class="form-check">
+					<div class="custom-control custom-checkbox">
+						<input type="checkbox" class="custom-control-input" id="nameOverride">
+						<label class="custom-control-label" for="nameOverride" data-translate="text">TemplateNameOverride</label>
+					</div>
+				</div>
+				<small id="nameHelp" class="form-text text-muted" data-translate="text">TemplateNameHelp</small>
+			</div>
+			<div class="form-group">
+				<label for="theme" data-translate="text">TemplateTheme</label>
+				<select id="theme" class="custom-select" aria-describedby="themeHelp">
+					<option data-translate="text" value="light-only">TemplateThemeLightOnly</option>
+					<option data-translate="text" value="light" selected>TemplateThemeLightDefault</option>
+					<option data-translate="text" value="dark-only">TemplateThemeDarkOnly</option>
+					<option data-translate="text" value="dark">TemplateThemeDarkDefault</option>
+				</select>
+				<small id="themeHelp" class="form-text text-muted" data-translate="text">TemplateThemeHelp</small>
+			</div>
+			<div class="form-group">
+				<label for="language" data-translate="text">TemplateLanguage</label>
+				<select id="language" class="custom-select" aria-describedby="languageHelp">
+					<option data-translate="text" value="fr">TemplateLanguageFR</option>
+					<option data-translate="text" value="en">TemplateLanguageEN</option>
+					<option data-translate="text" value="" selected>TemplateLanguageAuto</option>
+				</select>
+				<small id="languageHelp" class="form-text text-muted" data-translate="text">TemplateLanguageHelp</small>
+			</div>
+			<div class="form-group">
+				<label data-translate="text">TemplateToolbars</label>
+				<div class="form-check">
+					<div class="custom-control custom-radio custom-control-inline">
+						<input type="radio" id="toolbarsStatic" name="toolbars" class="custom-control-input" aria-describedby="toolbarsStaticHelp" checked>
+						<label class="custom-control-label" for="toolbarsStatic" data-translate="text">TemplateToolbarsStatic</label>
+						<small id="toolbarsStaticHelp" class="form-text text-muted" data-translate="text" style="padding-left: 1em;">TemplateToolbarsStaticHelp</small>
+					</div>
+					<div class="custom-control custom-radio custom-control-inline">
+						<input type="radio" id="toolbarsHideable" name="toolbars" class="custom-control-input" aria-describedby="toolbarsHideableHelp">
+						<label class="custom-control-label" for="toolbarsHideable" data-translate="text">TemplateToolbarsHideable</label>
+						<small id="toolbarsHideableHelp" class="form-text text-muted" data-translate="text" style="padding-left: 1em;">TemplateToolbarsHideableHelp</small>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="plugins" data-translate="text">TemplatePlugins</label>
+				<input id="plugins" type="text" class="form-control" aria-describedby="pluginsHelp" placeholder="audio,video,image,text" />
+				<small id="pluginsHelp" class="form-text text-muted" data-translate="text">TemplatePluginsHelp</small>
+			</div>
+			<div class="form-group">
+				<label data-translate="text">TemplateOptions</label>
+				<div class="form-check">
+					<div class="custom-control custom-checkbox">
+						<input type="checkbox" class="custom-control-input" id="saveButton" checked>
+						<label class="custom-control-label" for="saveButton" data-translate="text">TemplateOptionsSaveButton</label>
+					</div>
+					<div class="custom-control custom-checkbox">
+						<input type="checkbox" class="custom-control-input" id="closeButton" checked>
+						<label class="custom-control-label" for="closeButton" data-translate="text">TemplateOptionsCloseButton</label>
+					</div>
+					<div class="custom-control custom-checkbox">
+						<input type="checkbox" class="custom-control-input" id="backToTopButton" checked>
+						<label class="custom-control-label" for="backToTopButton" data-translate="text">TemplateOptionsBackToTopButton</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
 	<footer></footer>
 <script>
 var langs = {
 	fr: {
-		TemplateTitle: "Template d'application",
-		TemplateSave: "Sauvegarder les modifications",
-		TemplateClose: "Fermer l'application",
+		TemplateTitle: "Générateur d'application",
+
+		TemplateName: "Nom de l'application",
+		TemplateNamePlaceholder: "MaNouvelleApplication",
+		TemplateNameOverride: "Remplacer l'application si elle existe",
+		TemplateNameHelp: "Le nom servira comme nom de fichier lors de la sauvegarde et comme titre de l'onglet lors du lancement.",
+
+		TemplateTheme: "Thème de l'application",
+		TemplateThemeLightOnly: "Thème clair uniquement",
+		TemplateThemeLightDefault: "Thème clair par défaut",
+		TemplateThemeDarkOnly: "Thème sombre uniquement",
+		TemplateThemeDarkDefault: "Thème sombre par défaut",
+		TemplateThemeHelp: "Les 2 options par défaut peuvent être inversées au lancement en indiquant \"theme=dark\" ou \"theme=light\" dans l'URL.",
+
+		TemplateLanguage: "Langue de l'application",
+		TemplateLanguageFR: "Français uniquement",
+		TemplateLanguageEN: "Anglais uniquement",
+		TemplateLanguageAuto: "Multilingue",
+		TemplateLanguageHelp: "Le mode \"multilingue\" se basera sur les préférences de langue du navigateur.",
+
+		TemplateToolbars: "Barre d'outils",
+		TemplateToolbarsStatic: "Barres d'outils statiques",
+		TemplateToolbarsStaticHelp: "Les barres statiques sont figées en haut et en bas de la page.",
+		TemplateToolbarsHideable: "Barres d'outils masquables",
+		TemplateToolbarsHideableHelp: "Les barres masquables aussi mais se masquent ou s'affichent à chaque clic dans la page.",
+
+		TemplatePlugins: "Plugins à charger",
+		TemplatePluginsHelp: "Liste séparée par des virgules de plugins javascript que Nimbus chargera au lancement de l'application.",
+
+		TemplateOptions: "Options",
+		TemplateOptionsSaveButton: "Bouton \"Sauvegarder les modifications\"",
+		TemplateOptionsSaveButtonTitle: "Sauvegarder les modifications",
+		TemplateOptionsCloseButton: "Bouton \"Fermer l'application\"",
+		TemplateOptionsCloseButtonTitle: "Fermer l'application",
+		TemplateOptionsBackToTopButton: "Bouton \"Revenir en haut de la page\"",
+		TemplateOptionsBackToTopButtonTitle: "Revenir en haut de la page",
+
+		TemplateGenerate: "Générer l'application",
+		TemplateGenerateSuccessCreate: "L'application a été générée correctement",
+		TemplateGenerateSuccessUpdate: "L'application a été mise à jour correctement",
+		TemplateGenerateWarningExists: "L'application existe déjà. Vous pouvez choisir un autre nom ou demander à remplacer l'application existant",
+		TemplateGenerateErrorGeneric: "Une erreur imprévue est survenue pendant la génération",
+
+		TemplateClose: "Fermer le générateur d'application",
 	},
 	en: {
-		TemplateTitle: "Application template",
-		TemplateSave: "Save modifications",
-		TemplateClose: "Close application",
+		TemplateTitle: "Application generator",
+
+		TemplateName: "Application name",
+		TemplateNamePlaceholder: "MyNewApplication",
+		TemplateNameOverride: "Replace existing application",
+		TemplateNameHelp: "The name is used as filename during generation and as tab's title when launched.",
+
+		TemplateTheme: "Application theme",
+		TemplateThemeLightOnly: "Light theme only",
+		TemplateThemeLightDefault: "Light theme as default",
+		TemplateThemeDarkOnly: "Dark theme only",
+		TemplateThemeDarkDefault: "Dark theme as default",
+		TemplateThemeHelp: "Both \"as default\" options can be toggled when application is launched using \"theme=dark\" or \"theme=light\" in URL.",
+
+		TemplateLanguage: "Application language",
+		TemplateLanguageFR: "French only",
+		TemplateLanguageEN: "English only",
+		TemplateLanguageAuto: "Auto-detection",
+		TemplateLanguageHelp: "Language auto-detection is based on browser language preferences.",
+
+		TemplateToolbars: "Toolbars",
+		TemplateToolbarsStatic: "Static toolbars",
+		TemplateToolbarsStaticHelp: "Static toolbars are positionned on top and bottom of the page.",
+		TemplateToolbarsHideable: "Hideable toolbars",
+		TemplateToolbarsHideableHelp: "Hideable toolbars are positionned on top and bottom of the page but can be toggled by clicking in the viewport.",
+
+		TemplatePlugins: "Plugins to load",
+		TemplatePluginsHelp: "Comma-separated list of javascript plugins that Nimbus will load when application is launched.",
+
+		TemplateOptions: "Options",
+		TemplateOptionsSaveButton: "Prepare \"Save modifications\" button",
+		TemplateOptionsSaveButtonTitle: "Save modifications",
+		TemplateOptionsCloseButton: "Prepare \"Close application\" button",
+		TemplateOptionsCloseButtonTitle: "Close application",
+		TemplateOptionsBackToTopButton: "Prepare \"Back to the top of the page\" button",
+		TemplateOptionsBackToTopButtonTitle: "Back to the top of the page",
+
+		TemplateGenerate: "Generate application",
+		TemplateGenerateSuccessCreate: "The application has been successfully created.",
+		TemplateGenerateSuccessUpdate: "The application has been successfully updated.",
+		TemplateGenerateWarningExists: "This application already exists. You may change the name or ask to replace existing application.",
+		TemplateGenerateErrorGeneric: "An unexpected error occured during generation.",
+
+		TemplateClose: "Close application generator",
 	}
+}
+
+function buildApplication() {
+	return {
+		name: $('#name').val(),
+		theme: $('#theme').val().startsWith('light') ? 'light' : 'dark',
+		canChangeTheme: !$('#theme').val().endsWith('-only'),
+		language: $('#language').val(),
+		toolbars: $('#toolbarsHideable').is(':checked') ? 'hideable' : 'static',
+		plugins: $('#plugins').val(),
+		saveButton: $('#saveButton').is(':checked'),
+		closeButton: $('#closeButton').is(':checked'),
+		backToTopButton: $('#backToTopButton').is(':checked')
+	};
+}
+
+// Pour éviter une erreur d'interprétation sur le tag fermant "script", on va ruser
+function buildScript(src, content) {
+	if (src)
+		return '<script type="text/javascript" src="' + src + '"></' + 'script>';
+	return '<script type="text/javascript">' + content + '</' + 'script>';		
+}
+
+function buildLanguage(app, lang) {
+	if (app.language && app.language !== lang)
+		return '';
+	var title = app.language === lang ? '' : ('"' + app.name + '": "' + app.name + '",');
+	var save = app.saveButton ? 'TemplateSave: "' + langs[lang]['TemplateOptionsSaveButtonTitle'] + '",' : '';
+	var close = app.closeButton ? 'TemplateClose: "' + langs[lang]['TemplateOptionsCloseButtonTitle'] + '",' : '';
+	var backToTop = app.backToTopButton ? 'TemplateBackToTop: "' + langs[lang]['TemplateOptionsBackToTopButtonTitle'] + '",' : '';
+	return `${lang}: { ${title} ${save} ${close} ${backToTop} },`;
+}
+
+function buildChunks(app) {
+	return {
+		themeStylesheet: app.canChangeTheme ? '' : `<link type="text/css" rel="stylesheet" href="/libs/bootswatch/${app.theme === 'light' ? 'flatly' : 'darkly'}.min.css" />`,
+		themeScript: app.canChangeTheme ? `
+			// Chargement du thème par défaut, sauf si un autre est précisé dans l'URL
+			var search = window.location.search || '';
+			var stylesheet = '/libs/bootswatch/${app.theme === 'light' ? 'flatly' : 'darkly'}.min.css';
+			if (search.indexOf('theme=dark') >= 0)
+				stylesheet = '/libs/bootswatch/darkly.min.css';
+			if (search.indexOf('theme=light') >= 0)
+				stylesheet = '/libs/bootswatch/flatly.min.css';
+			document.write('<link type="text/css" rel="stylesheet" href="' + stylesheet + '" />');` : '',
+
+		language: app.language === 'fr' ? "'fr'" : app.language === 'en' ? "'en'" : ("(navigator.language && navigator.language.startsWith('fr')) ? 'fr' : 'en'"),
+		languageFR: buildLanguage(app, 'fr'),
+		languageEN: buildLanguage(app, 'en'),
+
+		toolbarClassName: app.toolbars === 'static' ? 'nimbus-static-toolbars' : 'nimbus-hideable-toolbars',
+		toolbarScript: app.toolbars === 'static' ? '' : `
+			// Clic sur la partie centrale pour afficher/cacher les barres d'outils
+			$('main').click(function(event) {
+				$('.nimbus-viewer').toggleClass('nimbus-hidden-toolbars');
+			});`,
+
+		plugins: app.plugins ? app.plugins.split(',').map((plugin) => '"' + plugin + '.js"').join(',') : "/*'application.js'*/",
+
+		saveButton: app.saveButton ? '<button id="save-button" type="button" class="btn btn-link" data-translate="title" title="TemplateSave"><i class="material-icons">save</i></button>' : '',
+		saveButtonScript: app.saveButton ? `
+			// Bouton de sauvegarde
+			$('#save-button').on('click', function() {
+				alert('save-button');
+				/*
+				NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
+					saveButton.addClass('nimbus-hidden').removeClass('text-danger');
+				}, function() {
+					saveButton.addClass('text-danger');
+				});
+				*/
+			});` : '',
+
+		closeButton: app.closeButton ? '<button id="close-button" type="button" class="btn btn-link" data-translate="title" title="TemplateClose"><i class="material-icons">close</i></button>' : '',
+		closeButtonScript: app.closeButton ? `
+			// Bouton de fermeture de l'application
+			$('#close-button').on('click', function() {
+				window.close();
+			});` : '',
+
+		backToTopContent: app.backToTopButton ? ('<ul class="list-group">' + 'abcdefghijklmnopqrstuvwxyz'.split('').map(c => '<li class="list-group-item">' + c + '</li>').join('') + '</ul>') : '',
+		backToTopScript: app.backToTopButton ? `
+			// Bouton pour revenir en haut de page
+			$('main').backToTop({
+				title: NIMBUS.translate('TemplateBackToTop'),
+				contentHTML: '<i class="material-icons">keyboard_arrow_up</i>',
+				container: document.body
+			});` : '',
+	};
+}
+
+function buildHTML(app) {
+	// Prise en compte des options
+	var chunks = buildChunks(app);
+
+	// On va utiliser les "Template literals" pour générer l'HTML
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+	return `<!DOCTYPE html>
+<html class="nimbus-viewer ${chunks.toolbarClassName}">
+	<head>
+		<title data-translate="text">${app.name}</title>
+		<meta charset="UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="robots" content="noindex, nofollow" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+		${chunks.themeStylesheet}${chunks.themeScript ? buildScript('', chunks.themeScript + '\n\t\t') : ''}
+		<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
+		<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+		${buildScript('/libs/jquery/jquery.min.js')}
+		${buildScript('/libs/popper/popper.min.js')}
+		${buildScript('/libs/bootstrap/bootstrap.min.js')}
+		${buildScript('/libs/gp/gp.js')}
+		${buildScript('/libs/gp/gp-autocomplete.js')}
+		${buildScript('/libs/gp/gp-backtotop.js')}
+		${buildScript('/libs/gp/gp-fileupload.js')}
+		${buildScript('/libs/gp/gp-tagsinput.js')}
+		${buildScript('/nimbus.js')}
+	</head>
+	<body class="nimbus-hidden">
+		<header class="bg-primary">
+			<div class="float-left">
+				${chunks.saveButton}
+			</div>
+			<div class="btn-group">
+			</div>
+			<div class="float-right">
+				${chunks.closeButton}
+			</div>
+		</header>
+		<main>${chunks.backToTopContent}</main>
+		<footer></footer>
+		${buildScript('', `
+var langs = {
+	${chunks.languageFR}
+	${chunks.languageEN}
+};
+$(function() {
+	// Charger la langue demandée ou la langue la plus appropriée
+	var locale = ${chunks.language};
+	// Charger le fichier de langue par défaut de NIMBUS
+	$.getScript('/langs/' + locale + '.js').then(function() {
+		// Charger en plus la traduction de cette application
+		$.extend(NIMBUS.lang, langs[locale]);
+
+		//Initialiser la page
+		NIMBUS.init([${chunks.plugins}], function() {
+			// ...
+
+			// L'IHM est prête, on l'affiche
+			$(document.body).removeClass('nimbus-hidden');
+			${chunks.toolbarScript}
+			${chunks.saveButtonScript}
+			${chunks.closeButtonScript}
+			${chunks.backToTopScript}
+
+			// Manipulation au clavier
+			/*
+			$(document.body).keystrokes({
+				'Shift-Cmd-Ctrl-Alt-a': () => alert('a'),
+			}, function filter(event) {
+				return true;
+			});
+			*/
+		});
+	});
+});
+		`)}
+	</body>
+</html>`;
 }
 
 $(function() {
@@ -71,44 +388,43 @@ $(function() {
 		$.extend(NIMBUS.lang, langs[locale]);
 
 		//Initialiser la page
-		NIMBUS.init([/*'application.js'*/], function() {
-			// ...
-
+		NIMBUS.init([], function() {
 			// L'IHM est prête, on l'affiche
 			$(document.body).removeClass('nimbus-hidden');
 
-			// Bouton de sauvegarde
-			/*
-			$('#save-button').on('click', function() {
-				NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
-					saveButton.addClass('nimbus-hidden').removeClass('text-danger');
-				}, function() {
-					saveButton.addClass('text-danger');
+			// Bouton de génération
+			var generateButton = $('#generate-button').on('click', function() {
+				var app = buildApplication();
+				if (!app.name) {
+					$('#name').addClass('is-invalid');
+					return;
+				}
+				var parentId = undefined;
+				var filename = app.name + '.application';
+				$('.alert').hide();
+				$.post('/items/exists', { parentId: parentId, names: [filename]}).then(function(result) {
+					var exists = result === 'true';
+					if (exists && !$('#nameOverride').is(':checked')) {
+						$('#name').addClass('is-invalid');
+						$('.alert-warning').show();
+						return $.Deferred().resolve();
+					}
+					var html = buildHTML(app);
+					var blob = new Blob([html], { type: "text/html" });
+					// console.log('Génération !', html);
+					return NIMBUS.utils.uploadFile(parentId, blob, filename).then(function() {
+						(exists ? $('.alert-success').last() : $('.alert-success').first()).show();
+					});
+				}).fail(function(err) {
+					console.log(err);
+					$('.alert-danger').show();
 				});
 			});
-			*/
 
 			// Bouton de fermeture de l'application
 			$('#close-button').on('click', function() {
 				window.close();
 			});
-
-			// Clic sur la partie centrale pour afficher/cacher les barres d'outils
-			// Remplacer "nimbus-static-toolbars" par "nimbus-hideable-toolbars" si ce comportement est souhaité
-			/*
-			$('main').click(function(event) {
-				$('.nimbus-viewer').toggleClass('nimbus-hidden-toolbars');
-			});
-			*/
-
-			// Manipulation au clavier
-			/*
-			$(document.body).keystrokes({
-				'Shift-Cmd-Ctrl-Alt-a': () => alert('a'),
-			}, function filter(event) {
-				return true;
-			});
-			*/
 		});
 	});
 });
