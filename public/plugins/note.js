@@ -1,7 +1,7 @@
 (function() {
 
 	function accept(item, extension) {
-		return 'note' === extension;
+		return 'note' === extension || 'html' === extension;
 	}
 
 	NIMBUS.plugins.add({
