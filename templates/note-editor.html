@@ -25,6 +25,7 @@ blockquote { margin: 15px 40px; }
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/dompurify/purify.min.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
@@ -179,6 +180,15 @@ function promptButton(target, command, promptTitle, defaultValue, transform) {
 	});
 }
 
+function sanitize(content) {
+	var safe = (window.location.search || '').indexOf('safe=true') >= 0;
+	if (safe)
+		return content;
+	return DOMPurify.sanitize(content, {
+		SAFE_FOR_JQUERY: true,
+	});
+}
+
 //Initialiser la page
 NIMBUS.init(['text.js', 'note.js'], function() {
 	// En haut à gauche, le bouton "Retour"
@@ -198,7 +208,7 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 
 		$('title').text(filename);
 
-		editor.html(content).attr('contenteditable', 'true').css('padding', '1em').on('input', function() {
+		editor.html(sanitize(content)).attr('contenteditable', 'true').css('padding', '1em').on('input', function() {
 			saveButton.removeClass('nimbus-hidden');
 			updateToolbar();
 		});
