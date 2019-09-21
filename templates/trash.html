@@ -41,22 +41,22 @@
 			</td>
 		</tr>
 		<tr>
-			<td colspan="5">
-				<a class="btn btn-link" href="${fromUrl!"/nav"}" id="back-button">
+			<td colspan="5" style="text-align: right; ">
+				<a class="btn btn-link" href="${fromUrl!"/nav"}" id="back-button" style="float: left;">
 					<i class="material-icons">chevron_left</i>
 					<span data-translate="text">TrashBackButton</span>
 				</a>
-				<button class="btn btn-outline-danger nimbus-hidden" id="clear-button" style="float: right; ">
-					<i class="material-icons">delete_sweep</i>
-					<span data-translate="text">TrashClearButton</span>
+				<button class="btn btn-primary nimbus-hidden" id="restore-button" style="margin: 0 5px; ">
+					<i class="material-icons">restore_from_trash</i>
+					<span data-translate="text">TrashRestoreButton</span>
 				</button>
-				<button class="btn btn-outline-danger nimbus-hidden" id="erase-button" style="float: right; margin-right: 10px; ">
+				<button class="btn btn-outline-danger nimbus-hidden" id="erase-button" style="margin: 0 5px; ">
 					<i class="material-icons">delete_forever</i>
 					<span data-translate="text">TrashEraseButton</span>
 				</button>
-				<button class="btn btn-primary nimbus-hidden" id="restore-button" style="float: right; margin-right: 10px; ">
-					<i class="material-icons">restore_from_trash</i>
-					<span data-translate="text">TrashRestoreButton</span>
+				<button class="btn btn-outline-danger nimbus-hidden" id="clear-button" style="margin: 0 5px; ">
+					<i class="material-icons">delete_sweep</i>
+					<span data-translate="text">TrashClearButton</span>
 				</button>
 			</td>
 		</tr>
@@ -143,12 +143,12 @@ function execute() {
 
 	// Préparation du bouton de suppression définitive
 	$('#erase-button').click(function() {
-		processSelection('/trash/erase')
+		processSelection('/trash/erase');
 	});
 
 	// Préparation du bouton de restauration
 	$('#restore-button').click(function() {
-		processSelection('/trash/restore')
+		processSelection('/trash/restore');
 	});
 }
 </script>
