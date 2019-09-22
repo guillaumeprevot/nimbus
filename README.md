@@ -33,7 +33,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | 2.6 | Apache 2.0 | Utilitaire
 [FreeMarker](https://freemarker.apache.org/) | Java | 2.3.29 | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | 2.8.5 | Apache 2.0 | Support du format JSON
-[PDFBox](https://pdfbox.apache.org/) | plugin Java | 2.0.16 | Apache 2.0 | Support des fichiers PDF
+[PDFBox](https://pdfbox.apache.org/) | plugin Java | 2.0.17 | Apache 2.0 | Support des fichiers PDF
 [Image4j](http://image4j.sourceforge.net/) | plugin Java | 0.7.1 | LGPL | Support des fichiers ICO et BMP
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/releases) | plugin Java | 2.12.0 | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
 [Jave](http://www.sauronsoftware.it/projects/jave/download.php) | plugin Java | 1.0.2 | GPL | Support audio et vidéo grâce à FFmpeg
@@ -109,7 +109,7 @@ Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions
 - Fichiers texte :
     - les fichiers texte (cf *text.file.extensions* dans *nimbus.conf*) peuvent être édités dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur de texte`
     - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées en HTML, dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked) et [Prism.js](https://github.com/PrismJS/prism)
-    - les notes au format HTML (`.note` pour Nimbus), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
+    - les notes au format HTML (`.html` ou `.note`), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
     - le `code source` peut être édité dans Nimbus grâce à [CodeMirror](https://codemirror.net/) en utilisant l'action `Ouvrir dans l'éditeur de code`
 - Notes chiffrées :
     - les fichiers dont l'extension est `.secret` sont considérés comme des notes chiffrées par AES-256 bits et éditables en utilisant l'action `Afficher ou modifier le contenu`

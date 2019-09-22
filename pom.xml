@@ -4,7 +4,7 @@
 	<groupId>fr.techgp.nimbus</groupId>
 	<artifactId>nimbus</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2</version>
+	<version>1.3</version>
 	<name>Nimbus</name>
 
 	<properties>
@@ -88,8 +88,10 @@
 			<version>[3.11.0,)</version>
 		</dependency>
 		<!--
+			2.0.16 sur mvnrepository.com mais 2.0.17 sur maven.org
 			https://pdfbox.apache.org/
 			https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox
+			https://search.maven.org/search?q=g:%22org.apache.pdfbox%22%20a:%22pdfbox%22
 		-->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
