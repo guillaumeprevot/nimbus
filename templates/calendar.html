@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-static-toolbars">
+<head>
+<title data-translate="text">CalendarTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="${stylesheet}" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+</style>
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/moment/moment.min.js"></script>
+<#if lang == "fr"><script type="text/javascript" src="/libs/moment/fr.js"></script></#if>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+	<header class="bg-primary">
+		<div class="float-left">
+			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="CalendarSave"><i class="material-icons">save</i></button>
+		</div>
+
+		<div class="btn-group">
+		</div>
+
+		<div class="float-right">
+			<button id="closeButton" type="button" class="btn btn-link" data-translate="title" title="CalendarClose"><i class="material-icons">close</i></button>
+		</div>
+	</header>
+	<main></main>
+	<footer></footer>
+<script>
+"use strict";
+
+//Initialiser la page
+NIMBUS.init(['calendar.js'], function() {
+	// En haut à gauche, le bouton "Retour"
+	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+
+	// L'IHM est prête, on l'affiche
+	var body = $(document.body).removeClass('nimbus-hidden');
+
+	// Identifiant de l'élément édité
+	var itemId = ${itemId!"null"};
+
+	// Récupération des différents calendrier
+	$.get('/items/list', {
+		recursive: true,
+		sortBy: 'name',
+		sortAscending: true,
+		folders: false,
+		hidden: null,
+		deleted: false,
+		extensions: 'calendar'
+	}).then(function(results) {
+		var saveButton = $('#saveButton');
+
+		function showSaveButton() {
+			saveButton.removeClass('nimbus-hidden');
+		}
+
+		saveButton.on('click', function() {
+			/*
+			NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
+				saveButton.addClass('nimbus-hidden');
+				textarea.removeClass('border border-danger')
+			}, function() {
+				textarea.addClass('border border-danger');
+			});
+			*/
+		});
+
+		// Manipulation au clavier
+		body.keystrokes({
+			'Ctrl-s': () => saveButton.click(),
+		});
+
+		// Changement de période  "swipe"
+		$('main').swipe().on('swipe', function(event, swipe) {
+			// swipe.duration: milliseconds between "touchstart" and "touchend" events
+			// swipe.direction: 8 directions including "top" "bottom" "left" "right"
+		});
+	});
+});
+</script>
+
+</body>
+</html>

@@ -142,4 +142,17 @@ public class Extensions extends Controller {
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
+	/**
+	 * Cette route affiche la page du calendrier
+	 * 
+	 * () => HTML
+	 */
+	public static final Route calendar = (request, response) -> {
+		// Générer la page
+		return renderTemplate(request, "calendar.html",
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+	};
+
 }
