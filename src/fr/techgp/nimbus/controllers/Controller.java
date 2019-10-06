@@ -230,7 +230,7 @@ public class Controller {
 	 * @return le nom du thème choisi par l'utilisateur ou le thème par défaut sinon (cf nimbus.conf) 
 	 */
 	protected static final String getUserTheme(Request request) {
-		return StringUtils.withDefault(request.session().attribute("theme"), configuration.getClientDefaultTheme());
+		return StringUtils.coalesce(SparkUtils.queryParamString(request, "theme", null), request.session().attribute("theme"), configuration.getClientDefaultTheme());
 	}
 
 	/**

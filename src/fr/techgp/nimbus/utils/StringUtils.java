@@ -16,6 +16,14 @@ public final class StringUtils {
 		return !isBlank(s);
 	}
 
+	public static final String coalesce(String... values) {
+		for (String value : values) {
+			if (isNotBlank(value))
+				return value;
+		}
+		return null;
+	}
+
 	public static final String withDefault(String value, String defaultValue) {
 		return isBlank(value) ? defaultValue : value;
 	}
