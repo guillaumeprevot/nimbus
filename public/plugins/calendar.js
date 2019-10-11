@@ -192,6 +192,60 @@
 		});
 	}
 
+	/** Cette méthode renvoie le jour de Pâques de l'année donnée, soit la forme d'un tableau [année, mois, jour] */
+	function calculateEasterDateArray(year) {
+		// https://fr.wikipedia.org/wiki/Calcul_canonique_de_la_date_de_P%C3%A2ques_gr%C3%A9gorienne
+		// http://www.developpez.net/forums/d198031/logiciels/microsoft-office/access/access-2000-calcul-jours-ouvr-s-champ-formulaire/
+		var a = Math.floor(year % 19)
+			b = Math.floor(year / 100)
+			c = Math.floor(year % 100)
+			d = Math.floor(b / 4)
+			e = b % 4
+			f = Math.floor((b + 8) / 25)
+			g = Math.floor((b - f + 1) / 3)
+			h = (19 * a + b - d - g + 15) % 30
+			i = Math.floor(c / 4)
+			k = c % 4
+			l = (32 + 2 * e + 2 * i - h - k) % 7
+			m = Math.floor((a + 11 * h + 22 * l) / 451)
+			n = Math.floor((h + l - 7 * m + 114) / 31)
+			p = (h + l - 7 * m + 114) % 31;
+		return [year, n - 1, p + 1];
+	}
+
+	/** Une source de données en lecture-seule représentant les jours fériés en France */
+	function createFrenchSpecialDaysCalendarSource(name, color, active) {
+		var type = new CalendarEventType(name, color, true, 'yearly');
+		return new CalendarSource({
+			name: name,
+			icon: 'sentiment_satisfied_alt',
+			active: active,
+			readonly: true,
+			types: [type],
+			populate: function(startMoment, endMoment) {
+				var results = [], startYear = startMoment.year(), endYear = endMoment.year(), year, easter;
+				function add(date, label, repeated) {
+					results.push(new CalendarEvent({ type: type, date: date, label: label, repeat: repeated ? 'yearly' : null}));
+				}
+				add(CalendarDate.from(startYear, 0, 1), "Jour de l'an", true);
+				add(CalendarDate.from(startYear, 4, 1), "Fête du Travail", true);
+				add(CalendarDate.from(startYear, 4, 8), "8 Mai 1945", true);
+				add(CalendarDate.from(startYear, 6, 14), "Fête Nationale", true);
+				add(CalendarDate.from(startYear, 7, 15), "Assomption", true);
+				add(CalendarDate.from(startYear, 10, 1), "Toussaint", true);
+				add(CalendarDate.from(startYear, 10, 11), "Armistice 1918", true);
+				add(CalendarDate.from(startYear, 11, 25), "Noël", true);
+				for (year = startYear; year <= endYear; year++) {
+					easter = calculateEasterDateArray(year);
+					add(CalendarDate.from(moment(easter).add(1, 'days')), "Lundi de Pâques", false);
+					add(CalendarDate.from(moment(easter).add(39, 'days')), "Ascension", false);
+					add(CalendarDate.from(moment(easter).add(50, 'days')), "Lundi de Pentecôte", false);
+				}
+				return $.Deferred().resolve(results);
+			},
+		});
+	}
+
 	/** Une source de données éditable contenue dans un fichier ".calendar" de Nimbus */
 	function createNimbusFileCalendarSource(item, active) {
 		return $.get('/files/stream/' + item.id).then(function(result) {
@@ -220,6 +274,7 @@
 		createMonthCalendarView: createMonthCalendarView,
 		createMonthsCalendarView: createMonthsCalendarView,
 		createYearCalendarView: createYearCalendarView,
+		createFrenchSpecialDaysCalendarSource: createFrenchSpecialDaysCalendarSource,
 		createNimbusFileCalendarSource: createNimbusFileCalendarSource,
 	};
 
