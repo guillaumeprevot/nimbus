@@ -14,7 +14,7 @@ public class Preferences extends Controller {
 
 	/**
 	 * Cette route permet de modifier le thème pour la session en cours
-	 * 
+	 *
 	 * (theme) => ""
 	 */
 	public static final Route theme = (request, response) -> {
@@ -24,7 +24,7 @@ public class Preferences extends Controller {
 
 	/**
 	 * Cette route retourne la page d'accès aux préférences.
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route page = (request, response) -> {

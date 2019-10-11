@@ -16,7 +16,7 @@ public class Trash extends Controller {
 
 	/**
 	 * Cette route retourne la page d'accès à la corbeille.
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route page = (request, response) -> {

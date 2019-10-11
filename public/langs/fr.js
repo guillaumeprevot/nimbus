@@ -263,7 +263,7 @@ NIMBUS.lang = {
 		return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
 	},
 	formatDatetime: function(value) {
-		return NIMBUS.lang.formatDate(value) + " " + NIMBUS.lang.formatTime(value).substr(0,5); 
+		return NIMBUS.lang.formatDate(value) + " " + NIMBUS.lang.formatTime(value).substr(0,5);
 	},
 
 };

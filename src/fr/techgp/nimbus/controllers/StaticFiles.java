@@ -33,7 +33,7 @@ public class StaticFiles implements Filter {
 	private static final DateFormat CACHE_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
 
 	private synchronized static final String formatHTTPDate(Date date) {
-		return CACHE_DATE_FORMAT.format(date); 
+		return CACHE_DATE_FORMAT.format(date);
 	}
 
 	private final Configuration configuration;

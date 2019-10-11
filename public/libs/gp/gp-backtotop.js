@@ -41,7 +41,7 @@
 	BackToTop.defaultOptions = {
 		// propriété CSS "z-index" pour le bouton afin qu'il apparaisse correctement devant le reste
 		zIndex: 1,
-		// propriété CSS indiquant la distance en "em" du bouton par rapport au bord inférieur droit 
+		// propriété CSS indiquant la distance en "em" du bouton par rapport au bord inférieur droit
 		distance: 1,
 		// le titre HTML du bouton
 		title: 'Back to top',

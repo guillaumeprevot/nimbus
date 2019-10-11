@@ -140,7 +140,7 @@ public final class WebUtils {
 			this.write("--" + this.boundary + "--\r\n");
 			this.stream.flush();
 			this.stream.close();
-		} 
+		}
 
 		private void write(String s) throws IOException {
 			this.stream.write(s.getBytes(StandardCharsets.UTF_8));

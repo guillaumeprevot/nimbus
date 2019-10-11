@@ -1,6 +1,6 @@
 (function() {
 
-	/** Cette classe est une version allégée de date, telle qu'utilisée dans le calendrier */ 
+	/** Cette classe est une version allégée de date, telle qu'utilisée dans le calendrier */
 	function CalendarDate(year, month, date) {
 		// L'année de la date, par exemple 1979 ou 2019
 		this.year = year;
@@ -32,7 +32,7 @@
 		this.defaultRepeat = (typeof defaultRepeat === 'string') ? defaultRepeat : null;
 	}
 
-	/** Cette classe représente un évènement dans le calendrier, avec principalement un type, une date avec/sans répétition et une libellé */
+	/** Cette classe représente un évènement dans le calendrier, avec principalement un type, une date avec/sans répétition et une libellé*/
 	function CalendarEvent(data) {
 		// Le type de l'évènement, un objet CalendarEventType
 		this.type = data.type;
@@ -54,7 +54,7 @@
 
 	/** Cette classe représente une vue possible du calendrier (Semaine, Mois, Année ou autres) */
 	function CalendarView(data) {
-		// le nom de la vue, normalement unique, qui sera utilisé dans l'IHM 
+		// le nom de la vue, normalement unique, qui sera utilisé dans l'IHM
 		this.name = data.name;
 		// function(currentMoment, count) qui ajoute "count" périodes à "currentMoment"
 		this.offset = data.offset;
@@ -66,13 +66,13 @@
 		this.formatPeriod = data.formatPeriod;
 	}
 
-	/** Cette classe représente une source de données du calendrier (Fichiers .calendar mais aussi une source pour les jours fériés ou autres) */
+	/** Cette classe représente une source de données du calendrier (fichiers .calendar mais aussi une source pour les jours fériés ou autres) */
 	function CalendarSource(data) {
-		// le nom de la source de donnée, normalement unique, qui sera utilisé dans l'IHM 
+		// le nom de la source de donnée, normalement unique, qui sera utilisé dans l'IHM
 		this.name = data.name;
 		// l'icône de la source de donnée, pas forçément unique, qui sera aussi utilisé dans l'IHM
 		this.icon = data.icon;
-		// un booléen indiquant si la source est actuellement affichée dans le calendrier (l'utilisateur peut ainsi choisir un sous-ensemble des sources) 
+		// un booléen indiquant si la source est actuellement affichée dans le calendrier (l'utilisateur peut ainsi choisir un sous-ensemble des sources)
 		this.active = data.active;
 		// un booléen indiquant si la source est modifiable (ajout/modification/suppression d'évènements ou de types d'évènement)
 		this.readonly = data.readonly;
@@ -86,7 +86,7 @@
 	function Calendar() {
 		// Un tableau de CalendarView représentant les vues disponibles (par défaut "Semaine" + "Mois" + "Année")
 		this.views = [];
-		// L'objet CalendarView indiquant la vue sélectionnée (par défaut la première) 
+		// L'objet CalendarView indiquant la vue sélectionnée (par défaut la première)
 		this.view = undefined;
 		// Un tableau de CalendarSource représentant les sources disponibles (vide par défaut)
 		this.sources = [];

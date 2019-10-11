@@ -98,7 +98,7 @@
 					formData.append(paramName, files[i], files[i].name);
 				}
 
-				// Create a native XMLHttpRequest to access progress 
+				// Create a native XMLHttpRequest to access progress
 				var xhr = $.ajaxSettings.xhr();
 				$(xhr.upload).on('progress', self.internalProgress);
 
@@ -116,7 +116,7 @@
 					processData: false,
 					cache: false,
 					timeout: 0,
-					xhr: function() { return xhr; } 
+					xhr: function() { return xhr; }
 				});
 				if (self.options.onerror)
 					self.uploadAjax.fail(function() {

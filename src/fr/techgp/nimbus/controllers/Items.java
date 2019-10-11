@@ -355,7 +355,7 @@ public class Items extends Controller {
 						Item.update(item);
 					}
 				}
-				// Enfin, on sauvegarde le nombre d'éléments dans le dossier de départ 
+				// Enfin, on sauvegarde le nombre d'éléments dans le dossier de départ
 				Integer itemCount = itemCountByFolderId.getOrDefault(item.id, 0);
 				item.content.put("itemCount", itemCount);
 				Item.update(item);
@@ -370,7 +370,7 @@ public class Items extends Controller {
 
 	/**
 	 * Met à jour les méta-données de l'élément "itemId" gérées côté client.
-	 * 
+	 *
 	 * Chaque entrée de méta-donnée se compose des propriétés suivantes :
 	 * - "name", le nom de la propriété
 	 * - "action", l'action à effectuer ("set", "remove")
@@ -486,7 +486,7 @@ public class Items extends Controller {
 		}
 
 		if (! item.folder) {
-		
+
 			// Fichier inexistant dans la destination, il suffit de le déplacer
 			if (existingItem == null) {
 				Item.move(item, targetParent, null);

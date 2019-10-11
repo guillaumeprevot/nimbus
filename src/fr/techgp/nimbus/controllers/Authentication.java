@@ -12,9 +12,9 @@ public class Authentication extends Controller {
 
 	/**
 	 * Cette méthode affiche la page de connexion.
-	 * 
+	 *
 	 * ($urlToLoad, $logout) => HTML
-	 * 
+	 *
 	 * @see login.html
 	 */
 	public static final Route page = (request, response) -> {
@@ -64,7 +64,7 @@ public class Authentication extends Controller {
 
 	/**
 	 * Cette route renvoie l'image de fond de la page de login, si cette image est définie.
-	 * 
+	 *
 	 * () => image
 	 */
 	public static final Route background = (request, response) -> {

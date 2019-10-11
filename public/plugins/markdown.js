@@ -46,7 +46,7 @@
 				MarkdownEditorPreviewHTML: "Preview HTML",
 				MarkdownEditorEditMarkdown: "Edit Markdown",
 				MarkdownEditorExportHTML: "Export to HTML",
-			} 
+			}
 		}
 	});
 

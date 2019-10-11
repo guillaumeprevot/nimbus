@@ -13,7 +13,7 @@ public class Users extends Controller {
 	/**
 	 * Cette route retourne la page de gestion des utilisateurs.
 	 * La page n'est accessible qu'aux administrateurs.
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route page = (request, response) -> {

@@ -65,7 +65,7 @@
 				TextEditorLineSeparatorLF: "Linux, Android, OS X (LF)",
 				TextEditorLineSeparatorCR: "Mac OS (CR)",
 				TextEditorPlaceholder: "The file is currently empty..."
-			} 
+			}
 		}
 	});
 

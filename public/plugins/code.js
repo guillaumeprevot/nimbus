@@ -26,7 +26,7 @@
 		md: { mode: 'markdown', mime: 'text/x-markdown', icon: 'list_alt', alias: 'markdown,mkd' },
 		nsh: { mode: 'nsis', mime: 'text/x-nsis' },
 		pas: { mode: 'pascal', mime: 'text/x-pascal' },
-		php: { mode: 'xml,javascript,css,htmlmixed,clike,php', mime: 'text/x-php' }, 
+		php: { mode: 'xml,javascript,css,htmlmixed,clike,php', mime: 'text/x-php' },
 		pl: { mode: 'perl', mime: 'text/x-perl' },
 		properties: { mode: 'properties', mime: 'text/x-properties' },
 		ps1: { mode: 'powershell', mime: 'application/x-powershell', alias: 'psd1,psm1' },

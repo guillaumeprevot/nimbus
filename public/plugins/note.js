@@ -32,7 +32,7 @@
 					fromUrl: window.location.href,
 					fromTitle: $('title').text()
 				}));
-			}			
+			}
 		}],
 		langs: {
 			fr: {
@@ -140,7 +140,7 @@
 				NoteEditorPasteAsText: "Paste as plain text",
 				NoteEditorPrint: "Print",
 				NoteEditorSource: "Show source",
-			} 
+			}
 		}
 	});
 

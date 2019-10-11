@@ -113,7 +113,7 @@ public class Sync {
 		String query = "/items/list?recursive=true&deleted=false&parentId=" + (this.serverFolderId == null ? "" : this.serverFolderId.toString());
 		return sendRequest(jsessionid, query, false, false, true, (c) -> {
 			String json = IOUtils.toString(c.getInputStream(), StandardCharsets.UTF_8);
-			return new JsonParser().parse(json).getAsJsonArray(); 
+			return new JsonParser().parse(json).getAsJsonArray();
 		});
 	}
 
@@ -325,16 +325,16 @@ public class Sync {
 
 	/**
 	 * Soit "l1" et "l2" les dates de modification d'un fichier (1) en local et (2) sur le serveur.
-	 * 
+	 *
 	 * Idéalement, on voudrait considérer que la date est identique si "l1 == l2". Malheureusement :
 	 * <ul>
 	 * <li>avec l'heure d'été, on se retrouve parfois avec 1 heure exactement de décalage
-	 * <li>le système de fichier n'a pas forçément une précision à la milliseconde (par exemple, 
+	 * <li>le système de fichier n'a pas forçément une précision à la milliseconde (par exemple,
 	 * dans mes tests avec exFAT, les timestamp étaient arrondis aux 2 secondes supérieures).
 	 * </ul>
-	 * 
+	 *
 	 * La méthode utilisée sera donc optimiste en permettant une comparaison plus souple.
-	 * 
+	 *
 	 * @param diff la différence de temps, en ms, entre les 2 dates de modificaiton
 	 * @return true si on "peut" considérer que les 2 dates sont les mêmes
 	 */

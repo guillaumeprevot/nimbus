@@ -7,7 +7,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page du lecteur de fichiers ePub
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route epub = (request, response) -> {
@@ -20,7 +20,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page du lecteur de fichiers PDF
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route pdf = (request, response) -> {
@@ -33,7 +33,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page du lecteur vidéo
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route video = (request, response) -> {
@@ -46,7 +46,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page du lecteur audio
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route audio = (request, response) -> {
@@ -58,7 +58,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page du diaporama
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route diaporama = (request, response) -> {
@@ -73,7 +73,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page de l'éditeur de texte
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route textEditor = (request, response) -> {
@@ -88,7 +88,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page de l'éditeur Markdown
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route markdownEditor = (request, response) -> {
@@ -104,7 +104,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page de l'éditeur de notes
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route noteEditor = (request, response) -> {
@@ -118,7 +118,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page de l'éditeur de code basé sur CodeMirror
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route codeEditor = (request, response) -> {
@@ -131,7 +131,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page permettant de déchiffrer, modifier puis rechiffrer du texte
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route secretEditor = (request, response) -> {
@@ -144,7 +144,7 @@ public class Extensions extends Controller {
 
 	/**
 	 * Cette route affiche la page du calendrier
-	 * 
+	 *
 	 * () => HTML
 	 */
 	public static final Route calendar = (request, response) -> {

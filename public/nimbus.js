@@ -4,7 +4,7 @@ var NIMBUS = (function() {
 	var NIMBUS = {};
 
 	NIMBUS.plugins = {
-		// Contiendra la liste des noms de plugins chargés 
+		// Contiendra la liste des noms de plugins chargés
 		names: [],
 		// Contiendra la liste des propriétés des éléments
 		properties: [],
@@ -210,17 +210,17 @@ NIMBUS.utils = (function() {
 	var audioElement = document.createElement("audio");
 	function isBrowserSupportedAudio(item, extension) {
 		return !item.folder && (extension === 'ogg' && !!audioElement.canPlayType('audio/ogg; codecs="vorbis"')
-			|| item.mimetype.indexOf("audio/") === 0 && !!audioElement.canPlayType(item.mimetype)); 
+			|| item.mimetype.indexOf("audio/") === 0 && !!audioElement.canPlayType(item.mimetype));
 	}
 
 	// Détection du support video
 	// - MDN : https://developer.mozilla.org/en-US/docs/Web/HTML/Supported_media_formats
 	// - Modernizr : https://github.com/Modernizr/Modernizr/blob/master/feature-detects/video.js
 	// - W3Schools : https://www.w3schools.com/tags/av_met_canplaytype.asp
-	// - Fichiers de test : http://samplephotovideo.com/ ou https://www.sample-videos.com/ 
+	// - Fichiers de test : http://samplephotovideo.com/ ou https://www.sample-videos.com/
 	var videoElement = document.createElement("video");
 	function isBrowserSupportedVideo(item, extension) {
-		return !item.folder && item.mimetype.indexOf('video/') === 0 && !!videoElement.canPlayType(item.mimetype); 
+		return !item.folder && item.mimetype.indexOf('video/') === 0 && !!videoElement.canPlayType(item.mimetype);
 	}
 
 	// Détection du support des images
@@ -233,7 +233,7 @@ NIMBUS.utils = (function() {
 	// - Edge accepte bmp, gif, ico, jpg, png, svg, webp MAIS pas tiff
 	// Du coup, plutôt que tout tester :
 	// - on considère quelques extensions comme OK (bmp, gif, ico, jpg, png)
-	// - on considère tiff comme pas bon 
+	// - on considère tiff comme pas bon
 	// - on utilise un test pour "svg" qui prend une ligne (idée trouvée chez Modernizr)
 	// - on utilise un test pour "webp" qui pourra être généralisé
 	var imageExtensions = ['bmp', 'gif', 'ico', 'jpg', 'jpeg', 'png'/*, 'svg', 'tif', 'tiff', 'webp'*/];
@@ -322,7 +322,7 @@ NIMBUS.utils = (function() {
 		getFileExtensionFromString: getFileExtensionFromString,
 		getFileNameFromContentDisposition: getFileNameFromContentDisposition,
 		uploadFile: uploadFile,
-		updateFile: updateFile 
+		updateFile: updateFile
 	};
 })();
 
@@ -1038,11 +1038,11 @@ NIMBUS.navigation = (function() {
 		// Clic sur la checkbox tout/rien sélectionner
 		$('#all-selected-checkbox').click(function() {
 			if ($(this).prop('checked')) {
-				// Cochée -> on sélectionne tout 
+				// Cochée -> on sélectionne tout
 				var rows = $('#items tbody tr:not(.active)').addClass('active');
 				updateSelectionCount(currentSelectionCount + rows.length);
 			} else {
-				// Décochée -> on désélectionne tout 
+				// Décochée -> on désélectionne tout
 				$('#items tbody tr.active').removeClass('active');
 				updateSelectionCount(0);
 			}
@@ -1130,7 +1130,7 @@ NIMBUS.navigation = (function() {
 				$(properties.map(function(p) {
 					var th = $('<th />').data('property', p).text(NIMBUS.translate(p.caption));
 					if (p.align && (p.align !== 'left'))
-						th.css('text-align', p.align); 
+						th.css('text-align', p.align);
 					if (typeof p.width === 'number')
 						th.css('width', p.width + 'px');
 					if (p.sortBy)
@@ -1148,7 +1148,7 @@ NIMBUS.navigation = (function() {
 				var item = items[i];
 				// L'extension associée, si c'est un fichier
 				var extension = NIMBUS.utils.getFileExtensionFromItem(item);
-				// La facet qui gère l'affichage de l'élément. Par défaut, on tombera au moins sur "folder" ou "file" 
+				// La facet qui gère l'affichage de l'élément. Par défaut, on tombera au moins sur "folder" ou "file"
 				var facet = NIMBUS.plugins.facets.find(function(facet) {
 					return facet.accept(item, extension);
 				});
@@ -1191,7 +1191,7 @@ NIMBUS.navigation = (function() {
 				var cells = properties.map(function(p) {
 					var cell = $('<td />');
 					if (p.align && (p.align !== 'left'))
-						cell.css('text-align', p.align); 
+						cell.css('text-align', p.align);
 					if (typeof p.width === 'number')
 						cell.css('width', p.width + 'px');
 					cell.append((p.format ? p.format(item, facet) : item[p.name]) || '');
@@ -1217,9 +1217,9 @@ NIMBUS.navigation = (function() {
 	function showActionsForItem(item) {
 		// Récupérer l'extension de l'élement concerné
 		var extension = NIMBUS.utils.getFileExtensionFromItem(item);
-		// Récupérer la fenêtre modale qui donnera la liste des actions possibles 
+		// Récupérer la fenêtre modale qui donnera la liste des actions possibles
 		var dialog = $('#actions-dialog');
-		// Récupérer le parent des entrées de menu qui vont être ajoutées 
+		// Récupérer le parent des entrées de menu qui vont être ajoutées
 		var list = dialog.find('.list-group');
 		if (list.is(':empty')) {
 			// La 1ère fois, générer la liste des actions
@@ -1270,7 +1270,7 @@ NIMBUS.navigation = (function() {
 		thumbnailObserver = new IntersectionObserver(function(entries) {
 			entries.forEach(entry => {
 				var img;
-				// Chargement "lazy" dès que la moitié de l'image devient visible 
+				// Chargement "lazy" dès que la moitié de l'image devient visible
 				if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && entry.target.classList.contains('lazy')) {
 					// Pour ne pas recommencer si l'utilisateur scroll pendant le chargement
 					entry.target.classList.remove('lazy');

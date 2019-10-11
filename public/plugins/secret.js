@@ -1,7 +1,7 @@
 (function() {
 
 	function accept(item, extension) {
-		return 'secret' === extension; 
+		return 'secret' === extension;
 	}
 
 	NIMBUS.plugins.add({
@@ -55,7 +55,7 @@
 				SecretEditorPassphraseConfirmationPlaceholder: "Confirm passphrase here",
 				SecretEditorCancelButton: "Cancel",
 				SecretEditorValidateButton: "Validate",
-			} 
+			}
 		}
 	});
 

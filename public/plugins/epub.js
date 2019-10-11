@@ -1,7 +1,7 @@
 (function() {
 
 	function accept(item, extension) {
-		return 'epub' === extension; 
+		return 'epub' === extension;
 	}
 
 	NIMBUS.plugins.add({
@@ -27,7 +27,7 @@
 					fromUrl: window.location.href,
 					fromTitle: $('title').text()
 				}));
-			}			
+			}
 		}],
 		langs: {
 			fr: {
@@ -55,7 +55,7 @@
 				EPUBNextPage: "Show next page",
 				EPUBPosition: "Position",
 				EPUBChapters: "Chapters",
-			} 
+			}
 		}
 	});
 

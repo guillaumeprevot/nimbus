@@ -143,7 +143,7 @@
 				DiaporamaRestore: "Exit fullscreen mode",
 				DiaporamaDimensions: "{0}x{1} px",
 				DiaporamaDepth: "{0} bits",
-			} 
+			}
 		}
 	});
 

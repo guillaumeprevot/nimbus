@@ -168,7 +168,7 @@
 				VideoAspectRatio: "Change aspect ratio",
 				VideoFullscreen: "Fullscreen",
 				VideoExitFullscreen: "Exit fullscreen mode",
-			} 
+			}
 		}
 	});
 

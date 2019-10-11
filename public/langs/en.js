@@ -264,6 +264,6 @@ NIMBUS.lang = {
 	},
 	formatDatetime: function(value) {
 		var time = NIMBUS.lang.formatTime(value);
-		return NIMBUS.lang.formatDate(value) + " " + time.substring(0, time.length - 6) + time.substr(-3); 
+		return NIMBUS.lang.formatDate(value) + " " + time.substring(0, time.length - 6) + time.substr(-3);
 	},
 };

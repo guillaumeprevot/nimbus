@@ -194,7 +194,7 @@ public class Configuration {
 	 * - le type MIME d'une extension peut être configuré dans "nimbus.conf"
 	 * - le type MIME par défaut d'un fichier texte est "plain/text"
 	 * - sinon, le type MIME est "application/octet-stream"
-	 * 
+	 *
 	 * @return le type MIME pour cette extension
 	 */
 	public final String getMimeType(String extension) {

@@ -97,7 +97,7 @@
 		}],
 		langs: {
 			fr: {
-				AudioActionPlay: "Ecouter", 
+				AudioActionPlay: "Ecouter",
 				AudioActionPlayFolder: "Ecouter tout le dossier",
 				AudioActionAdd: "Ajouter",
 				AudioActionAddFolder: "Ajouter tout le dossier",
@@ -167,7 +167,7 @@
 				AudioAddModalNoResultMessage: "No result found.",
 				AudioAddModalValidateButton: "Add to playlist",
 				AudioAddModalCloseButton: "Close",
-			} 
+			}
 		}
 	});
 

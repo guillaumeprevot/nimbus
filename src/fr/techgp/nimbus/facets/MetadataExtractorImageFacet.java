@@ -43,7 +43,7 @@ public class MetadataExtractorImageFacet implements Facet {
 		// Get metadatas from GPS
 		// http://www.awaresystems.be/imaging/tiff/tifftags/privateifd/gps.html
 		GpsDirectory gps = metadata.getFirstDirectoryOfType(GpsDirectory.class);
-		if (gps != null) {			
+		if (gps != null) {
 			GeoLocation location = gps.getGeoLocation();
 			if (location != null) {
 				bson.put("latitude", location.getLatitude());

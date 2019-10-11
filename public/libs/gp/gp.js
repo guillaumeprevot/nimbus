@@ -105,7 +105,7 @@
 			var base = keyMap[event.key] || event.key;
 			return keystrokeFromInfo(base, event.altKey, event.ctrlKey, event.metaKey, event.shiftKey);
 		}
-		// Reformate une chaine représentant un raccourci dans l'ordre Shift -> Meta -> Ctrl -> Alt -> key 
+		// Reformate une chaine représentant un raccourci dans l'ordre Shift -> Meta -> Ctrl -> Alt -> key
 		function normalize(keystroke) {
 			var base = keystroke.endsWith('-') ? '-' : keystroke.substring(keystroke.lastIndexOf('-') + 1);
 			var alt = keystroke.indexOf('Alt-') >= 0;

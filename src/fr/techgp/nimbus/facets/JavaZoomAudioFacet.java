@@ -23,7 +23,7 @@ public class JavaZoomAudioFacet implements Facet {
 	@Override
 	public void init(Configuration configuration) {
 		try {
-			// Les genres dans le format ID3v1 sont représentés par un tableau. Par exemple, l'index 32 signifie "Classical". 
+			// Les genres dans le format ID3v1 sont représentés par un tableau. Par exemple, l'index 32 signifie "Classical".
 			// JavaZoom a codé ce tableau mais le champ en question, MpegAudioFileReader.id3v1genres, est privé.
 			// On utilise la réflection pour y accéder et nous éviter de recoder ce tableau.
 			Field mp3genreField = MpegAudioFileReader.class.getDeclaredField("id3v1genres");

@@ -48,7 +48,7 @@ public class SyncMain {
 					(s) -> s.matches("http(s)?://.*"));
 			String login = getPropertyAsString(
 					"nimbus.login",
-					"Please enter your login", 
+					"Please enter your login",
 					(s) -> true);
 			char[] password = getPropertyAsPassword(
 					"nimbus.password",

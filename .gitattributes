@@ -1,12 +1,14 @@
 public/libs/bootstrap/* linguist-vendored
 public/libs/bootswatch/* linguist-vendored
 public/libs/codemirror/* linguist-vendored
+public/libs/dompurify/* linguist-vendored
 public/libs/epub/* linguist-vendored
 public/libs/jquery/* linguist-vendored
 public/libs/jszip/* linguist-vendored
 public/libs/lato/* linguist-vendored
 public/libs/marked/* linguist-vendored
 public/libs/material-icons/* linguist-vendored
+public/libs/moment/* linguist-vendored
 public/libs/pdfjs/* linguist-vendored
 public/libs/popper/* linguist-vendored
 public/libs/prism/* linguist-vendored

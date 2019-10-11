@@ -26,7 +26,7 @@
 			},
 			execute: function(item) {
 				window.open(item.url);
-			}			
+			}
 		}],
 		langs: {
 			fr: {

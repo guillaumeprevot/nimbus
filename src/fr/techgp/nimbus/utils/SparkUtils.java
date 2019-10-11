@@ -71,7 +71,7 @@ public final class SparkUtils {
 		Spark.halt(507, "Insufficient Storage"); // 507
 		return null;
 	}
-	
+
 	public static final String renderJSON(Response response, JsonElement object) {
 		response.type("application/json");
 		return object.toString();

@@ -183,7 +183,7 @@ public class Downloads extends Controller {
 				// Progression (pourcentage si possible ou en Mo sinon)
 				int progress = 0;
 				int nextProgress = 0;
-				
+
 				try (InputStream in = this.connection.getInputStream(); OutputStream out = new FileOutputStream(file)) {
 					byte[] buffer = new byte[1024 * 1024];
 					int count;

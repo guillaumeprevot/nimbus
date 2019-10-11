@@ -205,7 +205,7 @@ public class Controller {
 
 	/**
 	 * Cette méthode génère un template FreeMarker avec les paramètres indiqués
-	 * 
+	 *
 	 * @param name le nom du template à générer
 	 * @param paramAndValues une suite de paramètres "name1:String, value1, name2:String, value2, ..."
 	 * @return le texte issu de la génération du template
@@ -226,9 +226,9 @@ public class Controller {
 
 	/**
 	 * Cette méthode centralise la récupération du thème de l'utilisateur
-	 * 
+	 *
 	 * @param request la requête pour chercher dans la session si l'utilisateur a choisi un thème
-	 * @return le nom du thème choisi par l'utilisateur ou le thème par défaut sinon (cf nimbus.conf) 
+	 * @return le nom du thème choisi par l'utilisateur ou le thème par défaut sinon (cf nimbus.conf)
 	 */
 	protected static final String getUserTheme(Request request) {
 		return StringUtils.coalesce(SparkUtils.queryParamString(request, "theme", null), request.session().attribute("theme"), configuration.getClientDefaultTheme());
@@ -316,7 +316,7 @@ public class Controller {
 	/**
 	 * Cette méthode vérifie si l'espace dispo de l'utilisateur est supérieur ou égal à neededSpace.
 	 * Si l'espace est insuffisant, la méthode SparkUtils.haltInsufficientStorage() est appelée pour interrompre le traitement.
-	 * 
+	 *
 	 * @param userLogin l'utilisateur donc il faudra vérifier le quota et l'espace utilisé
 	 * @param neededSpace l'espace nécessaire pour accomplir l'opération en cours (upload, duplicate, ...)
 	 */
@@ -329,7 +329,7 @@ public class Controller {
 		// Vérifier pour les utilisateurs sans quota qu'il reste suffisamment d'espace disque
 		if (user.quota == null) {
 			if (neededSpace > configuration.getStorageFolder().getFreeSpace())
-				SparkUtils.haltInsufficientStorage(); 
+				SparkUtils.haltInsufficientStorage();
 			return;
 		}
 		// Récupérer l'espace occupé
