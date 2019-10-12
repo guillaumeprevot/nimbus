@@ -15,7 +15,7 @@
 			return new CalendarDate(year.year(), year.month(), year.date());
 		if (year instanceof Date)
 			return new CalendarDate(year.getFullYear(), year.getMonth(), year.getDate());
-		if (year instanceof CalendarDate)
+		if (typeof year === 'object')
 			return new CalendarDate(year.year, year.month, year.date);
 		return new CalendarDate(year, month, date);
 	};
@@ -32,7 +32,7 @@
 		this.defaultRepeat = (typeof defaultRepeat === 'string') ? defaultRepeat : null;
 	}
 
-	/** Cette classe représente un évènement dans le calendrier, avec principalement un type, une date avec/sans répétition et une libellé*/
+	/** Cette classe représente un évènement dans le calendrier, avec principalement un type, une date avec/sans répétition et un libellé */
 	function CalendarEvent(data) {
 		// Le type de l'évènement, un objet CalendarEventType
 		this.type = data.type;
@@ -43,7 +43,7 @@
 		// Le libellé de l'évènement, pour affichage dans le calendrier
 		this.label = data.label;
 		// Une date de fin, si l'évènement s'étale sur plus d'un jour ou si la répétition doit s'arrêter
-		this.endDate = CalendarDate.from(data.endDate);
+		this.endDate = data.endDate ? CalendarDate.from(data.endDate) : null;
 		// Un booléen pour indiquer si l'évènement est terminé
 		this.done = data.done === true;
 		// Un booléen pour indiquer si l'évènement est important
@@ -78,7 +78,7 @@
 		this.readonly = data.readonly;
 		// la liste des types d'évènements de cette source de donnée, un tableau de CalendarEventType
 		this.types = data.types || [];
-		// function(startMoment, endMoment)=>Deferred<CalendarEvent[]> qui sera appelée quand la période visible doit être calculée et renvoyant les évènements dans la période
+		// function(startMoment, endMoment)=>Promise<CalendarEvent[]> qui sera appelée quand la période visible doit être calculée et renvoyant les évènements dans la période
 		this.populate = data.populate || null;
 	}
 
@@ -114,14 +114,16 @@
 
 	/** Cette méthode indique ajuste le calendrier et prévient ceux qui le souhaite qu'un changement a eu lieu */
 	Calendar.prototype.update = function() {
-		this.startMoment = this.view.startMoment(this.currentMoment);
-		this.endMoment = this.view.endMoment(this.currentMoment);
-
-		$(this).trigger('calendarupdate', {
-			currentMoment: this.currentMoment,
-			startMoment: this.startMoment,
-			endMoment: this.endMoment,
-			view: this.view,
+		var startMoment = this.view.startMoment(this.currentMoment);
+		var endMoment = this.view.endMoment(this.currentMoment);
+		Promise.all(this.sources.map((s) => s.populate(startMoment, endMoment))).then((values) => {
+			$(this).trigger('calendarupdate', {
+				currentMoment: this.currentMoment,
+				startMoment: startMoment,
+				endMoment: endMoment,
+				view: this.view,
+				events: Array.prototype.concat.apply([], values)
+			});
 		});
 	};
 
@@ -241,7 +243,7 @@
 					add(CalendarDate.from(moment(easter).add(39, 'days')), "Ascension", false);
 					add(CalendarDate.from(moment(easter).add(50, 'days')), "Lundi de Pentecôte", false);
 				}
-				return $.Deferred().resolve(results);
+				return Promise.resolve(results);
 			},
 		});
 	}
@@ -249,15 +251,25 @@
 	/** Une source de données éditable contenue dans un fichier ".calendar" de Nimbus */
 	function createNimbusFileCalendarSource(item, active) {
 		return $.get('/files/stream/' + item.id).then(function(result) {
-			console.log(item.name, result);
+			var types = result.types.map((t) => new CalendarEventType(t.label, t.color, t.active, t.defaultRepeat));
+			var events = result.events.map((e) => new CalendarEvent({
+				type: types[e.type],
+				date: e.date,
+				repeat: e.repeat,
+				label: e.label,
+				endDate: e.endDate,
+				done: e.done,
+				important: e.important,
+				note: e.note,
+			}));
 			return new CalendarSource({
 				name: item.name.replace(/.calendar/gi, ''),
 				icon: 'event',
 				active: active,
 				readonly: false,
-				types: [], // TODO
+				types: types,
 				populate: function(startMoment, endMoment) {
-					return $.Deferred().resolve([]); // TODO
+					return Promise.resolve(events);
 				},
 			});
 		});
