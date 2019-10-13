@@ -12,6 +12,33 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
+#days { position: sticky; top: 0; display: flex; flex-direction: row; font-weight: bold; }
+#days > div { flex: 1 1 1px; text-align: center; text-transform: capitalize; }
+#days > div:first-child { flex: 0 0 2em; }
+
+.week { display: flex; flex-direction: row; }
+.week-number { flex: 0 0 2em; text-align: right; padding: 2px; }
+.day { flex: 1 1 1px; display: flex; flex-direction: column; }
+.day-header { flex: 0 0 1.5em; text-align: right; padding: 0 0.5em; }
+.day-header > .month-name { float: left; font-weight: bold; text-transform: capitalize; }
+.day-header > .day-name { display: none; }
+.day-content { flex: 1 1 1px; min-height: 4em; }
+
+@media (max-width: 1023px) {
+	#periodLongDescription { display: none; }
+	.month-name { display: none; }
+}
+@media (min-width: 1024px) {
+	#periodShortDescription { display: none; }
+}
+
+@media (max-width: 639px) {
+	#days { display: none; }
+	.week { display: block; }
+	.week-number { display: block; }
+	.day-header > .day-name { display: inline; padding-right: 0.5em; }
+	.day-header > .month-name { display: inline; }
+}
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
@@ -30,16 +57,163 @@
 		</div>
 
 		<div class="btn-group">
+			<button id="prevButton" type="button" class="btn btn-link btn-sm" data-translate="title" title="CalendarPreviousPeriod"><i class="material-icons">chevron_left</i></button>
+			<div class="btn btn-link" data-translate="title" title="CalendarSelectDate">
+				<i class="material-icons">event</i>
+				<input id="selectInput" type="date" style="opacity: 0; position: absolute; left: 0; width: 100%; top: 0; height: 100%; "/>
+			</div>
+			<div class="btn-group">
+				<button id="viewButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSelectView" aria-haspopup="true" aria-expanded="false"><i class="material-icons">visibility</i></button>
+				<div id="viewMenu" class="dropdown-menu" aria-labelledby="viewButton"></div>
+			</div>
+			<button id="nextButton" type="button" class="btn btn-link btn-sm" data-translate="title" title="CalendarNextPeriod"><i class="material-icons">chevron_right</i></button>
 		</div>
 
 		<div class="float-right">
+			<div class="btn-group">
+				<button id="sourceButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSourceView" aria-haspopup="true" aria-expanded="false"><i class="material-icons">view_list</i></button>
+				<div id="sourceMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="sourceButton"></div>
+			</div>
 			<button id="closeButton" type="button" class="btn btn-link" data-translate="title" title="CalendarClose"><i class="material-icons">close</i></button>
 		</div>
 	</header>
-	<main></main>
-	<footer></footer>
+	<main>
+		<div id="days" class="bg-primary text-white border-bottom border-dark">
+			<div>&nbsp;</div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<div id="weeks"></div>
+	</main>
+	<footer class="bg-secondary">
+		<span id="periodShortDescription" class="text-white"></span>
+		<span id="periodLongDescription" class="text-white"></span>
+	</footer>
 <script>
 "use strict";
+
+function prepareCalendar(items, itemId) {
+	// Récupération de l'API
+	var api = NIMBUS.utils.calendar;
+	// Création d'un calendrier
+	var calendar = new api.Calendar();
+	// Ajout des vues disponibles ("Semaine", "Multi-semaines", "Mois", "Multi-mois" et "Année")
+	calendar.views.push(api.createWeekCalendarView(NIMBUS.translate('CalendarSelectViewWeek')));
+	calendar.views.push(api.createWeeksCalendarView(NIMBUS.translate('CalendarSelectViewWeeks'), 4, 1));
+	calendar.views.push(api.createMonthCalendarView(NIMBUS.translate('CalendarSelectViewMonth')));
+	calendar.views.push(api.createMonthsCalendarView(NIMBUS.translate('CalendarSelectViewMonths'), 2, 1));
+	calendar.views.push(api.createYearCalendarView(NIMBUS.translate('CalendarSelectViewYear')));
+	// Affichage en vue "Mois" par défaut
+	calendar.view = calendar.views[2];
+	// Ajout d'une source par fichier ".calendar"
+	return Promise.all(items.map((item) => api.createNimbusFileCalendarSource(item, itemId === null || itemId === item.id))).then((sources) => {
+		Array.prototype.push.apply(calendar.sources, sources);
+	}).then(function() {
+		// Ajout d'une source pour les jours fériés en France 
+		calendar.sources.push(api.createFrenchSpecialDaysCalendarSource(NIMBUS.translate('CalendarFrenchSpecialDays'), '#eee', true));
+	}).then(function() {
+		// Finalisation en retournant le calendrier
+		console.log(calendar);
+		return calendar;
+	});
+}
+
+function connectSelectInput(calendar) {
+	// Le format de date moment correspondan aux "input[type=date]"
+	var inputDateFormat = 'YYYY-MM-DD';
+	// Ajuster le calendrier quand la date de l'input change
+	$('#selectInput').on('input', (event) => calendar.showMoment(moment(event.target.value, inputDateFormat)));
+	// Ajuster l'input quand la date du calendrier change
+	$(calendar).on('calendarupdate', function(event, data) {
+		$('#selectInput').val(data.currentMoment.format(inputDateFormat));
+	});
+}
+
+function connectViewMenu(calendar) {
+	// Récupérer le menu affichant les vues
+	var menu = $('#viewMenu');
+	// Initialiser le menu
+	menu.append(calendar.views.map(function(view) {
+		return $('<button class="dropdown-item" />')
+			.toggleClass('active', calendar.view === view)
+			.text(view.name)
+			.get(0);
+	}));
+	// Ajuster le calendrier quand l'utilisateur change de vue
+	menu.on('click', '.dropdown-item', function(event) {
+		var menuItem = $(event.target).closest('.dropdown-item');
+		calendar.view = calendar.views[menuItem.index()];
+		calendar.update();
+		menuItem.addClass('active').siblings().removeClass('active');
+	});
+}
+
+function connectSourceMenu(calendar) {
+	// Récupérer le menu affichant les sources
+	var menu = $('#sourceMenu');
+	// Initialiser le menu
+	menu.append(calendar.sources.map(function(source) {
+		return $('<button class="dropdown-item" />')
+			.data('source', source)
+			.append($('<i class="material-icons text-muted indicator" style="float: right; ">check</i>').toggle(source.active))
+			.append($('<i class="material-icons text-muted" />').text(source.icon))
+			.append($('<span style="padding-right: 40px; padding-left: 10px; " />').text(source.name))
+			.get(0);
+	}));
+	// Ajuster le calendrier quand l'utilisateur active ou désactive une source
+	menu.on('click', '.dropdown-item', function(event) {
+		var menuItem = $(event.target).closest('.dropdown-item');
+		menuItem.find('.indicator').toggle();
+		var s = menuItem.data('source');
+		s.active = !s.active;
+		calendar.update();
+	});
+}
+
+function connectMainView(calendar) {
+	// Récupérer quelques infos dépendant de la langue
+	var localeData = moment.localeData();
+	var weekdays = localeData.weekdays();
+	var firstDayOfWeek = localeData.firstDayOfWeek();
+	// Indiquer le nom des jours sur une ligne fixe en haut
+	$('#days > :gt(0)').each(function(index, div) {
+		div.textContent = weekdays[(firstDayOfWeek + index) % 7];
+	})
+	// Ecouter les modifications du calendrier pour mettre à jour l'IHM
+	$(calendar).on('calendarupdate', function(event, data) {
+		$('#periodShortDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, false));
+		$('#periodLongDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, true));
+
+		var s = moment(data.startMoment).startOf('week');
+		var e = moment(data.endMoment).endOf('week');
+		var m = moment(s);
+		var weeks = $('#weeks').empty();
+		do {
+			var week = $('<div class="week border-bottom border-dark" />');
+			$('<div class="week-number" />').text(m.isoWeek()).appendTo(week);
+			for (var i = 0; i < 7; i++) {
+				var monthName = $('<span class="month-name" />').text(m.date() === 1 ? m.format('MMMM') : ''); 
+				var dayName = $('<span class="day-name" />').text(weekdays[(firstDayOfWeek + m.weekday()) % 7]);
+				var dayNumber = $('<span class="day-number" />').text(m.format('Do'));
+				var out = m.isBefore(data.startMoment) || m.isAfter(data.endMoment);
+				$('<div class="day border-left border-dark" />')
+					.toggleClass('day-out', out)
+					.attr('data-day', m.format('YYYYMMDD'))
+					.append($('<div class="day-header text-white" />').append(monthName).append(dayName).append(dayNumber)
+							.toggleClass('bg-secondary', out).toggleClass('bg-primary', !out))
+					.append($('<div class="day-content" />'))
+					.appendTo(week);
+				m.add(1, 'day');
+			}
+			week.appendTo(weeks);
+		} while (m.isBefore(e));
+	});
+}
 
 //Initialiser la page
 NIMBUS.init(['calendar.js'], function() {
@@ -62,11 +236,23 @@ NIMBUS.init(['calendar.js'], function() {
 		deleted: false,
 		extensions: 'calendar'
 	}).then(function(results) {
+		return prepareCalendar(results, itemId);
+	}).then(function(calendar) {
 		var saveButton = $('#saveButton');
 
 		function showSaveButton() {
 			saveButton.removeClass('nimbus-hidden');
 		}
+
+		// Initialiser le reste de l'IHM
+		connectSelectInput(calendar);
+		connectViewMenu(calendar);
+		connectSourceMenu(calendar);
+		connectMainView(calendar);
+		calendar.update();
+
+		$('#prevButton').on('click', () => calendar.showPrevious());
+		$('#nextButton').on('click', () => calendar.showNext());
 
 		saveButton.on('click', function() {
 			/*
@@ -81,6 +267,8 @@ NIMBUS.init(['calendar.js'], function() {
 
 		// Manipulation au clavier
 		body.keystrokes({
+			'PageUp': () => calendar.showPrevious(),
+			'PageDown': () => calendar.showNext(),
 			'Ctrl-s': () => saveButton.click(),
 		});
 
@@ -88,6 +276,10 @@ NIMBUS.init(['calendar.js'], function() {
 		$('main').swipe().on('swipe', function(event, swipe) {
 			// swipe.duration: milliseconds between "touchstart" and "touchend" events
 			// swipe.direction: 8 directions including "top" "bottom" "left" "right"
+			if (swipe.direction === 'left')
+				calendar.showNext();
+			else if (swipe.direction === 'right')
+				calendar.showPrevious();
 		});
 	});
 });
