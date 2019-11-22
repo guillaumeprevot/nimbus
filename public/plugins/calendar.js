@@ -21,13 +21,15 @@
 	};
 
 	/** Cette classe représente un type d'évènement dans le calendrier, avec principalement un nom et une couleur */
-	function CalendarEventType(label, color, active, defaultRepeat) {
+	function CalendarEventType(label, color, active, defaultRepeat, editOnCreation) {
 		// Le libellé du type d'évènement, pour sélection dans l'IHM
-		this.label = label;
+		this.label = label || '';
 		// La couleur du type d'évènement, pour affichage dans le calendrier
-		this.color = color;
+		this.color = color || '';
 		// Un booléen pour indiquer si ce type est encore actif. Sinon, il n'est pas proposé à l'ajout par exemple
 		this.active = (typeof active === 'boolean') ? active : true;
+		// Un booléen pour indiquer si on ouvre la zone de personnalisation lors de la création
+		this.editOnCreation = (typeof editOnCreation === 'boolean') ? editOnCreation : true;
 		// La répétition par défaut pour les évènements créés avec ce type. Par exemple "yearly" pour un type anniversaire
 		this.defaultRepeat = (typeof defaultRepeat === 'string') ? defaultRepeat : null;
 	}
@@ -222,7 +224,7 @@
 
 	/** Une source de données en lecture-seule représentant les jours fériés en France */
 	function createFrenchSpecialDaysCalendarSource(name, color, active) {
-		var type = new CalendarEventType(name, color, true, 'yearly');
+		var type = new CalendarEventType(name, color, true, 'yearly', true);
 		return new CalendarSource({
 			name: name,
 			icon: 'sentiment_satisfied_alt',
@@ -256,7 +258,7 @@
 	/** Une source de données éditable contenue dans un fichier ".calendar" de Nimbus */
 	function createNimbusFileCalendarSource(item, active) {
 		return $.get('/files/stream/' + item.id).then(function(result) {
-			var types = result.types.map((t) => new CalendarEventType(t.label, t.color, t.active, t.defaultRepeat));
+			var types = result.types.map((t) => new CalendarEventType(t.label, t.color, t.active, t.defaultRepeat, t.editOnCreation));
 			var events = result.events.map((e) => new CalendarEvent({
 				type: types[e.type],
 				date: e.date,
@@ -335,7 +337,28 @@
 				CalendarSelectViewMonth: "Mois",
 				CalendarSelectViewMonths: "Multi-mois",
 				CalendarSelectViewYear: "Année",
+				CalendarSelectSource: "Choisir les sources",
 				CalendarFrenchSpecialDays: "Jours fériés français",
+				CalendarRepeatNone: "pas de répétition",
+				CalendarRepeatDaily: "chaque jour",
+				CalendarRepeatWeekly: "chaque semaine",
+				CalendarRepeatMonthly: "chaque mois",
+				CalendarRepeatQuarterly: "chaque trimestre",
+				CalendarRepeatYearly: "chaque année",
+				CalendarAddEventTypeButton: "Ajouter un type d'évènement...",
+				CalendarEditEventTypeTitle: "Modifier le type d'évènement...",
+				CalendarDeleteEventTypeTitle: "Supprimer le type d'évènement",
+				CalendarEventTypeModalTitle: "Type d'évènement",
+				CalendarEventTypeLabelLabel: "Intitulé",
+				CalendarEventTypeLabelPlaceholder: "(obligatoire)",
+				CalendarEventTypeColorLabel: "Couleur",
+				CalendarEventTypeColorPlaceholder: "(pensez au mode clair et au mode sombre)",
+				CalendarEventTypeRepeatLabel: "Répétition par défaut",
+				CalendarEventTypeActiveLabel: "Activer ce type",
+				CalendarEventTypeEditOnCreationLabel: "Editer lors de la création",
+				CalendarEventTypeCancelButton: "Annuler",
+				CalendarEventTypeAddButton: "Ajouter ce type",
+				CalendarEventTypeApplyButton: "Appliquer",
 				CalendarClose: "Fermer l'agenda",
 			},
 			en: {
@@ -351,7 +374,28 @@
 				CalendarSelectViewMonth: "Month",
 				CalendarSelectViewMonths: "Months",
 				CalendarSelectViewYear: "Year",
+				CalendarSelectSource: "Select sources",
 				CalendarFrenchSpecialDays: "French special days",
+				CalendarRepeatNone: "do not repeat",
+				CalendarRepeatDaily: "repeat each day",
+				CalendarRepeatWeekly: "repeat each week",
+				CalendarRepeatMonthly: "repeat each month",
+				CalendarRepeatQuarterly: "repeat each quarter",
+				CalendarRepeatYearly: "repeat each year",
+				CalendarAddEventTypeButton: "New event type...",
+				CalendarEditEventTypeTitle: "Edit event type...",
+				CalendarDeleteEventTypeTitle: "Delete event type",
+				CalendarEventTypeModalTitle: "Event type properties",
+				CalendarEventTypeLabelLabel: "Label",
+				CalendarEventTypeLabelPlaceholder: "(required)",
+				CalendarEventTypeColorLabel: "Color",
+				CalendarEventTypeColorPlaceholder: "(for dark and light mode)",
+				CalendarEventTypeRepeatLabel: "Default repeat behaviour",
+				CalendarEventTypeActiveLabel: "Enable this type",
+				CalendarEventTypeEditOnCreationLabel: "Customize event on creation",
+				CalendarEventTypeCancelButton: "Cancel",
+				CalendarEventTypeAddButton: "Add type",
+				CalendarEventTypeApplyButton: "Apply",
 				CalendarClose: "Close calendar",
 			}
 		}

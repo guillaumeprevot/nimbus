@@ -12,17 +12,22 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
+#sourceMenu div.dropdown-item { display: flex; align-items: center; }
+#sourceMenu div.dropdown-item span { flex: auto; padding-right: 1.25rem; padding-left: 34px; }
+#sourceMenu div.dropdown-item .btn { flex: none; padding: 0.25rem; }
+
 #days { position: sticky; top: 0; display: flex; flex-direction: row; font-weight: bold; }
 #days > div { flex: 1 1 1px; text-align: center; text-transform: capitalize; }
 #days > div:first-child { flex: 0 0 2em; }
 
 .week { display: flex; flex-direction: row; }
 .week-number { flex: 0 0 2em; text-align: right; padding: 2px; }
-.day { flex: 1 1 1px; display: flex; flex-direction: column; }
-.day-header { flex: 0 0 1.5em; text-align: right; padding: 0 0.5em; }
+.day { flex: 1 1 1px; }
+.day-header { max-height: 1.5em; text-align: right; padding: 0 0.5em; }
 .day-header > .month-name { float: left; font-weight: bold; text-transform: capitalize; }
 .day-header > .day-name { display: none; }
-.day-content { flex: 1 1 1px; min-height: 4em; }
+.day-content { min-height: 4em; padding: 0.2em; }
+.day-content > * { margin: 2px; border-left-width: 6px; border-left-style: solid; padding: 0.3em; }
 
 @media (max-width: 1023px) {
 	#periodLongDescription { display: none; }
@@ -71,7 +76,7 @@
 
 		<div class="float-right">
 			<div class="btn-group">
-				<button id="sourceButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSourceView" aria-haspopup="true" aria-expanded="false"><i class="material-icons">view_list</i></button>
+				<button id="sourceButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSelectSource" aria-haspopup="true" aria-expanded="false"><i class="material-icons">view_list</i></button>
 				<div id="sourceMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="sourceButton"></div>
 			</div>
 			<button id="closeButton" type="button" class="btn btn-link" data-translate="title" title="CalendarClose"><i class="material-icons">close</i></button>
@@ -94,6 +99,57 @@
 		<span id="periodShortDescription" class="text-white"></span>
 		<span id="periodLongDescription" class="text-white"></span>
 	</footer>
+	<form>
+		<div id="eventTypeModal" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title insert" data-translate="text">CalendarEventTypeModalTitle</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="eventTypeLabel" data-translate="text">CalendarEventTypeLabelLabel</label>
+							<input id="eventTypeLabel" type="text" class="form-control" data-translate="placeholder" placeholder="CalendarEventTypeLabelPlaceholder" autofocus="autofocus" />
+						</div>
+						<div class="form-group">
+							<label for="eventTypeColor" data-translate="text">CalendarEventTypeColorLabel</label>
+							<input id="eventTypeColor" type="color" class="form-control" data-translate="placeholder" placeholder="CalendarEventTypeColorPlaceholder" />
+						</div>
+						<div class="form-group">
+							<label for="eventTypeRepeat" data-translate="text">CalendarEventTypeRepeatLabel</label>
+							<select id="eventTypeRepeat" class="form-control">
+								<option value="" data-translate="text">CalendarRepeatNone</option>
+								<option value="daily" data-translate="text">CalendarRepeatDaily</option>
+								<option value="weekly" data-translate="text">CalendarRepeatWeekly</option>
+								<option value="monthly" data-translate="text">CalendarRepeatMonthly</option>
+								<option value="quarterly" data-translate="text">CalendarRepeatQuarterly</option>
+								<option value="yearly" data-translate="text">CalendarRepeatYearly</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="eventTypeActive">
+								<label class="custom-control-label" for="eventTypeActive" data-translate="text">CalendarEventTypeActiveLabel</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="eventTypeEditOnCreation">
+								<label class="custom-control-label" for="eventTypeEditOnCreation" data-translate="text">CalendarEventTypeEditOnCreationLabel</label>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">CalendarEventTypeCancelButton</button>
+						<button id="eventTypeValidateButton" type="button" class="btn btn-primary">
+							<span class="add" data-translate="text">CalendarEventTypeAddButton</span>
+							<span class="apply" data-translate="text">CalendarEventTypeApplyButton</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
 <script>
 "use strict";
 
@@ -157,22 +213,88 @@ function connectViewMenu(calendar) {
 function connectSourceMenu(calendar) {
 	// Récupérer le menu affichant les sources
 	var menu = $('#sourceMenu');
+	// Modèle du bouton d'ajout de nouveaux types
+	var addEventTypeHTML = '<button type="button" class="dropdown-item calendar-add-type"><span style="padding-left: 34px; ">' + NIMBUS.translate('CalendarAddEventTypeButton') + '</span></button>';
+	// Modèle de bouton de modification d'un type
+	var editEventTypeHTML = '<button type="button" class="btn btn-link calendar-edit-type" title="' + NIMBUS.translate('CalendarEditEventTypeTitle') + '"><i class="material-icons">edit</i></button>';
+	// Modèle de bouton de suppression d'un type
+	var deleteEventTypeHTML = '<button type="button" class="btn btn-link calendar-delete-type" title="' + NIMBUS.translate('CalendarDeleteEventTypeTitle') + '"><i class="material-icons text-danger">delete</i></button>';
 	// Initialiser le menu
-	menu.append(calendar.sources.map(function(source) {
-		return $('<button class="dropdown-item" />')
-			.data('source', source)
-			.append($('<i class="material-icons text-muted indicator" style="float: right; ">check</i>').toggle(source.active))
-			.append($('<i class="material-icons text-muted" />').text(source.icon))
-			.append($('<span style="padding-right: 40px; padding-left: 10px; " />').text(source.name))
-			.get(0);
-	}));
+	function buildMenu() {
+		menu.empty();
+		calendar.sources.forEach(function(source, sourceIndex) {
+			// Séparateur entre les sources
+			if (sourceIndex > 0)
+				menu.append('<div class="dropdown-divider"></div>');
+			// Bouton avec l'icone et le nom de la source, permettant de choisir les sources actives 
+			$('<button type="button" class="dropdown-item calendar-toggle-source" />')
+				.data('source', source)
+				.append($('<i class="material-icons text-muted indicator" style="float: right; margin: 0.25rem; ">check</i>').toggle(source.active))
+				.append($('<i class="material-icons text-muted" />').text(source.icon))
+				.append($('<span style="padding-right: 40px; padding-left: 10px; " />').text(source.name))
+				.appendTo(menu);
+			// Pour les sources en lecture-seule, aucune autre action
+			if (source.readonly || !source.active)
+				return;
+			// Boutons pour éditer / supprimer chaque type d'évènement de cette source  
+			source.types.forEach(function(type) {
+				$('<div class="dropdown-item" />')
+					.data('type', type)
+					.data('source', source)
+					.append($('<span />').text(type.label))
+					.append(editEventTypeHTML)
+					.append(deleteEventTypeHTML)
+					.appendTo(menu);
+			});
+			// Bouton pour ajouter un type d'évènement à cette source  
+			$(addEventTypeHTML)
+				.data('source', source)
+				.appendTo(menu);
+		});
+	}
+	buildMenu();
 	// Ajuster le calendrier quand l'utilisateur active ou désactive une source
-	menu.on('click', '.dropdown-item', function(event) {
+	menu.on('click', '.calendar-toggle-source', function(event) {
 		var menuItem = $(event.target).closest('.dropdown-item');
 		menuItem.find('.indicator').toggle();
 		var s = menuItem.data('source');
 		s.active = !s.active;
 		calendar.update();
+		buildMenu();
+	});
+	// Ajouter un type d'évènement quand l'utilisateur clique sur un bouton d'ajout
+	menu.on('click', '.calendar-add-type', function() {
+		var button = $(this).closest('button');
+		var source = button.data('source');
+		var type = new NIMBUS.utils.calendar.CalendarEventType();
+		editEventType(calendar, source, type, true, function() {
+			source.types.push(type);
+			buildMenu();
+		});
+	});
+	// Editer un type d'évènement quand l'utilisateur clique sur un crayon
+	menu.on('click', '.calendar-edit-type', function() {
+		var item = $(this).closest('.dropdown-item');
+		var source = item.data('source');
+		var type = item.data('type');
+		editEventType(calendar, source, type, false, function() {
+			// Update menu content
+			item.children('span').text(type.label);
+		});
+	});
+	// Supprimer un type d'évènement quand l'utilisateur clique sur un crayon
+	menu.on('click', '.calendar-delete-type', function() {
+		var item = $(this).closest('.dropdown-item');
+		var source = item.data('source');
+		var type = item.data('type');
+		// Remove type
+		source.types.splice(source.types.indexOf(type), 1);
+		// Mark source as modified
+		source.modified = true;
+		// Show save button
+		$(calendar).trigger('calendar.change');
+		// Update menu content
+		item.remove();
 	});
 }
 
@@ -210,7 +332,7 @@ function connectMainView(calendar) {
 							.append($('<span class="day-number" />').text(m.format(m.date() === 1 ? 'Do' : 'D'))))
 					.append($('<div class="day-content" />').append(data.events
 							.filter((e) => e.date.year === m.year() && e.date.month === m.month() && e.date.date === m.date())
-							.map((e) => $('<div />').data('event', e).text(e.label || e.type.label).css('border-left', '4px solid ' + e.type.color)[0])))
+							.map((e) => $('<div />').data('event', e).text(e.label || e.type.label).css('border-color', e.type.color)[0])))
 					.appendTo(week);
 				m.add(1, 'day');
 			}
@@ -224,6 +346,41 @@ function connectMainView(calendar) {
 	});
 }
 
+
+function editEventType(calendar, source, type, isNew, callback) {
+	// Prepare form with existing type
+	if (! isNew) {
+		$('#eventTypeLabel').val(type.label);
+		$('#eventTypeColor').val(type.color);
+		$('#eventTypeActive').prop('checked', type.active);
+		$('#eventTypeEditOnCreation').prop('checked', type.editOnCreation);
+		$('#eventTypeRepeat').val(type.defaultRepeat);
+	} else {
+		// Clear label (which will certainly be different) but keep other form values
+		$('#eventTypeLabel').val('');
+	}
+	// Adjust validate button text
+	$('#eventTypeValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
+	// Show modal
+	$('#eventTypeModal').modal();
+	// Adjust validate button action
+	$('#eventTypeValidateButton').off('click').on('click', function() {
+		// Extract form
+		type.label = $('#eventTypeLabel').val();
+		type.color = $('#eventTypeColor').val();
+		type.active = $('#eventTypeActive').prop('checked');
+		type.editOnCreation = $('#eventTypeEditOnCreation').prop('checked');
+		type.defaultRepeat = $('#eventTypeRepeat').val();
+		// Mark source as modified
+		source.modified = true;
+		// Show save button
+		$(calendar).trigger('calendar.change');
+		// Hide modal
+		$('#eventTypeModal').modal('hide');
+		// Alert caller
+		callback();
+	});
+}
 //Initialiser la page
 NIMBUS.init(['calendar.js'], function() {
 	// En haut à gauche, le bouton "Retour"
@@ -247,21 +404,12 @@ NIMBUS.init(['calendar.js'], function() {
 	}).then(function(results) {
 		return prepareCalendar(results, itemId);
 	}).then(function(calendar) {
+		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
 
-		function showSaveButton() {
+		$(calendar).on('calendar.change', function() {
 			saveButton.removeClass('nimbus-hidden');
-		}
-
-		// Initialiser le reste de l'IHM
-		connectSelectInput(calendar);
-		connectViewMenu(calendar);
-		connectSourceMenu(calendar);
-		connectMainView(calendar);
-		calendar.update();
-
-		$('#prevButton').on('click', () => calendar.showPrevious());
-		$('#nextButton').on('click', () => calendar.showNext());
+		});
 
 		saveButton.on('click', function() {
 			/*
@@ -273,6 +421,16 @@ NIMBUS.init(['calendar.js'], function() {
 			});
 			*/
 		});
+
+		// Initialisation du reste de l'IHM
+		connectSelectInput(calendar);
+		connectViewMenu(calendar);
+		connectSourceMenu(calendar);
+		connectMainView(calendar);
+		calendar.update();
+
+		$('#prevButton').on('click', () => calendar.showPrevious());
+		$('#nextButton').on('click', () => calendar.showNext());
 
 		// Manipulation au clavier
 		body.keystrokes({
