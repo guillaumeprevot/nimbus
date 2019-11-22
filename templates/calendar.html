@@ -448,6 +448,9 @@ NIMBUS.init(['calendar.js'], function() {
 			else if (swipe.direction === 'right')
 				calendar.showPrevious();
 		});
+
+		// Désactivation de la soumission des formulaires
+		$('form').on('submit', function() { return false; });
 	});
 });
 </script>
