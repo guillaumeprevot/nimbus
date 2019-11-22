@@ -97,6 +97,9 @@
 <script>
 "use strict";
 
+// Le format de date moment correspondan aux "input[type=date]"
+var inputDateFormat = 'YYYY-MM-DD';
+
 function prepareCalendar(items, itemId) {
 	// Récupération de l'API
 	var api = NIMBUS.utils.calendar;
@@ -118,14 +121,12 @@ function prepareCalendar(items, itemId) {
 		calendar.sources.push(api.createFrenchSpecialDaysCalendarSource(NIMBUS.translate('CalendarFrenchSpecialDays'), '#eee', true));
 	}).then(function() {
 		// Finalisation en retournant le calendrier
-		console.log(calendar);
+		// console.log(calendar);
 		return calendar;
 	});
 }
 
 function connectSelectInput(calendar) {
-	// Le format de date moment correspondan aux "input[type=date]"
-	var inputDateFormat = 'YYYY-MM-DD';
 	// Ajuster le calendrier quand la date de l'input change
 	$('#selectInput').on('input', (event) => calendar.showMoment(moment(event.target.value, inputDateFormat)));
 	// Ajuster l'input quand la date du calendrier change
@@ -186,32 +187,40 @@ function connectMainView(calendar) {
 	})
 	// Ecouter les modifications du calendrier pour mettre à jour l'IHM
 	$(calendar).on('calendarupdate', function(event, data) {
+		// Affichage de la période en format court et long, selon la taille de l'écran
 		$('#periodShortDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, false));
 		$('#periodLongDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, true));
 
-		var s = moment(data.startMoment).startOf('week');
-		var e = moment(data.endMoment).endOf('week');
-		var m = moment(s);
+		// Génération de la grille
+		var m = moment(data.startOfWeek);
 		var weeks = $('#weeks').empty();
 		do {
-			var week = $('<div class="week border-bottom border-dark" />');
-			$('<div class="week-number" />').text(m.isoWeek()).appendTo(week);
+			var week = $('<div class="week border-bottom border-dark" />')
+				.append($('<div class="week-number" />').text(m.isoWeek()));
 			for (var i = 0; i < 7; i++) {
-				var monthName = $('<span class="month-name" />').text(m.date() === 1 ? m.format('MMMM') : ''); 
-				var dayName = $('<span class="day-name" />').text(weekdays[(firstDayOfWeek + m.weekday()) % 7]);
-				var dayNumber = $('<span class="day-number" />').text(m.format('Do'));
 				var out = m.isBefore(data.startMoment) || m.isAfter(data.endMoment);
 				$('<div class="day border-left border-dark" />')
 					.toggleClass('day-out', out)
-					.attr('data-day', m.format('YYYYMMDD'))
-					.append($('<div class="day-header text-white" />').append(monthName).append(dayName).append(dayNumber)
-							.toggleClass('bg-secondary', out).toggleClass('bg-primary', !out))
-					.append($('<div class="day-content" />'))
+					.attr('data-day', m.format(inputDateFormat))
+					.append($('<div class="day-header text-white" />')
+							.toggleClass('bg-secondary', out)
+							.toggleClass('bg-primary', !out)
+							.append($('<span class="month-name" />').text(m.date() === 1 ? m.format('MMMM') : ''))
+							.append($('<span class="day-name" />').text(weekdays[(firstDayOfWeek + m.weekday()) % 7]))
+							.append($('<span class="day-number" />').text(m.format(m.date() === 1 ? 'Do' : 'D'))))
+					.append($('<div class="day-content" />').append(data.events
+							.filter((e) => e.date.year === m.year() && e.date.month === m.month() && e.date.date === m.date())
+							.map((e) => $('<div />').data('event', e).text(e.label || e.type.label).css('border-left', '4px solid ' + e.type.color)[0])))
 					.appendTo(week);
 				m.add(1, 'day');
 			}
 			week.appendTo(weeks);
-		} while (m.isBefore(e));
+		} while (m.isBefore(data.endOfWeek));
+/*
+		// Génération des évènements
+		var days = weeks.find('.day-content').get();
+		console.log(days);
+*/
 	});
 }
 

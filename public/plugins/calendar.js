@@ -116,11 +116,16 @@
 	Calendar.prototype.update = function() {
 		var startMoment = this.view.startMoment(this.currentMoment);
 		var endMoment = this.view.endMoment(this.currentMoment);
-		Promise.all(this.sources.map((s) => s.populate(startMoment, endMoment))).then((values) => {
+		var startOfWeek = moment(startMoment).startOf('week');
+		var endOfWeek = moment(endMoment).endOf('week');
+		var promises = this.sources.filter((s) => s.active).map((s) => s.populate(startOfWeek, endOfWeek));
+		Promise.all(promises).then((values) => {
 			$(this).trigger('calendarupdate', {
 				currentMoment: this.currentMoment,
 				startMoment: startMoment,
 				endMoment: endMoment,
+				startOfWeek: startOfWeek,
+				endOfWeek: endOfWeek,
 				view: this.view,
 				events: Array.prototype.concat.apply([], values)
 			});
@@ -281,6 +286,9 @@
 
 	NIMBUS.utils.calendar = {
 		Calendar: Calendar,
+		CalendarDate: CalendarDate,
+		CalendarEvent: CalendarEvent,
+		CalendarEventType: CalendarEventType,
 		createWeekCalendarView: createWeekCalendarView,
 		createWeeksCalendarView: createWeeksCalendarView,
 		createMonthCalendarView: createMonthCalendarView,
