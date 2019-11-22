@@ -215,6 +215,10 @@ function connectSourceMenu(calendar) {
 	var menu = $('#sourceMenu');
 	// Modèle du bouton d'ajout de nouveaux types
 	var addEventTypeHTML = '<button type="button" class="dropdown-item calendar-add-type"><span style="padding-left: 34px; ">' + NIMBUS.translate('CalendarAddEventTypeButton') + '</span></button>';
+	// Modèle de bouton pour remonter un type
+	var upEventTypeHTML = '<button type="button" class="btn btn-link calendar-up-type" title="' + NIMBUS.translate('CalendarUpEventTypeTitle') + '"><i class="material-icons">keyboard_arrow_up</i></button>';
+	// Modèle de bouton pour descendre un type
+	var downEventTypeHTML = '<button type="button" class="btn btn-link calendar-down-type" title="' + NIMBUS.translate('CalendarDownEventTypeTitle') + '"><i class="material-icons">keyboard_arrow_down</i></button>';
 	// Modèle de bouton de modification d'un type
 	var editEventTypeHTML = '<button type="button" class="btn btn-link calendar-edit-type" title="' + NIMBUS.translate('CalendarEditEventTypeTitle') + '"><i class="material-icons">edit</i></button>';
 	// Modèle de bouton de suppression d'un type
@@ -242,6 +246,8 @@ function connectSourceMenu(calendar) {
 					.data('type', type)
 					.data('source', source)
 					.append($('<span />').text(type.label))
+					.append(upEventTypeHTML)
+					.append(downEventTypeHTML)
 					.append(editEventTypeHTML)
 					.append(deleteEventTypeHTML)
 					.appendTo(menu);
@@ -271,6 +277,44 @@ function connectSourceMenu(calendar) {
 			source.types.push(type);
 			buildMenu();
 		});
+	});
+	// Remonter un type d'évènement quand l'utilisateur clique sur le chevron haut
+	menu.on('click', '.calendar-up-type', function() {
+		var item = $(this).closest('.dropdown-item');
+		var source = item.data('source');
+		var type = item.data('type');
+		var index = source.types.indexOf(type);
+		if (index > 0) {
+			// Move type up
+			source.types.splice(index, 1);
+			source.types.splice(index - 1, 0, type);
+			// Mark source as modified
+			source.modified = true;
+			// Show save button
+			$(calendar).trigger('calendar.change');
+			// Update menu content
+			item.insertBefore(item.prev());
+		}
+		return false;
+	});
+	// Descendre un type d'évènement quand l'utilisateur clique sur le chevron bas
+	menu.on('click', '.calendar-down-type', function() {
+		var item = $(this).closest('.dropdown-item');
+		var source = item.data('source');
+		var type = item.data('type');
+		var index = source.types.indexOf(type);
+		if (index < source.types.length - 1) {
+			// Move type down
+			source.types.splice(index, 1);
+			source.types.splice(index + 1, 0, type);
+			// Mark source as modified
+			source.modified = true;
+			// Show save button
+			$(calendar).trigger('calendar.change');
+			// Update menu content
+			item.insertAfter(item.next());
+		}
+		return false;
 	});
 	// Editer un type d'évènement quand l'utilisateur clique sur un crayon
 	menu.on('click', '.calendar-edit-type', function() {
