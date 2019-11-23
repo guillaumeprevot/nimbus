@@ -19,6 +19,7 @@
 #days { position: sticky; top: 0; display: flex; flex-direction: row; font-weight: bold; }
 #days > div { flex: 1 1 1px; text-align: center; text-transform: capitalize; }
 #days > div:first-child { flex: 0 0 2em; }
+#weeks .popover { max-width: unset; }
 
 .week { display: flex; flex-direction: row; }
 .week-number { flex: 0 0 2em; text-align: right; padding: 2px; }
@@ -144,6 +145,69 @@
 						<button id="eventTypeValidateButton" type="button" class="btn btn-primary">
 							<span class="add" data-translate="text">CalendarEventTypeAddButton</span>
 							<span class="apply" data-translate="text">CalendarEventTypeApplyButton</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	<form>
+		<div id="eventModal" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title insert" data-translate="text">CalendarEventModalTitle</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="eventModalType" data-translate="text">CalendarEventModalTypeLabel</label>
+							<select id="eventModalType" class="form-control" required="required" autofocus="autofocus"></select>
+						</div>
+						<div class="form-group">
+							<label for="eventModalDate" data-translate="text">CalendarEventModalDateLabel</label>
+							<input id="eventModalDate" type="date" class="form-control" required="required" data-translate="placeholder" placeholder="CalendarEventModalDatePlaceholder" />
+						</div>
+						<div class="form-group">
+							<label for="eventModalRepeat" data-translate="text">CalendarEventModalRepeatLabel</label>
+							<select id="eventModalRepeat" class="form-control">
+								<option value="" data-translate="text">CalendarRepeatNone</option>
+								<option value="daily" data-translate="text">CalendarRepeatDaily</option>
+								<option value="weekly" data-translate="text">CalendarRepeatWeekly</option>
+								<option value="monthly" data-translate="text">CalendarRepeatMonthly</option>
+								<option value="quarterly" data-translate="text">CalendarRepeatQuarterly</option>
+								<option value="yearly" data-translate="text">CalendarRepeatYearly</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="eventModalLabel" data-translate="text">CalendarEventModalLabelLabel</label>
+							<input id="eventModalLabel" type="text" class="form-control" data-translate="placeholder" placeholder="CalendarEventModalLabelPlaceholder" />
+						</div>
+						<div class="form-group">
+							<label for="eventModalEndDate" data-translate="text">CalendarEventModalEndDateLabel</label>
+							<input id="eventModalEndDate" type="date" class="form-control" data-translate="placeholder" placeholder="CalendarEventModalEndDatePlaceholder" />
+						</div>
+						<div class="form-group">
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="eventModalDone">
+								<label class="custom-control-label" for="eventModalDone" data-translate="text">CalendarEventModalDoneLabel</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="eventModalImportant">
+								<label class="custom-control-label" for="eventModalImportant" data-translate="text">CalendarEventModalImportantLabel</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="eventModalNote" data-translate="text">CalendarEventModalNoteLabel</label>
+							<textarea id="eventModalNote" class="form-control" data-translate="placeholder" placeholder="CalendarEventModalNotePlaceholder"></textarea>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">CalendarEventModalCancelButton</button>
+						<button id="eventModalValidateButton" type="button" class="btn btn-primary">
+							<span class="add" data-translate="text">CalendarEventModalAddButton</span>
+							<span class="apply" data-translate="text">CalendarEventModalApplyButton</span>
 						</button>
 					</div>
 				</div>
@@ -390,6 +454,126 @@ function connectMainView(calendar) {
 	});
 }
 
+function connectPopover(calendar) {
+	$('#weeks').popover({
+		trigger: 'click',
+		selector: '.day-header, .day-content > div',
+		container: '#weeks',
+		html: true,
+		content: function() {
+			// Get clicked element
+			var self = $(this);
+			// Get clicked day
+			var day = self.closest('.day').attr('data-day');
+			// Create menu container
+			var menu = $('<div class="list-group list-group-flush day-menu" />').attr('data-day', day);
+			// Cacher le menu précédent, au cas où on clique sur plusieurs en-têtes
+			hidePopover();
+			if (self.parent().is('.day-content')) {
+				var event = self.data('event');
+				$('<button type="button" class="list-group-item list-group-item-action calendar-edit-event" />')
+					.text(NIMBUS.translate('CalendarEditEventButton'))
+					.data('event', event)
+					.appendTo(menu);
+				$('<button type="button" class="list-group-item list-group-item-action calendar-delete-event text-danger" />')
+					.text(NIMBUS.translate('CalendarDeleteEventButton'))
+					.data('event', event)
+					.appendTo(menu);
+			} else {
+				// Liste des types d'évènements de chaque source, pour création rapide, modification ou suppression
+				calendar.sources.forEach(function(source) {
+					if (source.readonly || !source.active)
+						return;
+					// Source event types
+					source.types.forEach(function(type) {
+						if (!type.active)
+							return;
+						$('<button type="button" class="list-group-item list-group-item-action calendar-fast-event" />')
+							.text(type.label) // Show type label as main text
+							.prepend($('<span class="text-muted" style="float: right; " />').text(' (' + source.name + ')')) // Show source name as muted text
+							.data('type', type).data('source', source)
+							.appendTo(menu);
+					});
+				});
+				// Bouton de création d'évènement via la fenêtre modale, avec plus d'options
+				$('<button type="button" class="list-group-item list-group-item-action calendar-new-event" />')
+					.text(NIMBUS.translate('CalendarAddCustomEventButton'))
+					.appendTo(menu);
+			}
+			return menu;
+		}
+	}).on('click', '.calendar-fast-event', function() {
+		// Nouvel évènement du type "type" le jour "day"
+		var api = NIMBUS.utils.calendar;
+		var entry = $(this).closest('.list-group-item');
+		var source = entry.data('source');
+		var type = entry.data('type');
+		var day = entry.parent().attr('data-day');
+		var event = new api.CalendarEvent({ type: type, date: moment(day, inputDateFormat), repeat: type.defaultRepeat });
+		hidePopover();
+		if (type.editOnCreation)
+			// Allow event customization
+			editEvent(calendar, event, true, function() {
+				// Refresh page
+				calendar.update();
+			});
+		else {
+			// Apply modifications
+			source.add(event);
+			// Mark for later saving
+			source.modified = true;
+			// Refresh page
+			calendar.update();
+			// Show save button
+			$(calendar).trigger('calendar.change');
+		}
+	}).on('click', '.calendar-new-event', function() {
+		// Nouvel évènement personnalisé le jour "day"
+		var api = NIMBUS.utils.calendar;
+		var entry = $(this).closest('.list-group-item');
+		var day = entry.parent().attr('data-day');
+		var event = new api.CalendarEvent({ date: moment(day, inputDateFormat) });
+		hidePopover();
+		// Customize event
+		editEvent(calendar, event, true, function() {
+			// Refresh page
+			calendar.update();
+		});
+	}).on('click', '.calendar-edit-event', function() {
+		// Edition d'un évènement existant
+		var entry = $(this).closest('.list-group-item');
+		var event = entry.data('event');
+		hidePopover();
+		// Customize event
+		editEvent(calendar, event, false, function() {
+			// Refresh page
+			calendar.update();
+		});
+	}).on('click', '.calendar-delete-event', function() {
+		// Suppression d'un évènement existant
+		var entry = $(this).closest('.list-group-item');
+		var event = entry.data('event');
+		hidePopover();
+		calendar.sources.forEach(function(source) {
+			if (source.types.indexOf(event.type) >= 0) {
+				// Apply modifications
+				source.remove(event);
+				// Mark for later saving
+				source.modified = true;
+				// Refresh page
+				calendar.update();
+				// Show save button
+				$(calendar).trigger('calendar.change');
+			}
+		});
+	});
+	
+	function hidePopover() {
+		var popover = $('#weeks').children('.popover');
+		if (popover.length > 0)
+			$('[aria-describedby="' + popover.attr('id') + '"]').popover('hide');
+	}
+}
 
 function editEventType(calendar, source, type, isNew, callback) {
 	// Prepare form with existing type
@@ -425,6 +609,55 @@ function editEventType(calendar, source, type, isNew, callback) {
 		callback();
 	});
 }
+
+function editEvent(calendar, event, isNew, callback) {
+	// Populate type select
+	var typeSelect = $('#eventModalType').empty().prop('autofocus', ! event.type);
+	calendar.sources.forEach(function(s) {
+		s.types.forEach(function(t) {
+			$('<option />').data('type', t).prop('selected', t === event.type).text(s.name + ' - ' + t.label).appendTo(typeSelect);
+		});
+	});
+	// Prepare form with existing event
+	var dateInput = $('#eventModalDate').val(event.date.toMoment().format(inputDateFormat));
+	var repeatSelect = $('#eventModalRepeat').val(event.repeat || '');
+	var labelInput = $('#eventModalLabel').val(event.label || '').prop('autofocus', !!event.type);
+	var endDateInput = $('#eventModalEndDate').val(event.endDate ? event.endDate.toMoment().format(inputDateFormat) : '');
+	var doneCheckbox = $('#eventModalDone').prop('checked', !!event.done);
+	var importantCheckbox = $('#eventModalImportant').prop('checked', !!event.important);
+	var noteTextarea = $('#eventModalNote').val(event.note || '');
+	// Adjust validate button text
+	$('#eventModalValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
+	// Show modal
+	$('#eventModal').modal();
+	// Adjust validate button action
+	$('#eventModalValidateButton').off('click').on('click', function() {
+		// Extract form
+		event.type = typeSelect.children(':selected').data('type');
+		event.date = NIMBUS.utils.calendar.CalendarDate.from(moment(dateInput.val(), inputDateFormat));
+		event.repeat = repeatSelect.val() || null;
+		event.label = labelInput.val() || null;
+		event.endDate = endDateInput.val() ? NIMBUS.utils.calendar.CalendarDate.from(moment(endDateInput.val(), inputDateFormat)) : null;
+		event.done = doneCheckbox.prop('checked');
+		event.important = importantCheckbox.prop('checked');
+		event.note = noteTextarea.val() || null;
+		// Mark source as modified
+		calendar.sources.forEach(function(source) {
+			if (source.types.indexOf(event.type) >= 0) {
+				source.modified = true;
+				if (isNew)
+					source.add(event);
+			}
+		});
+		// Show save button
+		$(calendar).trigger('calendar.change');
+		// Hide modal
+		$('#eventModal').modal('hide');
+		// Alert caller
+		callback();
+	});
+}
+
 //Initialiser la page
 NIMBUS.init(['calendar.js'], function() {
 	// En haut à gauche, le bouton "Retour"
@@ -467,6 +700,7 @@ NIMBUS.init(['calendar.js'], function() {
 		connectViewMenu(calendar);
 		connectSourceMenu(calendar);
 		connectMainView(calendar);
+		connectPopover(calendar);
 		calendar.update();
 
 		$('#prevButton').on('click', () => calendar.showPrevious());

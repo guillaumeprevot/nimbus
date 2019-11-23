@@ -20,6 +20,10 @@
 		return new CalendarDate(year, month, date);
 	};
 
+	CalendarDate.prototype.toMoment = function() {
+		return moment().year(this.year).month(this.month).date(this.date);
+	};
+
 	/** Cette classe représente un type d'évènement dans le calendrier, avec principalement un nom et une couleur */
 	function CalendarEventType(label, color, active, defaultRepeat, editOnCreation) {
 		// Le libellé du type d'évènement, pour sélection dans l'IHM
@@ -378,6 +382,9 @@
 				CalendarRepeatMonthly: "chaque mois",
 				CalendarRepeatQuarterly: "chaque trimestre",
 				CalendarRepeatYearly: "chaque année",
+				CalendarAddCustomEventButton: "Ajouter un évènement personnalisé...",
+				CalendarEditEventButton: "Modifier l'évènement...",
+				CalendarDeleteEventButton: "Supprimer l'évènement",
 				CalendarAddEventTypeButton: "Ajouter un type d'évènement...",
 				CalendarUpEventTypeTitle: "Déplacer vers le haut",
 				CalendarDownEventTypeTitle: "Déplacer vers le bas",
@@ -394,6 +401,22 @@
 				CalendarEventTypeCancelButton: "Annuler",
 				CalendarEventTypeAddButton: "Ajouter ce type",
 				CalendarEventTypeApplyButton: "Appliquer",
+				CalendarEventModalTitle: "Evènement",
+				CalendarEventModalTypeLabel: "Type d'évènement",
+				CalendarEventModalDateLabel: "Date",
+				CalendarEventModalDatePlaceholder: "(format aaaa-mm-jj)",
+				CalendarEventModalRepeatLabel: "Répétition",
+				CalendarEventModalLabelLabel: "Intitulé",
+				CalendarEventModalLabelPlaceholder: "(facultatif)",
+				CalendarEventModalEndDateLabel: "Date de fin",
+				CalendarEventModalEndDatePlaceholder: "(format aaaa-mm-jj)",
+				CalendarEventModalDoneLabel: "Marquer comme terminé",
+				CalendarEventModalImportantLabel: "Marquer comme important",
+				CalendarEventModalNoteLabel: "Note",
+				CalendarEventModalNotePlaceholder: "(facultatif)",
+				CalendarEventModalCancelButton: "Annuler",
+				CalendarEventModalAddButton: "Ajouter",
+				CalendarEventModalApplyButton: "Appliquer",
 				CalendarClose: "Fermer l'agenda",
 			},
 			en: {
@@ -417,6 +440,9 @@
 				CalendarRepeatMonthly: "repeat each month",
 				CalendarRepeatQuarterly: "repeat each quarter",
 				CalendarRepeatYearly: "repeat each year",
+				CalendarAddCustomEventButton: "New custom event...",
+				CalendarEditEventButton: "Edit event...",
+				CalendarDeleteEventButton: "Delete event",
 				CalendarAddEventTypeButton: "New event type...",
 				CalendarUpEventTypeTitle: "Move event type up",
 				CalendarDownEventTypeTitle: "Move event type down",
@@ -433,6 +459,22 @@
 				CalendarEventTypeCancelButton: "Cancel",
 				CalendarEventTypeAddButton: "Add type",
 				CalendarEventTypeApplyButton: "Apply",
+				CalendarEventModalTitle: "Event properties",
+				CalendarEventModalTypeLabel: "Event type",
+				CalendarEventModalDateLabel: "Date",
+				CalendarEventModalDatePlaceholder: "(formated as yyyy-mm-dd)",
+				CalendarEventModalRepeatLabel: "Repeat",
+				CalendarEventModalLabelLabel: "Label",
+				CalendarEventModalLabelPlaceholder: "(optional)",
+				CalendarEventModalEndDateLabel: "End date",
+				CalendarEventModalEndDatePlaceholder: "(formated as yyyy-mm-dd)",
+				CalendarEventModalDoneLabel: "Mark as done",
+				CalendarEventModalImportantLabel: "Mark as important",
+				CalendarEventModalNoteLabel: "Note",
+				CalendarEventModalNotePlaceholder: "(optional)",
+				CalendarEventModalCancelButton: "Cancel",
+				CalendarEventModalAddButton: "Add event",
+				CalendarEventModalApplyButton: "Apply",
 				CalendarClose: "Close calendar",
 			}
 		}
