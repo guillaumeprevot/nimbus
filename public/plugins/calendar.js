@@ -82,6 +82,12 @@
 		this.types = data.types || [];
 		// function(startMoment, endMoment)=>Promise<CalendarEvent[]> qui sera appelée quand la période visible doit être calculée et renvoyant les évènements dans la période
 		this.populate = data.populate || null;
+		// function(event)=>void qui sera appelée quand un nouvel évènement est créé
+		this.add = data.add || $.noop;
+		// function(event)=>void qui sera appelée quand un évènement est supprimé
+		this.remove = data.remove || $.noop;
+		// function()=>Promise qui sera appelée quand la source doit être sauvegardée
+		this.save = data.save || null;
 	}
 
 	/** Cette classe représente le calendrier affiché */
@@ -252,6 +258,9 @@
 				}
 				return Promise.resolve(results);
 			},
+			add: $.noop,
+			remove: $.noop,
+			save: $.noop,
 		});
 	}
 
@@ -278,6 +287,30 @@
 				populate: function(startMoment, endMoment) {
 					return Promise.resolve(events);
 				},
+				add: function(event) {
+					events.push(event);
+				},
+				remove: function(event) {
+					events.splice(events.indexOf(event), 1);
+				},
+				save: function() {
+					var data = {
+						types: types,
+						events: events.map((e) => {
+							return {
+								type: types.indexOf(e.type),
+								date: e.date,
+								repeat: e.repeat,
+								label: e.label,
+								endDate: e.endDate,
+								done: e.done,
+								important: e.important,
+								note: e.note,
+							};
+						})
+					};
+					return NIMBUS.utils.updateFile(item.id, new Blob([JSON.stringify(data)], { type: "application/json" }));
+				}
 			});
 		});
 	}

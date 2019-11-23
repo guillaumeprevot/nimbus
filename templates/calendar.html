@@ -456,14 +456,10 @@ NIMBUS.init(['calendar.js'], function() {
 		});
 
 		saveButton.on('click', function() {
-			/*
-			NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
+			var promises = calendar.sources.filter((s) => s.modified).map((s) => s.save());
+			Promise.all(promises).then(() => {
 				saveButton.addClass('nimbus-hidden');
-				textarea.removeClass('border border-danger')
-			}, function() {
-				textarea.addClass('border border-danger');
 			});
-			*/
 		});
 
 		// Initialisation du reste de l'IHM
