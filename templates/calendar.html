@@ -471,6 +471,11 @@ function connectPopover(calendar) {
 			hidePopover();
 			if (self.parent().is('.day-content')) {
 				var event = self.data('event');
+				$('<button type="button" class="list-group-item list-group-item-action calendar-archive-event" />')
+					.text(NIMBUS.translate('CalendarArchiveEventButton'))
+					.attr('title', NIMBUS.translate('CalendarArchiveEventTitle'))
+					.data('event', event)
+					.appendTo(menu);
 				$('<button type="button" class="list-group-item list-group-item-action calendar-edit-event" />')
 					.text(NIMBUS.translate('CalendarEditEventButton'))
 					.data('event', event)
@@ -538,6 +543,27 @@ function connectPopover(calendar) {
 		editEvent(calendar, event, true, function() {
 			// Refresh page
 			calendar.update();
+		});
+	}).on('click', '.calendar-archive-event', function() {
+		// Archivage d'un évènement existant
+		var api = NIMBUS.utils.calendar;
+		var entry = $(this).closest('.list-group-item');
+		var event = entry.data('event');
+		hidePopover();
+		calendar.sources.forEach(function(source) {
+			if (source.types.indexOf(event.type) >= 0) {
+				// Apply modifications
+				event.done = true;
+				event.important = false;
+				if (event.repeat != null && event.endDate == null)
+					event.endDate = api.CalendarDate.from(moment());
+				// Mark for later saving
+				source.modified = true;
+				// Refresh page
+				calendar.update();
+				// Show save button
+				$(calendar).trigger('calendar.change');
+			}
 		});
 	}).on('click', '.calendar-edit-event', function() {
 		// Edition d'un évènement existant
