@@ -440,7 +440,7 @@ function connectMainView(calendar) {
 							.append($('<span class="day-number" />').text(m.format(m.date() === 1 ? 'Do' : 'D'))))
 					.append($('<div class="day-content" />').append(data.events
 							.filter((e) => e.date.year === m.year() && e.date.month === m.month() && e.date.date === m.date())
-							.map((e) => $('<div />').data('event', e).text(e.label || e.type.label).css('border-color', e.type.color)[0])))
+							.map((e) => $('<div />').data('event', e).text(e.label || e.type.label).css('border-color', e.type.color).prop('draggable', true)[0])))
 					.appendTo(week);
 				m.add(1, 'day');
 			}
@@ -451,6 +451,67 @@ function connectMainView(calendar) {
 		var days = weeks.find('.day-content').get();
 		console.log(days);
 */
+	});
+}
+
+function connectEventDragAndDrop(calendar) {
+	var container = $('#weeks');
+	var draggable = null;
+
+	// Activer le "drag" sur tous les div d'évènement
+	container.on('dragstart', '.day-content > div', function(e) {
+		// Vérifier avant que la source n'est pas en lecture seule
+		var drag = $(e.target);
+		var event = drag.data('event');
+		var source = calendar.findSourceOfEvent(event);
+		if (source.readonly)
+			return false;
+		draggable = e.target;
+		e.originalEvent.dataTransfer.setData('text/plain', e.target.innerText);
+		e.originalEvent.dataTransfer.dropEffect = 'move';
+	});
+
+	// Activer le "drop" sur chaque jour
+	container.on('dragover', '.day-content', function(e) {
+		// Vérifier avant qu'on a bien attrapé un évènement
+		if (draggable === null)
+			return;
+		// Bloquer aussi le "drop" sur le même jour qu'au départ
+		var overSameDayFreeSpace = e.target === draggable.parentNode;
+		var overOneEventOfSameDay = e.target.parentNode === draggable.parentNode;
+		if (overSameDayFreeSpace || overOneEventOfSameDay)
+			return;
+		return false;
+	});
+
+	// Déplacer l'évènement quand on relâche la souris
+	container.on('drop', '.day-content', function(e) {
+		var drag = $(draggable);
+		var drop = $(e.target);
+		var dragDay = moment(drag.closest('.day').attr('data-day'), inputDateFormat);
+		var dropDay = moment(drop.closest('.day').attr('data-day'), inputDateFormat);
+		var daysToAdd = dropDay.diff(dragDay, 'days');
+		var event = drag.data('event');
+		var source = calendar.findSourceOfEvent(event);
+		var api = NIMBUS.utils.calendar;
+		// Ajuster les données
+		event.date = api.CalendarDate.from(event.date.toMoment().add(daysToAdd, 'days'));
+		if (event.endDate)
+			event.endDate = api.CalendarDate.from(event.endDate.toMoment().add(daysToAdd, 'days'));
+		// Ajuster le calendrier
+		calendar.update();
+		// Gérer la sauvegarde
+		source.modified = true;
+		$(calendar).trigger('calendar.change');
+		// S'assurer de vider le contexte (car "dragend" ne sera pas appelé maintenant que la source a disparu)
+		draggable = null;
+		// Rester sur la page
+		return false;
+	});
+
+	// Vider le contexte si on relâche ailleurs (car "drop" ne sera pas appelé)
+	container.on('dragend', '.day-content > div', function(e) {
+		draggable = null;
 	});
 }
 
@@ -726,6 +787,7 @@ NIMBUS.init(['calendar.js'], function() {
 		connectViewMenu(calendar);
 		connectSourceMenu(calendar);
 		connectMainView(calendar);
+		connectEventDragAndDrop(calendar);
 		connectPopover(calendar);
 		calendar.update();
 

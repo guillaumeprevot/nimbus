@@ -144,6 +144,18 @@
 		});
 	};
 
+	/** Cette méthode retourne la source à laquelle le type donné appartient, ou undefined si non trouvée */
+	Calendar.prototype.findSourceOfType = function(type) {
+		return this.sources.find(function(source) {
+			return source.types.indexOf(type) >= 0;
+		});
+	};
+
+	/** Cette méthode retourne la source à laquelle l'évènement appartient, ou undefined si non trouvée */
+	Calendar.prototype.findSourceOfEvent = function(event) {
+		return this.findSourceOfType(event.type);
+	};
+
 	/** La vue "Semaine", affichant une semaine à la fois et augmentant / diminuant de 1 semaine */
 	function createWeekCalendarView(name) {
 		return new CalendarView({
