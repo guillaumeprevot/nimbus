@@ -217,7 +217,7 @@
 <script>
 "use strict";
 
-// Le format de date moment correspondan aux "input[type=date]"
+// Le format de date moment correspondant aux "input[type=date]"
 var inputDateFormat = 'YYYY-MM-DD';
 
 function prepareCalendar(items, itemId) {
@@ -246,12 +246,18 @@ function prepareCalendar(items, itemId) {
 	});
 }
 
-function connectSelectInput(calendar) {
+function connectNavigation(calendar) {
 	// Ajuster le calendrier quand la date de l'input change
 	$('#selectInput').on('input', (event) => calendar.showMoment(moment(event.target.value, inputDateFormat)));
-	// Ajuster l'input quand la date du calendrier change
+	// Reculer d'une période quand on clique sur <
+	$('#prevButton').on('click', () => calendar.showPrevious());
+	// Avancer d'une période quand on clique sur >
+	$('#nextButton').on('click', () => calendar.showNext());
+	// Ajuster l'IHM quand la date du calendrier change
 	$(calendar).on('calendarupdate', function(event, data) {
-		$('#selectInput').val(data.currentMoment.format(inputDateFormat));
+		$('#selectInput').val(data.currentMoment.format(inputDateFormat))
+		$('#periodShortDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, false));
+		$('#periodLongDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, true));
 	});
 }
 
@@ -304,7 +310,7 @@ function connectSourceMenu(calendar) {
 			// Pour les sources en lecture-seule, aucune autre action
 			if (source.readonly || !source.active)
 				return;
-			// Boutons pour éditer / supprimer chaque type d'évènement de cette source  
+			// Boutons pour éditer/ déplacer / supprimer chaque type d'évènement de cette source  
 			source.types.forEach(function(type) {
 				$('<div class="dropdown-item" />')
 					.data('type', type)
@@ -334,11 +340,13 @@ function connectSourceMenu(calendar) {
 	});
 	// Ajouter un type d'évènement quand l'utilisateur clique sur un bouton d'ajout
 	menu.on('click', '.calendar-add-type', function() {
+		var api = NIMBUS.utils.calendar;
 		var button = $(this).closest('button');
 		var source = button.data('source');
-		var type = new NIMBUS.utils.calendar.CalendarEventType();
+		var type = new api.CalendarEventType();
+		// Afficher la fenêtre modale
 		editEventType(calendar, source, type, true, function() {
-			source.types.push(type);
+			// Ajuster le menu
 			buildMenu();
 		});
 	});
@@ -349,16 +357,16 @@ function connectSourceMenu(calendar) {
 		var type = item.data('type');
 		var index = source.types.indexOf(type);
 		if (index > 0) {
-			// Move type up
+			// Ajuster le menu
+			item.insertBefore(item.prev());
+			// Ajuster les données
 			source.types.splice(index, 1);
 			source.types.splice(index - 1, 0, type);
-			// Mark source as modified
+			// Gérer la sauvegarde
 			source.modified = true;
-			// Show save button
 			$(calendar).trigger('calendar.change');
-			// Update menu content
-			item.insertBefore(item.prev());
 		}
+		// Laisser le menu visible
 		return false;
 	});
 	// Descendre un type d'évènement quand l'utilisateur clique sur le chevron bas
@@ -368,16 +376,16 @@ function connectSourceMenu(calendar) {
 		var type = item.data('type');
 		var index = source.types.indexOf(type);
 		if (index < source.types.length - 1) {
-			// Move type down
+			// Ajuster le menu
+			item.insertAfter(item.next());
+			// Ajuster les données
 			source.types.splice(index, 1);
 			source.types.splice(index + 1, 0, type);
-			// Mark source as modified
+			// Gérer la sauvegarde
 			source.modified = true;
-			// Show save button
 			$(calendar).trigger('calendar.change');
-			// Update menu content
-			item.insertAfter(item.next());
 		}
+		// Laisser le menu visible
 		return false;
 	});
 	// Editer un type d'évènement quand l'utilisateur clique sur un crayon
@@ -385,8 +393,9 @@ function connectSourceMenu(calendar) {
 		var item = $(this).closest('.dropdown-item');
 		var source = item.data('source');
 		var type = item.data('type');
+		// Afficher la fenêtre modale
 		editEventType(calendar, source, type, false, function() {
-			// Update menu content
+			// Ajuster le menu
 			item.children('span').text(type.label);
 		});
 	});
@@ -395,13 +404,12 @@ function connectSourceMenu(calendar) {
 		var item = $(this).closest('.dropdown-item');
 		var source = item.data('source');
 		var type = item.data('type');
-		// Remove type
+		// Ajuster les données
 		source.types.splice(source.types.indexOf(type), 1);
-		// Mark source as modified
+		// Gérer la sauvegarde
 		source.modified = true;
-		// Show save button
 		$(calendar).trigger('calendar.change');
-		// Update menu content
+		// Ajuster le menu
 		item.remove();
 	});
 }
@@ -417,10 +425,6 @@ function connectMainView(calendar) {
 	})
 	// Ecouter les modifications du calendrier pour mettre à jour l'IHM
 	$(calendar).on('calendarupdate', function(event, data) {
-		// Affichage de la période en format court et long, selon la taille de l'écran
-		$('#periodShortDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, false));
-		$('#periodLongDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, true));
-
 		// Génération de la grille
 		var m = moment(data.startOfWeek);
 		var weeks = $('#weeks').empty();
@@ -516,7 +520,9 @@ function connectEventDragAndDrop(calendar) {
 }
 
 function connectPopover(calendar) {
-	$('#weeks').popover({
+	var container = $('#weeks');
+
+	container.popover({
 		trigger: 'click',
 		selector: '.day-header, .day-content > div',
 		container: '#weeks',
@@ -531,6 +537,7 @@ function connectPopover(calendar) {
 			// Cacher le menu précédent, au cas où on clique sur plusieurs en-têtes
 			hidePopover();
 			if (self.parent().is('.day-content')) {
+				// Création du menu quand on clique sur un évènement
 				var event = self.data('event');
 				$('<button type="button" class="list-group-item list-group-item-action calendar-archive-event" />')
 					.text(NIMBUS.translate('CalendarArchiveEventButton'))
@@ -546,14 +553,9 @@ function connectPopover(calendar) {
 					.data('event', event)
 					.appendTo(menu);
 			} else {
-				// Liste des types d'évènements de chaque source, pour création rapide, modification ou suppression
-				calendar.sources.forEach(function(source) {
-					if (source.readonly || !source.active)
-						return;
-					// Source event types
-					source.types.forEach(function(type) {
-						if (!type.active)
-							return;
+				// Création du menu de création rapide d'évènement quand on clique sur l'en-tête d'un jour
+				calendar.sources.filter((source) => source.active && !source.readonly).forEach(function(source) {
+					source.types.filter((type) => type.active).forEach(function(type) {
 						$('<button type="button" class="list-group-item list-group-item-action calendar-fast-event" />')
 							.text(type.label) // Show type label as main text
 							.prepend($('<span class="text-muted" style="float: right; " />').text(' (' + source.name + ')')) // Show source name as muted text
@@ -561,15 +563,17 @@ function connectPopover(calendar) {
 							.appendTo(menu);
 					});
 				});
-				// Bouton de création d'évènement via la fenêtre modale, avec plus d'options
+				// Bouton de création d'évènement personnalisé via la fenêtre modale
 				$('<button type="button" class="list-group-item list-group-item-action calendar-new-event" />')
 					.text(NIMBUS.translate('CalendarAddCustomEventButton'))
 					.appendTo(menu);
 			}
 			return menu;
 		}
-	}).on('click', '.calendar-fast-event', function() {
-		// Nouvel évènement du type "type" le jour "day"
+	});
+
+	// Création simplifiée pour le jour "day" d'un évènement en choisissant son type "type"
+	container.on('click', '.calendar-fast-event', function() {
 		var api = NIMBUS.utils.calendar;
 		var entry = $(this).closest('.list-group-item');
 		var source = entry.data('source');
@@ -578,92 +582,91 @@ function connectPopover(calendar) {
 		var event = new api.CalendarEvent({ type: type, date: moment(day, inputDateFormat), repeat: type.defaultRepeat });
 		hidePopover();
 		if (type.editOnCreation)
-			// Allow event customization
+			// Afficher la fenêtre modale, si le type le demande
 			editEvent(calendar, event, true, function() {
-				// Refresh page
+				// Ajuster le calendrier
 				calendar.update();
 			});
 		else {
-			// Apply modifications
+			// Ajuster les données
 			source.add(event);
-			// Mark for later saving
+			// Gérer la sauvegarde
 			source.modified = true;
-			// Refresh page
-			calendar.update();
-			// Show save button
 			$(calendar).trigger('calendar.change');
+			// Ajuster le calendrier
+			calendar.update();
 		}
-	}).on('click', '.calendar-new-event', function() {
-		// Nouvel évènement personnalisé le jour "day"
+	});
+
+	// Création pour le jour "day" d'un évènement personnalisé via la fenêtre modale
+	container.on('click', '.calendar-new-event', function() {
 		var api = NIMBUS.utils.calendar;
 		var entry = $(this).closest('.list-group-item');
 		var day = entry.parent().attr('data-day');
 		var event = new api.CalendarEvent({ date: moment(day, inputDateFormat) });
 		hidePopover();
-		// Customize event
+		// Afficher la fenêtre modale
 		editEvent(calendar, event, true, function() {
-			// Refresh page
+			// Ajuster le calendrier
 			calendar.update();
 		});
-	}).on('click', '.calendar-archive-event', function() {
-		// Archivage d'un évènement existant
+	});
+
+	// Archivage d'un évènement existant
+	container.on('click', '.calendar-archive-event', function() {
 		var api = NIMBUS.utils.calendar;
 		var entry = $(this).closest('.list-group-item');
 		var event = entry.data('event');
+		var source = calendar.findSourceOfEvent(event);
 		hidePopover();
-		calendar.sources.forEach(function(source) {
-			if (source.types.indexOf(event.type) >= 0) {
-				// Apply modifications
-				event.done = true;
-				event.important = false;
-				if (event.repeat != null && event.endDate == null)
-					event.endDate = api.CalendarDate.from(moment());
-				// Mark for later saving
-				source.modified = true;
-				// Refresh page
-				calendar.update();
-				// Show save button
-				$(calendar).trigger('calendar.change');
-			}
-		});
-	}).on('click', '.calendar-edit-event', function() {
-		// Edition d'un évènement existant
+		// Ajuster les données
+		event.done = true;
+		event.important = false;
+		if (event.repeat != null && event.endDate == null)
+			event.endDate = api.CalendarDate.from(moment());
+		// Gérer la sauvegarde
+		source.modified = true;
+		$(calendar).trigger('calendar.change');
+		// Ajuster le calendrier
+		calendar.update();
+	});
+
+	// Edition d'un évènement existant par la fenêtre modale
+	container.on('click', '.calendar-edit-event', function() {
 		var entry = $(this).closest('.list-group-item');
 		var event = entry.data('event');
 		hidePopover();
-		// Customize event
+		// Afficher la fenêtre modale
 		editEvent(calendar, event, false, function() {
-			// Refresh page
+			// Ajuster le calendrier
 			calendar.update();
 		});
-	}).on('click', '.calendar-delete-event', function() {
-		// Suppression d'un évènement existant
+	});
+
+	// Suppression d'un évènement existant
+	container.on('click', '.calendar-delete-event', function() {
 		var entry = $(this).closest('.list-group-item');
 		var event = entry.data('event');
+		var source = calendar.findSourceOfEvent(event);
 		hidePopover();
-		calendar.sources.forEach(function(source) {
-			if (source.types.indexOf(event.type) >= 0) {
-				// Apply modifications
-				source.remove(event);
-				// Mark for later saving
-				source.modified = true;
-				// Refresh page
-				calendar.update();
-				// Show save button
-				$(calendar).trigger('calendar.change');
-			}
-		});
+		// Ajuster les données
+		source.remove(event);
+		// Gérer la sauvegarde
+		source.modified = true;
+		$(calendar).trigger('calendar.change');
+		// Ajuster le calendrier
+		calendar.update();
 	});
-	
+
 	function hidePopover() {
-		var popover = $('#weeks').children('.popover');
+		var popover = container.children('.popover');
 		if (popover.length > 0)
 			$('[aria-describedby="' + popover.attr('id') + '"]').popover('hide');
 	}
 }
 
 function editEventType(calendar, source, type, isNew, callback) {
-	// Prepare form with existing type
+	// Préparer le formulaire
 	if (! isNew) {
 		$('#eventTypeLabel').val(type.label);
 		$('#eventTypeColor').val(type.color);
@@ -671,41 +674,42 @@ function editEventType(calendar, source, type, isNew, callback) {
 		$('#eventTypeEditOnCreation').prop('checked', type.editOnCreation);
 		$('#eventTypeRepeat').val(type.defaultRepeat);
 	} else {
-		// Clear label (which will certainly be different) but keep other form values
+		// Pour les nouveaux types, on vide la libellé (car a priori différent) mais on garde le reste (couleur, ...)
 		$('#eventTypeLabel').val('');
 	}
-	// Adjust validate button text
+	// Ajuster le bouton de validation (ajout ou modification ?)
 	$('#eventTypeValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
-	// Show modal
-	$('#eventTypeModal').modal();
-	// Adjust validate button action
+	// Ajuster l'action de validation au contexte en cours
 	$('#eventTypeValidateButton').off('click').on('click', function() {
-		// Extract form
+		// Ajuster les données
 		type.label = $('#eventTypeLabel').val();
 		type.color = $('#eventTypeColor').val();
 		type.active = $('#eventTypeActive').prop('checked');
 		type.editOnCreation = $('#eventTypeEditOnCreation').prop('checked');
 		type.defaultRepeat = $('#eventTypeRepeat').val();
-		// Mark source as modified
+		if (isNew)
+			source.types.push(type);
+		// Gérer la sauvegarde
 		source.modified = true;
-		// Show save button
 		$(calendar).trigger('calendar.change');
-		// Hide modal
+		// Fermer la fenêtre modale
 		$('#eventTypeModal').modal('hide');
-		// Alert caller
+		// Prévenir l'appelant
 		callback();
 	});
+	// Afficher la fenêtre modale
+	$('#eventTypeModal').modal();
 }
 
 function editEvent(calendar, event, isNew, callback) {
-	// Populate type select
+	// Préparer le "select" permettant de choisir le type
 	var typeSelect = $('#eventModalType').empty().prop('autofocus', ! event.type);
 	calendar.sources.forEach(function(s) {
 		s.types.forEach(function(t) {
-			$('<option />').data('type', t).prop('selected', t === event.type).text(s.name + ' - ' + t.label).appendTo(typeSelect);
+			$('<option />').data('type', t).data('source', s).prop('selected', t === event.type).text(s.name + ' - ' + t.label).appendTo(typeSelect);
 		});
 	});
-	// Prepare form with existing event
+	// Préparer le reste du formulaire
 	var dateInput = $('#eventModalDate').val(event.date.toMoment().format(inputDateFormat));
 	var repeatSelect = $('#eventModalRepeat').val(event.repeat || '');
 	var labelInput = $('#eventModalLabel').val(event.label || '').prop('autofocus', !!event.type);
@@ -713,36 +717,33 @@ function editEvent(calendar, event, isNew, callback) {
 	var doneCheckbox = $('#eventModalDone').prop('checked', !!event.done);
 	var importantCheckbox = $('#eventModalImportant').prop('checked', !!event.important);
 	var noteTextarea = $('#eventModalNote').val(event.note || '');
-	// Adjust validate button text
+	// Ajuster le bouton de validation (ajout ou modification ?)
 	$('#eventModalValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
-	// Show modal
-	$('#eventModal').modal();
-	// Adjust validate button action
+	// Ajuster l'action de validation au contexte en cours
 	$('#eventModalValidateButton').off('click').on('click', function() {
-		// Extract form
+		var api = NIMBUS.utils.calendar;
+		var source = typeSelect.children(':selected').data('source');
+		// Ajuster les données
 		event.type = typeSelect.children(':selected').data('type');
-		event.date = NIMBUS.utils.calendar.CalendarDate.from(moment(dateInput.val(), inputDateFormat));
+		event.date = api.CalendarDate.from(moment(dateInput.val(), inputDateFormat));
 		event.repeat = repeatSelect.val() || null;
 		event.label = labelInput.val() || null;
-		event.endDate = endDateInput.val() ? NIMBUS.utils.calendar.CalendarDate.from(moment(endDateInput.val(), inputDateFormat)) : null;
+		event.endDate = endDateInput.val() ? api.CalendarDate.from(moment(endDateInput.val(), inputDateFormat)) : null;
 		event.done = doneCheckbox.prop('checked');
 		event.important = importantCheckbox.prop('checked');
 		event.note = noteTextarea.val() || null;
-		// Mark source as modified
-		calendar.sources.forEach(function(source) {
-			if (source.types.indexOf(event.type) >= 0) {
-				source.modified = true;
-				if (isNew)
-					source.add(event);
-			}
-		});
-		// Show save button
+		if (isNew)
+			source.add(event);
+		// Gérer la sauvegarde
+		source.modified = true;
 		$(calendar).trigger('calendar.change');
-		// Hide modal
+		// Fermer la fenêtre modale
 		$('#eventModal').modal('hide');
-		// Alert caller
+		// Prévenir l'appelant
 		callback();
 	});
+	// Afficher la fenêtre modale
+	$('#eventModal').modal();
 }
 
 //Initialiser la page
@@ -783,16 +784,13 @@ NIMBUS.init(['calendar.js'], function() {
 		});
 
 		// Initialisation du reste de l'IHM
-		connectSelectInput(calendar);
+		connectNavigation(calendar);
 		connectViewMenu(calendar);
 		connectSourceMenu(calendar);
 		connectMainView(calendar);
 		connectEventDragAndDrop(calendar);
 		connectPopover(calendar);
 		calendar.update();
-
-		$('#prevButton').on('click', () => calendar.showPrevious());
-		$('#nextButton').on('click', () => calendar.showNext());
 
 		// Manipulation au clavier
 		body.keystrokes({
