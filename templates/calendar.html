@@ -705,7 +705,13 @@ function editEvent(calendar, event, isNew, callback) {
 	// Préparer le "select" permettant de choisir le type
 	var typeSelect = $('#eventModalType').empty().prop('autofocus', ! event.type);
 	calendar.sources.forEach(function(s) {
+		if (s.readonly)
+			return;
+		if (!isNew && s.types.indexOf(event.type) === -1)
+			return;
 		s.types.forEach(function(t) {
+			if (!t.active && (isNew || (t !== event.type)))
+				return;
 			$('<option />').data('type', t).data('source', s).prop('selected', t === event.type).text(s.name + ' - ' + t.label).appendTo(typeSelect);
 		});
 	});
