@@ -274,8 +274,7 @@ function connectViewMenu(calendar) {
 	// Ajuster le calendrier quand l'utilisateur change de vue
 	menu.on('click', '.dropdown-item', function(event) {
 		var menuItem = $(event.target).closest('.dropdown-item');
-		calendar.view = calendar.views[menuItem.index()];
-		calendar.update();
+		calendar.showView(menuItem.index());
 		menuItem.addClass('active').siblings().removeClass('active');
 	});
 }
@@ -332,10 +331,7 @@ function connectSourceMenu(calendar) {
 	// Ajuster le calendrier quand l'utilisateur active ou désactive une source
 	menu.on('click', '.calendar-toggle-source', function(event) {
 		var menuItem = $(event.target).closest('.dropdown-item');
-		menuItem.find('.indicator').toggle();
-		var s = menuItem.data('source');
-		s.active = !s.active;
-		calendar.update();
+		calendar.toggleSource(menuItem.data('source'));
 		buildMenu();
 	});
 	// Ajouter un type d'évènement quand l'utilisateur clique sur un bouton d'ajout
@@ -442,19 +438,58 @@ function connectMainView(calendar) {
 							.append($('<span class="month-name" />').text(m.date() === 1 ? m.format('MMMM') : ''))
 							.append($('<span class="day-name" />').text(weekdays[(firstDayOfWeek + m.weekday()) % 7]))
 							.append($('<span class="day-number" />').text(m.format(m.date() === 1 ? 'Do' : 'D'))))
-					.append($('<div class="day-content" />').append(data.events
-							.filter((e) => e.date.year === m.year() && e.date.month === m.month() && e.date.date === m.date())
-							.map((e) => $('<div />').data('event', e).text(e.label || e.type.label).css('border-color', e.type.color).prop('draggable', true)[0])))
+					.append($('<div class="day-content" />'))
 					.appendTo(week);
 				m.add(1, 'day');
 			}
 			week.appendTo(weeks);
 		} while (m.isBefore(data.endOfWeek));
-/*
+
 		// Génération des évènements
 		var days = weeks.find('.day-content').get();
-		console.log(days);
-*/
+		var minMoment = moment(data.startOfWeek);
+		var maxMoment = moment(data.endOfWeek);
+		data.events.forEach(function(event) {
+			var eventMoment = event.date.toMoment();
+			var periods = [];
+			if (event.repeat !== null) {
+				// Evènement sur une date avec répétition (début et fin mais pas de répétition)
+				var momentRepeat = null;
+				switch (event.repeat) {
+					case 'yearly' : momentRepeat = 'years'; break;
+					case 'quarterly' : momentRepeat = 'quarters'; break;
+					case 'monthly' : momentRepeat = 'months'; break;
+					case 'weekly' : momentRepeat = 'weeks'; break;
+					case 'daily' : momentRepeat = 'days'; break;
+				}
+				if (eventMoment.isBefore(minMoment))
+					eventMoment.add(minMoment.diff(eventMoment, momentRepeat) + 1, momentRepeat);
+				var stopMoment = event.endDate != null ? moment.min(maxMoment, event.endDate.toMoment()) : maxMoment;
+				while (eventMoment.isSameOrBefore(stopMoment)) {
+					periods.push(eventMoment.diff(minMoment, 'days'));
+					eventMoment.add(1, momentRepeat);
+				}
+			} else if (event.endDate != null) {
+				// Evènement sur un intervalle de dates (début et fin mais pas de répétition)
+				var i = eventMoment.diff(minMoment, 'days');
+				var c = event.endDate.toMoment().diff(eventMoment, 'days');
+				while (c >= 0) {
+					periods.push(i);
+					i++;
+					c--;
+				}
+			} else {
+				// Evènement sur une seule date (pas de fin, pas de répétition)
+				periods.push(eventMoment.diff(minMoment, 'days'));
+			}
+			var source = calendar.findSourceOfEvent(event);
+			periods.forEach(function(p) {
+				if (p >= 0 && p < days.length)
+					$('<div />').data('event', event).data('source', source)
+						.text(event.label || event.type.label).css('border-color', event.type.color).prop('draggable', true)
+						.appendTo(days[p]);
+			});
+		});
 	});
 }
 
@@ -465,10 +500,7 @@ function connectEventDragAndDrop(calendar) {
 	// Activer le "drag" sur tous les div d'évènement
 	container.on('dragstart', '.day-content > div', function(e) {
 		// Vérifier avant que la source n'est pas en lecture seule
-		var drag = $(e.target);
-		var event = drag.data('event');
-		var source = calendar.findSourceOfEvent(event);
-		if (source.readonly)
+		if ($(e.target).data('source').readonly)
 			return false;
 		draggable = e.target;
 		e.originalEvent.dataTransfer.setData('text/plain', e.target.innerText);
@@ -496,7 +528,7 @@ function connectEventDragAndDrop(calendar) {
 		var dropDay = moment(drop.closest('.day').attr('data-day'), inputDateFormat);
 		var daysToAdd = dropDay.diff(dragDay, 'days');
 		var event = drag.data('event');
-		var source = calendar.findSourceOfEvent(event);
+		var source = drag.data('source');
 		var api = NIMBUS.utils.calendar;
 		// Ajuster les données
 		event.date = api.CalendarDate.from(event.date.toMoment().add(daysToAdd, 'days'));

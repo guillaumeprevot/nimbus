@@ -124,6 +124,18 @@
 		this.update();
 	};
 
+	/** Cette méthode modifie la vue affichée (semaine, mois, année, ...) */
+	Calendar.prototype.showView = function(index) {
+		this.view = this.views[index];
+		this.update();
+	};
+
+	/** Cette méthode active une source inactive ou inversement */
+	Calendar.prototype.toggleSource = function(source) {
+		source.active = !source.active;
+		this.update();
+	};
+
 	/** Cette méthode indique ajuste le calendrier et prévient ceux qui le souhaite qu'un changement a eu lieu */
 	Calendar.prototype.update = function() {
 		var startMoment = this.view.startMoment(this.currentMoment);
