@@ -383,7 +383,7 @@ public class Items extends Controller {
 		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
 			// Extraire la requête
 			String json = request.queryParams("metadata");
-			JsonElement element = new JsonParser().parse(json);
+			JsonElement element = JsonParser.parseString(json);
 			if (!element.isJsonArray())
 				return SparkUtils.haltBadRequest();
 			// Via la liste "metadata", les méta-données seront ajustées comme demandées côté client

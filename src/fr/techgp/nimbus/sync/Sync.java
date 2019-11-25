@@ -113,7 +113,7 @@ public class Sync {
 		String query = "/items/list?recursive=true&deleted=false&parentId=" + (this.serverFolderId == null ? "" : this.serverFolderId.toString());
 		return sendRequest(jsessionid, query, false, false, true, (c) -> {
 			String json = IOUtils.toString(c.getInputStream(), StandardCharsets.UTF_8);
-			return new JsonParser().parse(json).getAsJsonArray();
+			return JsonParser.parseString(json).getAsJsonArray();
 		});
 	}
 
