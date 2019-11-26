@@ -445,6 +445,15 @@ function connectMainView(calendar) {
 			week.appendTo(weeks);
 		} while (m.isBefore(data.endOfWeek));
 
+		// Ajustement de la hauteur
+		// Si le calendrier montre 6 semaines ou moins (autrement dit en vues semaine, multi-semaines et mois),
+		// et que l'affichage ne descend pas en dessous de 640px (cf @media queries ci-dessus qui passent les n° de semaine en bloc),
+		// on donne une hauteur min à chaque semaine pour utiliser l'espace disponible en hauteur, s'il y en a.
+		// Cette hauteur min vaut (hauteurTotale - hauteurHeader - hauteurFooter - hauteurDays) / nbSemaine - bordDeChaqueSemaine)
+		var weekNumbers = $('#weeks > .week > .week-number');
+		if (weekNumbers.length <= 6 && weeks.innerWidth() >= 640)
+			weekNumbers.css('min-height', 'calc((100vh - 93px - 0.75rem) / ' + weekNumbers.length + ' - 1px)');
+
 		// Génération des évènements
 		var days = weeks.find('.day-content').get();
 		var minMoment = moment(data.startOfWeek);
