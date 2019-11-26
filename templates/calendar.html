@@ -495,7 +495,8 @@ function connectMainView(calendar) {
 			periods.forEach(function(p) {
 				if (p >= 0 && p < days.length)
 					$('<div />').data('event', event).data('source', source)
-						.text(event.label || event.type.label).css('border-color', event.type.color).prop('draggable', true)
+						.text(event.label || event.type.label).css('border-color', event.type.color)
+						.prop('draggable', !source.readonly)
 						.appendTo(days[p]);
 			});
 		});
@@ -565,7 +566,7 @@ function connectPopover(calendar) {
 
 	container.popover({
 		trigger: 'click',
-		selector: '.day-header, .day-content > div',
+		selector: '.day-header, .day-content > div[draggable=true]',
 		container: '#weeks',
 		html: true,
 		content: function() {
