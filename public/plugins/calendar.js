@@ -294,7 +294,9 @@
 
 	/** Une source de données éditable contenue dans un fichier ".calendar" de Nimbus */
 	function createNimbusFileCalendarSource(item, active) {
-		return $.get('/files/stream/' + item.id).then(function(result) {
+		return $.get('/files/stream/' + item.id).then(undefined, function(result) {
+			return { types: [ new CalendarEventType('Type', '#eeeeee', true, null, true) ], events: [] };
+		}).then(function(result) {
 			var types = result.types.map((t) => new CalendarEventType(t.label, t.color, t.active, t.defaultRepeat, t.editOnCreation));
 			var events = result.events.map((e) => new CalendarEvent({
 				type: types[e.type],

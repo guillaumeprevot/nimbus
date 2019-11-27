@@ -507,9 +507,6 @@ function connectEventDragAndDrop(calendar) {
 
 	// Activer le "drag" sur tous les div d'évènement
 	container.on('dragstart', '.day-content > div', function(e) {
-		// Vérifier avant que la source n'est pas en lecture seule
-		if ($(e.target).data('source').readonly)
-			return false;
 		draggable = e.target;
 		e.originalEvent.dataTransfer.setData('text/plain', e.target.innerText);
 		e.originalEvent.dataTransfer.dropEffect = 'move';
