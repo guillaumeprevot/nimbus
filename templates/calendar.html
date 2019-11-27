@@ -96,6 +96,7 @@
 		</div>
 		<div id="weeks"></div>
 	</main>
+	<div id="alert-container"></div>
 	<footer class="bg-secondary">
 		<span id="periodShortDescription" class="text-white"></span>
 		<span id="periodLongDescription" class="text-white"></span>
@@ -359,8 +360,7 @@ function connectSourceMenu(calendar) {
 			source.types.splice(index, 1);
 			source.types.splice(index - 1, 0, type);
 			// Gérer la sauvegarde
-			source.modified = true;
-			$(calendar).trigger('calendar.change');
+			$(calendar).trigger('calendarsourcechange', source);
 		}
 		// Laisser le menu visible
 		return false;
@@ -378,8 +378,7 @@ function connectSourceMenu(calendar) {
 			source.types.splice(index, 1);
 			source.types.splice(index + 1, 0, type);
 			// Gérer la sauvegarde
-			source.modified = true;
-			$(calendar).trigger('calendar.change');
+			$(calendar).trigger('calendarsourcechange', source);
 		}
 		// Laisser le menu visible
 		return false;
@@ -403,8 +402,7 @@ function connectSourceMenu(calendar) {
 		// Ajuster les données
 		source.types.splice(source.types.indexOf(type), 1);
 		// Gérer la sauvegarde
-		source.modified = true;
-		$(calendar).trigger('calendar.change');
+		$(calendar).trigger('calendarsourcechange', source);
 		// Ajuster le menu
 		item.remove();
 	});
@@ -547,8 +545,7 @@ function connectEventDragAndDrop(calendar) {
 		// Ajuster le calendrier
 		calendar.update();
 		// Gérer la sauvegarde
-		source.modified = true;
-		$(calendar).trigger('calendar.change');
+		$(calendar).trigger('calendarsourcechange', source);
 		// S'assurer de vider le contexte (car "dragend" ne sera pas appelé maintenant que la source a disparu)
 		draggable = null;
 		// Rester sur la page
@@ -633,8 +630,7 @@ function connectPopover(calendar) {
 			// Ajuster les données
 			source.add(event);
 			// Gérer la sauvegarde
-			source.modified = true;
-			$(calendar).trigger('calendar.change');
+			$(calendar).trigger('calendarsourcechange', source);
 			// Ajuster le calendrier
 			calendar.update();
 		}
@@ -667,8 +663,7 @@ function connectPopover(calendar) {
 		if (event.repeat != null && event.endDate == null)
 			event.endDate = api.CalendarDate.from(moment());
 		// Gérer la sauvegarde
-		source.modified = true;
-		$(calendar).trigger('calendar.change');
+		$(calendar).trigger('calendarsourcechange', source);
 		// Ajuster le calendrier
 		calendar.update();
 	});
@@ -694,8 +689,7 @@ function connectPopover(calendar) {
 		// Ajuster les données
 		source.remove(event);
 		// Gérer la sauvegarde
-		source.modified = true;
-		$(calendar).trigger('calendar.change');
+		$(calendar).trigger('calendarsourcechange', source);
 		// Ajuster le calendrier
 		calendar.update();
 	});
@@ -732,8 +726,7 @@ function editEventType(calendar, source, type, isNew, callback) {
 		if (isNew)
 			source.types.push(type);
 		// Gérer la sauvegarde
-		source.modified = true;
-		$(calendar).trigger('calendar.change');
+		$(calendar).trigger('calendarsourcechange', source);
 		// Fermer la fenêtre modale
 		$('#eventTypeModal').modal('hide');
 		// Prévenir l'appelant
@@ -783,8 +776,7 @@ function editEvent(calendar, event, isNew, callback) {
 		if (isNew)
 			source.add(event);
 		// Gérer la sauvegarde
-		source.modified = true;
-		$(calendar).trigger('calendar.change');
+		$(calendar).trigger('calendarsourcechange', source);
 		// Fermer la fenêtre modale
 		$('#eventModal').modal('hide');
 		// Prévenir l'appelant
@@ -819,16 +811,26 @@ NIMBUS.init(['calendar.js'], function() {
 	}).then(function(calendar) {
 		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
+		var autosave = (window.location.search || '').indexOf('autosave=true') >= 0;
 
-		$(calendar).on('calendar.change', function() {
-			saveButton.removeClass('nimbus-hidden');
+		$(calendar).on('calendarsourcechange', function(event, source) {
+			source.modified = true;
+			if (autosave) {
+				saveButton.click();
+			} else {
+				saveButton.removeClass('nimbus-hidden');
+			}
 		});
 
 		saveButton.on('click', function() {
 			var promises = calendar.sources.filter((s) => s.modified).map((s) => s.save());
 			Promise.all(promises).then(() => {
-				saveButton.addClass('nimbus-hidden');
-			});
+					calendar.sources.forEach((s) => delete s.modified);
+					saveButton.addClass('nimbus-hidden');
+				}, () => {
+					NIMBUS.message(NIMBUS.translate('CalendarSaveError'), true);
+					saveButton.removeClass('nimbus-hidden');
+				});
 		});
 
 		// Initialisation du reste de l'IHM
