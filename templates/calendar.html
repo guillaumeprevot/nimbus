@@ -422,17 +422,20 @@ function connectMainView(calendar) {
 		// Génération de la grille
 		var m = moment(data.startOfWeek);
 		var weeks = $('#weeks').empty();
+		var todayMoment = moment();
 		do {
 			var week = $('<div class="week border-bottom border-dark" />')
 				.append($('<div class="week-number" />').text(m.isoWeek()));
 			for (var i = 0; i < 7; i++) {
 				var out = m.isBefore(data.startMoment) || m.isAfter(data.endMoment);
+				var today = m.isSame(todayMoment, 'day');
 				$('<div class="day border-left border-dark" />')
 					.toggleClass('day-out', out)
 					.attr('data-day', m.format(inputDateFormat))
 					.append($('<div class="day-header text-white" />')
-							.toggleClass('bg-secondary', out)
-							.toggleClass('bg-primary', !out)
+							.toggleClass('bg-info', today)
+							.toggleClass('bg-secondary', out && !today)
+							.toggleClass('bg-primary', !out && !today)
 							.append($('<span class="month-name" />').text(m.date() === 1 ? m.format('MMMM') : ''))
 							.append($('<span class="day-name" />').text(weekdays[(firstDayOfWeek + m.weekday()) % 7]))
 							.append($('<span class="day-number" />').text(m.format(m.date() === 1 ? 'Do' : 'D'))))
