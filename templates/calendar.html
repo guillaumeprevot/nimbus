@@ -228,12 +228,12 @@ function prepareCalendar(items, itemId) {
 	var calendar = new api.Calendar();
 	// Ajout des vues disponibles ("Semaine", "Multi-semaines", "Mois", "Multi-mois" et "Année")
 	calendar.views.push(api.createWeekCalendarView(NIMBUS.translate('CalendarSelectViewWeek')));
-	calendar.views.push(api.createWeeksCalendarView(NIMBUS.translate('CalendarSelectViewWeeks'), 4, 1));
+	calendar.views.push(api.createWeeksCalendarView(NIMBUS.translate('CalendarSelectViewWeeks'), 1, 2, 1));
 	calendar.views.push(api.createMonthCalendarView(NIMBUS.translate('CalendarSelectViewMonth')));
-	calendar.views.push(api.createMonthsCalendarView(NIMBUS.translate('CalendarSelectViewMonths'), 2, 1));
+	calendar.views.push(api.createMonthsCalendarView(NIMBUS.translate('CalendarSelectViewMonths'), 0, 1, 1));
 	calendar.views.push(api.createYearCalendarView(NIMBUS.translate('CalendarSelectViewYear')));
-	// Affichage en vue "Mois" par défaut
-	calendar.view = calendar.views[2];
+	// Affichage en vue "Multi-semaines" par défaut
+	calendar.view = calendar.views[1];
 	// Ajout d'une source par fichier ".calendar"
 	return Promise.all(items.map((item) => api.createNimbusFileCalendarSource(item, itemId === null || itemId === item.id))).then((sources) => {
 		Array.prototype.push.apply(calendar.sources, sources);

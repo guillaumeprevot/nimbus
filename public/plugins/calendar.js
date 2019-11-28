@@ -182,13 +182,13 @@
 		});
 	}
 
-	/** La vue "Multi-semaines", affichant "weekCount" semaine à la fois et augmentant / diminuant de "weekIncrement" semaines */
-	function createWeeksCalendarView(name, weekCount, weekIncrement) {
+	/** La vue "Multi-semaines", affichant "weekBefore" / "weekAfter" semaines avant / après et augmentant / diminuant de "weekIncrement" semaines */
+	function createWeeksCalendarView(name, weekBefore, weekAfter, weekIncrement) {
 		return new CalendarView({
 			name: name,
 			offset: (currentMoment, count) => currentMoment.add(count * weekIncrement, 'weeks'),
-			startMoment: (currentMoment) => moment(currentMoment).startOf('week'),
-			endMoment: (currentMoment) => moment(currentMoment).add(weekCount - 1, 'weeks').endOf('week'),
+			startMoment: (currentMoment) => moment(currentMoment).subtract(weekBefore, 'weeks').startOf('week'),
+			endMoment: (currentMoment) => moment(currentMoment).add(weekAfter, 'weeks').endOf('week'),
 			formatPeriod: (startMoment, endMoment, isLong) => {
 				var format = isLong ? 'LL' : 'L';
 				return startMoment.format(format) + ' - ' + endMoment.format(format);
@@ -210,13 +210,13 @@
 		});
 	}
 
-	/** La vue "Multi-mois", affichant "monthCount" mois à la fois et augmentant / diminuant de "monthIncrement" mois */
-	function createMonthsCalendarView(name, monthCount, monthIncrement) {
+	/** La vue "Multi-mois", affichant "monthBefore" / "monthAfter" mois avant / après et augmentant / diminuant de "monthIncrement" mois */
+	function createMonthsCalendarView(name, monthBefore, monthAfter, monthIncrement) {
 		return new CalendarView({
 			name: name,
 			offset: (currentMoment, count) => currentMoment.add(count * monthIncrement, 'months'),
-			startMoment: (currentMoment) => moment(currentMoment).startOf('month'),
-			endMoment: (currentMoment) => moment(currentMoment).startOf('month').add(monthCount, 'months').subtract(1, 'days'),
+			startMoment: (currentMoment) => moment(currentMoment).startOf('month').subtract(monthBefore, 'months'),
+			endMoment: (currentMoment) => moment(currentMoment).startOf('month').add(monthAfter, 'months').endOf('month'),
 			formatPeriod: (startMoment, endMoment, isLong) => {
 				var format = isLong ? 'MMMM YYYY' : 'MM/YYYY';
 				return startMoment.format(format) + ' - ' + endMoment.format(format);
