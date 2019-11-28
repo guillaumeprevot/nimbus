@@ -238,8 +238,8 @@ function prepareCalendar(items, itemId) {
 	return Promise.all(items.map((item) => api.createNimbusFileCalendarSource(item, itemId === null || itemId === item.id))).then((sources) => {
 		Array.prototype.push.apply(calendar.sources, sources);
 	}).then(function() {
-		// Ajout d'une source pour les jours fériés en France 
-		calendar.sources.push(api.createFrenchSpecialDaysCalendarSource(NIMBUS.translate('CalendarFrenchSpecialDays'), '#eee', true));
+		// Ajout d'une source pour les jours fériés en France
+		calendar.sources.push(api.createFrenchSpecialDaysCalendarSource(NIMBUS.translate('CalendarFrenchSpecialDays'), '#eee', itemId === null));
 	}).then(function() {
 		// Finalisation en retournant le calendrier
 		// console.log(calendar);
