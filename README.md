@@ -112,10 +112,17 @@ Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions
     - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées en HTML, dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked) et [Prism.js](https://github.com/PrismJS/prism)
     - les notes au format HTML (`.html` ou `.note`), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
     - le `code source` peut être édité dans Nimbus grâce à [CodeMirror](https://codemirror.net/) en utilisant l'action `Ouvrir dans l'éditeur de code`
-- Notes chiffrées :
-    - les fichiers dont l'extension est `.secret` sont considérés comme des notes chiffrées par AES-256 bits et éditables en utilisant l'action `Afficher ou modifier le contenu`
+
+De plus, certaines extensions sont interprétées comme fichiers contenant les données d'applications intégrées à Nimbus 
+
+- Notes chiffrées
+    - l'extension `.secret` est utilisée par l'application de prise de notes chiffrées accessible en utilisant l'action `Afficher ou modifier le contenu`
+	- le chiffrement se fait côté client en *AES 256 bits GCM* grâce à [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Crypto), intégrée aux navigateurs
+- Agenda
+    - l'extension `.calendar` est utilisée par l'agenda accessible en utilisant l'action `Ouvrir dans l'agenda`
+	- l'agenda permet de combiner plusieurs fichiers `.calendar`, par exemple *personnel.calendar*, *professionnel.calendar* et *anniversaires.calendar*
 - Applications
-	- les fichiers dont l'extension est `.application` sont considérés comme des applications HTML que l'on peut lancer en utilisant l'action `Lancer cette application`
+	- l'extension `.application` est utilisée comme indicateurs pour des applications HTML/CSS/JS que l'on peut lancer en utilisant l'action `Lancer cette application`
 	- [une application fonctionnelle](./doc/template.application.png) est disponible dans `doc/template.application`. Elle permet de générer des squelettes d'application personnalisables
 
 Enfin, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
