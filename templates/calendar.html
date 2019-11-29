@@ -462,9 +462,10 @@ function connectMainView(calendar) {
 		data.events.forEach(function(event) {
 			var eventMoment = event.date.toMoment();
 			var periods = [];
+			var momentRepeat, stopMoment, startOffset, dayCount;
 			if (event.repeat !== null) {
-				// Evènement sur une date avec répétition (début et fin mais pas de répétition)
-				var momentRepeat = null;
+				// Evènement avec répétition (et éventuellement une date de fin)
+				momentRepeat = null;
 				switch (event.repeat) {
 					case 'yearly' : momentRepeat = 'years'; break;
 					case 'quarterly' : momentRepeat = 'quarters'; break;
@@ -473,20 +474,21 @@ function connectMainView(calendar) {
 					case 'daily' : momentRepeat = 'days'; break;
 				}
 				if (eventMoment.isBefore(minMoment))
-					eventMoment.add(minMoment.diff(eventMoment, momentRepeat) + 1, momentRepeat);
-				var stopMoment = event.endDate != null ? moment.min(maxMoment, event.endDate.toMoment()) : maxMoment;
+					eventMoment.add(minMoment.diff(eventMoment, momentRepeat), momentRepeat);
+				stopMoment = event.endDate != null ? moment.min(maxMoment, event.endDate.toMoment()) : maxMoment;
 				while (eventMoment.isSameOrBefore(stopMoment)) {
 					periods.push(eventMoment.diff(minMoment, 'days'));
 					eventMoment.add(1, momentRepeat);
 				}
 			} else if (event.endDate != null) {
 				// Evènement sur un intervalle de dates (début et fin mais pas de répétition)
-				var i = eventMoment.diff(minMoment, 'days');
-				var c = event.endDate.toMoment().diff(eventMoment, 'days');
-				while (c >= 0) {
-					periods.push(i);
-					i++;
-					c--;
+				startOffset = eventMoment.diff(minMoment, 'days');
+				stopMoment = moment.min(maxMoment, event.endDate.toMoment());
+				dayCount = stopMoment.diff(eventMoment, 'days');
+				while (dayCount >= 0) {
+					periods.push(startOffset);
+					startOffset++;
+					dayCount--;
 				}
 			} else {
 				// Evènement sur une seule date (pas de fin, pas de répétition)

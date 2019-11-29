@@ -21,7 +21,7 @@
 	};
 
 	CalendarDate.prototype.toMoment = function() {
-		return moment().year(this.year).month(this.month).date(this.date);
+		return moment().year(this.year).month(this.month).date(this.date).startOf('day');
 	};
 
 	/** Cette classe représente un type d'évènement dans le calendrier, avec principalement un nom et une couleur */
