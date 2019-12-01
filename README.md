@@ -42,8 +42,8 @@ Dépendance | Type | Version | Utilité | Fichiers
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | 0.9.1 | MIT | Support des fichiers MP3
 [Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | 1.64 | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
 [jQuery](http://api.jquery.com/) | JS | 3.4.1 | ~MIT | Kit de départ pour le JS
-[Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.3.1 | MIT | Kit de départ pour l'IHM
-[Bootswatch](https://bootswatch.com/) | CSS | 4.3.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
+[Bootstrap](https://getbootstrap.com/) | CSS/JS | 4.4.1 | MIT | Kit de départ pour l'IHM
+[Bootswatch](https://bootswatch.com/) | CSS | 4.4.1 | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
 [Material Icons](https://material.io/icons/) | CSS | v48 | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js/releases) | plugin JS | 0.3.73 | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | 2.2.228 | Apache 2.0 | Support des fichiers PDF
