@@ -21,7 +21,7 @@ body:not(.selecting) iframe { pointer-events: none; }
 </style>
 </head>
 <body class="nimbus-hidden">
-	<header class="bg-primary">
+	<header class="bg-primary nimbus-hidden">
 		<div class="float-left">
 			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
 		</div>
@@ -50,7 +50,23 @@ body:not(.selecting) iframe { pointer-events: none; }
 			</div>
 		</div>
 	</header>
-	<main></main>
+	<main>
+		<div class="container-sm mt-2">
+			<div class="form-group">
+				<label for="openFileInput"><i class="material-icons">insert_drive_file</i><span data-translate="text">EPUBOpenFileLabel</span></label>
+				<div class="custom-file">
+					<input id="openFileInput" type="file" accept=".epub" class="custom-file-input" />
+					<label for="openFileInput" class="custom-file-label" data-translate="text">EPUBOpenFilePlaceholder</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="openUrlInput"><i class="material-icons">link</i><span data-translate="text">EPUBOpenUrlLabel</span></label>
+				<input id="openUrlInput" type="text" class="form-control" data-translate="placeholder" placeholder="EPUBOpenUrlPlaceholder" />
+			</div>
+			<div id="openInputError" class="text-danger nimbus-hidden" data-translate="text">EPUBOpenInputError</div>
+			<p class="text-center"><button id="openButton" type="button" class="btn btn-link" data-translate="text">EPUBOpenButton</button></p>
+		</div>
+	</main>
 	<footer></footer>
 	
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
@@ -64,12 +80,57 @@ body:not(.selecting) iframe { pointer-events: none; }
 <script>
 NIMBUS.init(['epub.js'], function() {
 	// L'IHM est prête, on l'affiche
-	var body = $(document.body).removeClass('nimbus-hidden');
-	var header = $('header');
+	$(document.body).removeClass('nimbus-hidden');
+	// Si précisée, on ouvre l'URL demandée
+	if ('${url}') {
+		open('${url}');
+	} else {
+		// Sinon, on affiche un formulaire pour ouvrir un fichier ou une URL
+		prepareOpenForm();
+	}
+});
+
+function prepareOpenForm() {
+	var openFileInput = $('#openFileInput');
+	var openFileLabel = $('#openFileInput').next();
+	var openUrlInput = $('#openUrlInput');
+	var openInputError = $('#openInputError');
+	// Ajuster le texte du bouton à droite
+	openFileLabel.attr('data-browse', NIMBUS.translate('EPUBOpenFileBrowse'));
+	// Afficher le nom du fichier
+	openFileInput.on('change', function() {
+		openFileLabel.text((this.files && this.files.length > 0) ? this.files[0].name : NIMBUS.translate('EPUBOpenFilePlaceholder'));
+	}).change();
+	// Attendre que l'utilisateur clique sur le bouton
+	$('#openButton').on('click', function() {
+		var files = openFileInput[0].files || [];
+		var url = openUrlInput.val();
+		var missingInput = !url && files.length === 0;
+		var conflictingInput = !!url && files.length > 0;
+
+		if (missingInput || conflictingInput) {
+			openFileInput.addClass('is-invalid');
+			openUrlInput.addClass('is-invalid');
+			openInputError.removeClass('nimbus-hidden');
+		} else if (url) {
+			open(url);
+		} else {
+			var reader = new FileReader();
+			reader.onload = function(event) {
+				open(event.target.result);
+			};
+			reader.readAsDataURL(files[0]);
+		}
+	});
+}
+
+function open(content) {
+	var body = $(document.body);
+	var header = $('header').removeClass('nimbus-hidden');
 
 	// Affichage de la première page
-	var main = $('main');
-	var book = ePub('${url}', { openAs: 'epub' });
+	var main = $('main').empty();
+	var book = ePub(content, { openAs: 'epub' });
 	var rendition = book.renderTo(main[0], {
 		width: '100%',
 		height: '100%',
@@ -213,8 +274,8 @@ NIMBUS.init(['epub.js'], function() {
 	chaptersMenu.parent().on('show.bs.dropdown', function() {
 		chaptersMenu.css('max-height', (main.innerHeight() - 10) + 'px');
 	});
+}
 
-});
 </script>
 </body>
 </html>

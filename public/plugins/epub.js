@@ -42,6 +42,13 @@
 				EPUBNextPage: "Afficher la page suivante",
 				EPUBPosition: "Position",
 				EPUBChapters: "Chapitres",
+				EPUBOpenFileLabel: "Ouvrir un fichier",
+				EPUBOpenFilePlaceholder: "Cliquer ici pour choisir un fichier à ouvrir",
+				EPUBOpenFileBrowse: "Choisir",
+				EPUBOpenUrlLabel: "Ouvrir une URL",
+				EPUBOpenUrlPlaceholder: "Saisir ici l'URL du fichier epub à ouvrir",
+				EPUBOpenInputError: "Veuillez sélectionner un fichier ou une URL.",
+				EPUBOpenButton: "Commencer ou reprendre la lecture"
 			},
 			en: {
 				EPUBRead: "Read",
@@ -55,6 +62,13 @@
 				EPUBNextPage: "Show next page",
 				EPUBPosition: "Position",
 				EPUBChapters: "Chapters",
+				EPUBOpenFileLabel: "Read local file",
+				EPUBOpenFilePlaceholder: "Select the local epub file to open",
+				EPUBOpenFileBrowse: "Select",
+				EPUBOpenUrlLabel: "Read file from URL",
+				EPUBOpenUrlPlaceholder: "Input the URL of the epub file to open",
+				EPUBOpenInputError: "Please select either file or URL.",
+				EPUBOpenButton: "Start or continue reading"
 			}
 		}
 	});
