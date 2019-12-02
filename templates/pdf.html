@@ -31,7 +31,7 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 </style>
 </head>
 <body class="nimbus-hidden">
-	<header class="bg-primary">
+	<header class="bg-primary nimbus-hidden">
 		<div class="float-left">
 			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
 		</div>
@@ -95,6 +95,21 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 	<main>
 		<div></div>
 		<canvas></canvas>
+		<form class="container-sm mt-2">
+			<div class="form-group">
+				<label for="openFileInput"><i class="material-icons">insert_drive_file</i><span data-translate="text">PDFOpenFileLabel</span></label>
+				<div class="custom-file">
+					<input id="openFileInput" type="file" accept=".pdf" class="custom-file-input" />
+					<label for="openFileInput" class="custom-file-label" data-translate="text">PDFOpenFilePlaceholder</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="openUrlInput"><i class="material-icons">link</i><span data-translate="text">PDFOpenUrlLabel</span></label>
+				<input id="openUrlInput" type="text" class="form-control" data-translate="placeholder" placeholder="PDFOpenUrlPlaceholder" />
+			</div>
+			<div id="openInputError" class="text-danger nimbus-hidden" data-translate="text">PDFOpenInputError</div>
+			<p class="text-center"><button id="openButton" type="button" class="btn btn-link" data-translate="text">PDFOpenButton</button></p>
+		</form>
 	</main>
 	<footer></footer>
 
@@ -223,9 +238,9 @@ function createTextChunk(viewport, item, styles) {
 	return textDiv;
 }
 
-NIMBUS.init(['pdf.js'], function() {
+function open(url) {
 	// L'IHM est prête, on l'affiche
-	var body = $(document.body).removeClass('nimbus-hidden');
+	var body = $(document.body);
 
 	// Récupération de quelques éléments DOM
 	var main = $('main');
@@ -236,6 +251,9 @@ NIMBUS.init(['pdf.js'], function() {
 	var canvasContext = canvas[0].getContext('2d', {
 		alpha: false
 	});
+
+	// Masquer le formulaire ayant servi à l'ouverture d'un fichier ou d'une URL
+	main.children('form').hide();
 
 	// Préparation des variables concernant le document PDF
 	var pdf = null;
@@ -256,7 +274,10 @@ NIMBUS.init(['pdf.js'], function() {
 			pdf.getPage(index).then(function(page) {
 				// console.log(page); // page = { pageIndex: 0, rotate: getter, ..., _pageInfo: { rotate: 0, view:[t,l,w,h]} }
 
-				var viewport = page.getViewport(canvasQuality * cssUnits * scale / 100.0, rotation + page.rotate);
+				var viewport = page.getViewport({
+					scale: canvasQuality * cssUnits * scale / 100.0,
+					rotation: rotation + page.rotate
+				});
 				canvas.show().css({
 					width: Math.round(viewport.width / canvasQuality) + 'px',
 					height: Math.round(viewport.height / canvasQuality) + 'px'
@@ -329,7 +350,7 @@ NIMBUS.init(['pdf.js'], function() {
 	};
 
 	// Manipulation par la barre d'outils
-	var header = $('header');
+	var header = $('header').removeClass('nimbus-hidden');
 	var backButton = header.find('.back')
 		.toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 
@@ -436,7 +457,7 @@ NIMBUS.init(['pdf.js'], function() {
 	});
 
 	// Affichage de la première page
-	window.pdfjsLib.getDocument('${url}').promise.then(function(pdfDoc) {
+	window.pdfjsLib.getDocument(url).promise.then(function(pdfDoc) {
 		pdf = pdfDoc;
 		pageNumberButton.closest('.btn-group').toggleClass('nimbus-hidden', pdf.numPages === 1);
 		renderPage(1);
@@ -466,6 +487,52 @@ NIMBUS.init(['pdf.js'], function() {
 		else if ('left' === swipe.direction || 'top' === swipe.direction)
 			nextPageButton.click();
 	});
+}
+
+function prepareOpenForm() {
+	var openFileInput = $('#openFileInput');
+	var openFileLabel = $('#openFileInput').next();
+	var openUrlInput = $('#openUrlInput');
+	var openInputError = $('#openInputError');
+	// Ajuster le texte du bouton à droite
+	openFileLabel.attr('data-browse', NIMBUS.translate('PDFOpenFileBrowse'));
+	// Afficher le nom du fichier
+	openFileInput.on('change', function() {
+		openFileLabel.text((this.files && this.files.length > 0) ? this.files[0].name : NIMBUS.translate('PDFOpenFilePlaceholder'));
+	}).change();
+	// Attendre que l'utilisateur clique sur le bouton
+	$('#openButton').on('click', function() {
+		var files = openFileInput[0].files || [];
+		var url = openUrlInput.val();
+		var missingInput = !url && files.length === 0;
+		var conflictingInput = !!url && files.length > 0;
+
+		if (missingInput || conflictingInput) {
+			openFileInput.addClass('is-invalid');
+			openUrlInput.addClass('is-invalid');
+			openInputError.removeClass('nimbus-hidden');
+		} else if (url) {
+			open(url);
+		} else {
+			var reader = new FileReader();
+			reader.onload = function(event) {
+				open(event.target.result);
+			};
+			reader.readAsDataURL(files[0]);
+		}
+	});
+}
+
+NIMBUS.init(['pdf.js'], function() {
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
+	// Si précisée, on ouvre l'URL demandée
+	if ('${url}') {
+		open('${url}');
+	} else {
+		// Sinon, on affiche un formulaire pour ouvrir un fichier ou une URL
+		prepareOpenForm();
+	}
 });
 </script>
 </body>

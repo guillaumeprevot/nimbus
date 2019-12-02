@@ -87,7 +87,14 @@
 					Creator: "Créé par",
 					Producer: "Logiciel",
 					PDFFormatVersion: "Version",
-				}
+				},
+				PDFOpenFileLabel: "Ouvrir un fichier",
+				PDFOpenFilePlaceholder: "Cliquer ici pour choisir un fichier PDF à ouvrir",
+				PDFOpenFileBrowse: "Choisir",
+				PDFOpenUrlLabel: "Ouvrir une URL",
+				PDFOpenUrlPlaceholder: "Saisir ici l'URL du fichier PDF à ouvrir",
+				PDFOpenInputError: "Veuillez sélectionner un fichier ou une URL.",
+				PDFOpenButton: "Ouvrir le document PDF"
 			},
 			en: {
 				PDFRead: "Read",
@@ -137,7 +144,14 @@
 					Creator: "Creator",
 					Producer: "Producer",
 					PDFFormatVersion: "Version",
-				}
+				},
+				PDFOpenFileLabel: "Open local file",
+				PDFOpenFilePlaceholder: "Select the local PDF file to open",
+				PDFOpenFileBrowse: "Select",
+				PDFOpenUrlLabel: "Open file from URL",
+				PDFOpenUrlPlaceholder: "Input the URL of the PDF file to open",
+				PDFOpenInputError: "Please select either file or URL.",
+				PDFOpenButton: "Open the PDF document"
 			}
 		}
 	});
