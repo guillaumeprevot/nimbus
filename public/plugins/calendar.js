@@ -83,15 +83,19 @@
 		// un booléen indiquant si la source est modifiable (ajout/modification/suppression d'évènements ou de types d'évènement)
 		this.readonly = data.readonly;
 		// la liste des types d'évènements de cette source de donnée, un tableau de CalendarEventType
-		this.types = data.types || [];
+		this.types = data.types;
+		// function(type)=>int qui compte le nombre d'évènement du type donné
+		this.count = data.count;
 		// function(startMoment, endMoment)=>Promise<CalendarEvent[]> qui sera appelée quand la période visible doit être calculée et renvoyant les évènements dans la période
-		this.populate = data.populate || null;
+		this.populate = data.populate;
 		// function(event)=>void qui sera appelée quand un nouvel évènement est créé
-		this.add = data.add || $.noop;
+		this.add = data.add;
 		// function(event)=>void qui sera appelée quand un évènement est supprimé
-		this.remove = data.remove || $.noop;
+		this.remove = data.remove;
+		// function(type)=>void qui sera appelée pour supprimé tous les évènements d'un type
+		this.removeAll = data.removeAll;
 		// function()=>Promise qui sera appelée quand la source doit être sauvegardée
-		this.save = data.save || null;
+		this.save = data.save;
 	}
 
 	/** Cette classe représente le calendrier affiché */
@@ -265,6 +269,7 @@
 			active: active,
 			readonly: true,
 			types: [type],
+			count: (type) => 11, /* 11 jours fériés */
 			populate: function(startMoment, endMoment) {
 				var results = [], startYear = startMoment.year(), endYear = endMoment.year(), year, easter;
 				function add(date, label, repeated) {
@@ -288,7 +293,8 @@
 			},
 			add: $.noop,
 			remove: $.noop,
-			save: $.noop,
+			removeAll: $.noop,
+			save: $.noop
 		});
 	}
 
@@ -314,6 +320,7 @@
 				active: active,
 				readonly: false,
 				types: types,
+				count: (type) => events.filter((e) => e.type === type).length,
 				populate: function(startMoment, endMoment) {
 					return Promise.resolve(events);
 				},
@@ -322,6 +329,9 @@
 				},
 				remove: function(event) {
 					events.splice(events.indexOf(event), 1);
+				},
+				removeAll: function(type) {
+					events = events.filter((e) => e.type !== type);
 				},
 				save: function() {
 					var data = {
@@ -419,6 +429,8 @@
 				CalendarDownEventTypeTitle: "Déplacer vers le bas",
 				CalendarEditEventTypeTitle: "Modifier le type d'évènement...",
 				CalendarDeleteEventTypeTitle: "Supprimer le type d'évènement",
+				CalendarDeleteEventTypeUsedOneTimeMessage: "Supprimer ce type et l'évènement associé ?",
+				CalendarDeleteEventTypeUsedMultipleTimesMessage: "Supprimer ce type et les {0} évènements associés ?",
 				CalendarEventTypeModalTitle: "Type d'évènement",
 				CalendarEventTypeLabelLabel: "Intitulé",
 				CalendarEventTypeLabelPlaceholder: "(obligatoire)",
@@ -480,6 +492,8 @@
 				CalendarDownEventTypeTitle: "Move event type down",
 				CalendarEditEventTypeTitle: "Edit event type...",
 				CalendarDeleteEventTypeTitle: "Delete event type",
+				CalendarDeleteEventTypeUsedOneTimeMessage: "This type is used by one event. Delete anyway, including this event ?",
+				CalendarDeleteEventTypeUsedMultipleTimesMessage: "This type is used by {0} events. Delete anyway, including these events ?",
 				CalendarEventTypeModalTitle: "Event type properties",
 				CalendarEventTypeLabelLabel: "Label",
 				CalendarEventTypeLabelPlaceholder: "(required)",

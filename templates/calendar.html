@@ -399,12 +399,28 @@ function connectSourceMenu(calendar) {
 		var item = $(this).closest('.dropdown-item');
 		var source = item.data('source');
 		var type = item.data('type');
-		// Ajuster les données
-		source.types.splice(source.types.indexOf(type), 1);
-		// Gérer la sauvegarde
-		$(calendar).trigger('calendarsourcechange', source);
-		// Ajuster le menu
-		item.remove();
+		// Vérifie si le type est utilisé avant de le supprimer
+		var count = source.count(type);
+		confirmDelete().then(function() {
+			// Ajuster les données
+			source.removeAll(type);
+			source.types.splice(source.types.indexOf(type), 1);
+			// Gérer la sauvegarde
+			$(calendar).trigger('calendarsourcechange', source);
+			// Ajuster le menu
+			item.remove();
+			// Ajuster le calendrier si le type était utilisécar il a pu perdre des évènements
+			if (count > 0)
+				calendar.update();
+		})
+
+		function confirmDelete() {
+			if (count === 1)
+				return NIMBUS.confirm(type.label, NIMBUS.translate('CalendarDeleteEventTypeUsedOneTimeMessage'), true);
+			if (count > 1)
+				return NIMBUS.confirm(type.label, NIMBUS.translate('CalendarDeleteEventTypeUsedMultipleTimesMessage', [count]), true);
+			return $.Deferred().resolve();
+		}
 	});
 }
 
