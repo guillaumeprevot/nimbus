@@ -54,6 +54,8 @@
 		return cue;
 	}
 
+	NIMBUS.utils.srt2webvtt = srt2webvtt;
+
 	NIMBUS.plugins.add({
 		name: 'video',
 		properties: [
@@ -138,6 +140,13 @@
 				VideoAspectRatio: "Changer l'aspect",
 				VideoFullscreen: "Passer en plein-écran",
 				VideoExitFullscreen: "Quitter le plein-écran",
+				VideoOpenFileLabel: "Vidéo",
+				VideoOpenFilePlaceholder: "Cliquer ici pour choisir un fichier vidéo",
+				VideoOpenSubtitlesLabel: "Sous-titres",
+				VideoOpenSubtitlesPlaceholder: "Cliquer ici pour choisir un fichier de sous-titres",
+				VideoOpenSubtitlesError: "Les sous-titres n'ont pu être chargés",
+				VideoOpenBrowseButton: "Choisir",
+				VideoOpenButton: "Lancer la vidéo"
 			},
 			en: {
 				VideoPlay: "Play video",
@@ -168,6 +177,13 @@
 				VideoAspectRatio: "Change aspect ratio",
 				VideoFullscreen: "Fullscreen",
 				VideoExitFullscreen: "Exit fullscreen mode",
+				VideoOpenFileLabel: "Video file",
+				VideoOpenFilePlaceholder: "Select the video file to watch",
+				VideoOpenSubtitlesLabel: "Subtitles file",
+				VideoOpenSubtitlesPlaceholder: "Select optional subtitles file",
+				VideoOpenSubtitlesError: "Subtitles could not be loaded",
+				VideoOpenBrowseButton: "Select",
+				VideoOpenButton: "Watch video"
 			}
 		}
 	});

@@ -80,6 +80,24 @@
 	<main style="overflow: hidden;">
 		<video style="width: 100%; height: 100%; object-fit: contain; " loop="loop"></video>
 		<div class="alert alert-danger nimbus-hidden" role="alert" data-translate="text">VideoPlayError</div>
+		<form id="openForm" class="container-sm mt-2">
+			<div class="form-group">
+				<label for="openVideoInput"><i class="material-icons">local_movies</i><span data-translate="text">VideoOpenFileLabel</span></label>
+				<div class="custom-file">
+					<input id="openVideoInput" type="file" accept="video/*" class="custom-file-input" required data-translate="placeholder" placeholder="VideoOpenFilePlaceholder" />
+					<label for="openVideoInput" class="custom-file-label"></label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="openSubtitlesInput"><i class="material-icons">subtitles</i><span data-translate="text">VideoOpenSubtitlesLabel</span></label>
+				<div class="custom-file">
+					<input id="openSubtitlesInput" type="file" accept=".vtt,.srt" class="custom-file-input" data-translate="placeholder" placeholder="VideoOpenSubtitlesPlaceholder"  />
+					<label for="openSubtitlesInput" class="custom-file-label"></label>
+				</div>
+			</div>
+			<div id="openSubtitlesError" class="text-danger nimbus-hidden" data-translate="text">VideoOpenSubtitlesError</div>
+			<p class="text-center"><button type="submit" class="btn btn-link" data-translate="text">VideoOpenButton</button></p>
+		</form>
 	</main>
 	<footer>
 		<div style="float: left; padding-right: 10px; font-size: small; font-family: mono; color: white; ">
@@ -100,8 +118,7 @@ var fullscreenElement = document.body;
 fullscreenElement.requestFullscreen = fullscreenElement.requestFullscreen || fullscreenElement.mozRequestFullScreen || fullscreenElement.webkitRequestFullscreen || fullscreenElement.msRequestFullscreen;
 document.exitFullscreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
 
-//Initialiser la page
-NIMBUS.init(['video.js'], function() {
+function open(src, subtitles) {
 	// En haut à gauche, le bouton "Retour"
 	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 
@@ -232,58 +249,48 @@ NIMBUS.init(['video.js'], function() {
 		video.currentTime = currentMS;
 	});
 
-	// On lance la vidéo
-	video.src = '/files/stream/${itemId}';
+	// On positionne la vidéo
+	if (typeof src === 'string')
+		video.src = src;
+	else
+		video.src = URL.createObjectURL(src); // TODO how to use video.srcObject ?
 	//video.play();
 
-	// Get video info to get subtitles
-	$.get('/items/info/${itemId}').then(function(item) {
-		var lastDotIndex = item.name.lastIndexOf('.');
-		var baseName = item.name.substring(0, lastDotIndex);
-		$.get('/items/list', {
-			parentId: item.parentId,
-			searchText: baseName,
-			searchBy: 'name',
-			folders: false,
-			deleted: false,
-			extensions: 'vtt'
-		}).then(function(results) {
-			var menu = $('#subtitles-menu').on('click', 'button', function(event) {
-				var button = $(event.target).closest('button');
-				var track = button.data('track');
-				for (var i = 0; i < video.textTracks.length; i++) {
-					var t = video.textTracks[i];
-					t.mode = (track && t === track.track) ? 'showing' : 'hidden';
-				}
-				button.addClass('active').siblings().removeClass('active');
-			});
-			function addTrack(name, lang, src) {
-				// Enregistrer le sous-titre de la vidéo
-				var track = $('<track kind="subtitles" />')
-					.attr('label', name || NIMBUS.translate('VideoSubtitlesDefault'))
-					.attr('srclang', lang || 'fr')
-					.attr('src', src)
-					.appendTo(video)
-					.get(0);
-				// Afficher le menu de sélection des sous-titres
-				menu.parent().removeClass('nimbus-hidden');
-				// Ajouter une entrée pour chaque sous-titre
-				$('<button class="dropdown-item" />')
-					.data('track', track)
-					.text(name || NIMBUS.translate('VideoSubtitlesDefault'))
-					.appendTo(menu);
-			}
-			results.forEach(function(result) {
-				// <track src="subtitles_en.vtt" kind="subtitles" srclang="en" label="English">
-				var name = result.name.replace(baseName, '');
-				var lang = name.substring(0, name.lastIndexOf('.')).replace('.', '').replace('_', '').replace('-', '');
-				addTrack(lang, lang, '/files/stream/' + result.id);
-			});
-		});
+	// On remplit le menu des sous-titres
+	var subtitlesMenu = $('#subtitles-menu');
+	subtitlesMenu.on('click', 'button', function(event) {
+		var button = $(event.target).closest('button');
+		var track = button.data('track');
+		for (var i = 0; i < video.textTracks.length; i++) {
+			var t = video.textTracks[i];
+			t.mode = (track && t === track.track) ? 'showing' : 'hidden';
+		}
+		button.addClass('active').siblings().removeClass('active');
 	});
-
-	// L'IHM est prête, on l'affiche
-	$(document.body).removeClass('nimbus-hidden');
+	subtitles.forEach(function(subtitle) {
+		// Ajouter les pistes de sous-titres en sous-noeud DOM de la vidéo
+		var track = $('<track kind="subtitles" />')
+			.attr('label', subtitle.label || NIMBUS.translate('VideoSubtitlesDefault'))
+			.attr('srclang', subtitle.srclang || 'fr')
+			.appendTo(video)
+			.get(0);
+		// Chargement des sous-titres
+		if (typeof subtitle.src === 'string')
+			track.src = subtitle.src;
+		else
+			track.src = URL.createObjectURL(subtitle.src);
+		// Afficher le menu de sélection des sous-titres
+		subtitlesMenu.parent().removeClass('nimbus-hidden');
+		// Ajouter une entrée pour chaque sous-titre
+		$('<button class="dropdown-item" />')
+			.data('track', track)
+			.text(track.getAttribute('label'))
+			.appendTo(subtitlesMenu);
+	});
+	// Sélectionner la piste de sous-titre, si unique
+	if (subtitles.length === 1)
+		subtitlesMenu.children().first().removeClass('active')
+			.next().addClass('active').data('track')['default'] = true;
 
 	// Manipulation au clavier
 	$(document.body).keystrokes({
@@ -302,7 +309,118 @@ NIMBUS.init(['video.js'], function() {
 		'Space': () => $('.play-toggle').click(),
 		'F11': () => $('.fullscreen').hasClass('nimbus-hidden') ? $('.exit-fullscreen').click() : $('.fullscreen').click(),
 	});
+}
 
+function openItem(itemId) {
+	// On lancera la vidéo pointée par "itemId"
+	var videoUrl = '/files/stream/' + itemId;
+
+	// On recherche des sous-titres au format VTT 
+	$.get('/items/info/' + itemId).then(function(item) {
+		var lastDotIndex = item.name.lastIndexOf('.');
+		var baseName = item.name.substring(0, lastDotIndex);
+		$.get('/items/list', {
+			parentId: item.parentId,
+			searchText: baseName,
+			searchBy: 'name',
+			folders: false,
+			deleted: false,
+			extensions: 'vtt'
+		}).then(function(results) {
+			// Préparation des sous-titres
+			var subtitles = results.map(function(result) {
+				var name = result.name.replace(baseName, '');
+				var lang = name.substring(0, name.lastIndexOf('.')).replace('.', '').replace('_', '').replace('-', '');
+				return {
+					src: '/files/stream/' + result.id,
+					label: lang,
+					srclang: lang
+				};
+			});
+			// Lancement
+			open(videoUrl, subtitles);
+		});
+	});
+}
+
+function prepareOpenForm() {
+	// Masquer les barres
+	$('.nimbus-viewer').addClass('nimbus-hidden-toolbars');
+	// Masquer la vidéo
+	video.style.display = 'none';
+	// Ajuster le texte du bouton à droite des input[file]
+	$('.custom-file-label').attr('data-browse', NIMBUS.translate('VideoOpenBrowseButton'));
+	// Afficher le nom du fichier
+	$('#openVideoInput, #openSubtitlesInput').on('change', function() {
+		$(this).next().text((this.files && this.files.length > 0) ? this.files[0].name : this.placeholder);
+	}).change();
+	// Attendre que l'utilisateur clique sur le bouton
+	$('#openForm').on('submit', function(event) {
+		// Récupérer les éléments du formulaire
+		var openVideoInput = $('#openVideoInput');
+		var openSubtitlesInput = $('#openSubtitlesInput');
+		// Charger les sous-titres, dans certain cas de manière asynchrone
+		loadSubtitles(openSubtitlesInput[0]).then(function(subtitles) {
+			// Masquer les barres
+			$('.nimbus-viewer').removeClass('nimbus-hidden-toolbars');
+			// Masquer la vidéo
+			video.style.display = '';
+			// Supprimer le formulaire
+			$(this).remove();
+			// Préparer la vidéo
+			open(openVideoInput[0].files[0], subtitles);
+			// Lancer la vidéo
+			video.play();
+		}, function() {
+			// Problème au chargement des sous-titres
+			openSubtitlesInput.addClass('is-invalid');
+			$('#openSubtitlesError').removeClass('nimbus-hidden');
+		});
+		return false;
+	});
+
+	function loadSubtitles(input) {
+		var result = $.Deferred();
+		if (!input.files || input.files.length === 0) {
+			// Pas de sous-titre
+			result.resolve([]);
+		} else {
+			var file = input.files[0];
+			if (file.type === 'text/vtt') {
+				// Sous-titre au format WebVTT => lus dans le fichier
+				result.resolve([{ src: file, label: file.name }]);
+			} else {
+				// Sous-titre au format SubRip => lus en texte puis convertis en WebVTT
+				var reader = new FileReader();
+				reader.onerror = function() {
+					result.reject();
+				};
+				reader.onload = function(event) {
+					var srt = event.target.result;
+					var vtt = NIMBUS.utils.srt2webvtt(srt);
+					var blob = new Blob([vtt], { type: 'text/vtt' });
+					result.resolve([{ src: blob, label: file.name }]);
+				};
+				reader.readAsText(file);
+			}
+		}
+		return result;
+	}
+}
+
+//Initialiser la page
+NIMBUS.init(['video.js'], function() {
+	// Identifiant de l'élément édité
+	var itemId = ${itemId!"null"};
+	// Si précisée, on ouvre l'URL demandée
+	if (itemId) {
+		openItem(itemId);
+	} else {
+		// Sinon, on affiche un formulaire pour ouvrir une video (fichier ou URL) et des sous-titres (fichier ou URL)
+		prepareOpenForm();
+	}
+	// L'IHM est prête, on l'affiche
+	$(document.body).removeClass('nimbus-hidden');
 });
 </script>
 
