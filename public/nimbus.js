@@ -57,6 +57,33 @@ var NIMBUS = (function() {
 		}
 	};
 
+	NIMBUS.confirm = function(title, question, isDanger) {
+		var defer = $.Deferred();
+		var modal = $(''
+				+ '<div class="modal" tabindex="-1" role="dialog">'
+				+ '  <div class="modal-dialog" role="document">'
+				+ '    <div class="modal-content">'
+				+ '      <div class="modal-header"><h5 class="modal-title">TITLE</h5></div>'
+				+ '      <div class="modal-body"><p>QUESTION</p></div>'
+				+ '      <div class="modal-footer">'
+				+ '        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>'
+				+ '        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>'
+				+ '      </div>'
+				+ '    </div>'
+				+ '  </div>'
+				+ '</div>');
+		modal.find('.modal-title').text(title || NIMBUS.translate('CommonConfirmDefaultTitle'));
+		modal.find('.modal-body > p').text(question);
+		modal.find('.btn-primary').text(NIMBUS.translate('CommonConfirmOKButton'));
+		modal.find('.btn-secondary').text(NIMBUS.translate('CommonConfirmCancelButton'));
+		modal.appendTo('body')
+			.modal({ backdrop: 'static' })
+			.one('hidden.bs.modal', () => modal.remove())
+			.one('click', '.btn-secondary', () => defer.reject())
+			.one('click', '.btn-primary', () => defer.resolve());;
+		return defer;
+	};
+
 	NIMBUS.message = function(text, isError) {
 		// https://getbootstrap.com/docs/4.2/components/alerts/
 		return $('<div class="alert" />')
@@ -398,19 +425,21 @@ NIMBUS.navigation = (function() {
 				$.post('/items/exists', {
 					parentId: parentId,
 					names: names
-				}).done(function(r) {
-					// Si c'est le cas, demander confirmer avant d'écraser
-					var ok = r === 'false' || window.confirm(NIMBUS.translate('MainUploadFileOverrideMessage'));
-					if (ok) {
-						// Si confirmation inutile ou confirmation acceptée, l'upload va commencer, on affiche la progression
-						$('#items').hide();
-						$('#progress').css('display', 'flex')
-							.find('>div>div').removeClass('progress-bar-striped progress-bar-animated');
-						defer.resolve();
-					} else {
-						// Si confirmation refusée, on stoppe l'upload
-						defer.reject();
-					}
+				}).then(function(r) {
+					// Si pas de conflit => accepter aussitôt
+					if (r === 'false')
+						return true;
+					// Si conflit => confirmer d'abord
+					return NIMBUS.confirm('', NIMBUS.translate('MainUploadFileOverrideMessage'), true);
+				}).then(function() {
+					// Si confirmation inutile ou confirmation acceptée, l'upload va commencer, on affiche la progression
+					$('#items').hide();
+					$('#progress').css('display', 'flex')
+						.find('>div>div').removeClass('progress-bar-striped progress-bar-animated');
+					defer.resolve();
+				}, function() {
+					// Si confirmation refusée, on stoppe l'upload
+					defer.reject();
 				});
 				return defer;
 			},

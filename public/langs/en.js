@@ -237,6 +237,9 @@ NIMBUS.lang = {
 	CommonPropertySharedDate: "Shared since",
 	CommonPropertySharedDuration: "Shared for",
 	CommonDateTimeColumnWidth: 170,
+	CommonConfirmDefaultTitle: "Confirmation",
+	CommonConfirmOKButton: "OK",
+	CommonConfirmCancelButton: "Cancel",
 
 	ActionNavigate: "Open",
 	ActionNavigateTab: "Open in a new tab",
