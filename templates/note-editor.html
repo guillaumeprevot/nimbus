@@ -215,7 +215,7 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 
 		saveButton.on('click', function() {
 			var text = editor.html();
-			NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
+			NIMBUS.utils.updateFileText(itemId, text).then(function() {
 				saveButton.addClass('nimbus-hidden');
 				editor.removeClass('border border-danger')
 				updateToolbar();

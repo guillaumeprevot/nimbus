@@ -339,6 +339,14 @@ NIMBUS.utils = (function() {
 		});
 	}
 
+	function updateFileText(itemId, text) {
+		return updateFile(itemId, new Blob([text], { type: "text/plain" }));
+	}
+
+	function updateFileJSON(itemId, data) {
+		return updateFile(itemId, new Blob([JSON.stringify(data)], { type: "application/json" }));
+	}
+
 	return {
 		isTextFile: isTextFile,
 		textFileExtensions: [],
@@ -349,7 +357,9 @@ NIMBUS.utils = (function() {
 		getFileExtensionFromString: getFileExtensionFromString,
 		getFileNameFromContentDisposition: getFileNameFromContentDisposition,
 		uploadFile: uploadFile,
-		updateFile: updateFile
+		updateFile: updateFile,
+		updateFileText: updateFileText,
+		updateFileJSON: updateFileJSON
 	};
 })();
 

@@ -334,7 +334,7 @@
 					events = events.filter((e) => e.type !== type);
 				},
 				save: function() {
-					var data = {
+					return NIMBUS.utils.updateFileJSON(item.id, {
 						types: types,
 						events: events.map((e) => {
 							return {
@@ -348,8 +348,7 @@
 								note: e.note,
 							};
 						})
-					};
-					return NIMBUS.utils.updateFile(item.id, new Blob([JSON.stringify(data)], { type: "application/json" }));
+					});
 				}
 			});
 		});

@@ -251,7 +251,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirr
 
 		saveButton.on('click', function() {
 			var text = formatLines(textarea.val(), lineSeparator);
-			NIMBUS.utils.updateFile(itemId, new Blob([text], { type: "text/plain" })).then(function() {
+			NIMBUS.utils.updateFileText(itemId, text).then(function() {
 				saveButton.addClass('nimbus-hidden');
 				textarea.removeClass('border border-danger')
 			}, function() {
