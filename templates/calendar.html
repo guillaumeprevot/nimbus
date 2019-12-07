@@ -77,6 +77,15 @@
 
 		<div class="float-right">
 			<div class="btn-group">
+				<button id="searchButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSearch" aria-haspopup="true" aria-expanded="false"><i class="material-icons">search</i></button>
+				<div id="searchMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="searchButton" style="min-width: 300px; ">
+					<div class="p-2">
+						<input id="searchInput" type="search" class="form-control" data-translate="placeholder" placeholder="CalendarSearchPlaceholder">
+					</div>
+					<div id="searchNoResult"class="dropdown-item disabled" style="display: none; " data-translate="text">CalendarSearchNoResult</div>
+				</div>
+			</div>
+			<div class="btn-group">
 				<button id="sourceButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSelectSource" aria-haspopup="true" aria-expanded="false"><i class="material-icons">view_list</i></button>
 				<div id="sourceMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="sourceButton"></div>
 			</div>
@@ -640,10 +649,7 @@ function connectPopover(calendar) {
 		hidePopover();
 		if (type.editOnCreation)
 			// Afficher la fenêtre modale, si le type le demande
-			editEvent(calendar, event, true, function() {
-				// Ajuster le calendrier
-				calendar.update();
-			});
+			editEvent(calendar, event, true);
 		else {
 			// Ajuster les données
 			source.add(event);
@@ -662,10 +668,7 @@ function connectPopover(calendar) {
 		var event = new api.CalendarEvent({ date: moment(day, inputDateFormat) });
 		hidePopover();
 		// Afficher la fenêtre modale
-		editEvent(calendar, event, true, function() {
-			// Ajuster le calendrier
-			calendar.update();
-		});
+		editEvent(calendar, event, true);
 	});
 
 	// Archivage d'un évènement existant
@@ -692,10 +695,7 @@ function connectPopover(calendar) {
 		var event = entry.data('event');
 		hidePopover();
 		// Afficher la fenêtre modale
-		editEvent(calendar, event, false, function() {
-			// Ajuster le calendrier
-			calendar.update();
-		});
+		editEvent(calendar, event, false);
 	});
 
 	// Suppression d'un évènement existant
@@ -717,6 +717,49 @@ function connectPopover(calendar) {
 		if (popover.length > 0)
 			$('[aria-describedby="' + popover.attr('id') + '"]').popover('hide');
 	}
+}
+
+function connectSearch(calendar) {
+	var searchMenu = $('#searchMenu'); 
+	var searchInput = $('#searchInput');
+	var searchNoResult = $('#searchNoResult');
+
+	// Donnner le focus à la zone de recherche quand on clique sur le bouton "loupe"
+	searchMenu.parent().on('shown.bs.dropdown', function() {
+		searchInput.select().focus();
+	});
+
+	// Rechercher les évènements quand le text change
+	searchInput.on('input', function() {
+		// Récupérer le texte recherché
+		var text = this.value.toLowerCase();
+		// Masquer le résultat d'une éventuelle recherche précédente
+		searchNoResult.hide();
+		searchNoResult.nextAll().remove();
+		// Si l'utilisateur a annulé sa recherche, n'afficher que la zone de recherche
+		if (! text)
+			return;
+		// Sinon, rechercher les évènements correspondant à la recherche 
+		calendar.sources.forEach(function(source) {
+			if (source.readonly || !source.active)
+				return;
+			source.search(text).forEach(function(event) {
+				$('<button class="dropdown-item" type="button" />')
+					.data('event', event)
+					.text((event.label || event.type.label) + ' (' + event.date.toMoment().format('L') + ')')
+					.appendTo(searchMenu);
+			});
+		});
+		// Afficher l'entrée "Aucun résultat" le cas échéant
+		if (searchNoResult.next().length === 0)
+			searchNoResult.show();
+	});
+
+	// Editer un évènement quand l'utilisateur clique sur un résultat de recherche
+	searchMenu.on('click', 'button.dropdown-item', function(event) {
+		var event = $(event.target).closest('button').data('event');
+		editEvent(calendar, event, false);
+	})
 }
 
 function editEventType(calendar, source, type, isNew, callback) {
@@ -754,7 +797,7 @@ function editEventType(calendar, source, type, isNew, callback) {
 	$('#eventTypeModal').modal();
 }
 
-function editEvent(calendar, event, isNew, callback) {
+function editEvent(calendar, event, isNew) {
 	// Préparer le "select" permettant de choisir le type
 	var typeSelect = $('#eventModalType').empty().prop('autofocus', ! event.type);
 	calendar.sources.forEach(function(s) {
@@ -797,8 +840,8 @@ function editEvent(calendar, event, isNew, callback) {
 		$(calendar).trigger('calendarsourcechange', source);
 		// Fermer la fenêtre modale
 		$('#eventModal').modal('hide');
-		// Prévenir l'appelant
-		callback();
+		// Ajuster le calendrier
+		calendar.update();
 	});
 	// Afficher la fenêtre modale
 	$('#eventModal').modal();
@@ -858,6 +901,7 @@ NIMBUS.init(['calendar.js'], function() {
 		connectMainView(calendar);
 		connectEventDragAndDrop(calendar);
 		connectPopover(calendar);
+		connectSearch(calendar);
 		calendar.update();
 
 		// Manipulation au clavier
@@ -865,6 +909,7 @@ NIMBUS.init(['calendar.js'], function() {
 			'PageUp': () => calendar.showPrevious(),
 			'PageDown': () => calendar.showNext(),
 			'Ctrl-s': () => saveButton.click(),
+			'Ctrl-f': () => $('#searchButton').dropdown('show')
 		});
 
 		// Changement de période  "swipe"

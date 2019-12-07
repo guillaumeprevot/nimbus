@@ -86,6 +86,8 @@
 		this.types = data.types;
 		// function(type)=>int qui compte le nombre d'évènement du type donné
 		this.count = data.count;
+		// function(searchTextLC)=>CalendarEvent[] qui recherche les évènements correspondant à la recherche
+		this.search = data.search;
 		// function(startMoment, endMoment)=>Promise<CalendarEvent[]> qui sera appelée quand la période visible doit être calculée et renvoyant les évènements dans la période
 		this.populate = data.populate;
 		// function(event)=>void qui sera appelée quand un nouvel évènement est créé
@@ -270,6 +272,7 @@
 			readonly: true,
 			types: [type],
 			count: (type) => 11, /* 11 jours fériés */
+			search: (searchTextLC) => [], /*exclus de la recherche*/
 			populate: function(startMoment, endMoment) {
 				var results = [], startYear = startMoment.year(), endYear = endMoment.year(), year, easter;
 				function add(date, label, repeated) {
@@ -321,6 +324,7 @@
 				readonly: false,
 				types: types,
 				count: (type) => events.filter((e) => e.type === type).length,
+				search: (searchTextLC) => events.filter((e) => ((e.label || '') + '_' + (e.type.label)).toLowerCase().indexOf(searchTextLC) >= 0),
 				populate: function(startMoment, endMoment) {
 					return Promise.resolve(events);
 				},
@@ -410,6 +414,9 @@
 				CalendarSelectViewMonth: "Mois",
 				CalendarSelectViewMonths: "Multi-mois",
 				CalendarSelectViewYear: "Année",
+				CalendarSearch: "Rechercher",
+				CalendarSearchPlaceholder: "Recherche d'évènements...",
+				CalendarSearchNoResult: "Aucun résultat",
 				CalendarSelectSource: "Choisir les sources",
 				CalendarFrenchSpecialDays: "Jours fériés français",
 				CalendarRepeatNone: "pas de répétition",
@@ -473,6 +480,9 @@
 				CalendarSelectViewMonth: "Month",
 				CalendarSelectViewMonths: "Months",
 				CalendarSelectViewYear: "Year",
+				CalendarSearch: "Search",
+				CalendarSearchPlaceholder: "Search for events...",
+				CalendarSearchNoResult: "No result",
 				CalendarSelectSource: "Select sources",
 				CalendarFrenchSpecialDays: "French special days",
 				CalendarRepeatNone: "do not repeat",
