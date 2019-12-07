@@ -464,7 +464,6 @@
 				CalendarEventModalCancelButton: "Annuler",
 				CalendarEventModalAddButton: "Ajouter",
 				CalendarEventModalApplyButton: "Appliquer",
-				CalendarClose: "Fermer l'agenda",
 			},
 			en: {
 				CalendarOpen: "Open in calendar",
@@ -530,7 +529,6 @@
 				CalendarEventModalCancelButton: "Cancel",
 				CalendarEventModalAddButton: "Add event",
 				CalendarEventModalApplyButton: "Apply",
-				CalendarClose: "Close calendar",
 			}
 		}
 	});
