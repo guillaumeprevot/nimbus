@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-static-toolbars">
+<head>
+<title data-translate="text">ContactsTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="${stylesheet}" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+</style>
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/moment/moment.min.js"></script>
+<#if lang == "fr"><script type="text/javascript" src="/libs/moment/fr.js"></script></#if>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+	<header class="bg-primary">
+		<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+	</header>
+	<main></main>
+	<footer class="bg-secondary"></footer>
+<script>
+"use strict";
+
+//Initialiser la page
+NIMBUS.init(['contacts.js'], function() {
+	// En haut à gauche, le bouton "Retour"
+	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+
+	// L'IHM est prête, on l'affiche
+	var body = $(document.body).removeClass('nimbus-hidden');
+
+	// Identifiant de l'élément édité
+	var itemId = ${itemId!"null"};
+
+	// TODO
+});
+</script>
+
+</body>
+</html>

@@ -155,4 +155,18 @@ public class Extensions extends Controller {
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
 
+
+	/**
+	 * Cette route affiche la page de l'application "Contacts"
+	 *
+	 * () => HTML
+	 */
+	public static final Route contacts = (request, response) -> {
+		// Générer la page
+		return renderTemplate(request, "contacts.html",
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
+				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
+				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+	};
+
 }
