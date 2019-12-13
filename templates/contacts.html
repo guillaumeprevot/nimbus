@@ -12,6 +12,14 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
+header { display: flex; flex-direction: row; }
+header > .btn { flex: none; }
+header > #spacer { flex: auto; }
+header > .form-control { flex: auto; max-width: 420px; background-color: transparent; }
+main { display: flex; flex-direction: column; padding: 10px; }
+main > .nav { flex: none; }
+main > .table { flex: auto; }
+table tbody:not(:empty) + caption { display: none; }
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
@@ -25,11 +33,82 @@
 <body class="nimbus-hidden">
 	<header class="bg-primary">
 		<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+		<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="ContactsSave"><i class="material-icons">save</i></button>
+		<span id="spacer"></span>
+		<input id="searchInput" type="search" class="form-control" data-translate="placeholder" placeholder="ContactsSearchPlaceholder" />
+		<button id="addButton" type="button" class="btn btn-link" data-translate="title" title="ContactsAdd"><i class="material-icons">add</i></button>
+		<button id="renameButton" type="button" class="btn btn-link" data-translate="title" title="ContactsRename"><i class="material-icons">edit</i></button>
 	</header>
-	<main></main>
+	<main>
+		<ul id="navigation" class="nav nav-tabs"></ul>
+		<table id="table" class="table">
+			<thead><tr></tr></thead>
+			<tbody></tbody>
+			<caption>Aucun contact pour le moment</caption>
+		</table>
+	</main>
+	<div id="alert-container"></div>
 	<footer class="bg-secondary"></footer>
+	<form>
+		<div id="contactModal" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title insert" data-translate="text">ContactModalTitle</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="contactDisplayName" data-translate="text">ContactModalDisplayNameLabel</label>
+							<input id="contactDisplayName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalDisplayNamePlaceholder" autofocus="autofocus" />
+						</div>
+						<div class="form-group">
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="contactArchive">
+								<label class="custom-control-label" for="contactArchive" data-translate="text">ContactModalArchiveLabel</label>
+							</div>
+						</div>
+						<!--
+						<div class="form-group">
+							<label for="contactGender" data-translate="text">ContactGenderLabel</label>
+							<select id="contactGender" class="form-control">
+								<option value="" data-translate="text">ContactGenderUnspecified</option>
+								<option value="male" data-translate="text">ContactGenderMale</option>
+								<option value="female" data-translate="text">ContactGenderFemale</option>
+								<option value="other" data-translate="text">ContactFieldTypeOther</option>
+							</select>
+						</div>
+						-->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">ContactModalCancelButton</button>
+						<button id="contactValidateButton" type="button" class="btn btn-primary">
+							<span class="add" data-translate="text">ContactModalAddButton</span>
+							<span class="apply" data-translate="text">ContactModalApplyButton</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
 <script>
 "use strict";
+
+// Le format de date moment correspondant aux "input[type=date]"
+var inputDateFormat = 'YYYY-MM-DD';
+
+function updateTable(source) {
+	var headers = $('#table > thead > tr');
+	headers.empty()
+		.append($('<th scope="col" />').text('Nom affiché'))
+		.append($('<th scope="col" />').text('Archivé'));
+	var contacts = $('#table > tbody');
+	contacts.empty().append(source.contacts.map(function(c) {
+		return $('<tr />')
+			.append($('<td />').text(c.displayName))
+			.append($('<td />').text(c.archive ? 'oui' : 'non'))
+			.get(0);
+	}));
+}
 
 //Initialiser la page
 NIMBUS.init(['contacts.js'], function() {
@@ -42,8 +121,92 @@ NIMBUS.init(['contacts.js'], function() {
 	// Identifiant de l'élément édité
 	var itemId = ${itemId!"null"};
 
-	// TODO
-	console.log(NIMBUS.utils.contactAPI);
+	// Récupération des différents calendrier
+	$.get('/items/list', {
+		recursive: true,
+		sortBy: 'name',
+		sortAscending: true,
+		folders: false,
+		hidden: null,
+		deleted: false,
+		extensions: 'contacts'
+	}).then(function(items) {
+		// Récupération de l'API
+		var api = NIMBUS.utils.contactAPI;
+		// Création des sources
+		var sources = items.map((item) => new api.ContactSource(item));
+		// Chargement des sources
+		return Promise.all(sources.map((s) => s.load())).then((results) => {
+			// console.log(sources);
+			return sources;
+		});
+	}).then(function(sources) {
+		// Récupération de l'API
+		var api = NIMBUS.utils.contactAPI;
+		// Gestion du bouton de sauvegarde
+		var saveButton = $('#saveButton');
+		var autosave = (window.location.search || '').indexOf('autosave=true') >= 0;
+		var data = $(sources);
+
+		data.on('contactsourcechange', function(event, source) {
+			source.modified = true;
+			if (autosave) {
+				saveButton.click();
+			} else {
+				saveButton.removeClass('nimbus-hidden');
+			}
+		});
+
+		saveButton.on('click', function() {
+			var promises = sources.filter((s) => s.modified).map((s) => s.save());
+			Promise.all(promises).then(() => {
+				sources.forEach((s) => delete s.modified);
+				saveButton.addClass('nimbus-hidden');
+			}, () => {
+				NIMBUS.message(NIMBUS.translate('ContactSaveError'), true);
+				saveButton.removeClass('nimbus-hidden');
+			});
+		});
+
+		// Initialisation du reste de l'IHM
+		var navigation = $('#navigation');
+		var selectedSource = (itemId === null) ? sources.get(0) : sources.find((s) => s.item.id === itemId);
+		navigation.append(sources.map(function(source, index) {
+			var a = $('<a class="nav-link" href="#" />')
+				.toggleClass('active', source === selectedSource)
+				.text(source.getNameOrDefault());
+			return $('<li class="nav-item" />')
+				.append(a)
+				.get(0);
+		}));
+		navigation.on('click', '.nav-item', function() {
+			var item = $(event.target).closest('.nav-item');
+			var index = item.index();
+			item.children().addClass('active');
+			item.siblings().children().removeClass('active')
+			selectedSource = sources[index];
+			updateTable(selectedSource);
+		});
+		updateTable(selectedSource);
+
+		$('#renameButton').click(function() {
+			var newName = window.prompt(NIMBUS.translate('ContactsRenameTitle'), selectedSource.getNameOrDefault());
+			if (newName !== null) {
+				selectedSource.name = newName.trim() || null;
+				navigation.find('.active').text(selectedSource.getNameOrDefault());
+				data.trigger('contactsourcechange', selectedSource);
+			}
+		});
+
+		// Manipulation au clavier
+		body.keystrokes({
+			'Ctrl-f': () => $('#searchInput').focus().select(),
+			'Ctrl-s': () => saveButton.click(),
+		});
+
+		// Désactivation de la soumission des formulaires
+		$('form').on('submit', function() { return false; });
+	});
 });
 </script>
 
