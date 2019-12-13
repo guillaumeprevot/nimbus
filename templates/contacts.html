@@ -190,12 +190,11 @@ NIMBUS.init(['contacts.js'], function() {
 		updateTable(selectedSource);
 
 		$('#renameButton').click(function() {
-			var newName = window.prompt(NIMBUS.translate('ContactsRenameTitle'), selectedSource.getNameOrDefault());
-			if (newName !== null) {
+			NIMBUS.prompt(NIMBUS.translate('ContactsRenameTitle'), selectedSource.getNameOrDefault(), '').then(function(newName) {
 				selectedSource.name = newName.trim() || null;
 				navigation.find('.active').text(selectedSource.getNameOrDefault());
 				data.trigger('contactsourcechange', selectedSource);
-			}
+			});
 		});
 
 		// Manipulation au clavier

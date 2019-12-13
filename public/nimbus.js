@@ -72,15 +72,52 @@ var NIMBUS = (function() {
 				+ '    </div>'
 				+ '  </div>'
 				+ '</div>');
-		modal.find('.modal-title').text(title || NIMBUS.translate('CommonConfirmDefaultTitle'));
-		modal.find('.modal-body > p').text(question);
-		modal.find('.btn-primary').text(NIMBUS.translate('CommonConfirmOKButton'));
-		modal.find('.btn-secondary').text(NIMBUS.translate('CommonConfirmCancelButton'));
+		modal.find('.modal-title')
+			.text(title || NIMBUS.translate('CommonConfirmDefaultTitle'));
+		modal.find('.modal-body > p')
+			.text(question);
+		modal.find('.btn-primary')
+			.text(NIMBUS.translate('CommonConfirmOKButton'))
+			.one('click', () => defer.resolve());
+		modal.find('.btn-secondary')
+			.text(NIMBUS.translate('CommonConfirmCancelButton'))
+			.one('click', () => defer.reject());
 		modal.appendTo('body')
 			.modal({ backdrop: 'static' })
-			.one('hidden.bs.modal', () => modal.remove())
-			.one('click', '.btn-secondary', () => defer.reject())
-			.one('click', '.btn-primary', () => defer.resolve());;
+			.one('hidden.bs.modal', () => modal.remove());
+		return defer;
+	};
+
+	NIMBUS.prompt = function(title, defaultValue, placeholder) {
+		var defer = $.Deferred();
+		var modal = $(''
+				+ '<div class="modal" tabindex="-1" role="dialog">'
+				+ '  <div class="modal-dialog" role="document">'
+				+ '    <div class="modal-content">'
+				+ '      <div class="modal-header"><h5 class="modal-title">TITLE</h5></div>'
+				+ '      <div class="modal-body"><input type="text" class="form-control" placeholder="PLACEHOLDER" value="DEFAULT_VALUE" /></div>'
+				+ '      <div class="modal-footer">'
+				+ '        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>'
+				+ '        <button type="button" class="btn btn-primary" data-dismiss="modal">VALIDATE</button>'
+				+ '      </div>'
+				+ '    </div>'
+				+ '  </div>'
+				+ '</div>');
+		modal.find('.modal-title')
+			.text(title)
+			.parent().toggle(!!title);
+		modal.find('.modal-body > input')
+			.attr('placeholder', placeholder || NIMBUS.translate('CommonPromptDefaultPlaceholder'))
+			.val(defaultValue || '');
+		modal.find('.btn-primary')
+			.text(NIMBUS.translate('CommonPromptValidateButton'))
+			.one('click', () => defer.resolve(modal.find('.modal-body > input').val()));
+		modal.find('.btn-secondary')
+			.text(NIMBUS.translate('CommonPromptCancelButton'))
+			.one('click', () => defer.reject());
+		modal.appendTo('body')
+			.modal({ backdrop: 'static' })
+			.one('hidden.bs.modal', () => modal.remove());
 		return defer;
 	};
 

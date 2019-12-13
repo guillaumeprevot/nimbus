@@ -240,6 +240,9 @@ NIMBUS.lang = {
 	CommonConfirmDefaultTitle: "Confirmation",
 	CommonConfirmOKButton: "OK",
 	CommonConfirmCancelButton: "Annuler",
+	CommonPromptDefaultPlaceholder: "",
+	CommonPromptValidateButton: "Valider",
+	CommonPromptCancelButton: "Annuler",
 
 	ActionNavigate: "Ouvrir",
 	ActionNavigateTab: "Ouvrir dans un nouvel onglet",
