@@ -11,6 +11,8 @@
 	}
 
 	CalendarDate.from = function(year, month, date) {
+		if (typeof year === 'string')
+			return new CalendarDate(parseInt(year.substr(0, 4)), parseInt(year.substr(5, 2)) - 1, parseInt(year.substr(8, 2)));
 		if (year instanceof moment)
 			return new CalendarDate(year.year(), year.month(), year.date());
 		if (year instanceof Date)
@@ -22,6 +24,10 @@
 
 	CalendarDate.prototype.toMoment = function() {
 		return moment().year(this.year).month(this.month).date(this.date).startOf('day');
+	};
+
+	CalendarDate.prototype.toString = function() {
+		return '' + this.year + "-" + (this.month + 1 < 10 ? '0' : '') + (this.month + 1) + '-' + (this.date < 10 ? '0' : '') + this.date;
 	};
 
 	/** Cette classe représente un type d'évènement dans le calendrier, avec principalement un nom et une couleur */
@@ -343,13 +349,13 @@
 						events: events.map((e) => {
 							return {
 								type: types.indexOf(e.type),
-								date: e.date,
-								repeat: e.repeat,
-								label: e.label,
-								endDate: e.endDate,
-								done: e.done,
-								important: e.important,
-								note: e.note,
+								date: e.date.toString(),
+								repeat: e.repeat ? e.repeat : undefined,
+								label: e.label ? e.label : undefined,
+								endDate: e.endDate ? e.endDate.toString() : undefined,
+								done: e.done ? e.done : undefined,
+								important: e.important ? e.important : undefined,
+								note: e.note ? e.note : undefined,
 							};
 						})
 					});
