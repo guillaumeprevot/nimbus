@@ -179,6 +179,16 @@
 		return 'contacts' === extension;
 	}
 
+	function formatAddress(address) {
+		var parts = [];
+		if (address.address) parts.push(address.address);
+		if (address.address2) parts.push(address.address2);
+		if (address.zipCode || address.city) parts.push([address.zipCode || '', address.city || ''].join(' ').trim());
+		if (address.state) parts.push(address.state);
+		if (address.country) parts.push(address.country);
+		return parts.join(', ');
+	}
+
 	NIMBUS.utils.contactAPI = {
 		ContactAddress: ContactAddress,
 		ContactEmail: ContactEmail,
@@ -188,6 +198,14 @@
 		ContactField: ContactField,
 		Contact: Contact,
 		ContactSource: ContactSource,
+
+		formatAddress: formatAddress,
+		createMappyLink: (a) => 'https://fr.mappy.com/#/1/M2/TSearch/S' + encodeURI(formatAddress(a)),
+		createGoogleMapsLink: (a) => 'https://www.google.com/maps/place/' + encodeURI(formatAddress(a)),
+		createOpenStreetMapLink: (a) => 'https://www.openstreetmap.org/search?query=' + encodeURI(formatAddress(a)),
+		createEmailLink: (e) => $('<a />').text(e.email).attr('href', 'mailto:' + e.email),
+		createPhoneLink: (p) => $('<a />').text(p.phone).attr('href', 'tel:' + p.phone),
+		createURLLink: (u) => $('<a target="_blank" />').text(u.label || NIMBUS.translate(ContactURL.types[u.type])).attr('href', u.url)
 	};
 
 	NIMBUS.plugins.add({
@@ -220,19 +238,24 @@
 				ContactsSave: "Sauvegarder les modifications",
 				ContactsSaveError: "Une erreur est survenue. Veuillez vérifier que le serveur est accessible et réessayer.",
 				ContactsSearchPlaceholder: "Rechercher des contacts par nom, numéro, adresse mail, ...",
-				ContactsAdd: "Ajouter un contact au carnet d'adresses actif",
 				ContactsRename: "Renommer le carnet d'adresses actif",
 				ContactsRenameTitle: "Renommer en ",
+				ContactAddButton: "Ajouter un contact au carnet d'adresses actif",
+				ContactEditButton: "Modifier ce contact",
+				ContactDeleteButton: "Supprimer ce contact",
 				ContactModalTitle: "Propriétés du contact",
 				ContactModalDisplayNameLabel: "Nom affiché",
 				ContactModalDisplayNamePlaceholder: "(utilisé pour désigner le contact dans l'application)",
 				ContactModalArchiveLabel: "Archiver ce contact",
+				ContactModalGenderLabel: "Genre",
+				ContactModalNoteLabel: "Note",
+				ContactModalNotePlaceholder: "(facultatif)",
 				ContactModalCancelButton: "Annuler",
 				ContactModalAddButton: "Créer ce contact",
 				ContactModalApplyButton: "Appliquer les changements",
 
 				Contact: "Contact",
-				ContactArchive: "Archiver ce contact",
+				ContactArchive: "Archivé",
 				ContactDisplayName: "Nom affiché",
 				ContactTitle: "Titre",
 				ContactFirstName: "Prénom",
@@ -315,23 +338,28 @@
 				ContactsSave: "Save modifications",
 				ContactsSaveError: "An error occurred. Please check your network access and try again.",
 				ContactsSearchPlaceholder: "Search contacts by name, phone number, email address, ...",
-				ContactsAdd: "Add a new contact to the selected address book",
 				ContactsRename: "Rename the selected address book",
 				ContactsRenameTitle: "Rename to ",
+				ContactAddButton: "Add a new contact to the selected address book",
+				ContactEditButton: "Edit this contact",
+				ContactDeleteButton: "Delete this contact",
 				ContactModalTitle: "Contact information",
 				ContactModalDisplayNameLabel: "Display name",
 				ContactModalDisplayNamePlaceholder: "(used to name contact in the application)",
 				ContactModalArchiveLabel: "Archive this contact",
+				ContactModalGenderLabel: "Gender",
+				ContactModalNoteLabel: "Note",
+				ContactModalNotePlaceholder: "(optional)",
 				ContactModalCancelButton: "Cancel",
 				ContactModalAddButton: "Create contact",
 				ContactModalApplyButton: "Apply modifications",
 
 				Contact: "Contact",
-				ContactArchive: "Archiver ce contact",
-				ContactDisplayName: "Nom affiché",
-				ContactTitle: "Titre",
-				ContactFirstName: "Prénom",
-				ContactMiddleName: "2ème prénom",
+				ContactArchive: "Archived",
+				ContactDisplayName: "Display name",
+				ContactTitle: "Title",
+				ContactFirstName: "First name",
+				ContactMiddleName: "Middle name",
 				ContactLastName: "Last name",
 				ContactSuffix: "Suffix",
 				ContactNickname: "Nickname",

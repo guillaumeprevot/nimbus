@@ -15,11 +15,18 @@
 header { display: flex; flex-direction: row; }
 header > .btn { flex: none; }
 header > #spacer { flex: auto; }
-header > .form-control { flex: auto; max-width: 420px; background-color: transparent; }
+header > #searchInput { flex: auto; max-width: 420px; }
+header > #searchInput:not(.active):not(:focus) { background-color: transparent; }
+
 main { display: flex; flex-direction: column; padding: 10px; }
 main > .nav { flex: none; }
 main > .table { flex: auto; }
+
+table tbody { cursor: pointer; }
+table tbody + caption { text-align: center; }
 table tbody:not(:empty) + caption { display: none; }
+
+#actionsModal .material-icons { font-size: 20px; width: 20px; height: 20px; }
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
@@ -36,12 +43,12 @@ table tbody:not(:empty) + caption { display: none; }
 		<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="ContactsSave"><i class="material-icons">save</i></button>
 		<span id="spacer"></span>
 		<input id="searchInput" type="search" class="form-control" data-translate="placeholder" placeholder="ContactsSearchPlaceholder" />
-		<button id="addButton" type="button" class="btn btn-link" data-translate="title" title="ContactsAdd"><i class="material-icons">add</i></button>
+		<button id="addContactButton" type="button" class="btn btn-link" data-translate="title" title="ContactAddButton"><i class="material-icons">add</i></button>
 		<button id="renameButton" type="button" class="btn btn-link" data-translate="title" title="ContactsRename"><i class="material-icons">edit</i></button>
 	</header>
 	<main>
 		<ul id="navigation" class="nav nav-tabs"></ul>
-		<table id="table" class="table">
+		<table id="table" class="table table-hover">
 			<thead><tr></tr></thead>
 			<tbody></tbody>
 			<caption>Aucun contact pour le moment</caption>
@@ -50,6 +57,25 @@ table tbody:not(:empty) + caption { display: none; }
 	<div id="alert-container"></div>
 	<footer class="bg-secondary"></footer>
 	<form>
+		<div id="actionsModal" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div class="list-group">
+							<div class="list-group-item active">DISPLAY_NAME</div>
+							<button id="editContactButton" type="button" class="list-group-item list-group-item-action">
+								<i class="material-icons">edit</i>
+								<span data-translate="text">ContactEditButton</span>
+							</button>
+							<button id="deleteContactButton" type="button" class="list-group-item list-group-item-action text-danger">
+								<i class="material-icons">delete</i>
+								<span data-translate="text">ContactDeleteButton</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div id="contactModal" class="modal fade">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -67,17 +93,19 @@ table tbody:not(:empty) + caption { display: none; }
 								<label class="custom-control-label" for="contactArchive" data-translate="text">ContactModalArchiveLabel</label>
 							</div>
 						</div>
-						<!--
 						<div class="form-group">
-							<label for="contactGender" data-translate="text">ContactGenderLabel</label>
+							<label for="contactGender" data-translate="text">ContactModalGenderLabel</label>
 							<select id="contactGender" class="form-control">
 								<option value="" data-translate="text">ContactGenderUnspecified</option>
 								<option value="male" data-translate="text">ContactGenderMale</option>
 								<option value="female" data-translate="text">ContactGenderFemale</option>
-								<option value="other" data-translate="text">ContactFieldTypeOther</option>
+								<option value="other" data-translate="text">ContactGenderOther</option>
 							</select>
 						</div>
-						-->
+						<div class="form-group">
+							<label for="contactNote" data-translate="text">ContactModalNoteLabel</label>
+							<textarea id="contactNote" class="form-control" data-translate="placeholder" placeholder="ContactModalNotePlaceholder"></textarea>
+						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">ContactModalCancelButton</button>
@@ -96,18 +124,81 @@ table tbody:not(:empty) + caption { display: none; }
 // Le format de date moment correspondant aux "input[type=date]"
 var inputDateFormat = 'YYYY-MM-DD';
 
+// La liste des colonnes
+var columns = [
+	{ name: 'picture', title: 'ContactPicture', content: (c) => (c.picture ? $('<img />').attr('src', '/files/thumbnail/' + c.picture + '?size=32').css('clip-path', 'circle(50%)') : '') },
+	{ name: 'archive', title: 'ContactArchive', content: (c) => c.archive ? '<i class="material-icons">check_box</i>' : '<i class="material-icons">check_box_outline_blank</i>' },
+	{ name: 'displayName', title: 'ContactDisplayName', content: (c) => c.displayName || (c.firstName + ' ' + c.lastName) },
+	{ name: 'email1', title: 'ContactEmail', content: (c) => findIn(c.emails, 0, NIMBUS.utils.contactAPI.createEmailLink) },
+	{ name: 'email2', title: 'ContactEmail', content: (c) => findIn(c.emails, 1, NIMBUS.utils.contactAPI.createEmailLink) },
+	{ name: 'phone1', title: 'ContactPhone', content: (c) => findIn(c.phones, 0, NIMBUS.utils.contactAPI.createPhoneLink) },
+	{ name: 'phone2', title: 'ContactPhone', content: (c) => findIn(c.phones, 1, NIMBUS.utils.contactAPI.createPhoneLink) },
+	{ name: 'url1', title: 'ContactURL', content: (c) => findIn(c.urls, 0, NIMBUS.utils.contactAPI.createURLLink) },
+	{ name: 'keywords', title: 'ContactKeywords', content: (c) => c.keywords ? c.keywords.join(',') : '' },
+];
+
+// Cette méthode recherche dans "array" la valeur à la position "index", si "array" est suffisamment grand, et renvoie la valeur formatée par "format"
+function findIn(array, index, format) {
+	if (!array || index >= array.length)
+		return '';
+	return format(array[index]);
+}
+
+// Cette méthode vérifier si le contact correspond au texte recherché
+function matchSearch(contact, searchTextLC) {
+	return (contact.displayName || (contact.firstName + ' ' + contact.lastName)).toLowerCase().indexOf(searchTextLC) >= 0;
+}
+
+// Cette méthode filtre la grille en fonction du texte recherché
+function updateSearch() {
+	var searchTextLC = $('#searchInput').val().toLowerCase();
+	$('#table > tbody > tr').each(function() {
+		var tr = $(this);
+		var contact = tr.data('contact');
+		tr.toggle(!searchTextLC || matchSearch(contact, searchTextLC));
+	});
+}
+
+// Cette méthode charge la grille avec le contenu du carnet d'adresses sélectionné
 function updateTable(source) {
+	var searchTextLC = $('#searchInput').val().toLowerCase();
 	var headers = $('#table > thead > tr');
-	headers.empty()
-		.append($('<th scope="col" />').text('Nom affiché'))
-		.append($('<th scope="col" />').text('Archivé'));
+	if (headers.is(':empty'))
+		columns.forEach((c) => $('<th scope="col" />').text(NIMBUS.translate(c.title)).attr('data-name', c.name).appendTo(headers));
 	var contacts = $('#table > tbody');
-	contacts.empty().append(source.contacts.map(function(c) {
-		return $('<tr />')
-			.append($('<td />').text(c.displayName))
-			.append($('<td />').text(c.archive ? 'oui' : 'non'))
-			.get(0);
+	contacts.empty().append(source.contacts.map(function(contact) {
+		var tr = $('<tr />').data('contact', contact);
+		tr.toggle(!searchTextLC || matchSearch(contact, searchTextLC));
+		columns.forEach((c) => $('<td />').append(c.content(contact)).appendTo(tr));
+		return tr.get(0);
 	}));
+}
+
+function editContact(source, contact, isNew, callback) {
+	// Préparer le formulaire
+	var displayNameInput = $('#contactDisplayName').val(contact.displayName || '');
+	var archiveCheckbox = $('#contactArchive').prop('checked', !!contact.archive);
+	var genderSelect = $('#contactGender').val(contact.gender || '');
+	var noteTextarea = $('#contactNote').val(contact.note || '');
+	// Ajuster le bouton de validation (ajout ou modification ?)
+	$('#contactValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
+	// Ajuster l'action de validation au contexte en cours
+	$('#contactValidateButton').off('click').on('click', function() {
+		var api = NIMBUS.utils.contactAPI;
+		// Ajuster les données
+		contact.displayName = displayNameInput.val() || undefined;
+		contact.archive = archiveCheckbox.prop('checked');
+		contact.gender = genderSelect.val() || undefined;
+		contact.note = noteTextarea.val() || undefined;
+		if (isNew)
+			source.contacts.push(contact);
+		// Fermer la fenêtre modale
+		$('#contactModal').modal('hide');
+		// Appeler la callback
+		callback();
+	});
+	// Afficher la fenêtre modale
+	$('#contactModal').modal();
 }
 
 //Initialiser la page
@@ -143,6 +234,7 @@ NIMBUS.init(['contacts.js'], function() {
 	}).then(function(sources) {
 		// Récupération de l'API
 		var api = NIMBUS.utils.contactAPI;
+
 		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
 		var autosave = (window.location.search || '').indexOf('autosave=true') >= 0;
@@ -168,9 +260,11 @@ NIMBUS.init(['contacts.js'], function() {
 			});
 		});
 
-		// Initialisation du reste de l'IHM
+		// Préparation des onglets pour passer d'un carnet d'adresse à un autre
 		var navigation = $('#navigation');
-		var selectedSource = (itemId === null) ? sources.get(0) : sources.find((s) => s.item.id === itemId);
+		// Positionnement sur l'onglet demandé dans l'URL ou sur le premier par défaut
+		var selectedSource = (itemId === null) ? sources[0] : sources.find((s) => s.item.id === itemId);
+		// Création d'un onglet par fichier ".contacts"
 		navigation.append(sources.map(function(source, index) {
 			var a = $('<a class="nav-link" href="#" />')
 				.toggleClass('active', source === selectedSource)
@@ -179,6 +273,7 @@ NIMBUS.init(['contacts.js'], function() {
 				.append(a)
 				.get(0);
 		}));
+		// Chargement du fichier quand on clique sur son onglet
 		navigation.on('click', '.nav-item', function() {
 			var item = $(event.target).closest('.nav-item');
 			var index = item.index();
@@ -187,12 +282,82 @@ NIMBUS.init(['contacts.js'], function() {
 			selectedSource = sources[index];
 			updateTable(selectedSource);
 		});
+		// Chargement initial de la grille
 		updateTable(selectedSource);
 
+		// Configuration de la zone de recherche
+		$('#searchInput').val('').change(function() {
+			// Marquer de la classe active pour forcer le fond blanc (cf <style />)
+			$(this).toggleClass('active', !!this.value);
+			// Filtrer la table en fonction de la recherche
+			updateSearch();
+		});
+
+		// Clic sur le bouton pour ajouter un contact
+		$('#addContactButton').click(function() {
+			// Créer un contact vide
+			var newContact = {};
+			// Editer ce contact 
+			editContact(selectedSource, newContact, true, function() {
+				// Gérer la sauvegarde
+				data.trigger('contactsourcechange', selectedSource);
+				// Raffraichir la page
+				updateTable(selectedSource);
+			});
+		});
+
+		// Sélection de l'entrée de menu pour éditer un contact existant
+		$('#editContactButton').on('click', function() {
+			// Cacher la fenêtre
+			var modal = $('#actionsModal').modal('hide');
+			// Récupérer le contact
+			var contact = modal.data('contact');
+			// Editer le contact
+			editContact(selectedSource, contact, false, function() {
+				// Gérer la sauvegarde
+				data.trigger('contactsourcechange', selectedSource);
+				// Raffraichir la page
+				updateTable(selectedSource);
+			});
+		});
+
+		// Sélection de l'entrée de menu pour supprimer un contact existant
+		$('#deleteContactButton').on('click', function() {
+			// Cacher la fenêtre
+			var modal = $('#actionsModal').modal('hide');
+			// Récupérer le contact
+			var contact = modal.data('contact');
+			// Supprimer le contact
+			selectedSource.contacts.splice(selectedSource.contacts.indexOf(contact), 1);
+			// Gérer la sauvegarde
+			data.trigger('contactsourcechange', selectedSource);
+			// Raffraichir la page
+			updateTable(selectedSource);
+		});
+
+		// Sélection d'un contact en cliquant dessus dans la grille
+		$('#table').on('click', 'tbody > tr', function(event) {
+			// Na pas afficher le menu si on a cliqué sur un lien (email, phone, url, ...)
+			var target = $(event.target);
+			if (target.closest('a').length > 0)
+				return;
+			// Récupérer le contact cliqué
+			var contact = $(event.target).closest('tr').data('contact');
+			// Afficher le menu d'action
+			var modal = $('#actionsModal').data('contact', contact).modal();
+			// Afficher le nom du contact en haut du menu
+			modal.find('.list-group-item.active').text(contact.displayName || (contact.firstName + ' ' + contact.lastName));
+		});
+
+		// Clic sur le bouton pour renommer un carnet d'adresse
 		$('#renameButton').click(function() {
+			// Demander le nouveau nom
 			NIMBUS.prompt(NIMBUS.translate('ContactsRenameTitle'), selectedSource.getNameOrDefault(), '').then(function(newName) {
+				// Renommer la source
 				selectedSource.name = newName.trim() || null;
+				// Ajuster le titre de l'onglet associé
 				navigation.find('.active').text(selectedSource.getNameOrDefault());
+				// Gérer la sauvegarde
 				data.trigger('contactsourcechange', selectedSource);
 			});
 		});
