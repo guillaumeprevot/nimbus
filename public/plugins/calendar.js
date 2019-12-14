@@ -338,7 +338,7 @@
 					events = events.filter((e) => e.type !== type);
 				},
 				save: function() {
-					return NIMBUS.utils.updateFileJSON(item.id, {
+					return NIMBUS.utils.updateFileJSON(item.id, true, {
 						types: types,
 						events: events.map((e) => {
 							return {

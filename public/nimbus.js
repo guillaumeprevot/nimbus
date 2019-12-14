@@ -116,6 +116,7 @@ var NIMBUS = (function() {
 			.text(NIMBUS.translate('CommonPromptCancelButton'))
 			.one('click', () => defer.reject());
 		modal.appendTo('body')
+			.one('shown.bs.modal', () => modal.find('.modal-body > input').focus().select())
 			.modal({ backdrop: 'static' })
 			.one('hidden.bs.modal', () => modal.remove());
 		return defer;
@@ -380,8 +381,8 @@ NIMBUS.utils = (function() {
 		return updateFile(itemId, new Blob([text], { type: "text/plain" }));
 	}
 
-	function updateFileJSON(itemId, data) {
-		return updateFile(itemId, new Blob([JSON.stringify(data)], { type: "application/json" }));
+	function updateFileJSON(itemId, formatted, data) {
+		return updateFile(itemId, new Blob([JSON.stringify(data, null, formatted ? '\t' : undefined)], { type: "application/json" }));
 	}
 
 	return {

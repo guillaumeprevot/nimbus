@@ -169,7 +169,7 @@
 	};
 
 	ContactSource.prototype.save = function() {
-		return NIMBUS.utils.updateFileJSON(this.item.id, {
+		return NIMBUS.utils.updateFileJSON(this.item.id, true, {
 			name: this.name,
 			contacts: this.contacts
 		});
