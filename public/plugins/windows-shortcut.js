@@ -1,5 +1,7 @@
 (function() {
 
+	NIMBUS.utils.textFileExtensions.push('url');
+
 	NIMBUS.plugins.add({
 		name: 'windows-shortcut',
 		properties: [

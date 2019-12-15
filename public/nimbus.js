@@ -263,8 +263,9 @@ var NIMBUS = (function() {
 
 NIMBUS.utils = (function() {
 	// Configuration des extensions configurées comme étant des fichiers texte
+	var textFileExtensions = [];
 	function isTextFile(item, extension) {
-		return !item.folder && (item.mimetype.indexOf("text/") === 0 || NIMBUS.utils.textFileExtensions.indexOf(extension) >= 0);
+		return !item.folder && (item.mimetype.indexOf("text/") === 0 || textFileExtensions.indexOf(extension) >= 0);
 	}
 
 	// Détection du support audio
@@ -387,7 +388,7 @@ NIMBUS.utils = (function() {
 
 	return {
 		isTextFile: isTextFile,
-		textFileExtensions: [],
+		textFileExtensions: textFileExtensions,
 		isBrowserSupportedAudio: isBrowserSupportedAudio,
 		isBrowserSupportedVideo: isBrowserSupportedVideo,
 		isBrowserSupportedImage: isBrowserSupportedImage,

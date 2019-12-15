@@ -382,6 +382,8 @@
 		createNimbusFileCalendarSource: createNimbusFileCalendarSource,
 	};
 
+	NIMBUS.utils.textFileExtensions.push('calendar');
+
 	NIMBUS.plugins.add({
 		name: 'calendar',
 		properties: [],

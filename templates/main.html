@@ -418,7 +418,7 @@ NIMBUS.init(plugins, function() {
 		showItemThumbnail: ${showItemThumbnail?then("true","false")},
 	};
 	// Chargement des extensions des fichiers texte
-	NIMBUS.utils.textFileExtensions = [<#list textFileExtensions as e>'${e}'<#sep>,</#sep></#list>];
+	Array.prototype.push.apply(NIMBUS.utils.textFileExtensions, [<#list textFileExtensions as e>'${e}'<#sep>,</#sep></#list>]);
 	// L'IHM est prête, on l'affiche
 	$(document.body).removeClass('nimbus-hidden');
 	// Initialisation de la bavigation

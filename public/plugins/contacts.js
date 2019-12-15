@@ -228,6 +228,8 @@
 		createURLLink: (u) => $('<a target="_blank" />').text(u.label || NIMBUS.translate(ContactURL.types[u.type])).attr('href', u.url)
 	};
 
+	NIMBUS.utils.textFileExtensions.push('contacts');
+
 	NIMBUS.plugins.add({
 		name: 'contacts',
 		properties: [],
