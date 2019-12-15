@@ -89,8 +89,8 @@
 	}
 
 	function Contact(data) {
-		// Indicateur pour archiver un contact
-		this.archive = data.archive;
+		// Indicateur pour marquer un contact comme favori
+		this.favorite = data.favorite;
 		// Nom utilisé pour afficher le contact dans l'IHM
 		this.displayName = data.displayName;
 		// Dénomination complète (Mr Professor John Smart Doe Senior)
@@ -137,6 +137,8 @@
 		this.name = null; //item.name.replace(/.contacts/gi, '');
 		// la liste des contacts de cette source, un tableau de Contact
 		this.contacts = [];
+		// indique si les contacts sont actuellement triés
+		this.sorted = false;
 	}
 
 	ContactSource.prototype.getNameOrDefault = function() {
@@ -168,6 +170,11 @@
 		});
 	};
 
+	ContactSource.prototype.sort = function() {
+		this.contacts.sort((c1, c2) => formatContact(c1).localeCompare(formatContact(c2)));
+		this.sorted = true;
+	};
+
 	ContactSource.prototype.save = function() {
 		return NIMBUS.utils.updateFileJSON(this.item.id, true, {
 			name: this.name,
@@ -177,6 +184,17 @@
 
 	function accept(item, extension) {
 		return 'contacts' === extension;
+	}
+
+	// Cette méthode vérifier si le contact correspond au texte recherché
+	function matchContact(contact, searchTextLC) {
+		return formatContact(contact).toLowerCase().indexOf(searchTextLC) >= 0;
+	}
+
+	function formatContact(contact) {
+		if (contact.displayName)
+			return contact.displayName;
+		return (contact.firstName + ' ' + contact.lastName).trim();
 	}
 
 	function formatAddress(address) {
@@ -199,6 +217,8 @@
 		Contact: Contact,
 		ContactSource: ContactSource,
 
+		matchContact: matchContact,
+		formatContact: formatContact,
 		formatAddress: formatAddress,
 		createMappyLink: (a) => 'https://fr.mappy.com/#/1/M2/TSearch/S' + encodeURI(formatAddress(a)),
 		createGoogleMapsLink: (a) => 'https://www.google.com/maps/place/' + encodeURI(formatAddress(a)),
@@ -246,7 +266,7 @@
 				ContactModalTitle: "Propriétés du contact",
 				ContactModalDisplayNameLabel: "Nom affiché",
 				ContactModalDisplayNamePlaceholder: "(utilisé pour désigner le contact dans l'application)",
-				ContactModalArchiveLabel: "Archiver ce contact",
+				ContactModalFavoriteLabel: "Marquer ce contact comme favori",
 				ContactModalGenderLabel: "Genre",
 				ContactModalNoteLabel: "Note",
 				ContactModalNotePlaceholder: "(facultatif)",
@@ -255,7 +275,7 @@
 				ContactModalApplyButton: "Appliquer les changements",
 
 				Contact: "Contact",
-				ContactArchive: "Archivé",
+				ContactFavorite: "Favori",
 				ContactDisplayName: "Nom affiché",
 				ContactTitle: "Titre",
 				ContactFirstName: "Prénom",
@@ -346,7 +366,7 @@
 				ContactModalTitle: "Contact information",
 				ContactModalDisplayNameLabel: "Display name",
 				ContactModalDisplayNamePlaceholder: "(used to name contact in the application)",
-				ContactModalArchiveLabel: "Archive this contact",
+				ContactModalFavoriteLabel: "Mark this contact as favorite",
 				ContactModalGenderLabel: "Gender",
 				ContactModalNoteLabel: "Note",
 				ContactModalNotePlaceholder: "(optional)",
@@ -355,7 +375,7 @@
 				ContactModalApplyButton: "Apply modifications",
 
 				Contact: "Contact",
-				ContactArchive: "Archived",
+				ContactFavorite: "Favorite",
 				ContactDisplayName: "Display name",
 				ContactTitle: "Title",
 				ContactFirstName: "First name",
@@ -380,14 +400,14 @@
 				ContactAddressCountry: "Country",
 				ContactAddressTypeHome: "Home",
 				ContactAddressTypeWork: "Company",
-				ContactAddressTypeArchive: "Archived",
+				ContactAddressTypeArchive: "Archive",
 				ContactAddressTypeOther: "Other",
 
 				ContactEmail: "Email",
 				ContactEmailList: "Emails",
 				ContactEmailTypeHome: "Home",
 				ContactEmailTypeWork: "Work",
-				ContactEmailTypeArchive: "Archived",
+				ContactEmailTypeArchive: "Archive",
 				ContactEmailTypeOther: "Other",
 
 				ContactPhone: "Number",

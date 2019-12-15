@@ -18,9 +18,9 @@ header > #spacer { flex: auto; }
 header > #searchInput { flex: auto; max-width: 420px; }
 header > #searchInput:not(.active):not(:focus) { background-color: transparent; }
 
-main { display: flex; flex-direction: column; padding: 10px; }
-main > .nav { flex: none; }
-main > .table { flex: auto; }
+main { display: flex; flex-direction: column; }
+main > ul { flex: none; }
+main > div { flex: auto; overflow-y: auto; white-space: nowrap; }
 
 table tbody { cursor: pointer; }
 table tbody + caption { text-align: center; }
@@ -48,11 +48,13 @@ table tbody:not(:empty) + caption { display: none; }
 	</header>
 	<main>
 		<ul id="navigation" class="nav nav-tabs"></ul>
-		<table id="table" class="table table-hover">
-			<thead><tr></tr></thead>
-			<tbody></tbody>
-			<caption>Aucun contact pour le moment</caption>
-		</table>
+		<div>
+			<table id="table" class="table table-hover">
+				<thead><tr></tr></thead>
+				<tbody></tbody>
+				<caption>Aucun contact pour le moment</caption>
+			</table>
+		</div>
 	</main>
 	<div id="alert-container"></div>
 	<footer class="bg-secondary"></footer>
@@ -89,8 +91,8 @@ table tbody:not(:empty) + caption { display: none; }
 						</div>
 						<div class="form-group">
 							<div class="custom-control custom-switch">
-								<input type="checkbox" class="custom-control-input" id="contactArchive">
-								<label class="custom-control-label" for="contactArchive" data-translate="text">ContactModalArchiveLabel</label>
+								<input type="checkbox" class="custom-control-input" id="contactFavorite">
+								<label class="custom-control-label" for="contactFavorite" data-translate="text">ContactModalFavoriteLabel</label>
 							</div>
 						</div>
 						<div class="form-group">
@@ -127,8 +129,8 @@ var inputDateFormat = 'YYYY-MM-DD';
 // La liste des colonnes
 var columns = [
 	{ name: 'picture', title: 'ContactPicture', content: (c) => (c.picture ? $('<img />').attr('src', '/files/thumbnail/' + c.picture + '?size=32').css('clip-path', 'circle(50%)') : '') },
-	{ name: 'archive', title: 'ContactArchive', content: (c) => c.archive ? '<i class="material-icons">check_box</i>' : '<i class="material-icons">check_box_outline_blank</i>' },
-	{ name: 'displayName', title: 'ContactDisplayName', content: (c) => c.displayName || (c.firstName + ' ' + c.lastName) },
+	{ name: 'favorite', title: 'ContactFavorite', content: (c) => c.favorite ? '<i class="material-icons">star</i>' : '<i class="material-icons">star_border</i>' },
+	{ name: 'displayName', title: 'ContactDisplayName', content: (c) => NIMBUS.utils.contactAPI.formatContact(c) },
 	{ name: 'email1', title: 'ContactEmail', content: (c) => findIn(c.emails, 0, NIMBUS.utils.contactAPI.createEmailLink) },
 	{ name: 'email2', title: 'ContactEmail', content: (c) => findIn(c.emails, 1, NIMBUS.utils.contactAPI.createEmailLink) },
 	{ name: 'phone1', title: 'ContactPhone', content: (c) => findIn(c.phones, 0, NIMBUS.utils.contactAPI.createPhoneLink) },
@@ -144,31 +146,37 @@ function findIn(array, index, format) {
 	return format(array[index]);
 }
 
-// Cette méthode vérifier si le contact correspond au texte recherché
-function matchSearch(contact, searchTextLC) {
-	return (contact.displayName || (contact.firstName + ' ' + contact.lastName)).toLowerCase().indexOf(searchTextLC) >= 0;
-}
-
 // Cette méthode filtre la grille en fonction du texte recherché
 function updateSearch() {
+	// Récupérer l'API
+	var api = NIMBUS.utils.contactAPI;
+	// Récupérer le texte recherché
 	var searchTextLC = $('#searchInput').val().toLowerCase();
 	$('#table > tbody > tr').each(function() {
 		var tr = $(this);
 		var contact = tr.data('contact');
-		tr.toggle(!searchTextLC || matchSearch(contact, searchTextLC));
+		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC));
 	});
 }
 
 // Cette méthode charge la grille avec le contenu du carnet d'adresses sélectionné
 function updateTable(source) {
-	var searchTextLC = $('#searchInput').val().toLowerCase();
+	// Préparer les en-têtes de colonne
 	var headers = $('#table > thead > tr');
 	if (headers.is(':empty'))
 		columns.forEach((c) => $('<th scope="col" />').text(NIMBUS.translate(c.title)).attr('data-name', c.name).appendTo(headers));
+	// Trier les contacts, si ça n'est pas encore fait
+	if (!source.sorted)
+		source.sort();
+	// Récupérer l'API
+	var api = NIMBUS.utils.contactAPI;
+	// Récupérer le texte recherché
+	var searchTextLC = $('#searchInput').val().toLowerCase();
+	// Remplir la table
 	var contacts = $('#table > tbody');
 	contacts.empty().append(source.contacts.map(function(contact) {
 		var tr = $('<tr />').data('contact', contact);
-		tr.toggle(!searchTextLC || matchSearch(contact, searchTextLC));
+		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC));
 		columns.forEach((c) => $('<td />').append(c.content(contact)).appendTo(tr));
 		return tr.get(0);
 	}));
@@ -177,7 +185,7 @@ function updateTable(source) {
 function editContact(source, contact, isNew, callback) {
 	// Préparer le formulaire
 	var displayNameInput = $('#contactDisplayName').val(contact.displayName || '');
-	var archiveCheckbox = $('#contactArchive').prop('checked', !!contact.archive);
+	var favoriteCheckbox = $('#contactFavorite').prop('checked', !!contact.favorite);
 	var genderSelect = $('#contactGender').val(contact.gender || '');
 	var noteTextarea = $('#contactNote').val(contact.note || '');
 	// Ajuster le bouton de validation (ajout ou modification ?)
@@ -185,13 +193,17 @@ function editContact(source, contact, isNew, callback) {
 	// Ajuster l'action de validation au contexte en cours
 	$('#contactValidateButton').off('click').on('click', function() {
 		var api = NIMBUS.utils.contactAPI;
+		// Récupérer le libellé actuel pour retrier si besoin
+		var oldDisplayName = contact.displayName;
 		// Ajuster les données
 		contact.displayName = displayNameInput.val() || undefined;
-		contact.archive = archiveCheckbox.prop('checked');
+		contact.favorite = favoriteCheckbox.prop('checked');
 		contact.gender = genderSelect.val() || undefined;
 		contact.note = noteTextarea.val() || undefined;
 		if (isNew)
 			source.contacts.push(contact);
+		if (oldDisplayName !== contact.displayName)
+			source.sort();
 		// Fermer la fenêtre modale
 		$('#contactModal').modal('hide');
 		// Appeler la callback
@@ -281,6 +293,7 @@ NIMBUS.init(['contacts.js'], function() {
 			item.siblings().children().removeClass('active')
 			selectedSource = sources[index];
 			updateTable(selectedSource);
+			return false;
 		});
 		// Chargement initial de la grille
 		updateTable(selectedSource);
@@ -346,7 +359,7 @@ NIMBUS.init(['contacts.js'], function() {
 			// Afficher le menu d'action
 			var modal = $('#actionsModal').data('contact', contact).modal();
 			// Afficher le nom du contact en haut du menu
-			modal.find('.list-group-item.active').text(contact.displayName || (contact.firstName + ' ' + contact.lastName));
+			modal.find('.list-group-item.active').text(api.formatContact(contact));
 		});
 
 		// Clic sur le bouton pour renommer un carnet d'adresse
