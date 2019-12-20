@@ -626,7 +626,7 @@ NIMBUS.navigation = (function() {
 		var validateButton = $('#rename-validate-button');
 		// Composant d'edition d'une liste de tags
 		tagsInput.tagsinput({
-			url: '/items/tags',
+			autocompleteURL: '/items/tags',
 			label: tagsInput.prev(),
 			inline: false
 		});
@@ -635,7 +635,7 @@ NIMBUS.navigation = (function() {
 			var item = dialog.data('item');
 			nameInput.val(item.name).removeClass('is-invalid');
 			iconUrlInput.val(item.iconURL || '').closest('.form-group').toggle(!!item.folder);
-			tagsInput.val(item.tags || '').tagsinput().refreshTags();
+			tagsInput.val(item.tags || '').trigger('change');
 		});
 		// Désactiver le bouton de validation quand le nom est vide
 		nameInput.on('input', function() {

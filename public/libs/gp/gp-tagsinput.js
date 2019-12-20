@@ -10,6 +10,10 @@
 			.attr('placeholder', this.originalInput.attr('placeholder'))
 			.insertBefore(this.originalInput);
 
+		this.originalInput.on('change', function() {
+			self.refreshTags();
+		});
+
 		this.container.on('click', 'a', function(event) {
 			var badge = $(event.target).closest('.badge');
 			self.removeTag(badge.data('tag'));
@@ -24,14 +28,25 @@
 			}
 		});
 
-		if (options.url) {
+		// Auto-complete using either an URL, an array or a function
+		var autocompleteQuery;
+		if (options.autocompleteURL)
+			autocompleteQuery = (term) => $.getJSON(options.autocompleteURL, { term: term });
+		else if (options.autocompleteValues)
+			autocompleteQuery = (term) => $.Deferred().resolve(term
+					? options.autocompleteValues.filter((t) => t.label.toLowerCase().includes(term.toLowerCase()))
+					: options.autocompleteValues);
+		else if (options.autocompleteFunction)
+			autocompleteQuery = options.autocompleteFunction;
+
+		if (autocompleteQuery) {
 			this.tagInput.autocomplete({
 				min: 1,
 				bold: true,
 				input: 'preserve',
 				menu: 'remove',
 				query: function(term, callback) {
-					$.getJSON(options.url, { term: term }, function(tags) {
+					autocompleteQuery(term).then(function(tags) {
 						var value = ',' + self.originalInput.val() + ',';
 						callback($.map(tags, function(tag) {
 							if (value.indexOf(',' + tag.value + ',') === -1)
@@ -78,7 +93,7 @@
 			}.bind(this)));
 		},
 		addTag: function(tag) {
-			var tags = (this.originalInput.val() || '').split(',');
+			var tags = (this.originalInput.val() || '').split(',').filter((t) => !!t);
 			if (tags.indexOf(tag) === -1) {
 				tags.push(tag);
 				this.originalInput.val(tags.join(','));
@@ -86,7 +101,7 @@
 			}
 		},
 		removeTag: function(tag) {
-			var tags = (this.originalInput.val() || '').split(',');
+			var tags = (this.originalInput.val() || '').split(',').filter((t) => !!t);
 			tags.splice(tags.indexOf(tag), 1);
 			this.originalInput.val(tags.join(','));
 			this.refreshTags();
