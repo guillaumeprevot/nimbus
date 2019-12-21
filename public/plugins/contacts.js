@@ -84,7 +84,7 @@
 	};
 
 	function ContactField(data) {
-		this.name = data.name;
+		this.label = data.label;
 		this.value = data.value;
 	}
 
@@ -207,6 +207,12 @@
 		return parts.join(', ');
 	}
 
+	function formatPhone(phone) {
+		if (phone && phone.length === 10)
+			return (phone[0] + phone[1] + '.' + phone[2] + phone[3] + '.' + phone[4] + phone[5] + '.' + phone[6] + phone[7] + '.' + phone[8] + phone[9]);
+		return phone;
+	}
+
 	NIMBUS.utils.contactAPI = {
 		ContactAddress: ContactAddress,
 		ContactEmail: ContactEmail,
@@ -220,6 +226,7 @@
 		matchContact: matchContact,
 		formatContact: formatContact,
 		formatAddress: formatAddress,
+		formatPhone: formatPhone,
 		createMappyLink: (a) => 'https://fr.mappy.com/#/1/M2/TSearch/S' + encodeURI(formatAddress(a)),
 		createGoogleMapsLink: (a) => 'https://www.google.com/maps/place/' + encodeURI(formatAddress(a)),
 		createOpenStreetMapLink: (a) => 'https://www.openstreetmap.org/search?query=' + encodeURI(formatAddress(a)),
@@ -308,27 +315,28 @@
 				ContactNote: "Note",
 
 				ContactAddress: "Adresse",
-				ContactAddressList: "Adresses",
+				ContactAddressAdd: "Ajouter une adresse",
 				ContactAddressAddress: "Adresse",
 				ContactAddressAddress2: "Adresse complémentaire",
 				ContactAddressZipCode: "Code postal",
 				ContactAddressCity: "Ville",
 				ContactAddressState: "Région / Province",
 				ContactAddressCountry: "Pays",
+				ContactAddressClear: "Vider l'adresse",
 				ContactAddressTypeHome: "Domicile",
 				ContactAddressTypeWork: "Société",
 				ContactAddressTypeArchive: "Ancienne adresse",
 				ContactAddressTypeOther: "...",
 
 				ContactEmail: "Email",
-				ContactEmailList: "Emails",
+				ContactEmailAdd: "Ajouter un email",
 				ContactEmailTypeHome: "Personnel",
 				ContactEmailTypeWork: "Professionnel",
 				ContactEmailTypeArchive: "Ancien email",
 				ContactEmailTypeOther: "Autre email",
 
 				ContactPhone: "Numéro",
-				ContactPhoneList: "Numéros",
+				ContactPhoneAdd: "Ajouter un numéro",
 				ContactPhoneTypeHome: "Domicile",
 				ContactPhoneTypeWork: "Bureau",
 				ContactPhoneTypeMobile: "Mobile",
@@ -342,7 +350,7 @@
 				ContactPhoneTypeOther: "Autre numéro",
 
 				ContactURL: "Lien",
-				ContactURLList: "Liens",
+				ContactURLAdd: "Ajouter un lien",
 				ContactURLTypeHome: "Domicile",
 				ContactURLTypeWork: "Société",
 				ContactURLTypeBlog: "Blog",
@@ -351,7 +359,12 @@
 				ContactURLTypeOther: "Autre URL",
 
 				ContactDate: "Date",
-				ContactDateList: "Dates",
+				ContactDateAdd: "Ajouter une date",
+				ContactDateYear: "AAAA",
+				ContactDateMonth: "MM",
+				ContactDateDay: "JJ",
+				ContactDateFormat: "DD/MM/YYYY",
+				ContactDateClear: "Vider la date",
 				ContactDateTypeBirthday: "Anniversaire",
 				ContactDateTypeFeast: "Fête",
 				ContactDateTypeWedding: "Mariage",
@@ -365,8 +378,8 @@
 				ContactGenderFemale: "Femme",
 				ContactGenderOther: "Autre",
 
-				ContactFieldList: "Champs personnalisés",
-				ContactFieldName: "Champ",
+				ContactFieldAdd: "Ajouter un champ personnalisé",
+				ContactFieldLabel: "Libellé",
 				ContactFieldValue: "Valeur",
 			},
 			en: {
@@ -423,27 +436,28 @@
 				ContactNote: "Note",
 
 				ContactAddress: "Address",
-				ContactAddressList: "Addresses",
+				ContactAddressAdd: "Add another address",
 				ContactAddressAddress: "Address",
 				ContactAddressAddress2: "Complementary address",
 				ContactAddressZipCode: "Zip code",
 				ContactAddressCity: "City",
 				ContactAddressState: "State",
 				ContactAddressCountry: "Country",
+				ContactAddressClear: "Clear address",
 				ContactAddressTypeHome: "Home",
 				ContactAddressTypeWork: "Company",
 				ContactAddressTypeArchive: "Archive",
 				ContactAddressTypeOther: "Other",
 
 				ContactEmail: "Email",
-				ContactEmailList: "Emails",
+				ContactEmailAdd: "Add another email",
 				ContactEmailTypeHome: "Home",
 				ContactEmailTypeWork: "Work",
 				ContactEmailTypeArchive: "Archive",
 				ContactEmailTypeOther: "Other",
 
 				ContactPhone: "Number",
-				ContactPhoneList: "Numbers",
+				ContactPhoneAdd: "Add another number",
 				ContactPhoneTypeHome: "Home",
 				ContactPhoneTypeWork: "Work",
 				ContactPhoneTypeMobile: "Mobile",
@@ -457,7 +471,7 @@
 				ContactPhoneTypeOther: "Other",
 
 				ContactURL: "Link",
-				ContactURLList: "Links",
+				ContactURLAdd: "Add another link",
 				ContactURLTypeHome: "Home",
 				ContactURLTypeWork: "Company",
 				ContactURLTypeBlog: "Blog",
@@ -466,7 +480,12 @@
 				ContactURLTypeOther: "Other",
 
 				ContactDate: "Date",
-				ContactDateList: "Dates",
+				ContactDateAdd: "Add another date",
+				ContactDateYear: "YYYY",
+				ContactDateMonth: "MM",
+				ContactDateDay: "DD",
+				ContactDateFormat: "YYYY-MM-DD",
+				ContactDateClear: "Clear date",
 				ContactDateTypeBirthday: "Birthday",
 				ContactDateTypeFeast: "Feast",
 				ContactDateTypeWedding: "Wedding",
@@ -480,8 +499,8 @@
 				ContactGenderFemale: "Female",
 				ContactGenderOther: "Other",
 
-				ContactFieldList: "Custom fields",
-				ContactFieldName: "Label",
+				ContactFieldAdd: "Add another field",
+				ContactFieldLabel: "Label",
 				ContactFieldValue: "Value",
 			}
 		}

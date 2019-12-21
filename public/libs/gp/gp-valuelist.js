@@ -8,7 +8,7 @@
 			.val(item[property] || '')
 			.on('change', (event) => void (format && (event.target.value = format(event.target.value))));
 		this.empty = (editor) => !editor.val();
-		this.apply = (item, editor) => item[property] = editor.val();
+		this.apply = (item, editor) => item[property] = editor.val() || undefined;
 	}
 
 	function ButtonEditor(text, onclick, onempty, onapply) {
@@ -154,6 +154,26 @@
 			}
 			// Ajout du div dans la liste
 			div.insertBefore(this.addButton);
+		},
+		extract: function() {
+			return this.target.children('.input-group').map(function(index, div) {
+				var editorClass = this.options.editor;
+				var editorElement = $(div).children(':eq(1)');
+				if (editorClass.empty(editorElement))
+					return;
+				var result = {};
+				// La valeur spécifique
+				editorClass.apply(result, editorElement);
+				// Le type prédéfini
+				var typeSelect = editorElement.siblings('select');
+				if (this.options.types)
+					result[this.options.typeProperty] = typeSelect.val();
+				// Le libellé personnalisé
+				var labelInput = editorElement.siblings('input');
+				if (labelInput.is(':visible'))
+					result[this.options.labelProperty] = labelInput.val();
+				return result;
+			}.bind(this)).get();
 		}
 	});
 

@@ -36,6 +36,7 @@ table tbody:not(:empty) + caption { display: none; }
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
 <script type="text/javascript" src="/libs/gp/gp-tagsinput.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-valuelist.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -152,6 +153,12 @@ table tbody:not(:empty) + caption { display: none; }
 						</div>
 					</div>
 					<div class="col-md-6">
+						<div id="contactAddresses"></div>
+						<div id="contactEmails"></div>
+						<div id="contactPhones"></div>
+						<div id="contactUrls"></div>
+						<div id="contactDates"></div>
+						<div id="contactFields"></div>
 					</div>
 					</div>
 					</div>
@@ -166,6 +173,26 @@ table tbody:not(:empty) + caption { display: none; }
 				</div>
 			</div>
 		</div>
+		<div id="addressEditor" class="button-group nimbus-hidden" style="position: relative; flex-basis: 1.5rem; ">
+			<span class="form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: absolute; cursor: pointer; border-radius: 0; text-align: left; white-space: nowrap; overflow: hidden; "></span>
+			<div class="dropdown-menu">
+				<div class="p-2 form-row">
+					<div class="col-md-12"><input type="text" class="form-control valuelist-address" data-translate="placeholder" placeholder="ContactAddressAddress"></div>
+				</div>
+				<div class="p-2 form-row">
+					<div class="col-md-12"><input type="text" class="form-control valuelist-address2" data-translate="placeholder" placeholder="ContactAddressAddress2"></div>
+				</div>
+				<div class="p-2 form-row">
+					<div class="col-md-4"><input type="text" class="form-control valuelist-zipcode" data-translate="placeholder" placeholder="ContactAddressZipCode"></div>
+					<div class="col-md-8"><input type="text" class="form-control valuelist-city" data-translate="placeholder" placeholder="ContactAddressCity"></div>
+				</div>
+				<div class="p-2 form-row">
+					<div class="col-md-4"><input type="text" class="form-control valuelist-state" data-translate="placeholder" placeholder="ContactAddressState"></div>
+					<div class="col-md-6"><input type="text" class="form-control valuelist-country" data-translate="placeholder" placeholder="ContactAddressCountry"></div>
+					<div class="col-md-2"><button type="button" class="btn btn-link btn-sm btn-block px-0 text-danger" data-translate="title" title="ContactAddressClear"><i class="material-icons">delete</i></button></div>
+				</div>
+			</div>
+		</div>		
 	</form>
 <script>
 "use strict";
@@ -185,6 +212,44 @@ var columns = [
 	{ name: 'url1', title: 'ContactURL', content: (c) => findIn(c.urls, 0, NIMBUS.utils.contactAPI.createURLLink) },
 	{ name: 'keywords', title: 'ContactKeywords', content: (c) => c.keywords || '' },
 ];
+
+function AddressEditor(format, placeholder) {
+	function showValue(item, editor) {
+		var text = format(item);
+		editor.children('span').text(text || placeholder).css('color', text ? 'black' : '');
+	}
+	this.build = (item) => {
+		var editor = $('#addressEditor').clone().removeClass('nimbus-hidden');
+		showValue(item, editor);
+		editor.find('.valuelist-address').val(item.address || '');
+		editor.find('.valuelist-address2').val(item.address2 || '');
+		editor.find('.valuelist-zipcode').val(item.zipCode || '');
+		editor.find('.valuelist-city').val(item.city || '');
+		editor.find('.valuelist-state').val(item.state || '');
+		editor.find('.valuelist-country').val(item.country || '');
+		editor.find('.btn-outline-danger').on('click', () => {
+			editor.find('input').val('');
+			editor.children('span').text(placeholder);
+		});
+		editor.on('hidden.bs.dropdown', function() {
+			var item = {};
+			this.apply(item, editor);
+			showValue(item, editor);
+		}.bind(this));
+		return editor;
+	};
+	this.empty = (editor) => {
+		return !editor.find('input').get().map((input) => input.value || '').join('');
+	};
+	this.apply = (item, editor) => {
+		item.address = editor.find('.valuelist-address').val() || undefined;
+		item.address2 = editor.find('.valuelist-address2').val() || undefined;
+		item.zipCode = editor.find('.valuelist-zipcode').val() || undefined;
+		item.city = editor.find('.valuelist-city').val() || undefined;
+		item.state = editor.find('.valuelist-state').val() || undefined;
+		item.country = editor.find('.valuelist-country').val() || undefined;
+	};
+}
 
 // Cette méthode recherche dans "array" la valeur à la position "index", si "array" est suffisamment grand, et renvoie la valeur formatée par "format"
 function findIn(array, index, format) {
@@ -230,6 +295,8 @@ function updateTable(source) {
 }
 
 function editContact(source, contact, isNew, callback) {
+	// Récupérer l'API
+	var api = NIMBUS.utils.contactAPI;
 	// Préparer le formulaire
 	var displayNameInput = $('#contactDisplayName').val(contact.displayName || '');
 	var pictureInput = $('#contactPicture').val(contact.picture || '').trigger('change');
@@ -246,6 +313,49 @@ function editContact(source, contact, isNew, callback) {
 	var companyUnitInput = $('#contactCompanyFunction').val(contact.companyUnit || '');
 	var keywordsInput = $('#contactKeywords').val(contact.keywords || '').trigger('change');
 	var noteTextarea = $('#contactNote').val(contact.note || '');
+
+	$('#contactAddresses').empty().data('valuelist', contact.addresses || []).valueList({
+		icon: 'room',
+		editor: new AddressEditor(api.formatAddress, NIMBUS.translate('ContactAddress')),
+		types: Object.keys(api.ContactAddress.types).map(function(t) { return { text: NIMBUS.translate(api.ContactAddress.types[t]), value: t, label: t === 'other' }; }),
+		addText: NIMBUS.translate('ContactAddressAdd'),
+	});
+
+	$('#contactEmails').empty().data('valuelist', contact.emails || []).valueList({
+		icon: 'email',
+		editor: new window.ValueList.TextEditor('email', NIMBUS.translate('ContactEmail'), 'email'),
+		types: Object.keys(api.ContactEmail.types).map(function(t) { return { text: NIMBUS.translate(api.ContactEmail.types[t]), value: t, label: t === 'other' }; }),
+		addText: NIMBUS.translate('ContactEmailAdd')
+	});
+
+	$('#contactPhones').empty().data('valuelist', contact.phones || []).valueList({
+		icon: 'phone',
+		editor: new window.ValueList.TextEditor('phone', NIMBUS.translate('ContactPhone'), 'tel', api.formatPhone),
+		types: Object.keys(api.ContactPhone.types).map(function(t) { return { text: NIMBUS.translate(api.ContactPhone.types[t]), value: t, label: t === 'other' }; }),
+		addText: NIMBUS.translate('ContactPhoneAdd'),
+	});
+
+	$('#contactUrls').empty().data('valuelist', contact.urls || []).valueList({
+		icon: 'public',
+		editor: new window.ValueList.TextEditor('url', NIMBUS.translate('ContactURL'), 'url'),
+		types: Object.keys(api.ContactURL.types).map(function(t) { return { text: NIMBUS.translate(api.ContactURL.types[t]), value: t, label: t === 'other' }; }),
+		addText: NIMBUS.translate('ContactURLAdd')
+	});
+
+	$('#contactDates').empty().data('valuelist', contact.dates || []).valueList({
+		icon: 'date_range',
+		editor: new window.ValueList.DateEditor(NIMBUS.translate('ContactDateFormat'), NIMBUS.translate('ContactDate'), NIMBUS.translate('ContactDateClear'), NIMBUS.translate('ContactDateYear'), NIMBUS.translate('ContactDateMonth'), NIMBUS.translate('ContactDateDay')),
+		types: Object.keys(api.ContactDate.types).map(function(t) { return { text: NIMBUS.translate(api.ContactDate.types[t]), value: t, label: t === 'other' }; }),
+		addText: NIMBUS.translate('ContactDateAdd')
+	});
+
+	$('#contactFields').empty().data('valuelist', contact.fields || []).valueList({
+		// icon: 'drag_handle',
+		editor: new window.ValueList.TextEditor('value', NIMBUS.translate('ContactFieldValue'), 'text'),
+		labelPlaceholder: NIMBUS.translate('ContactFieldLabel'),
+		addText: NIMBUS.translate('ContactFieldAdd')
+	});
+
 	// Ajuster le bouton de validation (ajout ou modification ?)
 	$('#contactValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
 	// Ajuster l'action de validation au contexte en cours
@@ -268,6 +378,12 @@ function editContact(source, contact, isNew, callback) {
 		contact.companyUnit = companyUnitInput.val() || undefined;
 		contact.keywords = keywordsInput.val() || undefined;
 		contact.note = noteTextarea.val() || undefined;
+		contact.addresses = $('#contactAddresses').valueList().extract().map((a) => new api.ContactAddress(a));
+		contact.emails = $('#contactEmails').valueList().extract().map((e) => new api.ContactEmail(e));
+		contact.phones = $('#contactPhones').valueList().extract().map((p) => new api.ContactPhone(p));
+		contact.urls = $('#contactUrls').valueList().extract().map((u) => new api.ContactURL(u));
+		contact.dates = $('#contactDates').valueList().extract().map((d) => new api.ContactDate(d));
+		contact.fields = $('#contactFields').valueList().extract().map((f) => new api.ContactField(f));
 		if (isNew)
 			source.contacts.push(contact);
 		if (oldDisplayName !== contact.displayName)
@@ -473,6 +589,10 @@ NIMBUS.init(['contacts.js'], function() {
 				return $.Deferred().resolve(tags.map(function(t) { return { label: t, value: t }; }));
 			}
 		});
+
+		// Configuration du plugin "valuelist"
+		window.ValueList.defaultOptions.labelPlaceholder = '';
+		window.ValueList.defaultOptions.addDefault = 'never';
 
 		// Manipulation au clavier
 		body.keystrokes({
