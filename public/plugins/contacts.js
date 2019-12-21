@@ -95,7 +95,7 @@
 		this.displayName = data.displayName;
 		// Dénomination complète (Mr Professor John Smart Doe Senior)
 		this.gender = data.gender;
-		this.title = data.title;
+		this.prefix = data.prefix;
 		this.firstName = data.firstName;
 		this.middleName = data.middleName;
 		this.lastName = data.lastName;
@@ -108,7 +108,7 @@
 		this.companyUnit = data.companyUnit;
 		// id d'une photo hébergé dans Nimbus
 		this.picture = data.picture;
-		// Liste de mots-clefs
+		// Liste de mots-clefs séparés par ","
 		this.keywords = data.keywords;
 		// Note personnalisée
 		this.note = data.note;
@@ -267,9 +267,24 @@
 				ContactDeleteButton: "Supprimer ce contact",
 				ContactModalTitle: "Propriétés du contact",
 				ContactModalDisplayNameLabel: "Nom affiché",
-				ContactModalDisplayNamePlaceholder: "(utilisé pour désigner le contact dans l'application)",
+				ContactModalDisplayNamePlaceholder: "(désignation du contact dans l'application)",
+				ContactModalPictureLabel: "Image",
+				ContactModalPicturePlaceholder: "(numéro)",
 				ContactModalFavoriteLabel: "Marquer ce contact comme favori",
-				ContactModalGenderLabel: "Genre",
+				ContactModalNamesLegend: "Identité",
+				ContactModalFirstNamePlaceholder: "Prénom",
+				ContactModalLastNamePlaceholder: "Nom",
+				ContactModalNickamePlaceholder: "Surnom",
+				ContactModalCompanyLegend: "Société",
+				ContactModalCompanyNamePlaceholder: "Société",
+				ContactModalCompanyUnitPlaceholder: "Service",
+				ContactModalCompanyFunctionPlaceholder: "Fonction",
+				ContactModalGenderPlaceholder: "Genre",
+				ContactModalPrefixPlaceholder: "Préfixe",
+				ContactModalMiddleNamePlaceholder: "2ème prénom",
+				ContactModalSuffixPlaceholder: "Suffixe",
+				ContactModalKeywordsLabel: "Mots-clefs",
+				ContactModalKeywordsPlaceholder: "Ajouter",
 				ContactModalNoteLabel: "Note",
 				ContactModalNotePlaceholder: "(facultatif)",
 				ContactModalCancelButton: "Annuler",
@@ -279,7 +294,7 @@
 				Contact: "Contact",
 				ContactFavorite: "Favori",
 				ContactDisplayName: "Nom affiché",
-				ContactTitle: "Titre",
+				ContactPrefix: "Préfixe",
 				ContactFirstName: "Prénom",
 				ContactMiddleName: "2ème prénom",
 				ContactLastName: "Nom",
@@ -368,8 +383,23 @@
 				ContactModalTitle: "Contact information",
 				ContactModalDisplayNameLabel: "Display name",
 				ContactModalDisplayNamePlaceholder: "(used to name contact in the application)",
+				ContactModalPictureLabel: "Picture",
+				ContactModalPicturePlaceholder: "(number)",
 				ContactModalFavoriteLabel: "Mark this contact as favorite",
-				ContactModalGenderLabel: "Gender",
+				ContactModalNamesLegend: "Identity",
+				ContactModalFirstNamePlaceholder: "Firstname",
+				ContactModalLastNamePlaceholder: "Lastname",
+				ContactModalNickamePlaceholder: "Nickname",
+				ContactModalCompanyLegend: "Company",
+				ContactModalCompanyNamePlaceholder: "Company",
+				ContactModalCompanyUnitPlaceholder: "Organisation unit",
+				ContactModalCompanyFunctionPlaceholder: "Function",
+				ContactModalGenderPlaceholder: "Gender",
+				ContactModalPrefixPlaceholder: "Prefix",
+				ContactModalMiddleNamePlaceholder: "Middle name",
+				ContactModalSuffixPlaceholder: "Suffix",
+				ContactModalKeywordsLabel: "Keywords",
+				ContactModalKeywordsPlaceholder: "Add",
 				ContactModalNoteLabel: "Note",
 				ContactModalNotePlaceholder: "(optional)",
 				ContactModalCancelButton: "Cancel",
@@ -379,7 +409,7 @@
 				Contact: "Contact",
 				ContactFavorite: "Favorite",
 				ContactDisplayName: "Display name",
-				ContactTitle: "Title",
+				ContactPrefix: "Prefix",
 				ContactFirstName: "First name",
 				ContactMiddleName: "Middle name",
 				ContactLastName: "Last name",

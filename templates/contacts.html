@@ -34,6 +34,8 @@ table tbody:not(:empty) + caption { display: none; }
 <script type="text/javascript" src="/libs/moment/moment.min.js"></script>
 <#if lang == "fr"><script type="text/javascript" src="/libs/moment/fr.js"></script></#if>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-tagsinput.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -79,15 +81,31 @@ table tbody:not(:empty) + caption { display: none; }
 			</div>
 		</div>
 		<div id="contactModal" class="modal fade">
-			<div class="modal-dialog">
+			<div class="modal-dialog modal-xl modal-dialog-scrollable">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h4 class="modal-title" data-translate="text">ContactModalTitle</h4>
 					</div>
 					<div class="modal-body">
-						<div class="form-group">
-							<label for="contactDisplayName" data-translate="text">ContactModalDisplayNameLabel</label>
-							<input id="contactDisplayName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalDisplayNamePlaceholder" autofocus="autofocus" />
+					<div class="container-fluid">
+					<div class="row">
+					<div class="col-md-6">
+						<div class="form-row">
+							<div class="col-md-8">
+								<div class="form-group">
+									<label for="contactDisplayName" data-translate="text">ContactModalDisplayNameLabel</label>
+									<input id="contactDisplayName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalDisplayNamePlaceholder" autofocus="autofocus" />
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group">
+									<label for="contactPicture" data-translate="text">ContactModalPictureLabel</label>
+									<input id="contactPicture" type="number" class="form-control" data-translate="placeholder" placeholder="ContactModalPicturePlaceholder" />
+								</div>
+							</div>
+							<div class="col-md-1" style="vertical-align: bottom; ">
+								<img id="contactPictureImage" src="favicon.png" style="width: 100%; height: 100%; object-fit: scale-down; " />
+							</div>
 						</div>
 						<div class="form-group">
 							<div class="custom-control custom-switch">
@@ -95,19 +113,48 @@ table tbody:not(:empty) + caption { display: none; }
 								<label class="custom-control-label" for="contactFavorite" data-translate="text">ContactModalFavoriteLabel</label>
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="contactGender" data-translate="text">ContactModalGenderLabel</label>
-							<select id="contactGender" class="form-control">
-								<option value="" data-translate="text">ContactGenderUnspecified</option>
-								<option value="male" data-translate="text">ContactGenderMale</option>
-								<option value="female" data-translate="text">ContactGenderFemale</option>
-								<option value="other" data-translate="text">ContactGenderOther</option>
-							</select>
+
+						<label for="contactFirstName" data-translate="text">ContactModalNamesLegend</label>
+						<div class="form-row pb-2">
+							<div class="col-md-4"><input id="contactFirstName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalFirstNamePlaceholder" /></div>
+							<div class="col-md-4"><input id="contactLastName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalLastNamePlaceholder" /></div>
+							<div class="col-md-4"><input id="contactNickame" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalNickamePlaceholder" /></div>
 						</div>
+						<div class="form-row pb-2">
+							<div class="col-md-3">
+								<select id="contactGender" class="form-control">
+									<option value="" data-translate="text">ContactModalGenderPlaceholder</option>
+									<option value="male" data-translate="text">ContactGenderMale</option>
+									<option value="female" data-translate="text">ContactGenderFemale</option>
+									<option value="other" data-translate="text">ContactGenderOther</option>
+								</select>
+							</div>
+							<div class="col-md-3"><input id="contactPrefix" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalPrefixPlaceholder" /></div>
+							<div class="col-md-3"><input id="contactMiddleName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalMiddleNamePlaceholder" /></div>
+							<div class="col-md-3"><input id="contactSuffix" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalSuffixPlaceholder" /></div>
+						</div>
+
+						<label for="contactCompanyName" data-translate="text">ContactModalCompanyLegend</label>
+						<div class="form-row pb-2">
+							<div class="col-md-4"><input id="contactCompanyName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalCompanyNamePlaceholder" /></div>
+							<div class="col-md-4"><input id="contactCompanyUnit" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalCompanyUnitPlaceholder" /></div>
+							<div class="col-md-4"><input id="contactCompanyFunction" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalCompanyFunctionPlaceholder" /></div>
+						</div>
+
+						<div class="form-group pb-2">
+							<label for="contactKeywords" data-translate="text">ContactModalKeywordsLabel</label>
+							<input id="contactKeywords" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalKeywordsPlaceholder" />
+						</div>
+
 						<div class="form-group">
 							<label for="contactNote" data-translate="text">ContactModalNoteLabel</label>
 							<textarea id="contactNote" class="form-control" data-translate="placeholder" placeholder="ContactModalNotePlaceholder"></textarea>
 						</div>
+					</div>
+					<div class="col-md-6">
+					</div>
+					</div>
+					</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">ContactModalCancelButton</button>
@@ -136,7 +183,7 @@ var columns = [
 	{ name: 'phone1', title: 'ContactPhone', content: (c) => findIn(c.phones, 0, NIMBUS.utils.contactAPI.createPhoneLink) },
 	{ name: 'phone2', title: 'ContactPhone', content: (c) => findIn(c.phones, 1, NIMBUS.utils.contactAPI.createPhoneLink) },
 	{ name: 'url1', title: 'ContactURL', content: (c) => findIn(c.urls, 0, NIMBUS.utils.contactAPI.createURLLink) },
-	{ name: 'keywords', title: 'ContactKeywords', content: (c) => c.keywords ? c.keywords.join(',') : '' },
+	{ name: 'keywords', title: 'ContactKeywords', content: (c) => c.keywords || '' },
 ];
 
 // Cette méthode recherche dans "array" la valeur à la position "index", si "array" est suffisamment grand, et renvoie la valeur formatée par "format"
@@ -185,20 +232,41 @@ function updateTable(source) {
 function editContact(source, contact, isNew, callback) {
 	// Préparer le formulaire
 	var displayNameInput = $('#contactDisplayName').val(contact.displayName || '');
+	var pictureInput = $('#contactPicture').val(contact.picture || '').trigger('change');
 	var favoriteCheckbox = $('#contactFavorite').prop('checked', !!contact.favorite);
+	var firstNameInput = $('#contactFirstName').val(contact.firstName || '');
+	var lastNameInput = $('#contactLastName').val(contact.lastName || '');
+	var nicknameInput = $('#contactNickame').val(contact.nickname || '');
 	var genderSelect = $('#contactGender').val(contact.gender || '');
+	var prefixInput = $('#contactPrefix').val(contact.prefix || '');
+	var middleNameInput = $('#contactMiddleName').val(contact.middleName || '');
+	var suffixNameInput = $('#contactSuffix').val(contact.suffix || '');
+	var companyNameInput = $('#contactCompanyName').val(contact.companyName || '');
+	var companyFunctionInput = $('#contactCompanyUnit').val(contact.companyFunction || '');
+	var companyUnitInput = $('#contactCompanyFunction').val(contact.companyUnit || '');
+	var keywordsInput = $('#contactKeywords').val(contact.keywords || '').trigger('change');
 	var noteTextarea = $('#contactNote').val(contact.note || '');
 	// Ajuster le bouton de validation (ajout ou modification ?)
 	$('#contactValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
 	// Ajuster l'action de validation au contexte en cours
 	$('#contactValidateButton').off('click').on('click', function() {
-		var api = NIMBUS.utils.contactAPI;
 		// Récupérer le libellé actuel pour retrier si besoin
 		var oldDisplayName = contact.displayName;
 		// Ajuster les données
 		contact.displayName = displayNameInput.val() || undefined;
+		contact.picture = pictureInput.val() || undefined;
 		contact.favorite = favoriteCheckbox.prop('checked');
+		contact.firstName = firstNameInput.val() || undefined;
+		contact.lastName = lastNameInput.val() || undefined;
+		contact.nickname = nicknameInput.val() || undefined;
 		contact.gender = genderSelect.val() || undefined;
+		contact.prefix = prefixInput.val() || undefined;
+		contact.middleName = middleNameInput.val() || undefined;
+		contact.suffix = suffixNameInput.val() || undefined;
+		contact.companyName = companyNameInput.val() || undefined;
+		contact.companyFunction = companyFunctionInput.val() || undefined;
+		contact.companyUnit = companyUnitInput.val() || undefined;
+		contact.keywords = keywordsInput.val() || undefined;
 		contact.note = noteTextarea.val() || undefined;
 		if (isNew)
 			source.contacts.push(contact);
@@ -373,6 +441,37 @@ NIMBUS.init(['contacts.js'], function() {
 				// Gérer la sauvegarde
 				data.trigger('contactsourcechange', selectedSource);
 			});
+		});
+
+		// Affichage de l'image du contact quand l'input change
+		$('#contactPicture').on('change', function() {
+			var value = this.value;
+			$('#contactPictureImage').toggle(!!value).attr('src', value ? ('/files/stream/' + value) : '/favicon.png');
+		});
+
+		// Plugin tagsinput pour les motes-clefs
+		$('#contactKeywords').tagsinput({
+			label: $('#contactKeywords').prev('label'),
+			inline: true,
+			// autocompleteValues: [{label:'aaa', value:'aaa'}, {label:'bbb', value:'bbb'}, {label:'ccc', value:'ccc'}]
+			autocompleteFunction: (term) => {
+				var termLC = term.toLowerCase();
+				var tags = [];
+				sources.forEach((source) => {
+					source.contacts.forEach((contact) => {
+						if (! contact.keywords)
+							return;
+						var words = contact.keywords.toLowerCase();
+						if (words.includes(termLC)) {
+							words.split(',').forEach((word) => {
+								if (word.includes(termLC) && !tags.includes(word))
+									tags.push(word);
+							});
+						}
+					});
+				});
+				return $.Deferred().resolve(tags.map(function(t) { return { label: t, value: t }; }));
+			}
 		});
 
 		// Manipulation au clavier
