@@ -326,7 +326,7 @@
 				ContactAddressTypeHome: "Domicile",
 				ContactAddressTypeWork: "Société",
 				ContactAddressTypeArchive: "Ancienne adresse",
-				ContactAddressTypeOther: "...",
+				ContactAddressTypeOther: "Autre adresse",
 
 				ContactEmail: "Email",
 				ContactEmailAdd: "Ajouter un email",

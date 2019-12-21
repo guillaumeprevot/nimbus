@@ -98,14 +98,14 @@ table tbody:not(:empty) + caption { display: none; }
 									<input id="contactDisplayName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalDisplayNamePlaceholder" autofocus="autofocus" />
 								</div>
 							</div>
-							<div class="col-md-3">
+							<div class="col-md-4">
 								<div class="form-group">
 									<label for="contactPicture" data-translate="text">ContactModalPictureLabel</label>
-									<input id="contactPicture" type="number" class="form-control" data-translate="placeholder" placeholder="ContactModalPicturePlaceholder" />
+									<div>
+										<img id="contactPictureImage" src="favicon.png" style="width: 32px; height: 32px; object-fit: scale-down; clip-path: circle(50%); margin-top: 2px; float: right; " />
+										<input id="contactPicture" type="number" class="form-control" data-translate="placeholder" placeholder="ContactModalPicturePlaceholder" style="width: calc(100% - 38px); " />
+									</div>
 								</div>
-							</div>
-							<div class="col-md-1" style="vertical-align: bottom; ">
-								<img id="contactPictureImage" src="favicon.png" style="width: 100%; height: 100%; object-fit: scale-down; " />
 							</div>
 						</div>
 						<div class="form-group">
@@ -192,7 +192,7 @@ table tbody:not(:empty) + caption { display: none; }
 					<div class="col-md-2"><button type="button" class="btn btn-link btn-sm btn-block px-0 text-danger" data-translate="title" title="ContactAddressClear"><i class="material-icons">delete</i></button></div>
 				</div>
 			</div>
-		</div>		
+		</div>
 	</form>
 <script>
 "use strict";

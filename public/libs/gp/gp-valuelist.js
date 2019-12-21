@@ -117,7 +117,7 @@
 					+ '    <span class="input-group-text"><i class="material-icons material-icons-16"></i></span>'
 					+ '  </div>'
 					+ '  <input type="text" class="form-control" style="flex: 1 1 0; " />'
-					+ '  <span class="form-control" style="flex: 1 1 0; display: none; "></span>'
+					+ '  <span class="form-control" style="flex: 1 1 0; display: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; "></span>'
 					+ '  <select class="custom-select" style="width: auto; flex: 0 0 auto; width: 0; color: transparent; "></select>'
 					+ '  <div class="input-group-append">'
 					+ '    <button type="button" class="input-group-text btn btn-link valuelist-up"><i class="material-icons material-icons-16">keyboard_arrow_up</i></button>'
