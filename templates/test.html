@@ -466,10 +466,10 @@ function fillTests(add) {
 		return $.post("/items/rename?itemId=0&name=file.txt&tags=tag2,tag3").then(assertEmpty);
 	});
 	add("TAGS / Rechercher tous les tags utilisés (tag1, tag2 et tag3)", function() {
-		return $.get("/items/tags?term=*").then((result) => assertArray(result, 3, (t) => t.label === "tag1" && t.value === "tag1"));
+		return $.get("/items/tags?term=").then((result) => assertArray(result, 3, (t) => t === "tag1"));
 	});
 	add("TAGS / Rechercher les tags contenant 'g2' (uniquement tag2)", function() {
-		return $.get("/items/tags?term=g2").then((result) => assertArray(result, 1, (t) => t.label === "tag2" && t.value === "tag2"));
+		return $.get("/items/tags?term=g2").then((result) => assertArray(result, 1, (t) => t === "tag2"));
 	});
 
 	add("Télécharger 'file.txt' via un zip appelé 'cloud.zip'", function() {
@@ -534,16 +534,16 @@ function fillTests(add) {
 		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.id === 4 && r.iconURL === "/favicon.ico" && !r.iconURLCache));
 	});
 	add("ICONURL / Modifier l'icône de 'Dossier6' avec une adresse distante", function() {
-		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=https://techgp.fr/webapps/webapps-cipher.png").then(assertEmpty);
+		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône et la récupération de l'icône en cache", function() {
-		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "https://techgp.fr/webapps/webapps-cipher.png" && r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0));
+		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png" && r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0));
 	});
 	add("ICONURL / Tenter de modifier l'icône de 'Dossier5' avec une adresse incorrecte", function() {
-		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=https://techgp.fr/webapps/webapps-blablabla.png").then(assertEmpty);
+		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/fakeicon.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône mais l'abscence de l'icône en cache", function() {
-		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "https://techgp.fr/webapps/webapps-blablabla.png" && !r.iconURLCache));
+		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/fakeicon.png" && !r.iconURLCache));
 	});
 	add("ICONURL / Utiliser l'image 2 comme miniature du dossier parent 'Dossier5'", function() {
 		return $.post("/files/useAsFolderIcon/2").then(assertEmpty);

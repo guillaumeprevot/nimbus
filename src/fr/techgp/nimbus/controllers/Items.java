@@ -177,12 +177,8 @@ public class Items extends Controller {
 		// Retourner en JSON les tags sous la forme d'objets { label: tag, value: tag }
 		JsonArray results = new JsonArray();
 		Item.forEachTag(userLogin, (tag) -> {
-			if ("*".equals(term) || tag.toLowerCase().contains(term)) {
-				JsonObject o = new JsonObject();
-				o.addProperty("label", tag);
-				o.addProperty("value", tag);
-				results.add(o);
-			}
+			if (StringUtils.isNotBlank(tag) && ("".equals(term) || tag.toLowerCase().contains(term)))
+				results.add(tag);
 		});
 		return SparkUtils.renderJSON(response, results);
 	};

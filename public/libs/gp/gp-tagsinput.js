@@ -34,7 +34,7 @@
 			autocompleteQuery = (term) => $.getJSON(options.autocompleteURL, { term: term });
 		else if (options.autocompleteValues)
 			autocompleteQuery = (term) => $.Deferred().resolve(term
-					? options.autocompleteValues.filter((t) => t.label.toLowerCase().includes(term.toLowerCase()))
+					? options.autocompleteValues.filter((t) => t.toLowerCase().includes(term.toLowerCase()))
 					: options.autocompleteValues);
 		else if (options.autocompleteFunction)
 			autocompleteQuery = options.autocompleteFunction;
@@ -49,8 +49,8 @@
 					autocompleteQuery(term).then(function(tags) {
 						var value = ',' + self.originalInput.val() + ',';
 						callback($.map(tags, function(tag) {
-							if (value.indexOf(',' + tag.value + ',') === -1)
-								return tag;
+							if (value.indexOf(',' + tag + ',') === -1)
+								return { label: tag, value: tag };
 						}));
 					});
 				},

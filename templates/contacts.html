@@ -575,7 +575,7 @@ NIMBUS.init(['contacts.js'], function() {
 		$('#contactKeywords').tagsinput({
 			label: $('#contactKeywords').prev('label'),
 			inline: true,
-			// autocompleteValues: [{label:'aaa', value:'aaa'}, {label:'bbb', value:'bbb'}, {label:'ccc', value:'ccc'}]
+			// autocompleteValues: ['aaa', 'bbb', 'ccc']
 			autocompleteFunction: (term) => {
 				var termLC = term.toLowerCase();
 				var tags = [];
@@ -583,16 +583,15 @@ NIMBUS.init(['contacts.js'], function() {
 					source.contacts.forEach((contact) => {
 						if (! contact.keywords)
 							return;
-						var words = contact.keywords.toLowerCase();
-						if (words.includes(termLC)) {
-							words.split(',').forEach((word) => {
-								if (word.includes(termLC) && !tags.includes(word))
-									tags.push(word);
-							});
-						}
+						if (! contact.keywords.toLowerCase().includes(termLC))
+							return;
+						contact.keywords.split(',').forEach((word) => {
+							if (word.toLowerCase().includes(termLC) && !tags.includes(word))
+								tags.push(word);
+						});
 					});
 				});
-				return $.Deferred().resolve(tags.map(function(t) { return { label: t, value: t }; }));
+				return $.Deferred().resolve(tags);
 			}
 		});
 
