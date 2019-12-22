@@ -77,8 +77,7 @@
 
 	function ValueList(target, options) {
 		var self = this;
-		this.target = $(target).addClass('valuelist').css('margin-bottom', '1rem');
-		this.values = this.target.data('valuelist');
+		this.target = $(target).addClass('valuelist');
 		this.options = $.extend({}, ValueList.defaultOptions, options);
 		// Ajout d'un bouton pour ajouter une entrée
 		this.addButton = $('<button type="button" class="btn btn-link" />')
@@ -87,27 +86,33 @@
 			.toggle(!!options.addText)
 			.on('click', () => self.append({}));
 		// Ajout d'une ligne pour chaque entrée existante
-		this.values.forEach((value) => self.append(value));
+		if (options.items)
+			options.items.forEach((value) => self.append(value));
 		// Ajout d'une ligne par défaut pour faciliter la création, si demandé
-		if (this.options.addDefault === 'always' || (this.options.addDefault === 'empty' && this.values.length === 0))
+		if (this.options.addDefault === 'always' || (this.options.addDefault === 'empty' && (!options.items || options.items.length === 0)))
 			this.append({});
 		// Gestion du bouton pour remonter une entrée
-		this.target.on('click', '.input-group:gt(0) .valuelist-up', function(event) {
-			var entry = $(event.target).closest('.input-group');
-			if (entry.index() > 0)
-				entry.insertBefore(entry.prev());
-		});
+		this.target.on('click', '.input-group:not(:first-child) .valuelist-up', this.moveUp);
 		// Gestion du bouton pour descendre une entrée
-		this.target.on('click', '.input-group:lt(-1) .valuelist-down', function(event) {
-			var entry = $(event.target).closest('.input-group');
-			if (entry.next().length > 0)
-				entry.insertAfter(entry.next());
-		});
+		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-down', this.moveDown);
 	}
 
 	$.extend(ValueList.prototype, {
 		destroy: function() {
 			this.target.empty().removeClass('valuelist');
+			this.target.off('click', '.input-group:not(:first-child) .valuelist-up', this.moveUp);
+			this.target.off('click', '.input-group:not(:last-of-type) .valuelist-down', this.moveDown);
+
+		},
+		moveUp: function(event) {
+			var entry = $(event.target).closest('.input-group');
+			if (entry.index() > 0)
+				entry.insertBefore(entry.prev());
+		},
+		moveDown: function(event) {
+			var entry = $(event.target).closest('.input-group');
+			if (entry.next().length > 0)
+				entry.insertAfter(entry.next());
 		},
 		append: function(item) {
 			// Le conteneur
@@ -184,6 +189,8 @@
 	ValueList.defaultOptions = {
 		// Material icon affiché en début de ligne (email, phone, ...)
 		icon: 'drag_handle',
+		// Liste d'élément pour alimenter la liste initiale
+		items: [],
 		// Edition (par défaut de la propriété texte 'value')
 		editor: new TextEditor('value', 'Value', 'text'),
 		// Placeholder de la zone de libellé personnalisé

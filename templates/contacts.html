@@ -314,43 +314,49 @@ function editContact(source, contact, isNew, callback) {
 	var keywordsInput = $('#contactKeywords').val(contact.keywords || '').trigger('change');
 	var noteTextarea = $('#contactNote').val(contact.note || '');
 
-	$('#contactAddresses').empty().data('valuelist', contact.addresses || []).valueList({
+	$('#contactAddresses').valueList('destroy').valueList({
 		icon: 'room',
+		items: contact.addresses,
 		editor: new AddressEditor(api.formatAddress, NIMBUS.translate('ContactAddress')),
 		types: Object.keys(api.ContactAddress.types).map(function(t) { return { text: NIMBUS.translate(api.ContactAddress.types[t]), value: t, label: t === 'other' }; }),
 		addText: NIMBUS.translate('ContactAddressAdd'),
 	});
 
-	$('#contactEmails').empty().data('valuelist', contact.emails || []).valueList({
+	$('#contactEmails').valueList('destroy').valueList({
 		icon: 'email',
+		items: contact.emails,
 		editor: new window.ValueList.TextEditor('email', NIMBUS.translate('ContactEmail'), 'email'),
 		types: Object.keys(api.ContactEmail.types).map(function(t) { return { text: NIMBUS.translate(api.ContactEmail.types[t]), value: t, label: t === 'other' }; }),
 		addText: NIMBUS.translate('ContactEmailAdd')
 	});
 
-	$('#contactPhones').empty().data('valuelist', contact.phones || []).valueList({
+	$('#contactPhones').valueList('destroy').valueList({
 		icon: 'phone',
+		items: contact.phones,
 		editor: new window.ValueList.TextEditor('phone', NIMBUS.translate('ContactPhone'), 'tel', api.formatPhone),
 		types: Object.keys(api.ContactPhone.types).map(function(t) { return { text: NIMBUS.translate(api.ContactPhone.types[t]), value: t, label: t === 'other' }; }),
 		addText: NIMBUS.translate('ContactPhoneAdd'),
 	});
 
-	$('#contactUrls').empty().data('valuelist', contact.urls || []).valueList({
+	$('#contactUrls').valueList('destroy').valueList({
 		icon: 'public',
+		items: contact.urls,
 		editor: new window.ValueList.TextEditor('url', NIMBUS.translate('ContactURL'), 'url'),
 		types: Object.keys(api.ContactURL.types).map(function(t) { return { text: NIMBUS.translate(api.ContactURL.types[t]), value: t, label: t === 'other' }; }),
 		addText: NIMBUS.translate('ContactURLAdd')
 	});
 
-	$('#contactDates').empty().data('valuelist', contact.dates || []).valueList({
+	$('#contactDates').valueList('destroy').valueList({
 		icon: 'date_range',
+		items: contact.dates,
 		editor: new window.ValueList.DateEditor(NIMBUS.translate('ContactDateFormat'), NIMBUS.translate('ContactDate'), NIMBUS.translate('ContactDateClear'), NIMBUS.translate('ContactDateYear'), NIMBUS.translate('ContactDateMonth'), NIMBUS.translate('ContactDateDay')),
 		types: Object.keys(api.ContactDate.types).map(function(t) { return { text: NIMBUS.translate(api.ContactDate.types[t]), value: t, label: t === 'other' }; }),
 		addText: NIMBUS.translate('ContactDateAdd')
 	});
 
-	$('#contactFields').empty().data('valuelist', contact.fields || []).valueList({
+	$('#contactFields').valueList('destroy').valueList({
 		// icon: 'drag_handle',
+		items: contact.fields,
 		editor: new window.ValueList.TextEditor('value', NIMBUS.translate('ContactFieldValue'), 'text'),
 		labelPlaceholder: NIMBUS.translate('ContactFieldLabel'),
 		addText: NIMBUS.translate('ContactFieldAdd')
