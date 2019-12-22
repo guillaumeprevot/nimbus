@@ -25,6 +25,8 @@ main > div { flex: auto; overflow-y: auto; white-space: nowrap; }
 table tbody { cursor: pointer; }
 table tbody + caption { text-align: center; }
 table tbody:not(:empty) + caption { display: none; }
+table td:first-child { padding: 0; vertical-align: middle; }
+table tr > :nth-child(-n+2) { text-align: center; }
 
 #actionsModal .material-icons { font-size: 20px; width: 20px; height: 20px; }
 </style>
@@ -202,7 +204,7 @@ var inputDateFormat = 'YYYY-MM-DD';
 
 // La liste des colonnes
 var columns = [
-	{ name: 'picture', title: 'ContactPicture', content: (c) => (c.picture ? $('<img />').attr('src', '/files/thumbnail/' + c.picture + '?size=32').css('clip-path', 'circle(50%)') : '') },
+	{ name: 'picture', title: 'ContactPicture', content: (c) => (c.picture ? $('<img />').attr('src', '/files/thumbnail/' + c.picture + '?size=40').css('clip-path', 'circle(50%)') : '') },
 	{ name: 'favorite', title: 'ContactFavorite', content: (c) => c.favorite ? '<i class="material-icons">star</i>' : '<i class="material-icons">star_border</i>' },
 	{ name: 'displayName', title: 'ContactDisplayName', content: (c) => NIMBUS.utils.contactAPI.formatContact(c) },
 	{ name: 'email1', title: 'ContactEmail', content: (c) => findIn(c.emails, 0, NIMBUS.utils.contactAPI.createEmailLink) },
@@ -212,6 +214,20 @@ var columns = [
 	{ name: 'url1', title: 'ContactURL', content: (c) => findIn(c.urls, 0, NIMBUS.utils.contactAPI.createURLLink) },
 	{ name: 'keywords', title: 'ContactKeywords', content: (c) => c.keywords || '' },
 ];
+
+//Cette méthode recherche dans "array" la valeur à la position "index", si "array" est suffisamment grand, et renvoie la valeur formatée par "format"
+function findIn(array, index, format, filter) {
+	if (!array || index >= array.length)
+		return '';
+	for (var i = 0; i < array.length; i++) {
+		if (array[i].type !== 'archive') {
+			if (index === 0)
+				return format(array[i]);
+			index--;
+		}
+	}
+	return '';
+}
 
 function AddressEditor(format, placeholder) {
 	function showValue(item, editor) {
@@ -249,13 +265,6 @@ function AddressEditor(format, placeholder) {
 		item.state = editor.find('.valuelist-state').val() || undefined;
 		item.country = editor.find('.valuelist-country').val() || undefined;
 	};
-}
-
-// Cette méthode recherche dans "array" la valeur à la position "index", si "array" est suffisamment grand, et renvoie la valeur formatée par "format"
-function findIn(array, index, format) {
-	if (!array || index >= array.length)
-		return '';
-	return format(array[index]);
 }
 
 // Cette méthode filtre la grille en fonction du texte recherché
