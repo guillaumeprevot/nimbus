@@ -187,8 +187,28 @@
 	}
 
 	// Cette méthode vérifier si le contact correspond au texte recherché
-	function matchContact(contact, searchTextLC) {
-		return formatContact(contact).toLowerCase().indexOf(searchTextLC) >= 0;
+	function matchContact(contact, searchTextLC, searchAllFields, searchAllContacts) {
+		// Si on ne cherche que dans les favoris, on peut exclure ceux qui n'en sont pas
+		if (!searchAllContacts && !contact.favorite)
+			return false;
+		// Si on matche sur le libellé, on peut déjà accepter le contact
+		if (formatContact(contact).toLowerCase().includes(searchTextLC))
+			return true;
+		// Si on matche pas sur le libellé, on peut s'arrêter là en recherche simple
+		if (!searchAllFields)
+			return false;
+		// Sinon, il nous reste à tester les autres champs
+		function matchValue(value) {
+			return !!value && value.toLowerCase().includes(searchTextLC);
+		}
+		function matchList(list, property) {
+			return !!list && list.some((e) => (e.label && e.label.toLowerCase().includes(searchTextLC)) || (e[property] && e[property].toLowerCase().includes(searchTextLC)));
+		}
+		return matchValue(contact.firstName) || matchValue(contact.lastName)
+			|| matchValue(contact.nickname) || matchValue(contact.companyName)
+			|| matchValue(contact.keywords) || matchValue(contact.note)
+			|| matchList(contact.emails, 'email') || matchList(contact.phones, 'phone')
+			|| matchList(contact.urls, 'url') || matchList(contact.fields, 'value');
 	}
 
 	function formatContact(contact) {
@@ -267,6 +287,11 @@
 				ContactsSave: "Sauvegarder les modifications",
 				ContactsSaveError: "Une erreur est survenue. Veuillez vérifier que le serveur est accessible et réessayer.",
 				ContactsSearchPlaceholder: "Rechercher des contacts par nom, numéro, adresse mail, ...",
+				ContactsSearchDisplayName: "Rechercher dans le nom affiché",
+				ContactsSearchAllFields: "Rechercher dans tous les champs",
+				ContactsSearchFavoriteContacts: "Rechercher dans les favoris",
+				ContactsSearchAllContacts: "Rechercher dans tous les contacts",
+				ContactsOptionsMenu: "Options",
 				ContactsRename: "Renommer le carnet d'adresses actif",
 				ContactsRenameTitle: "Renommer en ",
 				ContactAddButton: "Ajouter un contact au carnet d'adresses actif",
@@ -388,6 +413,11 @@
 				ContactsSave: "Save modifications",
 				ContactsSaveError: "An error occurred. Please check your network access and try again.",
 				ContactsSearchPlaceholder: "Search contacts by name, phone number, email address, ...",
+				ContactsSearchDisplayName: "Search in display name only",
+				ContactsSearchAllFields: "Search in multiple fields",
+				ContactsSearchFavoriteContacts: "Search for favorites only",
+				ContactsSearchAllContacts: "Search for any contact",
+				ContactsOptionsMenu: "Options",
 				ContactsRename: "Rename the selected address book",
 				ContactsRenameTitle: "Rename to ",
 				ContactAddButton: "Add a new contact to the selected address book",

@@ -13,7 +13,7 @@
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
 header { display: flex; flex-direction: row; }
-header > .btn { flex: none; }
+header > .btn, header > .dropdown { flex: none; }
 header > #spacer { flex: auto; }
 header > #searchInput { flex: auto; max-width: 420px; }
 header > #searchInput:not(.active):not(:focus) { background-color: transparent; }
@@ -48,6 +48,16 @@ table tr > :nth-child(-n+2) { text-align: center; }
 		<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="ContactsSave"><i class="material-icons">save</i></button>
 		<span id="spacer"></span>
 		<input id="searchInput" type="search" class="form-control" data-translate="placeholder" placeholder="ContactsSearchPlaceholder" />
+		<div class="dropdown">
+			<button id="optionsMenuButton" type="button" class="btn btn-link" data-translate="title" title="ContactsOptionsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">tune</i></button>
+			<div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsMenuButton">
+				<button id="searchDisplayNameButton" type="button" class="dropdown-item" data-translate="text">ContactsSearchDisplayName</button>
+				<button id="searchAllFieldsButton" type="button" class="dropdown-item active" data-translate="text">ContactsSearchAllFields</button>
+				<div class="dropdown-divider"></div>
+				<button id="searchFavoriteContactsButton" type="button" class="dropdown-item" data-translate="text">ContactsSearchFavoriteContacts</button>
+				<button id="searchAllContactsButton" type="button" class="dropdown-item active" data-translate="text">ContactsSearchAllContacts</button>
+			</div>
+		</div>
 		<button id="addContactButton" type="button" class="btn btn-link" data-translate="title" title="ContactAddButton"><i class="material-icons">add</i></button>
 		<button id="renameButton" type="button" class="btn btn-link" data-translate="title" title="ContactsRename"><i class="material-icons">edit</i></button>
 	</header>
@@ -271,12 +281,15 @@ function AddressEditor(format, placeholder) {
 function updateSearch() {
 	// Récupérer l'API
 	var api = NIMBUS.utils.contactAPI;
-	// Récupérer le texte recherché
+	// Récupérer les paramètres de recherche
 	var searchTextLC = $('#searchInput').val().toLowerCase();
+	var searchAllFields = $('#searchAllFieldsButton').hasClass('active');
+	var searchAllContacts = $('#searchAllContactsButton').hasClass('active');
+	// Parcourir la table
 	$('#table > tbody > tr').each(function() {
 		var tr = $(this);
 		var contact = tr.data('contact');
-		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC));
+		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts));
 	});
 }
 
@@ -291,13 +304,14 @@ function updateTable(source) {
 		source.sort();
 	// Récupérer l'API
 	var api = NIMBUS.utils.contactAPI;
-	// Récupérer le texte recherché
+	// Récupérer les paramètres de recherche
 	var searchTextLC = $('#searchInput').val().toLowerCase();
+	var searchAllFields = $('#searchAllFieldsButton').hasClass('active');
+	var searchAllContacts = $('#searchAllContactsButton').hasClass('active');
 	// Remplir la table
-	var contacts = $('#table > tbody');
-	contacts.empty().append(source.contacts.map(function(contact) {
+	$('#table > tbody').empty().append(source.contacts.map(function(contact) {
 		var tr = $('<tr />').data('contact', contact);
-		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC));
+		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts));
 		columns.forEach((c) => $('<td />').append(c.content(contact)).appendTo(tr));
 		return tr.get(0);
 	}));
@@ -502,6 +516,16 @@ NIMBUS.init(['contacts.js'], function() {
 			// Marquer de la classe active pour forcer le fond blanc (cf <style />)
 			$(this).toggleClass('active', !!this.value);
 			// Filtrer la table en fonction de la recherche
+			updateSearch();
+		});
+
+		// Options de recherche
+		$('#searchDisplayNameButton,#searchFavoriteContactsButton').on('click', function(event) {
+			$(event.target).closest('button').toggleClass('active').next().toggleClass('active');
+			updateSearch();
+		});
+		$('#searchAllFieldsButton,#searchAllContactsButton').on('click', function(event) {
+			$(event.target).closest('button').toggleClass('active').prev().toggleClass('active');
 			updateSearch();
 		});
 
