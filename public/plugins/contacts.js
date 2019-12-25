@@ -178,7 +178,31 @@
 	ContactSource.prototype.save = function() {
 		return NIMBUS.utils.updateFileJSON(this.item.id, true, {
 			name: this.name,
-			contacts: this.contacts
+			contacts: this.contacts.map(function(c) {
+				return {
+					favorite: c.favorite || undefined,
+					displayName: c.displayName || undefined,
+					gender: c.gender || undefined,
+					prefix: c.prefix || undefined,
+					firstName: c.firstName || undefined,
+					middleName: c.middleName || undefined,
+					lastName: c.lastName || undefined,
+					suffix: c.suffix || undefined,
+					nickname: c.nickname || undefined,
+					companyName: c.companyName || undefined,
+					companyFunction: c.companyFunction || undefined,
+					companyUnit: c.companyUnit || undefined,
+					picture: c.picture || undefined,
+					keywords: c.keywords || undefined,
+					note: c.note || undefined,
+					addresses: (c.addresses && c.addresses.length) ? c.addresses : undefined,
+					emails: (c.emails && c.emails.length) ? c.emails : undefined,
+					phones: (c.phones && c.phones.length) ? c.phones : undefined,
+					urls: (c.urls && c.urls.length) ? c.urls : undefined,
+					dates: (c.dates && c.dates.length) ? c.dates : undefined,
+					fields: (c.fields && c.fields.length) ? c.fields : undefined,
+				};
+			})
 		});
 	};
 
