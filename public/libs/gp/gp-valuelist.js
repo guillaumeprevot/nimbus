@@ -95,6 +95,8 @@
 		this.target.on('click', '.input-group:not(:first-child) .valuelist-up', this.moveUp);
 		// Gestion du bouton pour descendre une entrée
 		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-down', this.moveDown);
+		// Gestion du tri par DnD de l'icone en 'prepend'
+		this.enableDnD();
 	}
 
 	$.extend(ValueList.prototype, {
@@ -114,11 +116,36 @@
 			if (entry.next().length > 0)
 				entry.insertAfter(entry.next());
 		},
+		enableDnD: function() {
+			this.target.on('dragstart', '.input-group-prepend', function(event) {
+				draggable = event.target;
+			}).on('dragover', '.input-group-prepend', function(event) {
+				if (draggable === null)
+					return;
+				var dropTarget = $(event.target).closest('.valuelist');
+				if (dropTarget.length !== 1 || !dropTarget.has(draggable).length)
+					return;
+				return false;
+			}).on('drop', '.input-group-prepend', function(event) {
+				var drag = $(draggable).closest('.input-group');
+				var drop = $(event.target).closest('.input-group');
+				var dragIndex = drag.index();
+				var dropIndex = drop.index();
+				if (dragIndex > dropIndex)
+					drag.insertBefore(drop);
+				else if (dragIndex < dropIndex)
+					drag.insertAfter(drop);
+				draggable = null;
+				return false;
+			}).on('dragend', '.input-group-prepend', function(event) {
+				draggable = null;
+			});
+		},
 		append: function(item) {
 			// Le conteneur
 			var div = $(''
 					+ '<div class="input-group">'
-					+ '  <div class="input-group-prepend">'
+					+ '  <div class="input-group-prepend" draggable="true">'
 					+ '    <span class="input-group-text"><i class="material-icons material-icons-16"></i></span>'
 					+ '  </div>'
 					+ '  <input type="text" class="form-control" style="flex: 1 1 0; " />'
