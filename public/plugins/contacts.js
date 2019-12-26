@@ -566,10 +566,10 @@
 				ContactFieldLabel: "Label",
 				ContactFieldValue: "Value",
 
-				ContactListMoveToFirstPosition: ValueList.defaultOptions.moveToFirstPositionText,
-				ContactListMoveToPreviousPosition: ValueList.defaultOptions.moveToPreviousPositionText,
-				ContactListMoveToNextPosition: ValueList.defaultOptions.moveToNextPositionText,
-				ContactListMoveToLastPosition: ValueList.defaultOptions.moveToLastPositionText,
+				ContactListMoveToFirstPosition: "Move to first position",
+				ContactListMoveToPreviousPosition: "Move to previous position",
+				ContactListMoveToNextPosition: "Move to next position",
+				ContactListMoveToLastPosition: "Move to last position",
 			}
 		}
 	});

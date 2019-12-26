@@ -251,7 +251,7 @@
 		// Nom de la propriété contenant le type sélectionné
 		typeProperty: 'type',
 		// Traduction du bouton d'ajout
-		// addText: 'Add',
+		addText: 'Add',
 		// Indique quand ajouter une par défaut (au choix parmi 'never', 'empty' et 'always')
 		addDefault: 'empty',
 		// Traduction des boutons servant à organiser la liste
