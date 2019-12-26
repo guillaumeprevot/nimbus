@@ -18,9 +18,9 @@ header > #spacer { flex: auto; }
 header > #searchInput { flex: auto; max-width: 420px; }
 header > #searchInput:not(.active):not(:focus) { background-color: transparent; }
 
-.dropdown-item .material-icons { float: right; }
-.dropdown-item.selected span { padding-right: 30px; }
-.dropdown-item:not(.selected) .material-icons { display: none; }
+#optionsMenu .dropdown-item .material-icons { float: right; }
+#optionsMenu .dropdown-item.selected span { padding-right: 30px; }
+#optionsMenu .dropdown-item:not(.selected) .material-icons { display: none; }
 
 main { display: flex; flex-direction: column; }
 main > ul { flex: none; }
@@ -34,6 +34,12 @@ table tr > :nth-child(-n+2) { text-align: center; }
 table.table-sm td:first-child img { max-height: 32px; }
 
 #actionsModal .material-icons { font-size: 20px; width: 20px; height: 20px; }
+#contactModal .input-group .input-group-text { border-radius: 0; }
+#contactModal .input-group:not(:first-of-type) { margin-top: -1px; }
+#contactModal .input-group:first-of-type .input-group-prepend .input-group-text { border-top-left-radius: 0.25rem; }
+#contactModal .input-group:first-of-type .input-group-append .input-group-text { border-top-right-radius: 0.25rem; }
+#contactModal .input-group:last-of-type .input-group-prepend .input-group-text { border-bottom-left-radius: 0.25rem; }
+#contactModal .input-group:last-of-type .input-group-append .input-group-text { border-bottom-right-radius: 0.25rem; }
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
@@ -53,7 +59,7 @@ table.table-sm td:first-child img { max-height: 32px; }
 		<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="ContactsSave"><i class="material-icons">save</i></button>
 		<span id="spacer"></span>
 		<input id="searchInput" type="search" class="form-control" data-translate="placeholder" placeholder="ContactsSearchPlaceholder" />
-		<div class="dropdown">
+		<div id="optionsMenu" class="dropdown">
 			<button id="optionsMenuButton" type="button" class="btn btn-link" data-translate="title" title="ContactsOptionsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">tune</i></button>
 			<div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsMenuButton">
 				<button id="searchDisplayNameButton" type="button" class="dropdown-item">
@@ -667,6 +673,10 @@ NIMBUS.init(['contacts.js'], function() {
 		// Configuration du plugin "valuelist"
 		window.ValueList.defaultOptions.labelPlaceholder = '';
 		window.ValueList.defaultOptions.addDefault = 'never';
+		window.ValueList.defaultOptions.moveToFirstPositionText = NIMBUS.translate('ContactListMoveToFirstPosition');
+		window.ValueList.defaultOptions.moveToPreviousPositionText = NIMBUS.translate('ContactListMoveToPreviousPosition');
+		window.ValueList.defaultOptions.moveToNextPositionText = NIMBUS.translate('ContactListMoveToNextPosition');
+		window.ValueList.defaultOptions.moveToLastPositionText = NIMBUS.translate('ContactListMoveToLastPosition');
 
 		// Manipulation au clavier
 		body.keystrokes({

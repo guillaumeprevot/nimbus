@@ -432,6 +432,11 @@
 				ContactFieldAdd: "Ajouter un champ personnalisé",
 				ContactFieldLabel: "Libellé",
 				ContactFieldValue: "Valeur",
+
+				ContactListMoveToFirstPosition: "Remonter en premier",
+				ContactListMoveToPreviousPosition: "Remonter d'une ligne",
+				ContactListMoveToNextPosition: "Descendre d'une ligne",
+				ContactListMoveToLastPosition: "Descendre en dernier",
 			},
 			en: {
 				ContactsOpen: "Open address book",
@@ -560,6 +565,11 @@
 				ContactFieldAdd: "Add another field",
 				ContactFieldLabel: "Label",
 				ContactFieldValue: "Value",
+
+				ContactListMoveToFirstPosition: ValueList.defaultOptions.moveToFirstPositionText,
+				ContactListMoveToPreviousPosition: ValueList.defaultOptions.moveToPreviousPositionText,
+				ContactListMoveToNextPosition: ValueList.defaultOptions.moveToNextPositionText,
+				ContactListMoveToLastPosition: ValueList.defaultOptions.moveToLastPositionText,
 			}
 		}
 	});

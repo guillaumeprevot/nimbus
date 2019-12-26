@@ -91,10 +91,14 @@
 		// Ajout d'une ligne par défaut pour faciliter la création, si demandé
 		if (this.options.addDefault === 'always' || (this.options.addDefault === 'empty' && (!options.items || options.items.length === 0)))
 			this.append({});
-		// Gestion du bouton pour remonter une entrée
-		this.target.on('click', '.input-group:not(:first-child) .valuelist-up', this.moveUp);
-		// Gestion du bouton pour descendre une entrée
-		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-down', this.moveDown);
+		// Gestion du bouton pour remonter en premier
+		this.target.on('click', '.input-group:not(:first-child) .valuelist-first', this.moveEntryFirst);
+		// Gestion du bouton pour remonter d'une ligne
+		this.target.on('click', '.input-group:not(:first-child) .valuelist-previous', this.moveEntryPrevious);
+		// Gestion du bouton pour descendre d'une ligne
+		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-next', this.moveEntryNext);
+		// Gestion du bouton pour descendre en dernier
+		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-last', this.moveEntryLast);
 		// Gestion du tri par DnD de l'icone en 'prepend'
 		this.enableDnD();
 	}
@@ -102,19 +106,32 @@
 	$.extend(ValueList.prototype, {
 		destroy: function() {
 			this.target.empty().removeClass('valuelist');
-			this.target.off('click', '.input-group:not(:first-child) .valuelist-up', this.moveUp);
-			this.target.off('click', '.input-group:not(:last-of-type) .valuelist-down', this.moveDown);
+			this.target.off('click', '.input-group:not(:first-child) .valuelist-first', this.moveEntryFirst);
+			this.target.off('click', '.input-group:not(:first-child) .valuelist-previous', this.moveEntryPrevious);
+			this.target.off('click', '.input-group:not(:last-of-type) .valuelist-next', this.moveEntryNext);
+			this.target.off('click', '.input-group:not(:last-of-type) .valuelist-last', this.moveEntryLast);
+			this.target.off('dragstart dragover drop dragend')
 
 		},
-		moveUp: function(event) {
+		moveEntryFirst: function(event) {
+			var entry = $(event.target).closest('.input-group');
+			if (entry.index() > 0)
+				entry.insertBefore(entry.siblings(':first-child'));
+		},
+		moveEntryPrevious: function(event) {
 			var entry = $(event.target).closest('.input-group');
 			if (entry.index() > 0)
 				entry.insertBefore(entry.prev());
 		},
-		moveDown: function(event) {
+		moveEntryNext: function(event) {
 			var entry = $(event.target).closest('.input-group');
 			if (entry.next().length > 0)
 				entry.insertAfter(entry.next());
+		},
+		moveEntryLast: function(event) {
+			var entry = $(event.target).closest('.input-group');
+			if (entry.next().length > 0)
+				entry.insertBefore(entry.siblings(':last-child'));
 		},
 		enableDnD: function() {
 			this.target.on('dragstart', '.input-group-prepend', function(event) {
@@ -152,14 +169,19 @@
 					+ '  <span class="form-control" style="flex: 1 1 0; display: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; "></span>'
 					+ '  <select class="custom-select" style="width: auto; flex: 0 0 auto; width: 0; color: transparent; "></select>'
 					+ '  <div class="input-group-append">'
-					+ '    <button type="button" class="input-group-text btn btn-link valuelist-up"><i class="material-icons material-icons-16">keyboard_arrow_up</i></button>'
-					+ '    <button type="button" class="input-group-text btn btn-link valuelist-down"><i class="material-icons material-icons-16">keyboard_arrow_down</i></button>'
+					+ '    <button type="button" class="input-group-text btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons material-icons-16">expand_more</i></button>'
+					+ '    <div class="dropdown-menu dropdown-menu-right">'
+					+ '      <button type="button" class="dropdown-item valuelist-first"><i class="material-icons">expand_less</i> <span>' + this.options.moveToFirstPositionText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item valuelist-previous"><i class="material-icons">arrow_drop_up</i> <span>' + this.options.moveToPreviousPositionText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item valuelist-next"><i class="material-icons">arrow_drop_down</i> <span>' + this.options.moveToNextPositionText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item valuelist-last"><i class="material-icons">expand_more</i> <span>' + this.options.moveToLastPositionText + '</span></button>'
+					+ '    </div>'
 					+ '  </div>'
 					+ '</div>');
 			// Tout à gauche, l'icone, servant aussi au tri
 			var icon = div.find('.input-group-prepend i').text(this.options.icon);
 			// Ensuite, la zone de saisie gérée par l'éditeur
-			var editor = this.options.editor.build(item).css('flex-grow', '3').css('flex-shrink', '3').insertAfter(div.children(':first-child'));
+			var editor = this.options.editor.build(item).css('flex-grow', '2.5').css('flex-shrink', '2.5').insertAfter(div.children(':first-child'));
 			// Ensuite, la zone de libellé personnalisé
 			var labelInput = editor.next().attr('placeholder', this.options.labelPlaceholder).val(item[this.options.labelProperty] || '');
 			// Ensuite, le "span" affichant le type prédéfini, s'il est sélectionné
@@ -232,6 +254,11 @@
 		// addText: 'Add',
 		// Indique quand ajouter une par défaut (au choix parmi 'never', 'empty' et 'always')
 		addDefault: 'empty',
+		// Traduction des boutons servant à organiser la liste
+		moveToFirstPositionText: 'Move to first position',
+		moveToPreviousPositionText: 'Move to previous position',
+		moveToNextPositionText: 'Move to next position',
+		moveToLastPositionText: 'Move to last position',
 	};
 
 	window.ValueList = ValueList;
