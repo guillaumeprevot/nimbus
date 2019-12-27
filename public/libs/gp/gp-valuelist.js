@@ -78,6 +78,48 @@
 		};
 	}
 
+	function CopyToClipboardAction(label) {
+		this.enabled = document.queryCommandSupported('copy');
+		this.build = (inputGroup) => {
+			var button = $('<button type="button" class="dropdown-item"><i class="material-icons">assignment</i> <span></span></button>');
+			button.children('span').text(label);
+			return button;
+		};
+		this.click = (event, text) => {
+			var inputGroup, addButton, input;
+			if (text) {
+				inputGroup = $(event.target).closest('.input-group');
+				addButton = inputGroup.siblings('button');
+				input = $('<input type="text" />').val(text.trim()).insertAfter(addButton);
+				input.select().focus();
+				document.execCommand('copy');
+				input.remove();
+				inputGroup.find('button.input-group-text').focus();
+			}
+		};
+	}
+
+	function LinkAction(icon, label, format) {
+		this.enabled = true;
+		this.build = (inputGroup) => {
+			var a = $('<a href="#" target="_blank" class="dropdown-item"><i class="material-icons"></i> <span></span></button>');
+			a.children('i').text(icon);
+			a.children('span').text(label);
+			return a;
+		};
+		this.click = (event, text) => {
+			var a = $(event.target).closest('a');
+			if (!text)
+				a.attr('href', '#');
+			else if (typeof format === 'string')
+				a.attr('href', encodeURI(format.replace('%VALUE%', text)));
+			else
+				a.attr('href' , format(text));
+			if (! text)
+				return false;
+		};
+	}
+
 	var draggable = null;
 
 	function ValueList(target, options) {
@@ -96,9 +138,9 @@
 		// Ajout d'une ligne par défaut pour faciliter la création, si demandé
 		if (this.options.addDefault === 'always' || (this.options.addDefault === 'empty' && (!options.items || options.items.length === 0)))
 			this.append({});
-		// Gestion du bouton pour copier la valeur d'une entrée dans le presse-papier
-		if (this.options.editor.text)
-			this.target.on('click', '.input-group .valuelist-copy', this.copyEntryToClipboard.bind(this));
+		// Gestion des actions personnalisées
+		if (this.options.actions)
+			this.target.on('click', '.input-group .valuelist-action', this.executeAction.bind(this));
 		// Gestion du bouton pour remonter en premier
 		this.target.on('click', '.input-group:not(:first-child) .valuelist-first', this.moveEntryFirst);
 		// Gestion du bouton pour remonter d'une ligne
@@ -117,18 +159,13 @@
 		destroy: function() {
 			this.target.empty().removeClass('valuelist').off('click dragstart dragover drop dragend', '**');
 		},
-		copyEntryToClipboard: function(event) {
-			var entry = $(event.target).closest('.input-group');
-			var editor = entry.children().eq('1');
+		executeAction: function(event) {
+			var button = $(event.target).closest('.valuelist-action');
+			var action = button.data('action');
+			var entry = button.closest('.input-group');
+			var editor = entry.children().eq(1);
 			var text = this.options.editor.text(editor);
-			var input;
-			if (text) {
-				input = $('<input type="text" />').val(text.trim()).insertAfter(this.addButton);
-				input.select().focus();
-				document.execCommand('copy');
-				input.remove();
-				entry.find('button.input-group-text').focus();
-			}
+			action.click(event, text);
 		},
 		moveEntryFirst: function(event) {
 			var entry = $(event.target).closest('.input-group');
@@ -191,8 +228,6 @@
 					+ '  <div class="input-group-append">'
 					+ '    <button type="button" class="input-group-text btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons material-icons-16">expand_more</i></button>'
 					+ '    <div class="dropdown-menu dropdown-menu-right">'
-					+ '      <button type="button" class="dropdown-item valuelist-copy"><i class="material-icons">assignment</i> <span>' + this.options.copyText + '</span></button>'
-					+ '      <div role="separator" class="dropdown-divider"></div>'
 					+ '      <button type="button" class="dropdown-item valuelist-first"><i class="material-icons">expand_less</i> <span>' + this.options.moveToFirstPositionText + '</span></button>'
 					+ '      <button type="button" class="dropdown-item valuelist-previous"><i class="material-icons">arrow_drop_up</i> <span>' + this.options.moveToPreviousPositionText + '</span></button>'
 					+ '      <button type="button" class="dropdown-item valuelist-next"><i class="material-icons">arrow_drop_down</i> <span>' + this.options.moveToNextPositionText + '</span></button>'
@@ -212,9 +247,14 @@
 			var defaultTypeSpan = labelInput.next();
 			// Enfin, le select pour choisir un type prédéfini
 			var typeSelect = defaultTypeSpan.next();
-			// Désactiver le bouton de copie dans le presse-papier (si non supportée par l'éditeur ou le navigateur)
-			div.find('.valuelist-copy').prop('disabled', !this.options.editor.text || !document.queryCommandSupported('copy'));
+			// Et le menu pour les actions
+			var actionMenu = typeSelect.next().children('.dropdown-menu');
+			var actionMenuSeparator;
 
+			if (this.options.actions) {
+				actionMenuSeparator = $('<div role="separator" class="dropdown-divider"></div>').prependTo(actionMenu);
+				this.options.actions.filter((action) => action.enabled).forEach((action, index) => action.build(div).addClass('valuelist-action').data('action', action).insertBefore(actionMenuSeparator));
+			}
 			if (this.options.types) {
 				// Ajouter les types prédéfinis dans le select
 				this.options.types.forEach((type) => $('<option style="color: initial; "/>').attr('value', type.value).text(type.text).data('type', type).prop('selected', type.label).appendTo(typeSelect));
@@ -260,6 +300,8 @@
 	ValueList.TextEditor = TextEditor;
 	ValueList.ButtonEditor = ButtonEditor;
 	ValueList.DateEditor = DateEditor;
+	ValueList.CopyToClipboardAction = CopyToClipboardAction;
+	ValueList.LinkAction = LinkAction;
 
 	ValueList.defaultOptions = {
 		// Material icon affiché en début de ligne (email, phone, ...)
@@ -280,8 +322,8 @@
 		addText: 'Add',
 		// Indique quand ajouter une par défaut (au choix parmi 'never', 'empty' et 'always')
 		addDefault: 'empty',
-		// Traduction du bouton permettant de copier la valeur d'une entrée dans le presse-papier
-		copyText: 'Copy to clipboard',
+		// Liste des actions personnalisées
+		actions: [],
 		// Traduction des boutons servant à organiser la liste
 		moveToFirstPositionText: 'Move to first position',
 		moveToPreviousPositionText: 'Move to previous position',

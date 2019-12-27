@@ -356,6 +356,8 @@ function updateTable(source) {
 function editContact(source, contact, isNew, callback) {
 	// Récupérer l'API
 	var api = NIMBUS.utils.contactAPI;
+	// Créer une action personnalisée partagée par toutes les listes
+	var copyToClipboardAction = new window.ValueList.CopyToClipboardAction(NIMBUS.translate('ContactListCopy'));
 	// Préparer le formulaire
 	var displayNameInput = $('#contactDisplayName').val(contact.displayName || '');
 	var pictureInput = $('#contactPicture').val(contact.picture || '').trigger('change');
@@ -378,6 +380,12 @@ function editContact(source, contact, isNew, callback) {
 		items: contact.addresses,
 		editor: new AddressEditor(api.formatAddress, NIMBUS.translate('ContactAddress')),
 		types: Object.keys(api.ContactAddress.types).map(function(t) { return { text: NIMBUS.translate(api.ContactAddress.types[t]), value: t, label: t === 'other' }; }),
+		actions: [
+			new window.ValueList.LinkAction('room', NIMBUS.translate('ContactAddressOpenMappy'), api.createMappyURL),
+			new window.ValueList.LinkAction('room', NIMBUS.translate('ContactAddressOpenGoogleMaps'), api.createGoogleMapsURL),
+			new window.ValueList.LinkAction('room', NIMBUS.translate('ContactAddressOpenOpenStreetMap'), api.createOpenStreetMapURL),
+			copyToClipboardAction
+		],
 		addText: NIMBUS.translate('ContactAddressAdd'),
 	});
 
@@ -386,6 +394,10 @@ function editContact(source, contact, isNew, callback) {
 		items: contact.emails,
 		editor: new window.ValueList.TextEditor('email', NIMBUS.translate('ContactEmail'), 'email'),
 		types: Object.keys(api.ContactEmail.types).map(function(t) { return { text: NIMBUS.translate(api.ContactEmail.types[t]), value: t, label: t === 'other' }; }),
+		actions: [
+			new window.ValueList.LinkAction('email', NIMBUS.translate('ContactEmailSend'), 'mailto:%VALUE%'),
+			copyToClipboardAction
+		],
 		addText: NIMBUS.translate('ContactEmailAdd')
 	});
 
@@ -394,6 +406,10 @@ function editContact(source, contact, isNew, callback) {
 		items: contact.phones,
 		editor: new window.ValueList.TextEditor('phone', NIMBUS.translate('ContactPhone'), 'tel', api.formatPhone),
 		types: Object.keys(api.ContactPhone.types).map(function(t) { return { text: NIMBUS.translate(api.ContactPhone.types[t]), value: t, label: t === 'other' }; }),
+		actions: [
+			new window.ValueList.LinkAction('phone', NIMBUS.translate('ContactPhoneCall'), 'tel:%VALUE%'),
+			copyToClipboardAction
+		],
 		addText: NIMBUS.translate('ContactPhoneAdd'),
 	});
 
@@ -402,6 +418,10 @@ function editContact(source, contact, isNew, callback) {
 		items: contact.urls,
 		editor: new window.ValueList.TextEditor('url', NIMBUS.translate('ContactURL'), 'url'),
 		types: Object.keys(api.ContactURL.types).map(function(t) { return { text: NIMBUS.translate(api.ContactURL.types[t]), value: t, label: t === 'other' }; }),
+		actions: [
+			new window.ValueList.LinkAction('public', NIMBUS.translate('ContactURLOpen'), '%VALUE%'),
+			copyToClipboardAction
+		],
 		addText: NIMBUS.translate('ContactURLAdd')
 	});
 
@@ -410,6 +430,7 @@ function editContact(source, contact, isNew, callback) {
 		items: contact.dates,
 		editor: new window.ValueList.DateEditor(NIMBUS.translate('ContactDateFormat'), NIMBUS.translate('ContactDate'), NIMBUS.translate('ContactDateClear'), NIMBUS.translate('ContactDateYear'), NIMBUS.translate('ContactDateMonth'), NIMBUS.translate('ContactDateDay')),
 		types: Object.keys(api.ContactDate.types).map(function(t) { return { text: NIMBUS.translate(api.ContactDate.types[t]), value: t, label: t === 'other' }; }),
+		actions: [copyToClipboardAction],
 		addText: NIMBUS.translate('ContactDateAdd')
 	});
 
@@ -418,6 +439,7 @@ function editContact(source, contact, isNew, callback) {
 		items: contact.fields,
 		editor: new window.ValueList.TextEditor('value', NIMBUS.translate('ContactFieldValue'), 'text'),
 		labelPlaceholder: NIMBUS.translate('ContactFieldLabel'),
+		actions: [copyToClipboardAction],
 		addText: NIMBUS.translate('ContactFieldAdd')
 	});
 
@@ -677,7 +699,6 @@ NIMBUS.init(['contacts.js'], function() {
 		// Configuration du plugin "valuelist"
 		window.ValueList.defaultOptions.labelPlaceholder = '';
 		window.ValueList.defaultOptions.addDefault = 'never';
-		window.ValueList.defaultOptions.copyText = NIMBUS.translate('ContactListCopy');
 		window.ValueList.defaultOptions.moveToFirstPositionText = NIMBUS.translate('ContactListMoveToFirstPosition');
 		window.ValueList.defaultOptions.moveToPreviousPositionText = NIMBUS.translate('ContactListMoveToPreviousPosition');
 		window.ValueList.defaultOptions.moveToNextPositionText = NIMBUS.translate('ContactListMoveToNextPosition');

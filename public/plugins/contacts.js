@@ -271,9 +271,9 @@
 		formatContact: formatContact,
 		formatAddress: formatAddress,
 		formatPhone: formatPhone,
-		createMappyLink: (a) => 'https://fr.mappy.com/#/1/M2/TSearch/S' + encodeURI(formatAddress(a)),
-		createGoogleMapsLink: (a) => 'https://www.google.com/maps/place/' + encodeURI(formatAddress(a)),
-		createOpenStreetMapLink: (a) => 'https://www.openstreetmap.org/search?query=' + encodeURI(formatAddress(a)),
+		createMappyURL: (text) => 'https://fr.mappy.com/#/1/M2/TSearch/S' + encodeURI(text),
+		createGoogleMapsURL: (text) => 'https://www.google.com/maps/place/' + encodeURI(text),
+		createOpenStreetMapURL: (text) => 'https://www.openstreetmap.org/search?query=' + encodeURI(text),
 		createEmailLink: (e) => $('<a />').text(e.email).attr('href', 'mailto:' + e.email),
 		createPhoneLink: (p) => $('<a />').text(p.phone).attr('href', 'tel:' + p.phone),
 		createURLLink: (u) => $('<a target="_blank" />').text(u.label || NIMBUS.translate(ContactURL.types[u.type])).attr('href', u.url)
@@ -367,6 +367,9 @@
 
 				ContactAddress: "Adresse",
 				ContactAddressAdd: "Ajouter une adresse",
+				ContactAddressOpenMappy: "Ouvrir avec Mappy",
+				ContactAddressOpenGoogleMaps: "Ouvrir avec Google Maps",
+				ContactAddressOpenOpenStreetMap: "Ouvrir avec OpenStreetMap",
 				ContactAddressAddress: "Adresse",
 				ContactAddressAddress2: "Adresse complémentaire",
 				ContactAddressZipCode: "Code postal",
@@ -381,6 +384,7 @@
 
 				ContactEmail: "Email",
 				ContactEmailAdd: "Ajouter un email",
+				ContactEmailSend: "Envoyer un email",
 				ContactEmailTypeHome: "Personnel",
 				ContactEmailTypeWork: "Professionnel",
 				ContactEmailTypeArchive: "Ancien email",
@@ -388,6 +392,7 @@
 
 				ContactPhone: "Numéro",
 				ContactPhoneAdd: "Ajouter un numéro",
+				ContactPhoneCall: "Appeler ce numéro",
 				ContactPhoneTypeHome: "Domicile",
 				ContactPhoneTypeWork: "Bureau",
 				ContactPhoneTypeMobile: "Mobile",
@@ -402,6 +407,7 @@
 
 				ContactURL: "Lien",
 				ContactURLAdd: "Ajouter un lien",
+				ContactURLOpen: "Ouvrir ce lien",
 				ContactURLTypeHome: "Domicile",
 				ContactURLTypeWork: "Société",
 				ContactURLTypeBlog: "Blog",
@@ -502,6 +508,9 @@
 
 				ContactAddress: "Address",
 				ContactAddressAdd: "Add another address",
+				ContactAddressOpenMappy: "Open with Mappy",
+				ContactAddressOpenGoogleMaps: "Open with Google Maps",
+				ContactAddressOpenOpenStreetMap: "Open with OpenStreetMap",
 				ContactAddressAddress: "Address",
 				ContactAddressAddress2: "Complementary address",
 				ContactAddressZipCode: "Zip code",
@@ -516,6 +525,7 @@
 
 				ContactEmail: "Email",
 				ContactEmailAdd: "Add another email",
+				ContactEmailSend: "Send email to this address",
 				ContactEmailTypeHome: "Home",
 				ContactEmailTypeWork: "Work",
 				ContactEmailTypeArchive: "Archive",
@@ -523,6 +533,7 @@
 
 				ContactPhone: "Number",
 				ContactPhoneAdd: "Add another number",
+				ContactPhoneCall: "Call this number",
 				ContactPhoneTypeHome: "Home",
 				ContactPhoneTypeWork: "Work",
 				ContactPhoneTypeMobile: "Mobile",
@@ -537,6 +548,7 @@
 
 				ContactURL: "Link",
 				ContactURLAdd: "Add another link",
+				ContactURLOpen: "Open this link",
 				ContactURLTypeHome: "Home",
 				ContactURLTypeWork: "Company",
 				ContactURLTypeBlog: "Blog",
