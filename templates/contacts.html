@@ -307,6 +307,10 @@ function AddressEditor(format, placeholder) {
 		item.state = editor.find('.valuelist-state').val() || undefined;
 		item.country = editor.find('.valuelist-country').val() || undefined;
 	};
+	this.text = (editor) => {
+		var t = editor.children('span').text();
+		return t === placeholder ? '' : t;
+	};
 }
 
 // Cette méthode filtre la grille en fonction du texte recherché
@@ -673,10 +677,12 @@ NIMBUS.init(['contacts.js'], function() {
 		// Configuration du plugin "valuelist"
 		window.ValueList.defaultOptions.labelPlaceholder = '';
 		window.ValueList.defaultOptions.addDefault = 'never';
+		window.ValueList.defaultOptions.copyText = NIMBUS.translate('ContactListCopy');
 		window.ValueList.defaultOptions.moveToFirstPositionText = NIMBUS.translate('ContactListMoveToFirstPosition');
 		window.ValueList.defaultOptions.moveToPreviousPositionText = NIMBUS.translate('ContactListMoveToPreviousPosition');
 		window.ValueList.defaultOptions.moveToNextPositionText = NIMBUS.translate('ContactListMoveToNextPosition');
 		window.ValueList.defaultOptions.moveToLastPositionText = NIMBUS.translate('ContactListMoveToLastPosition');
+		window.ValueList.defaultOptions.removeText = NIMBUS.translate('ContactListRemove');
 
 		// Manipulation au clavier
 		body.keystrokes({

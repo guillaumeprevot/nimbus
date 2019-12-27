@@ -433,10 +433,12 @@
 				ContactFieldLabel: "Libellé",
 				ContactFieldValue: "Valeur",
 
+				ContactListCopy: "Copier dans le presse-papier",
 				ContactListMoveToFirstPosition: "Remonter en premier",
 				ContactListMoveToPreviousPosition: "Remonter d'une ligne",
 				ContactListMoveToNextPosition: "Descendre d'une ligne",
 				ContactListMoveToLastPosition: "Descendre en dernier",
+				ContactListRemove: "Supprimer",
 			},
 			en: {
 				ContactsOpen: "Open address book",
@@ -566,10 +568,12 @@
 				ContactFieldLabel: "Label",
 				ContactFieldValue: "Value",
 
+				ContactListCopy: "Copy to clipboard",
 				ContactListMoveToFirstPosition: "Move to first position",
 				ContactListMoveToPreviousPosition: "Move to previous position",
 				ContactListMoveToNextPosition: "Move to next position",
 				ContactListMoveToLastPosition: "Move to last position",
+				ContactListRemove: "Remove",
 			}
 		}
 	});

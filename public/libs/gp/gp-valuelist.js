@@ -9,6 +9,7 @@
 			.on('change', (event) => void (format && (event.target.value = format(event.target.value))));
 		this.empty = (editor) => !editor.val();
 		this.apply = (item, editor) => item[property] = editor.val() || undefined;
+		this.text = (editor) => editor.val() || '';
 	}
 
 	function ButtonEditor(text, onclick, onempty, onapply) {
@@ -16,7 +17,7 @@
 			.text((typeof text === 'function') ? text(item) : text)
 			.on('click', (event) => onclick(item, event.target.closest('button')));
 		this.empty = (editor) => onempty(editor);
-		this.apply = (item, editor) => onapply(item, editor)
+		this.apply = (item, editor) => onapply(item, editor);
 	}
 
 	function DateEditor(format, placeholder, clearButton, yearPlaceholder, monthPlaceholder, datePlaceholder) {
@@ -71,6 +72,10 @@
 			item.date = editor.find('.valuelist-date').val();
 			item.date = item.date ? parseInt(item.date) : undefined;
 		};
+		this.text = (editor) => {
+			var t = editor.children('span').text();
+			return t === placeholder ? '' : t;
+		};
 	}
 
 	var draggable = null;
@@ -91,6 +96,9 @@
 		// Ajout d'une ligne par défaut pour faciliter la création, si demandé
 		if (this.options.addDefault === 'always' || (this.options.addDefault === 'empty' && (!options.items || options.items.length === 0)))
 			this.append({});
+		// Gestion du bouton pour copier la valeur d'une entrée dans le presse-papier
+		if (this.options.editor.text)
+			this.target.on('click', '.input-group .valuelist-copy', this.copyEntryToClipboard.bind(this));
 		// Gestion du bouton pour remonter en premier
 		this.target.on('click', '.input-group:not(:first-child) .valuelist-first', this.moveEntryFirst);
 		// Gestion du bouton pour remonter d'une ligne
@@ -99,19 +107,28 @@
 		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-next', this.moveEntryNext);
 		// Gestion du bouton pour descendre en dernier
 		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-last', this.moveEntryLast);
+		// Gestion du bouton pour supprimer une entrée
+		this.target.on('click', '.input-group .valuelist-remove', this.removeEntry);
 		// Gestion du tri par DnD de l'icone en 'prepend'
 		this.enableDnD();
 	}
 
 	$.extend(ValueList.prototype, {
 		destroy: function() {
-			this.target.empty().removeClass('valuelist');
-			this.target.off('click', '.input-group:not(:first-child) .valuelist-first', this.moveEntryFirst);
-			this.target.off('click', '.input-group:not(:first-child) .valuelist-previous', this.moveEntryPrevious);
-			this.target.off('click', '.input-group:not(:last-of-type) .valuelist-next', this.moveEntryNext);
-			this.target.off('click', '.input-group:not(:last-of-type) .valuelist-last', this.moveEntryLast);
-			this.target.off('dragstart dragover drop dragend')
-
+			this.target.empty().removeClass('valuelist').off('click dragstart dragover drop dragend', '**');
+		},
+		copyEntryToClipboard: function(event) {
+			var entry = $(event.target).closest('.input-group');
+			var editor = entry.children().eq('1');
+			var text = this.options.editor.text(editor);
+			var input;
+			if (text) {
+				input = $('<input type="text" />').val(text.trim()).insertAfter(this.addButton);
+				input.select().focus();
+				document.execCommand('copy');
+				input.remove();
+				entry.find('button.input-group-text').focus();
+			}
 		},
 		moveEntryFirst: function(event) {
 			var entry = $(event.target).closest('.input-group');
@@ -132,6 +149,9 @@
 			var entry = $(event.target).closest('.input-group');
 			if (entry.next().length > 0)
 				entry.insertBefore(entry.siblings(':last-child'));
+		},
+		removeEntry: function(event) {
+			$(event.target).closest('.input-group').remove();
 		},
 		enableDnD: function() {
 			this.target.on('dragstart', '.input-group-prepend', function(event) {
@@ -171,10 +191,14 @@
 					+ '  <div class="input-group-append">'
 					+ '    <button type="button" class="input-group-text btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons material-icons-16">expand_more</i></button>'
 					+ '    <div class="dropdown-menu dropdown-menu-right">'
+					+ '      <button type="button" class="dropdown-item valuelist-copy"><i class="material-icons">assignment</i> <span>' + this.options.copyText + '</span></button>'
+					+ '      <div role="separator" class="dropdown-divider"></div>'
 					+ '      <button type="button" class="dropdown-item valuelist-first"><i class="material-icons">expand_less</i> <span>' + this.options.moveToFirstPositionText + '</span></button>'
 					+ '      <button type="button" class="dropdown-item valuelist-previous"><i class="material-icons">arrow_drop_up</i> <span>' + this.options.moveToPreviousPositionText + '</span></button>'
 					+ '      <button type="button" class="dropdown-item valuelist-next"><i class="material-icons">arrow_drop_down</i> <span>' + this.options.moveToNextPositionText + '</span></button>'
 					+ '      <button type="button" class="dropdown-item valuelist-last"><i class="material-icons">expand_more</i> <span>' + this.options.moveToLastPositionText + '</span></button>'
+					+ '      <div role="separator" class="dropdown-divider"></div>'
+					+ '      <button type="button" class="dropdown-item valuelist-remove text-danger"><i class="material-icons">delete</i> <span>' + this.options.removeText + '</span></button>'
 					+ '    </div>'
 					+ '  </div>'
 					+ '</div>');
@@ -188,6 +212,8 @@
 			var defaultTypeSpan = labelInput.next();
 			// Enfin, le select pour choisir un type prédéfini
 			var typeSelect = defaultTypeSpan.next();
+			// Désactiver le bouton de copie dans le presse-papier (si non supportée par l'éditeur ou le navigateur)
+			div.find('.valuelist-copy').prop('disabled', !this.options.editor.text || !document.queryCommandSupported('copy'));
 
 			if (this.options.types) {
 				// Ajouter les types prédéfinis dans le select
@@ -254,11 +280,15 @@
 		addText: 'Add',
 		// Indique quand ajouter une par défaut (au choix parmi 'never', 'empty' et 'always')
 		addDefault: 'empty',
+		// Traduction du bouton permettant de copier la valeur d'une entrée dans le presse-papier
+		copyText: 'Copy to clipboard',
 		// Traduction des boutons servant à organiser la liste
 		moveToFirstPositionText: 'Move to first position',
 		moveToPreviousPositionText: 'Move to previous position',
 		moveToNextPositionText: 'Move to next position',
 		moveToLastPositionText: 'Move to last position',
+		// Traduction du bouton permettant de supprimer une entrée
+		removeText: 'Remove',
 	};
 
 	window.ValueList = ValueList;
