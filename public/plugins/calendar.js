@@ -82,8 +82,8 @@
 	function CalendarSource(data) {
 		// le nom de la source de donnée, normalement unique, qui sera utilisé dans l'IHM
 		this.name = data.name;
-		// l'icône de la source de donnée, pas forçément unique, qui sera aussi utilisé dans l'IHM
-		this.icon = data.icon;
+		// function(name)=>void qui renomme cette source
+		this.rename = data.rename;
 		// un booléen indiquant si la source est actuellement affichée dans le calendrier (l'utilisateur peut ainsi choisir un sous-ensemble des sources)
 		this.active = data.active;
 		// un booléen indiquant si la source est modifiable (ajout/modification/suppression d'évènements ou de types d'évènement)
@@ -271,9 +271,13 @@
 	/** Une source de données en lecture-seule représentant les jours fériés en France */
 	function createFrenchSpecialDaysCalendarSource(name, color, active) {
 		var type = new CalendarEventType(name, color, true, 'yearly', true);
+		var customNameKey = 'nimbus.calendar.french.special.days';
 		return new CalendarSource({
-			name: name,
-			icon: 'sentiment_satisfied_alt',
+			name: localStorage.getItem(customNameKey) || name,
+			rename: function(newName) {
+				localStorage.setItem(customNameKey, newName);
+				this.name = newName || name;
+			},
 			active: active,
 			readonly: true,
 			types: [type],
@@ -323,9 +327,12 @@
 				important: e.important,
 				note: e.note,
 			}));
+			var defaultName = item.name.replace(/.calendar/gi, '');
 			return new CalendarSource({
-				name: item.name.replace(/.calendar/gi, ''),
-				icon: 'event',
+				name: result.name || defaultName,
+				rename: function(newName) {
+					this.name = newName || defaultName;
+				},
 				active: active,
 				readonly: false,
 				types: types,
@@ -345,6 +352,7 @@
 				},
 				save: function() {
 					return NIMBUS.utils.updateFileJSON(item.id, true, {
+						name: this.name,
 						types: types,
 						events: events.map((e) => {
 							return {
@@ -426,6 +434,8 @@
 				CalendarSearchPlaceholder: "Recherche d'évènements...",
 				CalendarSearchNoResult: "Aucun résultat",
 				CalendarSelectSource: "Choisir les sources",
+				CalendarRenameSourceTitle: "Renommer cette source...",
+				CalendarRenameSourcePrompt: "Renommer en",
 				CalendarFrenchSpecialDays: "Jours fériés français",
 				CalendarRepeatNone: "pas de répétition",
 				CalendarRepeatDaily: "chaque jour",
@@ -438,7 +448,7 @@
 				CalendarArchiveEventTitle: "Marque l'évènement comme terminé, supprime l'indicateur d'importance et, pour les évènements répétés, alimente la date de fin",
 				CalendarEditEventButton: "Modifier l'évènement...",
 				CalendarDeleteEventButton: "Supprimer l'évènement",
-				CalendarAddEventTypeButton: "Ajouter un type d'évènement...",
+				CalendarAddEventTypeTitle: "Ajouter un type d'évènement...",
 				CalendarUpEventTypeTitle: "Déplacer vers le haut",
 				CalendarDownEventTypeTitle: "Déplacer vers le bas",
 				CalendarEditEventTypeTitle: "Modifier le type d'évènement...",
@@ -505,6 +515,8 @@
 				CalendarSearchPlaceholder: "Search for events...",
 				CalendarSearchNoResult: "No result",
 				CalendarSelectSource: "Select sources",
+				CalendarRenameSourceTitle: "Rename source...",
+				CalendarRenameSourcePrompt: "Rename to",
 				CalendarFrenchSpecialDays: "French special days",
 				CalendarRepeatNone: "do not repeat",
 				CalendarRepeatDaily: "repeat each day",
@@ -517,7 +529,7 @@
 				CalendarArchiveEventTitle: "This action marks the event as done and not important. For repeated events, it also fills it's end date.",
 				CalendarEditEventButton: "Edit event...",
 				CalendarDeleteEventButton: "Delete event",
-				CalendarAddEventTypeButton: "New event type...",
+				CalendarAddEventTypeTitle: "New event type...",
 				CalendarUpEventTypeTitle: "Move event type up",
 				CalendarDownEventTypeTitle: "Move event type down",
 				CalendarEditEventTypeTitle: "Edit event type...",

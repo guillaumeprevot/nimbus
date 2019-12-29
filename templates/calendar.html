@@ -13,7 +13,7 @@
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
 #sourceMenu div.dropdown-item { display: flex; align-items: center; }
-#sourceMenu div.dropdown-item span { flex: auto; padding-right: 1.25rem; padding-left: 34px; }
+#sourceMenu div.dropdown-item span { flex: auto; padding-right: 1.25rem; }
 #sourceMenu div.dropdown-item .btn { flex: none; padding: 0.25rem; }
 
 #days { position: sticky; top: 0; display: flex; flex-direction: row; font-weight: bold; }
@@ -291,16 +291,26 @@ function connectViewMenu(calendar) {
 function connectSourceMenu(calendar) {
 	// Récupérer le menu affichant les sources
 	var menu = $('#sourceMenu');
-	// Modèle du bouton d'ajout de nouveaux types
-	var addEventTypeHTML = '<button type="button" class="dropdown-item calendar-add-type"><span style="padding-left: 34px; ">' + NIMBUS.translate('CalendarAddEventTypeButton') + '</span></button>';
-	// Modèle de bouton pour remonter un type
-	var upEventTypeHTML = '<button type="button" class="btn btn-link calendar-up-type" title="' + NIMBUS.translate('CalendarUpEventTypeTitle') + '"><i class="material-icons">keyboard_arrow_up</i></button>';
-	// Modèle de bouton pour descendre un type
-	var downEventTypeHTML = '<button type="button" class="btn btn-link calendar-down-type" title="' + NIMBUS.translate('CalendarDownEventTypeTitle') + '"><i class="material-icons">keyboard_arrow_down</i></button>';
-	// Modèle de bouton de modification d'un type
-	var editEventTypeHTML = '<button type="button" class="btn btn-link calendar-edit-type" title="' + NIMBUS.translate('CalendarEditEventTypeTitle') + '"><i class="material-icons">edit</i></button>';
-	// Modèle de bouton de suppression d'un type
-	var deleteEventTypeHTML = '<button type="button" class="btn btn-link calendar-delete-type" title="' + NIMBUS.translate('CalendarDeleteEventTypeTitle') + '"><i class="material-icons text-danger">delete</i></button>';
+	// Template de l'entrée de menu d'une source (switch dd'activation + libellé + bouton de renommage + bouton d'ajout de type)
+	var sourceMenuItemTemplate = $(''
+		+ '<div class="dropdown-item">'
+		+ '  <div class="custom-control custom-switch calendar-toggle-source">'
+		+ '    <input type="checkbox" class="custom-control-input" id="sourceSwitch1" />'
+		+ '    <label class="custom-control-label" for="sourceSwitch1" />'
+		+ '  </div>'
+		+ '  <span />'
+		+ '  <button type="button" class="btn btn-link calendar-rename-source" title="' + NIMBUS.translate('CalendarRenameSourceTitle') + '"><i class="material-icons">edit</i></button>'
+		+ '  <button type="button" class="btn btn-link calendar-add-type" title="' + NIMBUS.translate('CalendarAddEventTypeTitle') + '"><i class="material-icons">add</i></button>'
+		+ '</div>');
+	// Template de l'entrée de menu d'un type d'évènement (libellé + bouton haut/bas + bouton d'édition + bouton de suppression)
+	var eventTypeMenuItemTemplate = $(''
+		+ '<div class="dropdown-item">'
+		+ '  <span />'
+		+ '  <button type="button" class="btn btn-link calendar-up-type" title="' + NIMBUS.translate('CalendarUpEventTypeTitle') + '"><i class="material-icons">keyboard_arrow_up</i></button>'
+		+ '  <button type="button" class="btn btn-link calendar-down-type" title="' + NIMBUS.translate('CalendarDownEventTypeTitle') + '"><i class="material-icons">keyboard_arrow_down</i></button>'
+		+ '  <button type="button" class="btn btn-link calendar-edit-type" title="' + NIMBUS.translate('CalendarEditEventTypeTitle') + '"><i class="material-icons">edit</i></button>'
+		+ '  <button type="button" class="btn btn-link calendar-delete-type" title="' + NIMBUS.translate('CalendarDeleteEventTypeTitle') + '"><i class="material-icons text-danger">delete</i></button>'
+		+ '</div>');
 	// Initialiser le menu
 	function buildMenu() {
 		menu.empty();
@@ -308,46 +318,57 @@ function connectSourceMenu(calendar) {
 			// Séparateur entre les sources
 			if (sourceIndex > 0)
 				menu.append('<div class="dropdown-divider"></div>');
-			// Bouton avec l'icone et le nom de la source, permettant de choisir les sources actives 
-			$('<button type="button" class="dropdown-item calendar-toggle-source" />')
+			// Entrée de menu pour la source 
+			sourceMenuItemTemplate.clone()
 				.data('source', source)
-				.append($('<i class="material-icons text-muted indicator" style="float: right; margin: 0.25rem; ">check</i>').toggle(source.active))
-				.append($('<i class="material-icons text-muted" />').text(source.icon))
-				.append($('<span style="padding-right: 40px; padding-left: 10px; " />').text(source.name))
+				.find('input').attr('id', 'sourceToggle' + sourceIndex).prop('checked', source.active).end()
+				.children('label').attr('for', 'sourceToggle' + sourceIndex).end()
+				.children('span').text(source.name).end()
+				.children('.calendar-rename-source').toggle(!!source.rename).end()
+				.children('.calendar-add-type').toggle(source.active && !source.readonly).end()
 				.appendTo(menu);
 			// Pour les sources en lecture-seule, aucune autre action
 			if (source.readonly || !source.active)
 				return;
 			// Boutons pour éditer/ déplacer / supprimer chaque type d'évènement de cette source  
 			source.types.forEach(function(type) {
-				$('<div class="dropdown-item" />')
+				eventTypeMenuItemTemplate.clone()
 					.data('type', type)
 					.data('source', source)
-					.append($('<span />').text(type.label))
-					.append(upEventTypeHTML)
-					.append(downEventTypeHTML)
-					.append(editEventTypeHTML)
-					.append(deleteEventTypeHTML)
+					.children('span').text(type.label).end()
 					.appendTo(menu);
 			});
-			// Bouton pour ajouter un type d'évènement à cette source  
-			$(addEventTypeHTML)
-				.data('source', source)
-				.appendTo(menu);
 		});
 	}
 	buildMenu();
 	// Ajuster le calendrier quand l'utilisateur active ou désactive une source
 	menu.on('click', '.calendar-toggle-source', function(event) {
-		var menuItem = $(event.target).closest('.dropdown-item');
-		calendar.toggleSource(menuItem.data('source'));
+		var item = $(event.target).closest('.dropdown-item');
+		var source = item.data('source');
+		calendar.toggleSource(source);
 		buildMenu();
+		// Laisser le menu visible
+		return false;
+	});
+	// Renommer la source quand l'utilisateur clique sur un bouton de renommage
+	menu.on('click', '.calendar-rename-source', function(event) {
+		var item = $(event.target).closest('.dropdown-item');
+		var source = item.data('source');
+		// Demander le nouveau nom
+		NIMBUS.prompt(NIMBUS.translate('CalendarRenameSourcePrompt'), source.name, '').then(function(newName) {
+			// Renommer la source
+			source.rename(newName.trim());
+			// Ajuster le menu
+			item.children('span').text(source.name);
+			// Gérer la sauvegarde
+			$(calendar).trigger('calendarsourcechange', source);
+		});
 	});
 	// Ajouter un type d'évènement quand l'utilisateur clique sur un bouton d'ajout
-	menu.on('click', '.calendar-add-type', function() {
+	menu.on('click', '.calendar-add-type', function(event) {
 		var api = NIMBUS.utils.calendar;
-		var button = $(this).closest('button');
-		var source = button.data('source');
+		var item = $(event.target).closest('.dropdown-item');
+		var source = item.data('source');
 		var type = new api.CalendarEventType();
 		// Afficher la fenêtre modale
 		editEventType(calendar, source, type, true, function() {
