@@ -472,6 +472,20 @@
 				CalendarEventModalCancelButton: "Annuler",
 				CalendarEventModalAddButton: "Ajouter",
 				CalendarEventModalApplyButton: "Appliquer",
+
+				formatCalendarEventDates: function(event) {
+					var d = event.date.toMoment().format('L');
+					var r = event.repeat;
+					var e = event.endDate ? event.endDate.toMoment().format('L') : null;
+					r = (r === 'daily') ? 'jour' : (r === 'weekly') ? 'semaine' : (r === 'monthy') ? 'mois' : (r === 'quarterly') ? 'trimestre' : (r === 'yearly') ? 'année' : '';
+					if (e && r)
+						return 'chaque ' + r + ' du ' + d + ' au ' + e;
+					if (e)
+						return 'du ' + d + ' au ' + e;
+					if (r)
+						return 'chaque ' + r + ' depuis le ' + d;
+					return 'le ' + d;
+				},
 			},
 			en: {
 				CalendarOpen: "Open in calendar",
@@ -537,6 +551,19 @@
 				CalendarEventModalCancelButton: "Cancel",
 				CalendarEventModalAddButton: "Add event",
 				CalendarEventModalApplyButton: "Apply",
+
+				formatCalendarEventDates: function(event) {
+					var d = event.date.toMoment().format('L');
+					var r = event.repeat;
+					var e = event.endDate ? event.endDate.toMoment().format('L') : null;
+					if (e && r)
+						return 'each ' + r + ' from ' + d + ' until ' + e;
+					if (e)
+						return 'from ' + d + ' until ' + e;
+					if (r)
+						return 'each ' + r + ' from ' + d;
+					return 'on ' + d;
+				},
 			}
 		}
 	});

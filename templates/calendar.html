@@ -240,8 +240,8 @@ function prepareCalendar(items, itemId) {
 	calendar.views.push(api.createMonthCalendarView(NIMBUS.translate('CalendarSelectViewMonth')));
 	calendar.views.push(api.createMonthsCalendarView(NIMBUS.translate('CalendarSelectViewMonths'), 0, 1, 1));
 	calendar.views.push(api.createYearCalendarView(NIMBUS.translate('CalendarSelectViewYear')));
-	// Affichage en vue "Multi-semaines" par défaut
-	calendar.view = calendar.views[1];
+	// Affichage en vue "Mois" par défaut
+	calendar.view = calendar.views[2];
 	// Ajout d'une source par fichier ".calendar"
 	return Promise.all(items.map((item) => api.createNimbusFileCalendarSource(item, itemId === null || itemId === item.id))).then((sources) => {
 		Array.prototype.push.apply(calendar.sources, sources);
@@ -479,6 +479,8 @@ function connectMainView(calendar) {
 		if (weekNumbers.length <= 6 && weeks.innerWidth() >= 640)
 			weekNumbers.css('min-height', 'calc((100vh - 93px - 0.75rem) / ' + weekNumbers.length + ' - 1px)');
 
+		// Récupérer la méthode de formatage en fonction de la langue
+		var formatDates = NIMBUS.translate('formatCalendarEventDates');
 		// Génération des évènements
 		var days = weeks.find('.day-content').get();
 		var minMoment = moment(data.startOfWeek);
@@ -519,10 +521,12 @@ function connectMainView(calendar) {
 				periods.push(eventMoment.diff(minMoment, 'days'));
 			}
 			var source = calendar.findSourceOfEvent(event);
+			var formatedDates = formatDates(event);
 			periods.forEach(function(p) {
 				if (p >= 0 && p < days.length)
 					$('<div />').data('event', event).data('source', source)
 						.text(event.label || event.type.label).css('border-color', event.type.color)
+						.attr('title', formatedDates)
 						.prop('draggable', !source.readonly)
 						.appendTo(days[p]);
 			});
