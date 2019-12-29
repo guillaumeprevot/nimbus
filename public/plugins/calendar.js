@@ -337,7 +337,7 @@
 				readonly: false,
 				types: types,
 				count: (type) => events.filter((e) => e.type === type).length,
-				search: (searchTextLC) => events.filter((e) => ((e.label || '') + '_' + (e.type.label)).toLowerCase().indexOf(searchTextLC) >= 0),
+				search: (searchTextLC) => searchTextLC ? events.filter((e) => ((e.label || '') + '_' + (e.type.label)).toLowerCase().indexOf(searchTextLC) >= 0) : events,
 				populate: function(startMoment, endMoment) {
 					return Promise.resolve(events);
 				},

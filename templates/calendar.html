@@ -78,7 +78,7 @@
 		<div class="float-right">
 			<div class="btn-group">
 				<button id="searchButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSearch" aria-haspopup="true" aria-expanded="false"><i class="material-icons">search</i></button>
-				<div id="searchMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="searchButton" style="min-width: 300px; ">
+				<div id="searchMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="searchButton" style="min-width: 300px; overflow-y: auto; max-height: calc(95vh - 60px); ">
 					<div class="p-2">
 						<input id="searchInput" type="search" class="form-control" data-translate="placeholder" placeholder="CalendarSearchPlaceholder">
 					</div>
@@ -748,35 +748,58 @@ function connectSearch(calendar) {
 	var searchInput = $('#searchInput');
 	var searchNoResult = $('#searchNoResult');
 
-	// Donnner le focus à la zone de recherche quand on clique sur le bouton "loupe"
-	searchMenu.parent().on('shown.bs.dropdown', function() {
-		searchInput.select().focus();
-	});
-
-	// Rechercher les évènements quand le text change
-	searchInput.on('input', function() {
-		// Récupérer le texte recherché
-		var text = this.value.toLowerCase();
-		// Masquer le résultat d'une éventuelle recherche précédente
-		searchNoResult.hide();
+	// Remplir le menu de recherche quand on clique sur le bouton "loupe"
+	searchMenu.parent().on('show.bs.dropdown', function() {
+		// Récupérer la méthode de formatage en fonction de la langue
+		var formatDates = NIMBUS.translate('formatCalendarEventDates');
+		// Vider le contenu précédent 
 		searchNoResult.nextAll().remove();
-		// Si l'utilisateur a annulé sa recherche, n'afficher que la zone de recherche
-		if (! text)
-			return;
-		// Sinon, rechercher les évènements correspondant à la recherche 
+		// Ajouter une entrée par évènement éditable
 		calendar.sources.forEach(function(source) {
 			if (source.readonly || !source.active)
 				return;
-			source.search(text).forEach(function(event) {
+			source.search('').forEach(function(event) {
 				$('<button class="dropdown-item" type="button" />')
 					.data('event', event)
-					.text((event.label || event.type.label) + ' (' + event.date.toMoment().format('L') + ')')
+					.text(event.label || event.type.label)
+					.append($('<span class="text-muted" />').text(' (' + formatDates(event) + ')'))
 					.appendTo(searchMenu);
 			});
 		});
+	});
+
+	// Attendre le positionnement du menu par Bootstrap
+	searchMenu.parent().on('shown.bs.dropdown', function() {
+		// Fixer la largeur au max pour éviter que le menu change de largeur en fonction de la recherche
+		searchMenu.css('width', '').css('width', searchMenu.outerWidth() + 'px');
+		// Donner le focus à l'input et appliquer la recherche précédente 
+		searchInput.select().focus().trigger('input');
+	});
+
+	// Rechercher les évènements quand le texte change
+	searchInput.on('input', function() {
+		// Récupérer le texte recherché
+		var searchTextLC = this.value.toLowerCase();
+		// Récupérer les éléments associés à chaque évènement
+		var items = searchNoResult.nextAll();
+		// Afficher tous les éléments quand le texte recherché est vide
+		if (! searchTextLC) {
+			items.show();
+			searchNoResult.toggle(items.length === 0);
+			return;
+		}
+		// Sinon, n'afficher que les éléments correspondant à la recheche
+		var hasResults = false;
+		items.each(function() {
+			var item = $(this);
+			var event = item.data('event');
+			var text = (event.label || '') + '_' + (event.type.label);
+			var match = text.toLowerCase().includes(searchTextLC);
+			item.toggle(match);
+			hasResults = hasResults || match;
+		});
 		// Afficher l'entrée "Aucun résultat" le cas échéant
-		if (searchNoResult.next().length === 0)
-			searchNoResult.show();
+		searchNoResult.toggle(!hasResults);
 	});
 
 	// Editer un évènement quand l'utilisateur clique sur un résultat de recherche
