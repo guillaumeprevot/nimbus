@@ -53,7 +53,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | 2.0.7 | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
 [Moment.js](https://github.com/moment/moment) | plugin JS | 2.24.0 | MIT | Manipulation des dates et heures (agenda)
 [Popper.js](https://popper.js.org/) | transitive | 1.16.0 (umd) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
-[Lato](https://fonts.googleapis.com/css?family=Lato:400,700,400italic) | transitive | v16 | OFL | WebFont pour les thèmes Flatly et Darkly
+[Lato](https://fonts.googleapis.com/css?family=Lato:300,400,700,400italic) | transitive | v16 | OFL | WebFont pour les thèmes Flatly et Darkly
 [JSZip](https://github.com/Stuk/jszip/releases) | transitive | 3.2.2 | MIT or GPLv3 | Dépendances de ePub.js
 
 ## Fonctionnalités

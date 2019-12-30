@@ -1242,7 +1242,7 @@ NIMBUS.navigation = (function() {
 				}
 
 				// 2ème colonne : nom personnalisable
-				var name = $('<span />').html(item.name);
+				var name = $('<span />').html(showItemDescription ? item.name : item.name.replace('.' + extension, '<span class="text-muted">.' + extension + '</span>'));
 				if (item.status === 'download')
 					name.addClass('text-info');
 				else if (item.status === 'error')
