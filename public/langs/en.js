@@ -80,6 +80,9 @@ NIMBUS.lang = {
 
 	MainToolbarTitle: "Menu",
 	MainToolbarNewWindow: "Open new window",
+	MainToolbarOpenCalendar: "Open Calendar",
+	MainToolbarOpenContacts: "Open Contacts",
+	MainToolbarOpenAudioPlayer: "Open Audio player",
 	MainToolbarAddFolder: "Create a new folder",
 	MainToolbarUploadFiles: "Upload some files",
 	MainToolbarDownloadURL: "Download a file from an URL",

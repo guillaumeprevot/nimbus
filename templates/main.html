@@ -30,9 +30,21 @@
 			<i class="material-icons">menu</i>
 		</button>
 		<div class="dropdown-menu" aria-labelledby="menu-button">
-			<a class="dropdown-item" target="_blank" href="#">
+			<a class="dropdown-item" target="_blank" href="">
 				<i class="material-icons">home</i>
 				<span data-translate="text">MainToolbarNewWindow</span>
+			</a>
+			<a class="dropdown-item" target="_blank" href="/calendar.html">
+				<i class="material-icons">event</i>
+				<span data-translate="text">MainToolbarOpenCalendar</span>
+			</a>
+			<a class="dropdown-item" target="_blank" href="/contacts.html">
+				<i class="material-icons">contacts</i>
+				<span data-translate="text">MainToolbarOpenContacts</span>
+			</a>
+			<a class="dropdown-item" target="_blank" href="/audio.html">
+				<i class="material-icons">audiotrack</i>
+				<span data-translate="text">MainToolbarOpenAudioPlayer</span>
 			</a>
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#add-folder-dialog">
@@ -402,6 +414,9 @@
 
 // Récupérer la liste des plugins demandés
 var plugins = [<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>];
+if (plugins.indexOf('calendar.js') === -1) $('[href="/calendar.html"]').hide();
+if (plugins.indexOf('contacts.js') === -1) $('[href="/contacts.html"]').hide();
+if (plugins.indexOf('audio.js') === -1) $('[href="/audio.html"]').hide();
 if (plugins.indexOf('text.js') === -1) $('[data-touch-extension="txt"]').hide();
 if (plugins.indexOf('note.js') === -1) $('[data-touch-extension="note"]').hide();
 if (plugins.indexOf('secret.js') === -1) $('[data-touch-extension="secret"]').hide();
