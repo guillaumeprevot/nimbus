@@ -51,17 +51,21 @@ body:not(.selecting) iframe { pointer-events: none; }
 		</div>
 	</header>
 	<main>
-		<div class="container-sm mt-2">
+		<div class="container-sm p-3">
 			<div class="form-group">
-				<label for="openFileInput"><i class="material-icons">insert_drive_file</i><span data-translate="text">EPUBOpenFileLabel</span></label>
+				<label for="openFileInput"><i class="material-icons">insert_drive_file</i> <span data-translate="text">EPUBOpenFileLabel</span></label>
 				<div class="custom-file">
 					<input id="openFileInput" type="file" accept=".epub" class="custom-file-input" />
 					<label for="openFileInput" class="custom-file-label" data-translate="text">EPUBOpenFilePlaceholder</label>
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="openUrlInput"><i class="material-icons">link</i><span data-translate="text">EPUBOpenUrlLabel</span></label>
+				<label for="openUrlInput"><i class="material-icons">link</i> <span data-translate="text">EPUBOpenUrlLabel</span></label>
 				<input id="openUrlInput" type="text" class="form-control" data-translate="placeholder" placeholder="EPUBOpenUrlPlaceholder" />
+			</div>
+			<div class="form-group">
+				<label for="openNimbusInput"><i class="material-icons">cloud</i> <span data-translate="text">EPUBOpenNimbusLabel</span></label>
+				<input id="openNimbusInput" type="text" class="form-control" data-translate="placeholder" placeholder="EPUBOpenNimbusPlaceholder" />
 			</div>
 			<div id="openInputError" class="text-danger nimbus-hidden" data-translate="text">EPUBOpenInputError</div>
 			<p class="text-center"><button id="openButton" type="button" class="btn btn-link" data-translate="text">EPUBOpenButton</button></p>
@@ -75,6 +79,7 @@ body:not(.selecting) iframe { pointer-events: none; }
 <script type="text/javascript" src="/libs/jszip/jszip.min.js"></script>
 <script type="text/javascript" src="/libs/epub/epub.min.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 <script>
@@ -94,6 +99,7 @@ function prepareOpenForm() {
 	var openFileInput = $('#openFileInput');
 	var openFileLabel = $('#openFileInput').next();
 	var openUrlInput = $('#openUrlInput');
+	var openNimbusInput = $('#openNimbusInput');
 	var openInputError = $('#openInputError');
 	// Ajuster le texte du bouton à droite
 	openFileLabel.attr('data-browse', NIMBUS.translate('EPUBOpenFileBrowse'));
@@ -101,25 +107,54 @@ function prepareOpenForm() {
 	openFileInput.on('change', function() {
 		openFileLabel.text((this.files && this.files.length > 0) ? this.files[0].name : NIMBUS.translate('EPUBOpenFilePlaceholder'));
 	}).change();
+	// Auto-compléter le nom des fichiers Nimbus
+	openNimbusInput.closest('.form-group').toggle(!!'${userLogin!""}').end().autocomplete({
+		min: 2,
+		bold: true,
+		input: 'update',
+		menu: 'close',
+		query: function(term, callback) {
+			$.get('/items/list', {
+				recursive: true,
+				sortBy: 'name',
+				sortAscending: true,
+				folders: false,
+				deleted: false,
+				extensions: 'contacts',
+				searchText: term,
+				extensions: 'epub'
+			}).then(function(items) {
+				callback(items.map(function(item) { return { label: item.name, value: item.name, id: item.id }; }));
+			});
+		},
+		select: function(option) {
+			openNimbusInput.data('itemId', option.id);
+		}
+	}).on('input', function() {
+		openNimbusInput.removeData('itemId');
+	});
 	// Attendre que l'utilisateur clique sur le bouton
 	$('#openButton').on('click', function() {
 		var files = openFileInput[0].files || [];
 		var url = openUrlInput.val();
-		var missingInput = !url && files.length === 0;
-		var conflictingInput = !!url && files.length > 0;
+		var itemId = openNimbusInput.data('itemId');
+		var inputCount = (url ? 1 : 0) + files.length + (typeof itemId === 'undefined' ? 0 : 1);
 
-		if (missingInput || conflictingInput) {
+		if (inputCount !== 1) {
 			openFileInput.addClass('is-invalid');
 			openUrlInput.addClass('is-invalid');
+			openNimbusInput.addClass('is-invalid');
 			openInputError.removeClass('nimbus-hidden');
 		} else if (url) {
 			open(url);
-		} else {
+		} else if (files.length > 0) {
 			var reader = new FileReader();
 			reader.onload = function(event) {
 				open(event.target.result);
 			};
 			reader.readAsDataURL(files[0]);
+		} else {
+			open('/files/stream/' + itemId);
 		}
 	});
 }

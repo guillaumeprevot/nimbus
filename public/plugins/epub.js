@@ -42,12 +42,14 @@
 				EPUBNextPage: "Afficher la page suivante",
 				EPUBPosition: "Position",
 				EPUBChapters: "Chapitres",
-				EPUBOpenFileLabel: "Ouvrir un fichier",
+				EPUBOpenFileLabel: "Ouvrir un fichier local",
 				EPUBOpenFilePlaceholder: "Cliquer ici pour choisir un fichier EPUB à ouvrir",
 				EPUBOpenFileBrowse: "Choisir",
 				EPUBOpenUrlLabel: "Ouvrir une URL",
 				EPUBOpenUrlPlaceholder: "Saisir ici l'URL du fichier EPUB à ouvrir",
-				EPUBOpenInputError: "Veuillez sélectionner un fichier ou une URL.",
+				EPUBOpenNimbusLabel: "Ouvrir un fichier distant",
+				EPUBOpenNimbusPlaceholder: "Saisir une partie du nom du fichier à ouvrir",
+				EPUBOpenInputError: "Veuillez sélectionner l'une des options proposées.",
 				EPUBOpenButton: "Commencer ou reprendre la lecture"
 			},
 			en: {
@@ -66,8 +68,10 @@
 				EPUBOpenFilePlaceholder: "Select the local EPUB file to open",
 				EPUBOpenFileBrowse: "Select",
 				EPUBOpenUrlLabel: "Read file from URL",
-				EPUBOpenUrlPlaceholder: "Input the URL of the EPUB file to open",
-				EPUBOpenInputError: "Please select either file or URL.",
+				EPUBOpenUrlPlaceholder: "Write the URL of the EPUB file to open",
+				EPUBOpenNimbusLabel: "Read remote file",
+				EPUBOpenNimbusPlaceholder: "Write the name of the EPUB file to open",
+				EPUBOpenInputError: "Please select one of available options.",
 				EPUBOpenButton: "Start or continue reading"
 			}
 		}

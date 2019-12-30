@@ -14,6 +14,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate(request, "epub.html",
 				"url", SparkUtils.queryParamUrl(request, "url", ""),
+				"userLogin", request.session().attribute("userLogin"),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
