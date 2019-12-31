@@ -88,12 +88,14 @@
 					Producer: "Logiciel",
 					PDFFormatVersion: "Version",
 				},
-				PDFOpenFileLabel: "Ouvrir un fichier",
+				PDFOpenFileLabel: "Ouvrir un fichier local",
 				PDFOpenFilePlaceholder: "Cliquer ici pour choisir un fichier PDF à ouvrir",
 				PDFOpenFileBrowse: "Choisir",
 				PDFOpenUrlLabel: "Ouvrir une URL",
 				PDFOpenUrlPlaceholder: "Saisir ici l'URL du fichier PDF à ouvrir",
-				PDFOpenInputError: "Veuillez sélectionner un fichier ou une URL.",
+				PDFOpenNimbusLabel: "Ouvrir un fichier distant",
+				PDFOpenNimbusPlaceholder: "Saisir une partie du nom du fichier PDF à ouvrir",
+				PDFOpenInputError: "Veuillez sélectionner l'une des options proposées.",
 				PDFOpenButton: "Ouvrir le document PDF"
 			},
 			en: {
@@ -149,8 +151,10 @@
 				PDFOpenFilePlaceholder: "Select the local PDF file to open",
 				PDFOpenFileBrowse: "Select",
 				PDFOpenUrlLabel: "Open file from URL",
-				PDFOpenUrlPlaceholder: "Input the URL of the PDF file to open",
-				PDFOpenInputError: "Please select either file or URL.",
+				PDFOpenUrlPlaceholder: "Write the URL of the PDF file to open",
+				PDFOpenNimbusLabel: "Open remote file",
+				PDFOpenNimbusPlaceholder: "Write the name of the PDF file to open",
+				PDFOpenInputError: "Please select one of available options.",
 				PDFOpenButton: "Open the PDF document"
 			}
 		}

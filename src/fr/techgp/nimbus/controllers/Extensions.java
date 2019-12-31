@@ -13,8 +13,8 @@ public class Extensions extends Controller {
 	public static final Route epub = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "epub.html",
-				"url", SparkUtils.queryParamUrl(request, "url", ""),
 				"userLogin", request.session().attribute("userLogin"),
+				"url", SparkUtils.queryParamUrl(request, "url", ""),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
 	};
@@ -27,6 +27,7 @@ public class Extensions extends Controller {
 	public static final Route pdf = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "pdf.html",
+				"userLogin", request.session().attribute("userLogin"),
 				"url", SparkUtils.queryParamUrl(request, "url", ""),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
