@@ -108,31 +108,8 @@ function prepareOpenForm() {
 		openFileLabel.text((this.files && this.files.length > 0) ? this.files[0].name : NIMBUS.translate('EPUBOpenFilePlaceholder'));
 	}).change();
 	// Auto-compléter le nom des fichiers Nimbus
-	openNimbusInput.closest('.form-group').toggle(!!'${userLogin!""}').end().autocomplete({
-		min: 2,
-		bold: true,
-		input: 'update',
-		menu: 'close',
-		query: function(term, callback) {
-			$.get('/items/list', {
-				recursive: true,
-				sortBy: 'name',
-				sortAscending: true,
-				folders: false,
-				deleted: false,
-				extensions: 'contacts',
-				searchText: term,
-				extensions: 'epub'
-			}).then(function(items) {
-				callback(items.map(function(item) { return { label: item.name, value: item.name, id: item.id }; }));
-			});
-		},
-		select: function(option) {
-			openNimbusInput.data('itemId', option.id);
-		}
-	}).on('input', function() {
-		openNimbusInput.removeData('itemId');
-	});
+	NIMBUS.utils.autocompleteInput(openNimbusInput, 'epub');
+	openNimbusInput.closest('.form-group').toggle(!!'${userLogin!""}');
 	// Attendre que l'utilisateur clique sur le bouton
 	$('#openButton').on('click', function() {
 		var files = openFileInput[0].files || [];

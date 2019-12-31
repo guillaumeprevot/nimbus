@@ -48,7 +48,7 @@
 				EPUBOpenUrlLabel: "Ouvrir une URL",
 				EPUBOpenUrlPlaceholder: "Saisir ici l'URL du fichier EPUB à ouvrir",
 				EPUBOpenNimbusLabel: "Ouvrir un fichier distant",
-				EPUBOpenNimbusPlaceholder: "Saisir une partie du nom du fichier à ouvrir",
+				EPUBOpenNimbusPlaceholder: "Saisir une partie du nom du fichier EPUB à ouvrir",
 				EPUBOpenInputError: "Veuillez sélectionner l'une des options proposées.",
 				EPUBOpenButton: "Commencer ou reprendre la lecture"
 			},

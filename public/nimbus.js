@@ -347,6 +347,33 @@ NIMBUS.utils = (function() {
 		return cd.substring(i + 2, cd.length - 1);
 	}
 
+	function autocompleteInput(input, extensions) {
+		input.autocomplete({
+			min: 2,
+			bold: true,
+			input: 'update',
+			menu: 'close',
+			query: function(term, callback) {
+				$.get('/items/list', {
+					recursive: true,
+					sortBy: 'name',
+					sortAscending: true,
+					folders: false,
+					deleted: false,
+					searchText: term,
+					extensions: extensions
+				}).then(function(items) {
+					callback(items.map(function(item) { return { label: item.name, value: item.name, id: item.id }; }));
+				});
+			},
+			select: function(option) {
+				input.data('itemId', option.id);
+			}
+		}).on('input', function() {
+			input.removeData('itemId');
+		});
+	}
+
 	function uploadFile(parentId, blob, filename) {
 		var formData = new FormData();
 		formData.append("parentId", parentId ? parentId.toString() : "");
@@ -395,6 +422,7 @@ NIMBUS.utils = (function() {
 		getFileExtensionFromItem: getFileExtensionFromItem,
 		getFileExtensionFromString: getFileExtensionFromString,
 		getFileNameFromContentDisposition: getFileNameFromContentDisposition,
+		autocompleteInput: autocompleteInput,
 		uploadFile: uploadFile,
 		updateFile: updateFile,
 		updateFileText: updateFileText,
