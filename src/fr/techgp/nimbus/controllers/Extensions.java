@@ -41,6 +41,7 @@ public class Extensions extends Controller {
 	public static final Route video = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "video.html",
+				"userLogin", request.session().attribute("userLogin"),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));

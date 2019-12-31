@@ -21,6 +21,7 @@
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
@@ -80,23 +81,28 @@
 	<main style="overflow: hidden;">
 		<video style="width: 100%; height: 100%; object-fit: contain; " loop="loop"></video>
 		<div class="alert alert-danger nimbus-hidden" role="alert" data-translate="text">VideoPlayError</div>
-		<form id="openForm" class="container-sm mt-2">
+		<form class="container-sm p-3">
 			<div class="form-group">
-				<label for="openVideoInput"><i class="material-icons">local_movies</i><span data-translate="text">VideoOpenFileLabel</span></label>
+				<label for="openVideoInput"><i class="material-icons">local_movies</i> <span data-translate="text">VideoOpenFileLabel</span></label>
 				<div class="custom-file">
-					<input id="openVideoInput" type="file" accept="video/*" class="custom-file-input" required data-translate="placeholder" placeholder="VideoOpenFilePlaceholder" />
+					<input id="openVideoInput" type="file" accept="video/*" class="custom-file-input" data-translate="placeholder" placeholder="VideoOpenFilePlaceholder" />
 					<label for="openVideoInput" class="custom-file-label"></label>
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="openSubtitlesInput"><i class="material-icons">subtitles</i><span data-translate="text">VideoOpenSubtitlesLabel</span></label>
+				<label for="openNimbusInput"><i class="material-icons">cloud</i> <span data-translate="text">VideoOpenNimbusLabel</span></label>
+				<input id="openNimbusInput" type="text" class="form-control" data-translate="placeholder" placeholder="VideoOpenNimbusPlaceholder" />
+			</div>
+			<div id="openInputError" class="text-danger nimbus-hidden" data-translate="text">VideoOpenInputError</div>
+			<div class="form-group">
+				<label for="openSubtitlesInput"><i class="material-icons">subtitles</i> <span data-translate="text">VideoOpenSubtitlesLabel</span></label>
 				<div class="custom-file">
 					<input id="openSubtitlesInput" type="file" accept=".vtt,.srt" class="custom-file-input" data-translate="placeholder" placeholder="VideoOpenSubtitlesPlaceholder"  />
 					<label for="openSubtitlesInput" class="custom-file-label"></label>
 				</div>
 			</div>
 			<div id="openSubtitlesError" class="text-danger nimbus-hidden" data-translate="text">VideoOpenSubtitlesError</div>
-			<p class="text-center"><button type="submit" class="btn btn-link" data-translate="text">VideoOpenButton</button></p>
+			<p class="text-center"><button id="openButton" type="button" class="btn btn-link" data-translate="text">VideoOpenButton</button></p>
 		</form>
 	</main>
 	<footer>
@@ -344,6 +350,11 @@ function openItem(itemId) {
 }
 
 function prepareOpenForm() {
+	// Récupérer les éléments du formulaire
+	var openVideoInput = $('#openVideoInput');
+	var openSubtitlesInput = $('#openSubtitlesInput');
+	var openNimbusInput = $('#openNimbusInput');
+	var openInputError = $('#openInputError');
 	// Masquer les barres
 	$('.nimbus-viewer').addClass('nimbus-hidden-toolbars');
 	// Masquer la vidéo
@@ -354,11 +365,19 @@ function prepareOpenForm() {
 	$('#openVideoInput, #openSubtitlesInput').on('change', function() {
 		$(this).next().text((this.files && this.files.length > 0) ? this.files[0].name : this.placeholder);
 	}).change();
+	// Auto-compléter le nom des fichiers Nimbus
+	NIMBUS.utils.autocompleteInput(openNimbusInput, '3gp,avi,m4a,mov,mp4,mpeg,mpg,ogv,webm');
+	openNimbusInput.closest('.form-group').toggle(!!'${userLogin!""}');
 	// Attendre que l'utilisateur clique sur le bouton
-	$('#openForm').on('submit', function(event) {
-		// Récupérer les éléments du formulaire
-		var openVideoInput = $('#openVideoInput');
-		var openSubtitlesInput = $('#openSubtitlesInput');
+	$('#openButton').on('click', function(event) {
+		var files = openVideoInput[0].files || [];
+		var itemId = openNimbusInput.data('itemId');
+		var hasInputError = (files.length + (typeof itemId === 'undefined' ? 0 : 1)) !== 1;
+		openVideoInput.toggleClass('is-invalid', hasInputError);
+		openNimbusInput.toggleClass('is-invalid', hasInputError);
+		openInputError.toggleClass('nimbus-hidden', hasInputError);
+		if (hasInputError)
+			return;
 		// Charger les sous-titres, dans certain cas de manière asynchrone
 		loadSubtitles(openSubtitlesInput[0]).then(function(subtitles) {
 			// Masquer les barres
@@ -368,7 +387,12 @@ function prepareOpenForm() {
 			// Supprimer le formulaire
 			$(this).remove();
 			// Préparer la vidéo
-			open(openVideoInput[0].files[0], subtitles);
+			if (files.length === 1)
+				open(files[0], subtitles); // fichier local + sous-titre éventuel
+			else if (subtitles.length === 1)
+				open('/files/stream/' + itemId, subtitles); // fichier distant + sous-titre local indiqué
+			else
+				openItem(itemId); // fichier distant + sous-titres distants éventuels
 			// Lancer la vidéo
 			video.play();
 		}, function() {
