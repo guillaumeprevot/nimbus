@@ -609,7 +609,13 @@ NIMBUS.init(['contacts.js'], function() {
 		// Clic sur le bouton pour ajouter un contact
 		$('#addContactButton').click(function() {
 			// Créer un contact vide
-			var newContact = {};
+			var newContact = {
+				addresses: [{ type: 'other' }],
+				emails: [{ type: 'home' }, { type: 'work' }],
+				phones: [{ type: 'mobile' }, { type: 'other' }],
+				urls: [{ type: 'work' }],
+				dates: [{ type: 'birthday' }],
+			};
 			// Editer ce contact 
 			editContact(selectedSource, newContact, true, function() {
 				// Gérer la sauvegarde
