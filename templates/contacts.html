@@ -648,6 +648,26 @@ NIMBUS.init(['contacts.js'], function() {
 			updateTable(selectedSource);
 		});
 
+		// Sélection de l'une des entrées permettant de déplacer le contact d'un carnet à un autre
+		$('#actionsModal').on('click', '.contact-move-button', function(event) {
+			// Cacher la fenêtre
+			var modal = $('#actionsModal').modal('hide');
+			// Récupérer le contact
+			var contact = modal.data('contact');
+			// Récupérer la source dans laquelle transférer le contact
+			var targetSource = $(event.target).closest('.contact-move-button').data('source');
+			// Envoyer le contact dans la nouvelle source
+			targetSource.contacts.push(contact);
+			targetSource.sorted = false;
+			// Supprimer le contact de la source actuelle
+			selectedSource.contacts.splice(selectedSource.contacts.indexOf(contact), 1);
+			// Gérer la sauvegarde
+			data.trigger('contactsourcechange', targetSource);
+			data.trigger('contactsourcechange', selectedSource);
+			// Raffraichir la page
+			updateTable(selectedSource);
+		});
+
 		// Sélection de l'entrée de menu pour supprimer un contact existant
 		$('#deleteContactButton').on('click', function() {
 			// Cacher la fenêtre
@@ -693,6 +713,15 @@ NIMBUS.init(['contacts.js'], function() {
 			// Ajuster l'une des actions pour marquer ou non en favori
 			modal.find('#markContactAsFavoriteButton').toggle(!contact.favorite);
 			modal.find('#unmarkContactAsFavoriteButton').toggle(!!contact.favorite);
+			// Insérer avant le bouton de suppression les actions pour déplacer le contact
+			var buttons = modal.find('.contact-move-button');
+			if (buttons.length === 0 && sources.length >= 2) {
+				sources.forEach((s) => $('<button type="button" class="list-group-item list-group-item-action contact-move-button"><i class="material-icons">folder_open</i> <span></span></button>')
+					.children('span').text(NIMBUS.translate('ContactMoveButton', s.getNameOrDefault())).end()
+					.data('source', s).toggle(s !== selectedSource).insertBefore('#deleteContactButton'));
+			} else {
+				buttons.each((i, button) => $(button).toggle(sources[i] !== selectedSource));
+			}
 			// Afficher le menu d'action une fois qu'il est prêt
 			modal.modal();
 		});
