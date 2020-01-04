@@ -48,7 +48,7 @@
 		return this.on('keyup', function(event) {
 			if (event.key === 'Enter') {
 				var btn = $(this).closest('.modal').find('.modal-footer .btn-primary:not([disabled])');
-				if (btn.length == 1)
+				if (btn.length == 1 && !btn.hasClass('noautovalidate'))
 					btn.click();
 			}
 		});
