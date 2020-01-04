@@ -34,6 +34,7 @@ table tr > :nth-child(-n+2) { text-align: center; }
 table.table-sm td:first-child img { max-height: 32px; }
 
 #actionsModal .material-icons { font-size: 20px; width: 20px; height: 20px; }
+
 #contactModal .input-group .input-group-text { border-radius: 0; }
 #contactModal .input-group:not(:first-of-type) { margin-top: -1px; }
 #contactModal .input-group:first-of-type .input-group-prepend .input-group-text { border-top-left-radius: 0.25rem; }
@@ -115,6 +116,14 @@ table.table-sm td:first-child img { max-height: 32px; }
 							<button id="editContactButton" type="button" class="list-group-item list-group-item-action">
 								<i class="material-icons">edit</i>
 								<span data-translate="text">ContactEditButton</span>
+							</button>
+							<button id="markContactAsFavoriteButton" type="button" class="list-group-item list-group-item-action">
+								<i class="material-icons">star</i>
+								<span data-translate="text">ContactMarkAsFavoriteButton</span>
+							</button>
+							<button id="unmarkContactAsFavoriteButton" type="button" class="list-group-item list-group-item-action">
+								<i class="material-icons">star_border</i>
+								<span data-translate="text">ContactUnmarkAsFavoriteButton</span>
 							</button>
 							<button id="deleteContactButton" type="button" class="list-group-item list-group-item-action text-danger">
 								<i class="material-icons">delete</i>
@@ -247,7 +256,7 @@ var inputDateFormat = 'YYYY-MM-DD';
 // La liste des colonnes
 var columns = [
 	{ name: 'picture', title: 'ContactPicture', content: (c) => (c.picture ? $('<img />').attr('src', '/files/thumbnail/' + c.picture + '?size=40').css('clip-path', 'circle(50%)') : '') },
-	{ name: 'favorite', title: 'ContactFavorite', content: (c) => c.favorite ? '<i class="material-icons">star</i>' : '<i class="material-icons">star_border</i>' },
+	{ name: 'favorite', title: 'ContactFavorite', className: 'favorite', content: (c) => c.favorite ? '<i class="material-icons">star</i>' : '<i class="material-icons">star_border</i>' },
 	{ name: 'displayName', title: 'ContactDisplayName', content: (c) => NIMBUS.utils.contactAPI.formatContact(c) },
 	{ name: 'email1', title: 'ContactEmail', content: (c) => findIn(c.emails, 0, NIMBUS.utils.contactAPI.createEmailLink) },
 	{ name: 'email2', title: 'ContactEmail', content: (c) => findIn(c.emails, 1, NIMBUS.utils.contactAPI.createEmailLink) },
@@ -348,7 +357,7 @@ function updateTable(source) {
 	$('#table > tbody').empty().append(source.contacts.map(function(contact) {
 		var tr = $('<tr />').data('contact', contact);
 		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts));
-		columns.forEach((c) => $('<td />').append(c.content(contact)).appendTo(tr));
+		columns.forEach((c) => $('<td />').append(c.content(contact)).addClass(c.className || '').appendTo(tr));
 		return tr.get(0);
 	}));
 }
@@ -625,6 +634,20 @@ NIMBUS.init(['contacts.js'], function() {
 			});
 		});
 
+		// Sélection de l'entrée de menu pour marquer ou non un contact comme favori
+		$('#markContactAsFavoriteButton,#unmarkContactAsFavoriteButton').on('click', function() {
+			// Cacher la fenêtre
+			var modal = $('#actionsModal').modal('hide');
+			// Récupérer le contact
+			var contact = modal.data('contact');
+			// Inverser le statut
+			contact.favorite = !contact.favorite;
+			// Gérer la sauvegarde
+			data.trigger('contactsourcechange', selectedSource);
+			// Raffraichir la page
+			updateTable(selectedSource);
+		});
+
 		// Sélection de l'entrée de menu pour supprimer un contact existant
 		$('#deleteContactButton').on('click', function() {
 			// Cacher la fenêtre
@@ -639,18 +662,39 @@ NIMBUS.init(['contacts.js'], function() {
 			updateTable(selectedSource);
 		});
 
+		// Marquer ou un contact comme favori en cliquant sur l'étoile dans la colonne "Favori"
+		$('#table').on('click', 'td.favorite', function(event) {
+			// Récupérer la cellule cliquée
+			var td = $(event.target).closest('td');
+			// Récupérer le contact cliqué
+			var contact = td.parent('tr').data('contact');
+			// Inverser le statut
+			contact.favorite = !contact.favorite;
+			// Gérer la sauvegarde
+			data.trigger('contactsourcechange', selectedSource);
+			// Ajuster l'IHM sans recharger la grille
+			td.children('i').text(contact.favorite ? 'star' : 'star_border');
+			// Bloquer le clic pour éviter le menu d'action
+			return false;
+		});
+
 		// Sélection d'un contact en cliquant dessus dans la grille
 		$('#table').on('click', 'tbody > tr', function(event) {
-			// Na pas afficher le menu si on a cliqué sur un lien (email, phone, url, ...)
+			// Ne pas afficher le menu si on a cliqué sur un lien (email, phone, url, ...)
 			var target = $(event.target);
 			if (target.closest('a').length > 0)
 				return;
 			// Récupérer le contact cliqué
 			var contact = $(event.target).closest('tr').data('contact');
-			// Afficher le menu d'action
-			var modal = $('#actionsModal').data('contact', contact).modal();
+			// Récupérer le menu d'action
+			var modal = $('#actionsModal').data('contact', contact);
 			// Afficher le nom du contact en haut du menu
 			modal.find('.list-group-item.active').text(api.formatContact(contact));
+			// Ajuster l'une des actions pour marquer ou non en favori
+			modal.find('#markContactAsFavoriteButton').toggle(!contact.favorite);
+			modal.find('#unmarkContactAsFavoriteButton').toggle(!!contact.favorite);
+			// Afficher le menu d'action une fois qu'il est prêt
+			modal.modal();
 		});
 
 		// Clic sur le bouton pour renommer un carnet d'adresse
