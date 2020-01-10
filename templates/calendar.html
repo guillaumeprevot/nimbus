@@ -311,6 +311,14 @@ function connectSourceMenu(calendar) {
 		+ '  <button type="button" class="btn btn-link calendar-edit-type" title="' + NIMBUS.translate('CalendarEditEventTypeTitle') + '"><i class="material-icons">edit</i></button>'
 		+ '  <button type="button" class="btn btn-link calendar-delete-type" title="' + NIMBUS.translate('CalendarDeleteEventTypeTitle') + '"><i class="material-icons text-danger">delete</i></button>'
 		+ '</div>');
+	// Bouton pour activer / désactiver la sauvegarde automatique
+	var autosaveMenuItem = $(''
+		+ '<div class="dropdown-item">'
+		+ '  <div class="custom-control custom-switch">'
+		+ '    <input type="checkbox" class="custom-control-input" id="toggleAutoSave" />'
+		+ '    <label class="custom-control-label" for="toggleAutoSave">' + NIMBUS.translate('CalendarAutoSave') + '</label>'
+		+ '  </div>'
+		+ '</div>');
 	// Initialiser le menu
 	function buildMenu() {
 		menu.empty();
@@ -339,6 +347,9 @@ function connectSourceMenu(calendar) {
 					.appendTo(menu);
 			});
 		});
+		// Ajouter une entrée pour activer / désactiver la sauvegarde automatique
+		menu.append('<div class="dropdown-divider"></div>');
+		menu.append(autosaveMenuItem);
 	}
 	buildMenu();
 	// Ajuster le calendrier quand l'utilisateur active ou désactive une source
@@ -450,6 +461,12 @@ function connectSourceMenu(calendar) {
 				return NIMBUS.confirm(type.label, NIMBUS.translate('CalendarDeleteEventTypeUsedMultipleTimesMessage', [count]), true);
 			return $.Deferred().resolve();
 		}
+	});
+	// Sauvegarde auto par défaut
+	var autosave = 'false' !== localStorage.getItem('nimbus-calendar-autosave');
+	$('#toggleAutoSave').prop('checked', autosave).on('change', function(event) {
+		autosave = this.checked;
+		localStorage.setItem('nimbus-calendar-autosave', autosave.toString());
 	});
 }
 
@@ -924,11 +941,10 @@ NIMBUS.init(['calendar.js'], function() {
 	}).then(function(calendar) {
 		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
-		var autosave = (window.location.search || '').indexOf('autosave=true') >= 0;
 
 		$(calendar).on('calendarsourcechange', function(event, source) {
 			source.modified = true;
-			if (autosave) {
+			if ($('#toggleAutoSave').prop('checked')) {
 				saveButton.click();
 			} else {
 				saveButton.removeClass('nimbus-hidden');
