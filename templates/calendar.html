@@ -752,19 +752,24 @@ function connectSearch(calendar) {
 	searchMenu.parent().on('show.bs.dropdown', function() {
 		// Récupérer la méthode de formatage en fonction de la langue
 		var formatDates = NIMBUS.translate('formatCalendarEventDates');
-		// Vider le contenu précédent 
-		searchNoResult.nextAll().remove();
-		// Ajouter une entrée par évènement éditable
+		// Récupérer la liste des évènements éditables
+		var events = [];
 		calendar.sources.forEach(function(source) {
 			if (source.readonly || !source.active)
 				return;
-			source.search('').forEach(function(event) {
-				$('<button class="dropdown-item" type="button" />')
-					.data('event', event)
-					.text(event.label || event.type.label)
-					.append($('<span class="text-muted" />').text(' (' + formatDates(event) + ')'))
-					.appendTo(searchMenu);
-			});
+			source.search('').forEach((event) => events.push(event));
+		});
+		// Vider le contenu précédent
+		searchNoResult.nextAll().remove();
+		// Trier les évènements par libellé
+		events.sort((e1, e2) => (e1.label || e1.type.label).localeCompare(e2.label || e2.type.label));
+		// Ajouter une entrée par évènement
+		events.forEach((event) => {
+			$('<button class="dropdown-item" type="button" />')
+				.data('event', event)
+				.text(event.label || event.type.label)
+				.append($('<span class="text-muted" />').text(' (' + formatDates(event) + ')'))
+				.appendTo(searchMenu);
 		});
 	});
 
