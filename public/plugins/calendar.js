@@ -400,7 +400,27 @@
 			accept: accept,
 			icon: 'event',
 			thumbnail: null,
-			describe: (item) => ''
+			describe: (item) => {
+				var p = [];
+				if (item.displayName)
+					p.push(item.displayName);
+				if (typeof item.eventCount === 'number') {
+					if (item.eventCount === 0)
+						p.push(NIMBUS.translate('CalendarDescription0Event'));
+					else if (item.eventCount === 1)
+						p.push(NIMBUS.translate('CalendarDescription1Event'));
+					else
+						p.push(NIMBUS.translate('CalendarDescriptionNEvents', item.eventCount));
+
+					if (item.typeCount === 0)
+						p.push(NIMBUS.translate('CalendarDescription0Type'));
+					else if (item.typeCount === 1)
+						p.push(NIMBUS.translate('CalendarDescription1Type'));
+					else
+						p.push(NIMBUS.translate('CalendarDescriptionNTypes', item.typeCount));
+				}
+				return p.join(', ');
+			}
 		}],
 		actions: [{
 			name: 'calendar-open',
@@ -418,6 +438,12 @@
 		langs: {
 			fr: {
 				CalendarOpen: "Ouvrir dans l'agenda",
+				CalendarDescription0Event: "aucun évènement",
+				CalendarDescription1Event: "1 évènement",
+				CalendarDescriptionNEvents: "{0} évènements",
+				CalendarDescription0Type: "aucun type",
+				CalendarDescription1Type: "1 type",
+				CalendarDescriptionNTypes: "{0} types",
 				CalendarTitle: "Agenda",
 				CalendarSave: "Sauvegarder mes modifications",
 				CalendarSaveError: "Une erreur est survenue. L'agenda n'est peut-être pas sauvegardé correctement.",
@@ -499,6 +525,12 @@
 			},
 			en: {
 				CalendarOpen: "Open in calendar",
+				CalendarDescription0Event: "no event",
+				CalendarDescription1Event: "1 event",
+				CalendarDescriptionNEvents: "{0} events",
+				CalendarDescription0Type: "no type",
+				CalendarDescription1Type: "1 type",
+				CalendarDescriptionNTypes: "{0} types",
 				CalendarTitle: "Calendar",
 				CalendarSave: "Save modifications",
 				CalendarSaveError: "An error occurred. Calendar may not be saved correctly.",
