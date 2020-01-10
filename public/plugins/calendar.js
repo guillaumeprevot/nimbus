@@ -86,6 +86,8 @@
 		this.rename = data.rename;
 		// un booléen indiquant si la source est actuellement affichée dans le calendrier (l'utilisateur peut ainsi choisir un sous-ensemble des sources)
 		this.active = data.active;
+		// function()=>void qui active ou désactive la source
+		this.toggle = data.toggle;
 		// un booléen indiquant si la source est modifiable (ajout/modification/suppression d'évènements ou de types d'évènement)
 		this.readonly = data.readonly;
 		// la liste des types d'évènements de cette source de donnée, un tableau de CalendarEventType
@@ -144,7 +146,7 @@
 
 	/** Cette méthode active une source inactive ou inversement */
 	Calendar.prototype.toggleSource = function(source) {
-		source.active = !source.active;
+		source.toggle();
 		this.update();
 	};
 
@@ -269,16 +271,22 @@
 	}
 
 	/** Une source de données en lecture-seule représentant les jours fériés en France */
-	function createFrenchSpecialDaysCalendarSource(name, color, active) {
-		var type = new CalendarEventType(name, color, true, 'yearly', true);
-		var customNameKey = 'nimbus.calendar.french.special.days';
+	function createFrenchSpecialDaysCalendarSource() {
+		var name = NIMBUS.translate('CalendarFrenchSpecialDays');
+		var type = new CalendarEventType(name, '#eee', true, 'yearly', true);
+		var customActiveKey = 'nimbus-calendar-french-special-days-active';
+		var customNameKey = 'nimbus-calendar-french-special-days-name';
 		return new CalendarSource({
 			name: localStorage.getItem(customNameKey) || name,
 			rename: function(newName) {
-				localStorage.setItem(customNameKey, newName);
 				this.name = newName || name;
+				localStorage.setItem(customNameKey, newName);
 			},
-			active: active,
+			active: localStorage.getItem(customActiveKey) !== 'false',
+			toggle: function() {
+				this.active = !this.active;
+				localStorage.setItem(customActiveKey, this.active.toString());
+			},
 			readonly: true,
 			types: [type],
 			count: (type) => 11, /* 11 jours fériés */
@@ -312,7 +320,7 @@
 	}
 
 	/** Une source de données éditable contenue dans un fichier ".calendar" de Nimbus */
-	function createNimbusFileCalendarSource(item, active) {
+	function createNimbusFileCalendarSource(item, forceActive) {
 		return $.get('/files/stream/' + item.id).then(undefined, function(result) {
 			return { types: [ new CalendarEventType('Type', '#eeeeee', true, null, true) ], events: [] };
 		}).then(function(result) {
@@ -333,7 +341,10 @@
 				rename: function(newName) {
 					this.name = newName || defaultName;
 				},
-				active: active,
+				active: forceActive ? true : (result.active !== false),
+				toggle: function() {
+					this.active = !this.active;
+				},
 				readonly: false,
 				types: types,
 				count: (type) => events.filter((e) => e.type === type).length,
@@ -353,6 +364,7 @@
 				save: function() {
 					return NIMBUS.utils.updateFileJSON(item.id, true, {
 						name: this.name,
+						active: this.active,
 						types: types,
 						events: events.map((e) => {
 							return {

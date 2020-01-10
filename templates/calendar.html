@@ -243,11 +243,11 @@ function prepareCalendar(items, itemId) {
 	// Affichage en vue "Mois" par défaut
 	calendar.view = calendar.views[2];
 	// Ajout d'une source par fichier ".calendar"
-	return Promise.all(items.map((item) => api.createNimbusFileCalendarSource(item, itemId === null || itemId === item.id))).then((sources) => {
+	return Promise.all(items.map((item) => api.createNimbusFileCalendarSource(item, itemId !== null && itemId === item.id))).then((sources) => {
 		Array.prototype.push.apply(calendar.sources, sources);
 	}).then(function() {
 		// Ajout d'une source pour les jours fériés en France
-		calendar.sources.push(api.createFrenchSpecialDaysCalendarSource(NIMBUS.translate('CalendarFrenchSpecialDays'), '#eee', itemId === null));
+		calendar.sources.push(api.createFrenchSpecialDaysCalendarSource());
 	}).then(function() {
 		// Finalisation en retournant le calendrier
 		// console.log(calendar);
@@ -330,8 +330,7 @@ function connectSourceMenu(calendar) {
 			sourceMenuItemTemplate.clone()
 				.data('source', source)
 				.find('input').attr('id', 'sourceToggle' + sourceIndex).prop('checked', source.active).end()
-				.children('label').attr('for', 'sourceToggle' + sourceIndex).end()
-				.children('span').text(source.name).end()
+				.find('label').attr('for', 'sourceToggle' + sourceIndex).text(source.name).end()
 				.children('.calendar-rename-source').toggle(!!source.rename).end()
 				.children('.calendar-add-type').toggle(source.active && !source.readonly).end()
 				.appendTo(menu);
@@ -354,10 +353,15 @@ function connectSourceMenu(calendar) {
 	buildMenu();
 	// Ajuster le calendrier quand l'utilisateur active ou désactive une source
 	menu.on('click', '.calendar-toggle-source', function(event) {
+		// Inverser la source
 		var item = $(event.target).closest('.dropdown-item');
 		var source = item.data('source');
 		calendar.toggleSource(source);
+		// Ajuster le menu
 		buildMenu();
+		// Gérer la sauvegarde
+		if (!source.readonly)
+			$(calendar).trigger('calendarsourcechange', source);
 		// Laisser le menu visible
 		return false;
 	});
@@ -370,7 +374,7 @@ function connectSourceMenu(calendar) {
 			// Renommer la source
 			source.rename(newName.trim());
 			// Ajuster le menu
-			item.children('span').text(source.name);
+			item.find('label').text(source.name);
 			// Gérer la sauvegarde
 			$(calendar).trigger('calendarsourcechange', source);
 		});
