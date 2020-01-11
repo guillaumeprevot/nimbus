@@ -289,7 +289,27 @@
 			accept: accept,
 			icon: 'contacts',
 			thumbnail: null,
-			describe: (item) => ''
+			describe: (item) => {
+				var p = [];
+				if (item.displayName)
+					p.push(item.displayName);
+				if (typeof item.contactCount === 'number') {
+					if (item.contactCount === 0)
+						p.push(NIMBUS.translate('ContactsDescription0Contact'));
+					else if (item.contactCount === 1)
+						p.push(NIMBUS.translate('ContactsDescription1Contact'));
+					else
+						p.push(NIMBUS.translate('ContactsDescriptionNContacts', item.contactCount));
+
+					if (item.favoriteCount === 0)
+						p.push(NIMBUS.translate('ContactsDescription0Favorite'));
+					else if (item.favoriteCount === 1)
+						p.push(NIMBUS.translate('ContactsDescription1Favorite'));
+					else
+						p.push(NIMBUS.translate('ContactsDescriptionNFavorites', item.favoriteCount));
+				}
+				return p.join(', ');
+			}
 		}],
 		actions: [{
 			name: 'contacts-open',
@@ -307,6 +327,12 @@
 		langs: {
 			fr: {
 				ContactsOpen: "Ouvrir le carnet d'adresse",
+				ContactsDescription0Contact: "aucun contact",
+				ContactsDescription1Contact: "1 contact",
+				ContactsDescriptionNContacts: "{0} contacts",
+				ContactsDescription0Favorite: "aucun favori",
+				ContactsDescription1Favorite: "1 favori",
+				ContactsDescriptionNFavorites: "{0} favoris",
 				ContactsTitle: "Contacts",
 				ContactsSave: "Sauvegarder les modifications",
 				ContactsSaveError: "Une erreur est survenue. Veuillez vérifier que le serveur est accessible et réessayer.",
@@ -451,6 +477,12 @@
 			},
 			en: {
 				ContactsOpen: "Open address book",
+				ContactsDescription0Contact: "no contact",
+				ContactsDescription1Contact: "1 contact",
+				ContactsDescriptionNContacts: "{0} contacts",
+				ContactsDescription0Favorite: "no favorite",
+				ContactsDescription1Favorite: "1 favorite",
+				ContactsDescriptionNFavorites: "{0} favorites",
 				ContactsTitle: "Contacts",
 				ContactsSave: "Save modifications",
 				ContactsSaveError: "An error occurred. Please check your network access and try again.",
