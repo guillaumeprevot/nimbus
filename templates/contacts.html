@@ -41,6 +41,7 @@ table.table-sm td:first-child img { max-height: 32px; }
 #contactModal .input-group:first-of-type .input-group-append .input-group-text { border-top-right-radius: 0.25rem; }
 #contactModal .input-group:last-of-type .input-group-prepend .input-group-text { border-bottom-left-radius: 0.25rem; }
 #contactModal .input-group:last-of-type .input-group-append .input-group-text { border-bottom-right-radius: 0.25rem; }
+#contactModal .valuelist > button { float: right; clear: right; }
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
@@ -252,6 +253,13 @@ table.table-sm td:first-child img { max-height: 32px; }
 
 // Le format de date moment correspondant aux "input[type=date]"
 var inputDateFormat = 'YYYY-MM-DD';
+
+// L'objet chargé de la sauvegarde des préférences, via localStorage
+var storage = {
+	selectedItemIdKey: 'nimbus-contacts-selected-item-id',
+	getSelectedItemId: () => localStorage.getItem(storage.selectedItemIdKey) != null ? parseInt(localStorage.getItem(storage.selectedItemIdKey)) : null,
+	setSelectedItemId: (itemId) => localStorage.setItem(storage.selectedItemIdKey, itemId.toString()),
+};
 
 // La liste des colonnes
 var columns = [
@@ -501,8 +509,10 @@ NIMBUS.init(['contacts.js'], function() {
 	// L'IHM est prête, on l'affiche
 	var body = $(document.body).removeClass('nimbus-hidden');
 
-	// Identifiant de l'élément édité
+	// Identifiant de l'élément sélectionné par défaut
 	var itemId = ${itemId!"null"};
+	if (itemId === null)
+		itemId = storage.getSelectedItemId();
 
 	// Récupération des différents calendrier
 	$.get('/items/list', {
@@ -572,6 +582,7 @@ NIMBUS.init(['contacts.js'], function() {
 			item.children().addClass('active');
 			item.siblings().children().removeClass('active')
 			selectedSource = sources[index];
+			storage.setSelectedItemId(selectedSource.item.id);
 			updateTable(selectedSource);
 			return false;
 		});
