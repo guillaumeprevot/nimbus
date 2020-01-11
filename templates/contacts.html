@@ -64,29 +64,29 @@ table.table-sm td:first-child img { max-height: 32px; }
 		<div id="optionsMenu" class="dropdown">
 			<button id="optionsMenuButton" type="button" class="btn btn-link" data-translate="title" title="ContactsOptionsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">tune</i></button>
 			<div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsMenuButton">
-				<button id="searchDisplayNameButton" type="button" class="dropdown-item">
+				<button type="button" class="dropdown-item" data-search-in="displayName">
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsSearchDisplayName</span>
 				</button>
-				<button id="searchAllFieldsButton" type="button" class="dropdown-item selected">
+				<button id="searchAllFieldsButton" type="button" class="dropdown-item selected" data-search-in="all">
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsSearchAllFields</span>
 				</button>
 				<div class="dropdown-divider"></div>
-				<button id="searchFavoriteContactsButton" type="button" class="dropdown-item">
+				<button type="button" class="dropdown-item" data-search-for="favorite">
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsSearchFavoriteContacts</span>
 				</button>
-				<button id="searchAllContactsButton" type="button" class="dropdown-item selected">
+				<button id="searchAllContactsButton" type="button" class="dropdown-item selected" data-search-for="all">
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsSearchAllContacts</span>
 				</button>
 				<div class="dropdown-divider"></div>
-				<button id="showCompactGridButton" type="button" class="dropdown-item">
+				<button type="button" class="dropdown-item" data-show-grid="compact">
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsShowCompactGrid</span>
 				</button>
-				<button id="showDefaultGridButton" type="button" class="dropdown-item selected">
+				<button type="button" class="dropdown-item selected" data-show-grid="default">
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsShowDefaultGrid</span>
 				</button>
@@ -259,6 +259,18 @@ var storage = {
 	selectedItemIdKey: 'nimbus-contacts-selected-item-id',
 	getSelectedItemId: () => localStorage.getItem(storage.selectedItemIdKey) != null ? parseInt(localStorage.getItem(storage.selectedItemIdKey)) : null,
 	setSelectedItemId: (itemId) => localStorage.setItem(storage.selectedItemIdKey, itemId.toString()),
+
+	searchInKey: 'nimbus-contacts-search-in',
+	getSearchIn: () => localStorage.getItem(storage.searchInKey) || 'all',
+	setSearchIn: (mode) => localStorage.setItem(storage.searchInKey, mode),
+
+	searchForKey: 'nimbus-contacts-selected-for',
+	getSearchFor: () => localStorage.getItem(storage.searchForKey) || 'all',
+	setSearchFor: (mode) => localStorage.setItem(storage.searchForKey, mode),
+
+	showGridKey: 'nimbus-contacts-show-grid',
+	getShowGrid: () => localStorage.getItem(storage.showGridKey) || 'default',
+	setShowGrid: (mode) => localStorage.setItem(storage.showGridKey, mode),
 };
 
 // La liste des colonnes
@@ -597,25 +609,38 @@ NIMBUS.init(['contacts.js'], function() {
 			updateSearch();
 		});
 
-		// Options de recherche
-		$('#searchDisplayNameButton,#searchFavoriteContactsButton').on('click', function(event) {
-			$(event.target).closest('button').toggleClass('selected').next().toggleClass('selected');
+		// Recherche dans le champs displayName ou dans tous les champs
+		var searchInButtons = $('#optionsMenu [data-search-in]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			searchInButtons.not(button).removeClass('selected')
 			updateSearch();
+			storage.setSearchIn(button.attr('data-search-in'));
 		});
-		$('#searchAllFieldsButton,#searchAllContactsButton').on('click', function(event) {
-			$(event.target).closest('button').toggleClass('selected').prev().toggleClass('selected');
+		var searchIn = storage.getSearchIn();
+		if (searchIn !== 'all')
+			searchInButtons.filter('[data-search-in=' + searchIn + ']').click();
+
+		// Recherche dans les favoris ou dans tous les contacts
+		var searchForButtons = $('#optionsMenu [data-search-for]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			searchForButtons.not(button).removeClass('selected')
 			updateSearch();
+			storage.setSearchFor(button.attr('data-search-for'));
 		});
+		var searchFor = storage.getSearchFor();
+		if (searchFor !== 'all')
+			searchForButtons.filter('[data-search-for=' + searchFor + ']').click();
 
 		// Affichage de la grille compacte ou par défaut
-		$('#showCompactGridButton').on('click', function(event) {
-			$(event.target).closest('button').toggleClass('selected').next().toggleClass('selected');
+		var showGridButtons = $('#optionsMenu [data-show-grid]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			showGridButtons.not(button).removeClass('selected');
 			$('#table').toggleClass('table-sm');
+			storage.setShowGrid(button.attr('data-show-grid'));
 		});
-		$('#showDefaultGridButton').on('click', function(event) {
-			$(event.target).closest('button').toggleClass('selected').prev().toggleClass('selected');
-			$('#table').toggleClass('table-sm');
-		});
+		var showGrid = storage.getShowGrid();
+		if (showGrid !== 'default')
+			showGridButtons.filter('[data-show-grid=' + showGrid + ']').click();
 
 		// Clic sur le bouton pour ajouter un contact
 		$('#addContactButton').click(function() {
