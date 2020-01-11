@@ -945,17 +945,8 @@ NIMBUS.init(['calendar.js'], function() {
 	}).then(function(calendar) {
 		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
-
-		$(calendar).on('calendarsourcechange', function(event, source) {
-			source.modified = true;
-			if ($('#toggleAutoSave').prop('checked')) {
-				saveButton.click();
-			} else {
-				saveButton.removeClass('nimbus-hidden');
-			}
-		});
-
-		saveButton.on('click', function() {
+		// Extraction de la fonction de sauvegarde pour pour l'appeler sans simuler un clic sur le bouton
+		var save = function() {
 			var promises = calendar.sources.filter((s) => s.modified).map((s) => s.save());
 			Promise.all(promises).then(() => {
 					calendar.sources.forEach((s) => delete s.modified);
@@ -964,6 +955,17 @@ NIMBUS.init(['calendar.js'], function() {
 					NIMBUS.message(NIMBUS.translate('CalendarSaveError'), true);
 					saveButton.removeClass('nimbus-hidden');
 				});
+		};
+		// Sauvegarde manuelle
+		saveButton.on('click', save);
+
+		$(calendar).on('calendarsourcechange', function(event, source) {
+			source.modified = true;
+			if ($('#toggleAutoSave').prop('checked')) {
+				save();
+			} else {
+				saveButton.removeClass('nimbus-hidden');
+			}
 		});
 
 		// Initialisation du reste de l'IHM
@@ -980,7 +982,7 @@ NIMBUS.init(['calendar.js'], function() {
 		body.keystrokes({
 			'PageUp': () => calendar.showPrevious(),
 			'PageDown': () => calendar.showNext(),
-			'Ctrl-s': () => saveButton.click(),
+			'Ctrl-s': () => save(),
 			'Ctrl-f': () => $('#searchButton').dropdown('show')
 		});
 
