@@ -344,18 +344,30 @@ function AddressEditor(format, placeholder) {
 
 // Cette méthode filtre la grille en fonction du texte recherché
 function updateSearch() {
+	// Vérifier si la recherche est active
+	var searchTextLC = $('#searchInput').val().toLowerCase();
+	if (! searchTextLC) {
+		var trs = $('#table > tbody > tr').show();
+		$('#navigation').find('.badge').show().filter('.active > .badge').text(trs.length.toString());
+		return;
+	}
 	// Récupérer l'API
 	var api = NIMBUS.utils.contactAPI;
 	// Récupérer les paramètres de recherche
-	var searchTextLC = $('#searchInput').val().toLowerCase();
 	var searchAllFields = $('#searchAllFieldsButton').hasClass('selected');
 	var searchAllContacts = $('#searchAllContactsButton').hasClass('selected');
 	// Parcourir la table
-	$('#table > tbody > tr').each(function() {
+	var count = 0;
+	$('#table > tbody > tr').map(function() {
 		var tr = $(this);
 		var contact = tr.data('contact');
-		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts));
+		var match = api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts);
+		tr.toggle(match);
+		if (match)
+			count++;
 	});
+	// Afficher le nombre de contact
+	$('#navigation').find('.badge').hide().filter('.active > .badge').show().text(count.toString());
 }
 
 // Cette méthode charge la grille avec le contenu du carnet d'adresses sélectionné
@@ -367,19 +379,14 @@ function updateTable(source) {
 	// Trier les contacts, si ça n'est pas encore fait
 	if (!source.sorted)
 		source.sort();
-	// Récupérer l'API
-	var api = NIMBUS.utils.contactAPI;
-	// Récupérer les paramètres de recherche
-	var searchTextLC = $('#searchInput').val().toLowerCase();
-	var searchAllFields = $('#searchAllFieldsButton').hasClass('selected');
-	var searchAllContacts = $('#searchAllContactsButton').hasClass('selected');
 	// Remplir la table
 	$('#table > tbody').empty().append(source.contacts.map(function(contact) {
-		var tr = $('<tr />').data('contact', contact);
-		tr.toggle(!searchTextLC || api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts));
+		var tr = $('<tr />').data('contact', contact).hide();
 		columns.forEach((c) => $('<td />').append(c.content(contact)).addClass(c.className || '').appendTo(tr));
 		return tr.get(0);
 	}));
+	// Ajuster la visibilité en fonction de la recherche
+	updateSearch();
 }
 
 function editContact(source, contact, isNew, callback) {
@@ -580,9 +587,10 @@ NIMBUS.init(['contacts.js'], function() {
 		var selectedSource = (itemId === null) ? sources[0] : sources.find((s) => s.item.id === itemId);
 		// Création d'un onglet par fichier ".contacts"
 		navigation.append(sources.map(function(source, index) {
-			var a = $('<a class="nav-link" href="#" />')
+			var a = $('<a class="nav-link" href="#"><span /> <i class="badge badge-light" /></a>')
 				.toggleClass('active', source === selectedSource)
-				.text(source.getNameOrDefault());
+				.children('span').text(source.getNameOrDefault()).end()
+				.children('.badge').text('' + source.contacts.length).end();
 			return $('<li class="nav-item" />')
 				.append(a)
 				.get(0);
@@ -598,8 +606,6 @@ NIMBUS.init(['contacts.js'], function() {
 			updateTable(selectedSource);
 			return false;
 		});
-		// Chargement initial de la grille
-		updateTable(selectedSource);
 
 		// Configuration de la zone de recherche
 		$('#searchInput').val('').change(function() {
@@ -612,24 +618,24 @@ NIMBUS.init(['contacts.js'], function() {
 		// Recherche dans le champs displayName ou dans tous les champs
 		var searchInButtons = $('#optionsMenu [data-search-in]').on('click', function(event) {
 			var button = $(event.target).closest('button').addClass('selected');
-			searchInButtons.not(button).removeClass('selected')
+			searchInButtons.not(button).removeClass('selected');
 			updateSearch();
 			storage.setSearchIn(button.attr('data-search-in'));
 		});
 		var searchIn = storage.getSearchIn();
 		if (searchIn !== 'all')
-			searchInButtons.filter('[data-search-in=' + searchIn + ']').click();
+			searchInButtons.removeClass('selected').filter('[data-search-in=' + searchIn + ']').addClass('selected');
 
 		// Recherche dans les favoris ou dans tous les contacts
 		var searchForButtons = $('#optionsMenu [data-search-for]').on('click', function(event) {
 			var button = $(event.target).closest('button').addClass('selected');
-			searchForButtons.not(button).removeClass('selected')
+			searchForButtons.not(button).removeClass('selected');
 			updateSearch();
 			storage.setSearchFor(button.attr('data-search-for'));
 		});
 		var searchFor = storage.getSearchFor();
 		if (searchFor !== 'all')
-			searchForButtons.filter('[data-search-for=' + searchFor + ']').click();
+			searchForButtons.removeClass('selected').filter('[data-search-for=' + searchFor + ']').addClass('selected');
 
 		// Affichage de la grille compacte ou par défaut
 		var showGridButtons = $('#optionsMenu [data-show-grid]').on('click', function(event) {
@@ -641,6 +647,9 @@ NIMBUS.init(['contacts.js'], function() {
 		var showGrid = storage.getShowGrid();
 		if (showGrid !== 'default')
 			showGridButtons.filter('[data-show-grid=' + showGrid + ']').click();
+
+		// Chargement initial de la grille
+		updateTable(selectedSource);
 
 		// Clic sur le bouton pour ajouter un contact
 		$('#addContactButton').click(function() {
@@ -701,6 +710,8 @@ NIMBUS.init(['contacts.js'], function() {
 			// Envoyer le contact dans la nouvelle source
 			targetSource.contacts.push(contact);
 			targetSource.sorted = false;
+			// Ajuster le nombre de contact dans l'onglet de destination
+			$('#navigation .nav-item').eq(sources.indexOf(targetSource)).find('.badge').text(targetSource.contacts.length.toString());
 			// Supprimer le contact de la source actuelle
 			selectedSource.contacts.splice(selectedSource.contacts.indexOf(contact), 1);
 			// Gérer la sauvegarde
