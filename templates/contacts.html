@@ -90,6 +90,15 @@ table.table-sm td:first-child img { max-height: 32px; }
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsShowDefaultGrid</span>
 				</button>
+				<div class="dropdown-divider"></div>
+				<button type="button" class="dropdown-item" data-name-format="lastNameFirstName">
+					<i class="material-icons">check</i>
+					<span data-translate="text">ContactsNameFormatLastNameFirstName</span>
+				</button>
+				<button id="formatFirstNameLastNameButton" type="button" class="dropdown-item selected" data-name-format="firstNameLastName">
+					<i class="material-icons">check</i>
+					<span data-translate="text">ContactsNameFormatFirstNameLastName</span>
+				</button>
 			</div>
 		</div>
 		<button id="addContactButton" type="button" class="btn btn-link" data-translate="title" title="ContactAddButton"><i class="material-icons">add</i></button>
@@ -253,6 +262,8 @@ table.table-sm td:first-child img { max-height: 32px; }
 
 // Le format de date moment correspondant aux "input[type=date]"
 var inputDateFormat = 'YYYY-MM-DD';
+// La méthode de formatage des contacts (Nom Prénom ou Prénom Nom)
+var formatContact;
 
 // L'objet chargé de la sauvegarde des préférences, via localStorage
 var storage = {
@@ -271,13 +282,17 @@ var storage = {
 	showGridKey: 'nimbus-contacts-show-grid',
 	getShowGrid: () => localStorage.getItem(storage.showGridKey) || 'default',
 	setShowGrid: (mode) => localStorage.setItem(storage.showGridKey, mode),
+
+	nameFormatKey: 'nimbus-contacts-name-format',
+	getNameFormat: () => localStorage.getItem(storage.nameFormatKey) || 'firstNameLastName',
+	setNameFormat: (mode) => localStorage.setItem(storage.nameFormatKey, mode),
 };
 
 // La liste des colonnes
 var columns = [
 	{ name: 'picture', title: 'ContactPicture', content: (c) => (c.picture ? $('<img />').attr('src', '/files/thumbnail/' + c.picture + '?size=40').css('clip-path', 'circle(50%)') : '') },
 	{ name: 'favorite', title: 'ContactFavorite', className: 'favorite', content: (c) => c.favorite ? '<i class="material-icons">star</i>' : '<i class="material-icons">star_border</i>' },
-	{ name: 'displayName', title: 'ContactDisplayName', content: (c) => NIMBUS.utils.contactAPI.formatContact(c) },
+	{ name: 'displayName', title: 'ContactDisplayName', content: (c) => formatContact(c) },
 	{ name: 'email1', title: 'ContactEmail', content: (c) => findIn(c.emails, 0, NIMBUS.utils.contactAPI.createEmailLink) },
 	{ name: 'email2', title: 'ContactEmail', content: (c) => findIn(c.emails, 1, NIMBUS.utils.contactAPI.createEmailLink) },
 	{ name: 'phone1', title: 'ContactPhone', content: (c) => findIn(c.phones, 0, NIMBUS.utils.contactAPI.createPhoneLink) },
@@ -361,7 +376,7 @@ function updateSearch() {
 	$('#table > tbody > tr').map(function() {
 		var tr = $(this);
 		var contact = tr.data('contact');
-		var match = api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts);
+		var match = api.matchContact(contact, searchTextLC, searchAllFields, searchAllContacts, formatContact);
 		tr.toggle(match);
 		if (match)
 			count++;
@@ -378,7 +393,7 @@ function updateTable(source) {
 		columns.forEach((c) => $('<th scope="col" />').text(NIMBUS.translate(c.title)).attr('data-name', c.name).appendTo(headers));
 	// Trier les contacts, si ça n'est pas encore fait
 	if (!source.sorted)
-		source.sort();
+		source.sort(formatContact);
 	// Remplir la table
 	$('#table > tbody').empty().append(source.contacts.map(function(contact) {
 		var tr = $('<tr />').data('contact', contact).hide();
@@ -510,7 +525,7 @@ function editContact(source, contact, isNew, callback) {
 		if (isNew)
 			source.contacts.push(contact);
 		if (oldDisplayName !== contact.displayName)
-			source.sort();
+			source.sort(formatContact);
 		// Fermer la fenêtre modale
 		$('#contactModal').modal('hide');
 		// Appeler la callback
@@ -648,6 +663,19 @@ NIMBUS.init(['contacts.js'], function() {
 		if (showGrid !== 'default')
 			showGridButtons.filter('[data-show-grid=' + showGrid + ']').click();
 
+		// Formatage en Prénom Nom (par défaut) ou Nom Prénom
+		formatContact = api.formatContactFirstLast;
+		var nameFormatButtons = $('#optionsMenu [data-name-format]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			nameFormatButtons.not(button).removeClass('selected');
+			formatContact = button.attr('id') === 'formatFirstNameLastNameButton' ? api.formatContactFirstLast : api.formatContactLastFirst;
+			updateTable(selectedSource);
+			storage.setNameFormat(button.attr('data-name-format'));
+		});
+		var nameFormat = storage.getNameFormat();
+		if (nameFormat !== 'firstNameLastName')
+			nameFormatButtons.filter('[data-name-format=' + nameFormat + ']').click();
+
 		// Chargement initial de la grille
 		updateTable(selectedSource);
 
@@ -762,7 +790,7 @@ NIMBUS.init(['contacts.js'], function() {
 			// Récupérer le menu d'action
 			var modal = $('#actionsModal').data('contact', contact);
 			// Afficher le nom du contact en haut du menu
-			modal.find('.list-group-item.active').text(api.formatContact(contact));
+			modal.find('.list-group-item.active').text(formatContact(contact));
 			// Ajuster l'une des actions pour marquer ou non en favori
 			modal.find('#markContactAsFavoriteButton').toggle(!contact.favorite);
 			modal.find('#unmarkContactAsFavoriteButton').toggle(!!contact.favorite);

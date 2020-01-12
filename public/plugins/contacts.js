@@ -170,7 +170,7 @@
 		});
 	};
 
-	ContactSource.prototype.sort = function() {
+	ContactSource.prototype.sort = function(formatContact) {
 		this.contacts.sort((c1, c2) => formatContact(c1).localeCompare(formatContact(c2)));
 		this.sorted = true;
 	};
@@ -211,7 +211,7 @@
 	}
 
 	// Cette méthode vérifier si le contact correspond au texte recherché
-	function matchContact(contact, searchTextLC, searchAllFields, searchAllContacts) {
+	function matchContact(contact, searchTextLC, searchAllFields, searchAllContacts, formatContact) {
 		// Si on ne cherche que dans les favoris, on peut exclure ceux qui n'en sont pas
 		if (!searchAllContacts && !contact.favorite)
 			return false;
@@ -235,10 +235,26 @@
 			|| matchList(contact.urls, 'url') || matchList(contact.fields, 'value');
 	}
 
-	function formatContact(contact) {
+	function formatContactFirstLast(contact) {
 		if (contact.displayName)
 			return contact.displayName;
-		return (contact.firstName + ' ' + contact.lastName).trim();
+		var s = contact.firstName || '';
+		if (contact.middleName)
+			s = (s + ' ' + contact.middleName).trim();
+		if (contact.lastName)
+			s = (s + ' ' + contact.lastName).trim();
+		return s;
+	}
+
+	function formatContactLastFirst(contact) {
+		if (contact.displayName)
+			return contact.displayName;
+		var s = contact.firstName || '';
+		if (contact.middleName)
+			s = (s + ' ' + contact.middleName).trim();
+		if (contact.lastName)
+			s = (contact.lastName + ' ' + s).trim();
+		return s;
 	}
 
 	function formatAddress(address) {
@@ -268,7 +284,8 @@
 		ContactSource: ContactSource,
 
 		matchContact: matchContact,
-		formatContact: formatContact,
+		formatContactFirstLast: formatContactFirstLast,
+		formatContactLastFirst: formatContactLastFirst,
 		formatAddress: formatAddress,
 		formatPhone: formatPhone,
 		createMappyURL: (text) => 'https://fr.mappy.com/#/1/M2/TSearch/S' + encodeURI(text),
@@ -343,6 +360,10 @@
 				ContactsSearchAllContacts: "Rechercher dans tous les contacts",
 				ContactsShowCompactGrid: "Afficher la grille compacte",
 				ContactsShowDefaultGrid: "Afficher la grille par défaut",
+				ContactsNameFormatLastNameFirstName: "Afficher les contacts en Nom Prénom",
+				ContactsNameFormatFirstNameLastName: "Afficher les contacts en Prénom Nom",
+				ContactsSaveChangesManually: "Sauvegarder manuellement",
+				ContactsSaveChangesAutomatically: "Sauvegarder automatiquement",
 				ContactsOptionsMenu: "Options",
 				ContactsRename: "Renommer le carnet d'adresses actif",
 				ContactsRenameTitle: "Renommer en ",
@@ -493,6 +514,10 @@
 				ContactsSearchAllContacts: "Search for any contact",
 				ContactsShowCompactGrid: "Show compact grid",
 				ContactsShowDefaultGrid: "Show default grid",
+				ContactsNameFormatLastNameFirstName: "Show contacts as Lastname Firstname",
+				ContactsNameFormatFirstNameLastName: "Show contacts as Firstname Lastname",
+				ContactsSaveChangesManually: "Save changes manually",
+				ContactsSaveChangesAutomatically: "Save changes automatically",
 				ContactsOptionsMenu: "Options",
 				ContactsRename: "Rename the selected address book",
 				ContactsRenameTitle: "Rename to ",
