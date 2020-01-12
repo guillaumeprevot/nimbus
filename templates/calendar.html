@@ -959,6 +959,7 @@ NIMBUS.init(['calendar.js'], function() {
 		// Sauvegarde manuelle
 		saveButton.on('click', save);
 
+		// Détection des modifications par l'envoi d'évènements 'calendarsourcechange'
 		$(calendar).on('calendarsourcechange', function(event, source) {
 			source.modified = true;
 			if ($('#toggleAutoSave').prop('checked')) {

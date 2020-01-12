@@ -526,7 +526,7 @@
 					var d = event.date.toMoment().format('L');
 					var r = event.repeat;
 					var e = event.endDate ? event.endDate.toMoment().format('L') : null;
-					r = (r === 'daily') ? 'jour' : (r === 'weekly') ? 'semaine' : (r === 'monthy') ? 'mois' : (r === 'quarterly') ? 'trimestre' : (r === 'yearly') ? 'année' : '';
+					r = (r === 'daily') ? 'jour' : (r === 'weekly') ? 'semaine' : (r === 'monthly') ? 'mois' : (r === 'quarterly') ? 'trimestre' : (r === 'yearly') ? 'année' : '';
 					if (e && r)
 						return 'chaque ' + r + ' du ' + d + ' au ' + e;
 					if (e)
