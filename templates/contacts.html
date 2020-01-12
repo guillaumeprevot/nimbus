@@ -99,6 +99,15 @@ table.table-sm td:first-child img { max-height: 32px; }
 					<i class="material-icons">check</i>
 					<span data-translate="text">ContactsNameFormatFirstNameLastName</span>
 				</button>
+				<div class="dropdown-divider"></div>
+				<button type="button" class="dropdown-item" data-save-changes="manually">
+					<i class="material-icons">check</i>
+					<span data-translate="text">ContactsSaveChangesManually</span>
+				</button>
+				<button id="saveChangesAutomaticallyButton" type="button" class="dropdown-item selected" data-save-changes="automatically">
+					<i class="material-icons">check</i>
+					<span data-translate="text">ContactsSaveChangesAutomatically</span>
+				</button>
 			</div>
 		</div>
 		<button id="addContactButton" type="button" class="btn btn-link" data-translate="title" title="ContactAddButton"><i class="material-icons">add</i></button>
@@ -286,6 +295,10 @@ var storage = {
 	nameFormatKey: 'nimbus-contacts-name-format',
 	getNameFormat: () => localStorage.getItem(storage.nameFormatKey) || 'firstNameLastName',
 	setNameFormat: (mode) => localStorage.setItem(storage.nameFormatKey, mode),
+
+	saveChangesKey: 'nimbus-contacts-save-changes',
+	getSaveChanges: () => localStorage.getItem(storage.saveChangesKey) || 'automatically',
+	setSaveChanges: (mode) => localStorage.setItem(storage.saveChangesKey, mode),
 };
 
 // La liste des colonnes
@@ -573,27 +586,27 @@ NIMBUS.init(['contacts.js'], function() {
 
 		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
-		var autosave = (window.location.search || '').indexOf('autosave=true') >= 0;
-		var data = $(sources);
-
-		data.on('contactsourcechange', function(event, source) {
+		// Extraction de la fonction de sauvegarde pour pour l'appeler sans simuler un clic sur le bouton
+		var save = function() {
+			var promises = sources.filter((s) => s.modified).map((s) => s.save());
+			Promise.all(promises).then(() => {
+					sources.forEach((s) => delete s.modified);
+					saveButton.addClass('nimbus-hidden');
+				}, () => {
+					NIMBUS.message(NIMBUS.translate('ContactSaveError'), true);
+					saveButton.removeClass('nimbus-hidden');
+				});
+		};
+		// Sauvegarde manuelle
+		saveButton.on('click', save);
+		// Détection des modifications par l'envoi d'évènements 'contactsourcechange'
+		var data = $(sources).on('contactsourcechange', function(event, source) {
 			source.modified = true;
-			if (autosave) {
-				saveButton.click();
+			if ($('#saveChangesAutomaticallyButton').hasClass('selected')) {
+				save();
 			} else {
 				saveButton.removeClass('nimbus-hidden');
 			}
-		});
-
-		saveButton.on('click', function() {
-			var promises = sources.filter((s) => s.modified).map((s) => s.save());
-			Promise.all(promises).then(() => {
-				sources.forEach((s) => delete s.modified);
-				saveButton.addClass('nimbus-hidden');
-			}, () => {
-				NIMBUS.message(NIMBUS.translate('ContactSaveError'), true);
-				saveButton.removeClass('nimbus-hidden');
-			});
 		});
 
 		// Préparation des onglets pour passer d'un carnet d'adresse à un autre
@@ -675,6 +688,17 @@ NIMBUS.init(['contacts.js'], function() {
 		var nameFormat = storage.getNameFormat();
 		if (nameFormat !== 'firstNameLastName')
 			nameFormatButtons.filter('[data-name-format=' + nameFormat + ']').click();
+
+		// Sauvegarde auto (par défaut) ou sauvegarde manuelle
+		var saveChangesButtons = $('#optionsMenu [data-save-changes]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			saveChangesButtons.not(button).removeClass('selected');
+			save();
+			storage.setSaveChanges(button.attr('data-save-changes'));
+		});
+		var saveChanges = storage.getSaveChanges();
+		if (saveChanges !== 'automatically')
+			saveChangesButtons.filter('[data-save-changes=' + saveChanges + ']').click();
 
 		// Chargement initial de la grille
 		updateTable(selectedSource);
@@ -862,7 +886,7 @@ NIMBUS.init(['contacts.js'], function() {
 		// Manipulation au clavier
 		body.keystrokes({
 			'Ctrl-f': () => $('#searchInput').focus().select(),
-			'Ctrl-s': () => saveButton.click(),
+			'Ctrl-s': () => save(),
 		});
 
 		// Désactivation de la soumission des formulaires
