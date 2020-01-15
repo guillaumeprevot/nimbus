@@ -568,6 +568,8 @@ function connectMainView(calendar) {
 				if (p >= 0 && p < days.length)
 					$('<div />').data('event', event).data('source', source)
 						.text(event.label || event.type.label).css('border-color', event.type.color)
+						.css('text-decoration', !!event.done ? 'line-through' : '')
+						.css('font-weight', !!event.important ? 'bold' : '')
 						.attr('title', formatedDates)
 						.prop('draggable', !source.readonly)
 						.appendTo(days[p]);
@@ -789,6 +791,8 @@ function connectSearch(calendar) {
 			$('<button class="dropdown-item" type="button" />')
 				.data('event', event)
 				.text(event.label || event.type.label)
+				.css('text-decoration', !!event.done ? 'line-through' : '')
+				.css('font-weight', !!event.important ? 'bold' : '')
 				.append($('<span class="text-muted" />').text(' (' + formatDates(event) + ')'))
 				.appendTo(searchMenu);
 		});
