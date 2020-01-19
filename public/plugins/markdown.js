@@ -37,14 +37,14 @@
 		langs: {
 			fr: {
 				MarkdownActionEdit: "Ouvrir dans l'éditeur Markdown",
-				MarkdownEditorPreviewHTML: "Prévisualiser en HTML",
-				MarkdownEditorEditMarkdown: "Repasser en Markdown",
+				MarkdownEditorPreviewHTML: "Prévisualiser en HTML (Ctrl+P ou glisser horizontal)",
+				MarkdownEditorEditMarkdown: "Repasser en Markdown (Ctrl+P ou glisser horizontal)",
 				MarkdownEditorExportHTML: "Exporter en HTML",
 			},
 			en: {
 				MarkdownActionEdit: "Open in Markdown editor",
-				MarkdownEditorPreviewHTML: "Preview HTML",
-				MarkdownEditorEditMarkdown: "Edit Markdown",
+				MarkdownEditorPreviewHTML: "Preview HTML (Ctrl+P ou horizontal swipe)",
+				MarkdownEditorEditMarkdown: "Edit Markdown (Ctrl+P ou horizontal swipe)",
 				MarkdownEditorExportHTML: "Export to HTML",
 			}
 		}

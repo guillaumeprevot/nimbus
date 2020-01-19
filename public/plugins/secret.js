@@ -33,7 +33,7 @@
 			fr: {
 				SecretActionEdit: "Afficher ou modifier le contenu",
 				SecretEditorTitle: "Note privée",
-				SecretEditorSave: "Sauvegarder les modifications",
+				SecretEditorSave: "Sauvegarder les modifications (Ctrl+S)",
 				SecretEditorClearPassphrase: "Choisir une nouvelle phrase de passe lors de la sauvegarde",
 				SecretEditorPromptPassphrase: "Phrase de passe",
 				SecretEditorInvalidPassphrase: "Phrase de passe non valide",
@@ -46,7 +46,7 @@
 			en: {
 				SecretActionEdit: "View or edit secret content",
 				SecretEditorTitle: "Private note",
-				SecretEditorSave: "Save modifications",
+				SecretEditorSave: "Save modifications (Ctrl+S)",
 				SecretEditorClearPassphrase: "Choose a new the passphrase during the next save event",
 				SecretEditorPromptPassphrase: "Passphrase",
 				SecretEditorInvalidPassphrase: "Invalid passphrase",

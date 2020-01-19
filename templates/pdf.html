@@ -121,43 +121,16 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-body">
-					<ul class="nav nav-tabs">
-						<li class="nav-item"><a class="nav-link active" href="#about-controls" aria-controls="about-controls" role="tab" data-toggle="tab" aria-selected="true" data-translate="text">PDFAboutControls</a></li>
-						<li class="nav-item"><a class="nav-link" href="#about-metadata" aria-controls="about-metadata" role="tab" data-toggle="tab" aria-selected="false" data-translate="text">PDFAboutProperties</a></li>
-					</ul>
 					<div class="tab-content">
-						<div role="tabpanel" id="about-controls" class="tab-pane active">
-							<table class="table table-sm">
-								<thead>
-									<tr>
-										<th style="width: 200px;" data-translate="text">PDFAboutFunction</th>
-										<th style="width: auto;" data-translate="text">PDFAboutKeyboard</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr><td data-translate="text">PDFFirstPage</td><td><code data-translate="text">PDFFirstPageKey</code></td></tr>
-									<tr><td data-translate="text">PDFPreviousPage</td><td><code data-translate="text">PDFPreviousPageKey</code></td></tr>
-									<tr><td data-translate="text">PDFNextPage</td><td><code data-translate="text">PDFNextPageKey</code></td></tr>
-									<tr><td data-translate="text">PDFLastPage</td><td><code data-translate="text">PDFLastPageKey</code></td></tr>
-									<tr><td data-translate="text">PDFZoomOut</td><td><code data-translate="text">PDFZoomOutKey</code></td></tr>
-									<tr><td data-translate="text">PDFZoomIn</td><td><code data-translate="text">PDFZoomInKey</code></td></tr>
-									<tr><td data-translate="text">PDFZoomFit</td><td><code data-translate="text">PDFZoomFitKey</code></td></tr>
-									<tr><td data-translate="text">PDFRotateCCW</td><td><code data-translate="text">PDFRotateCCWKey</code></td></tr>
-									<tr><td data-translate="text">PDFRotateCW</td><td><code data-translate="text">PDFRotateCWKey</code></td></tr>
-								</tbody>
-							</table>
-						</div>
-						<div role="tabpanel" id="about-metadata" class="tab-pane">
-							<table class="table table-sm">
-								<thead>
-									<tr>
-										<th style="width: 200px;" data-translate="text">PDFAboutProperty</th>
-										<th style="width: auto;" data-translate="text">PDFAboutValue</th>
-									</tr>
-								</thead>
-								<tbody></tbody>
-							</table>
-						</div>
+						<table class="table table-sm">
+							<thead>
+								<tr>
+									<th style="width: 200px;" data-translate="text">PDFAboutProperty</th>
+									<th style="width: auto;" data-translate="text">PDFAboutValue</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -450,7 +423,7 @@ function open(url) {
 		pdf.getMetadata().then(function(data) {
 			// console.log(data);
 			var lang = NIMBUS.translate('PDFAboutMetadata');
-			var tbody = $('#about-metadata tbody').empty();
+			var tbody = aboutModal.find('tbody').empty();
 			for (var property in lang) {
 				var name = lang[property];
 				var value = data.info[property];
