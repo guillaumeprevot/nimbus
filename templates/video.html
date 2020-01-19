@@ -36,19 +36,29 @@
 				<i class="material-icons">pause_circle_outline</i>
 				<i class="material-icons">play_circle_outline</i>
 			</button>
-			<button type="button" class="btn btn-link play-menu" data-translate="title" title="VideoPlayMenu">
-				<i class="material-icons">fast_forward</i>
-			</button>
-			<div class="btn-group nimbus-hidden" id="play-options">
-				<button type="button" class="btn btn-link play-move" data-offset="-30" data-translate="title" title="VideoReplay30"><i class="material-icons">replay_30</i></button>
-				<button type="button" class="btn btn-link play-move" data-offset="-10" data-translate="title" title="VideoReplay10"><i class="material-icons">replay_10</i></button>
-				<button type="button" class="btn btn-link play-move" data-offset="-5" data-translate="title" title="VideoReplay5"><i class="material-icons">replay_5</i></button>
-				<button type="button" class="btn btn-link speed-slower" data-translate="title" title="VideoSpeedSlower"><i class="material-icons">fast_rewind</i></button>
-				<button type="button" class="btn btn-link speed-initial" data-translate="title" title="VideoSpeedInitial">x1</button>
-				<button type="button" class="btn btn-link speed-faster" data-translate="title" title="VideoSpeedFaster"><i class="material-icons">fast_forward</i></button>
-				<button type="button" class="btn btn-link play-move" data-offset="5" data-translate="title" title="VideoForward5"><i class="material-icons">forward_5</i></button>
-				<button type="button" class="btn btn-link play-move" data-offset="10"  data-translate="title" title="VideoForward10"><i class="material-icons">forward_10</i></button>
-				<button type="button" class="btn btn-link play-move" data-offset="30" data-translate="title" title="VideoForward30"><i class="material-icons">forward_30</i></button>
+			<div class="dropdown">
+				<button id="play-menu" type="button" class="btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-translate="title" title="VideoPlayMenu">
+					<i class="material-icons">fast_forward</i>
+				</button>
+				<div id="play-options" class="dropdown-menu" aria-labelledby="play-menu" style="text-align: center; ">
+					<div class="btn-group" role="group">
+						<button type="button" class="btn btn-link play-move" data-offset="-30" data-translate="title" title="VideoReplay30"><i class="material-icons">replay_30</i></button>
+						<button type="button" class="btn btn-link play-move" data-offset="-10" data-translate="title" title="VideoReplay10"><i class="material-icons">replay_10</i></button>
+						<button type="button" class="btn btn-link play-move" data-offset="-5" data-translate="title" title="VideoReplay5"><i class="material-icons">replay_5</i></button>
+					</div>
+					<div class="btn-group" role="group">
+						<button type="button" class="btn btn-link speed-slower" data-translate="title" title="VideoSpeedSlower"><i class="material-icons">fast_rewind</i></button>
+						<button type="button" class="btn btn-link speed-initial" data-translate="title" title="VideoSpeedInitial">x1</button>
+						<button type="button" class="btn btn-link speed-faster" data-translate="title" title="VideoSpeedFaster"><i class="material-icons">fast_forward</i></button>
+					</div>
+					<div class="btn-group" role="group">
+						<button type="button" class="btn btn-link play-move" data-offset="5" data-translate="title" title="VideoForward5"><i class="material-icons">forward_5</i></button>
+						<button type="button" class="btn btn-link play-move" data-offset="10"  data-translate="title" title="VideoForward10"><i class="material-icons">forward_10</i></button>
+						<button type="button" class="btn btn-link play-move" data-offset="30" data-translate="title" title="VideoForward30"><i class="material-icons">forward_30</i></button>
+					</div>
+					<p>
+					</p>
+				</div>
 			</div>
 			<span class="nimbus-toolbar-separator"></span>
 		</div>
@@ -58,10 +68,21 @@
 				<i class="material-icons">volume_up</i>
 				<i class="material-icons">volume_off</i>
 			</button>
-			<button type="button" class="btn btn-link volume-menu" data-translate="title" title="VideoVolumeMenu">
-				<i class="material-icons">tune</i>
-			</button>
-			<input type="range" class="nimbus-hidden" id="volume-slider" min="0" max="100" step="1" style="max-width: 100%; width: 300px; " />
+			<div class="dropdown">
+				<button id="volume-menu" type="button" class="btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-translate="title" title="VideoVolumeMenu">
+					<i class="material-icons">linear_scale</i>
+				</button>
+				<div id="volume-options" class="dropdown-menu" aria-labelledby="volume-menu" style="text-align: center; ">
+					<form class="p-2">
+						<input type="range" id="volume-slider" min="0" max="100" step="1" style="max-width: 100%; width: 300px; " />
+					</form>
+					<div class="px-2" style="font-family: monospace; ">
+						<button type="button" class="btn btn-link" data-volume="50">50%</button>
+						<button type="button" class="btn btn-link" data-volume="0" data-translate="title" title="VideoVolume0Title" style="float: left; ">0%&nbsp;&nbsp;</button>
+						<button type="button" class="btn btn-link" data-volume="100" data-translate="title" title="VideoVolume100Title" style="float: right; ">100%</button>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div class="btn-group nimbus-hidden">
@@ -136,21 +157,8 @@ function open(src, subtitles) {
 		else
 			video.pause();
 	});
-	$('.play-menu').popover({
-		selector: true, // pour que le "title" du bouton reste présent
-		html: true,
-		placement: 'bottom',
-		trigger: 'click',
-		template: '<div class="popover" role="tooltip" style="max-width: none; "><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>',
-		content: function() {
-			return playOptions.removeClass('nimbus-hidden');
-		}
-	}).on('shown.bs.popover', function() {
+	playOptions.parent().on('shown.bs.dropdown', function() {
 		playOptions.find('.speed-initial').focus();
-	});
-	playOptions.on('blur', 'button', function(event) {
-		if (!event.relatedTarget || !$(event.relatedTarget).parent().is('#play-options'))
-			$('.play-menu').popover('hide');
 	});
 	playOptions.on('click', 'button.play-move', function(event) {
 		var offset = parseInt($(event.target).closest('[data-offset]').attr('data-offset'));
@@ -167,28 +175,25 @@ function open(src, subtitles) {
 	playOptions.on('click', 'button.speed-initial', function(event) {
 		video.playbackRate = video.defaultPlaybackRate || 1;
 	});
+	playOptions.on('click', 'button', function(event) {
+		return false;
+	});
 
 	// Gestion du volume
-	var volumeSlider = $('#volume-slider');
+	var volumeOptions = $('#volume-options');
+	var volumeSlider = $('#volume-slider').val('100');
 	$('.volume-toggle').click(function() {
 		video.muted = !video.muted;
-	})
-	$('.volume-menu').popover({
-		selector: true, // pour que le "title" du bouton reste présent
-		html: true,
-		placement: 'bottom',
-		trigger: 'click',
-		content: function() {
-			return volumeSlider.removeClass('nimbus-hidden').val((video.volume * 100).toFixed(0));
-		}
-	}).on('shown.bs.popover', function() {
+	});
+	volumeOptions.parent().on('shown.bs.dropdown', function() {
 		volumeSlider.focus();
 	});
 	volumeSlider.on('input', function(event) {
 		video.volume = parseInt(volumeSlider.val()) / 100;
 	});
-	volumeSlider.on('blur', function() {
-		$('.volume-menu').popover('hide');
+	volumeOptions.on('click', '[data-volume]', function(event) {
+		video.volume = parseInt($(event.target).closest('[data-volume]').attr('data-volume')) / 100;
+		return false;
 	});
 
 	// En haut à droite, les boutons pour le plein-écran
@@ -236,6 +241,7 @@ function open(src, subtitles) {
 	};
 	video.onvolumechange = function(event) {
 		$('.volume-toggle').attr('title', NIMBUS.translate(video.muted ? 'VideoVolumeOn' : 'VideoVolumeOff')).toggleClass('active', video.muted);
+		volumeSlider.val((video.volume * 100).toFixed(0));
 	};
 	video.onratechange = function(event) {
 		$('.speed').text('x' + video.playbackRate.toFixed(1)).parent().toggle(video.playbackRate !== 1);
