@@ -785,7 +785,9 @@ function connectSearch(calendar) {
 		// Vider le contenu précédent
 		searchNoResult.nextAll().remove();
 		// Trier les évènements par libellé
-		events.sort((e1, e2) => (e1.label || e1.type.label).localeCompare(e2.label || e2.type.label));
+		events.sort((e1, e2) => (e1.label || e1.type.label).localeCompare(e2.label || e2.type.label)
+				// puis par date si le libellé est identique
+				|| (e1.date.year - e2.date.year) || (e1.date.month - e2.date.month) || (e1.date.date - e2.date.date));
 		// Ajouter une entrée par évènement
 		events.forEach((event) => {
 			$('<button class="dropdown-item" type="button" />')
