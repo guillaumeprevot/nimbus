@@ -319,6 +319,74 @@
 		});
 	}
 
+	/** Une source de données en lecture-seule représentant les dates (anniversaires, mariage, ...) des contacts */
+	function createContactDatesCalendarSource() {
+		// Récupération des différents calendrier
+		return $.get('/items/list', {
+			recursive: true,
+			folders: false,
+			deleted: false,
+			extensions: 'contacts'
+		}).then(function(items) {
+			// Chargement des données de chaque calendrier
+			return Promise.all(items.map(function(item) {
+				return $.get('/files/stream/' + item.id).then(undefined, function(result) {
+					return { name: null, contacts: [] };
+				});
+			}));
+		}).then(function(results) {
+			// Récupération des dates qui nous intéressent
+			var dates = [];
+			// Formatage des dates
+			var formats = NIMBUS.translate('CalendarContactDatesFormats');
+			results.forEach(function(s) {
+				s.contacts.forEach(function(c) {
+					if (!c.dates)
+						return;
+					var name = c.displayName || c.nickname || [c.firstName, c.lastName].join(' ');
+					c.dates.forEach(function(d) {
+						if (! formats[d.type])
+							return;
+						dates.push({ year: d.year, month: d.month - 1, date: d.date, repeated: true, label: NIMBUS.format(formats[d.type], name) });
+					});
+				});
+			});
+			return dates;
+		}).then(function(dates) {
+			// Création de la source
+			var name = NIMBUS.translate('CalendarContactDates');
+			var type = new CalendarEventType(name, '#00f', true, 'yearly', true);
+			var customActiveKey = 'nimbus-calendar-contact-dates-active';
+			var customNameKey = 'nimbus-calendar-contact-dates-name';
+			return new CalendarSource({
+				name: localStorage.getItem(customNameKey) || name,
+				rename: function(newName) {
+					this.name = newName || name;
+					localStorage.setItem(customNameKey, newName);
+				},
+				active: localStorage.getItem(customActiveKey) !== 'false',
+				toggle: function() {
+					this.active = !this.active;
+					localStorage.setItem(customActiveKey, this.active.toString());
+				},
+				readonly: true,
+				types: [type],
+				count: (type) => dates.length,
+				search: (searchTextLC) => [], /*exclus de la recherche*/
+				populate: function(startMoment, endMoment) {
+					var year = startMoment.year();
+					return Promise.resolve(dates.map(function(d) {
+						return new CalendarEvent({ type: type, date: CalendarDate.from(year, d.month, d.date), label: d.label, repeat: d.repeated ? 'yearly' : null});
+					}));
+				},
+				add: $.noop,
+				remove: $.noop,
+				removeAll: $.noop,
+				save: $.noop
+			});
+		});
+	}
+
 	/** Une source de données éditable contenue dans un fichier ".calendar" de Nimbus */
 	function createNimbusFileCalendarSource(item, forceActive) {
 		return $.get('/files/stream/' + item.id).then(undefined, function(result) {
@@ -399,6 +467,7 @@
 		createMonthsCalendarView: createMonthsCalendarView,
 		createYearCalendarView: createYearCalendarView,
 		createFrenchSpecialDaysCalendarSource: createFrenchSpecialDaysCalendarSource,
+		createContactDatesCalendarSource: createContactDatesCalendarSource,
 		createNimbusFileCalendarSource: createNimbusFileCalendarSource,
 	};
 
@@ -474,6 +543,13 @@
 				CalendarSelectSource: "Choisir les sources",
 				CalendarRenameSourceTitle: "Renommer cette source...",
 				CalendarRenameSourcePrompt: "Renommer en",
+				CalendarContactDates: "Dates issues des contacts",
+				CalendarContactDatesFormats: {
+					birthday: "Anniversaire de {0}",
+					feast: "Fête de {0}",
+					wedding: "Mariage de {0}",
+					death: "Décès de {0}",
+				},
 				CalendarFrenchSpecialDays: "Jours fériés français",
 				CalendarRepeatNone: "pas de répétition",
 				CalendarRepeatDaily: "chaque jour",
@@ -562,6 +638,13 @@
 				CalendarSelectSource: "Select sources",
 				CalendarRenameSourceTitle: "Rename source...",
 				CalendarRenameSourcePrompt: "Rename to",
+				CalendarContactDates: "Contact special dates",
+				CalendarContactDatesFormats: {
+					birthday: "{0}'s birthday",
+					feast: "{0}'s feast",
+					wedding: "{0}'s wedding anniversary",
+					death: "{0}'s death",
+				},
 				CalendarFrenchSpecialDays: "French special days",
 				CalendarRepeatNone: "do not repeat",
 				CalendarRepeatDaily: "repeat each day",
