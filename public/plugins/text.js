@@ -1,5 +1,12 @@
 (function() {
 
+	NIMBUS.utils.textAPI = {
+		/** Cette méthode recherche le séparateur de ligne utilisé et renvoie un code 'crlf', 'cr' ou 'lf' */
+		getLineSeparator: (content) => (!content || content.indexOf('\r\n') >= 0) ? 'crlf' : (content.indexOf('\n') >= 0) ? 'lf' : 'cr',
+		/** Cette méthode reformat le texte avec le séparateur de ligne donné, qui peut être 'crlf', 'cr' ou 'lf' */
+		fixLineSeparator: (content, separator) => content.replace('\\r\\n', '\n').replace('\\r', '\n').split('\n').join(separator.replace('cr', '\r').replace('lf', '\n'))
+	};
+
 	NIMBUS.plugins.add({
 		name: 'text',
 		properties: [

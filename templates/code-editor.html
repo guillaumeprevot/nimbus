@@ -88,15 +88,6 @@
 <script>
 "use strict";
 
-/** This method detects and returns the line separator used in content */
-function getLineSeparator(content) {
-	if (!content || content.indexOf('\r\n') >= 0)
-		return 'crlf';
-	if (content.indexOf('\n') >= 0)
-		return 'lf';
-	return 'cr';
-}
-
 /** This method generates a CodeMirror hint function based on MIME type */
 function createHintFunction(support) {
 	// Hint function associated to each modes
@@ -211,7 +202,7 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 
 		// Line separator menu
 		var lineSeparatorMenu = $('#lineSeparatorMenu');
-		var lineSeparator = getLineSeparator(content);
+		var lineSeparator = NIMBUS.utils.textAPI.getLineSeparator(content);
 		lineSeparatorMenu.click('button', function(event) {
 			var button = $(event.target).closest('button');
 			lineSeparator = button.attr('data-separator');

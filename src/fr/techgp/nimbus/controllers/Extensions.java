@@ -82,8 +82,6 @@ public class Extensions extends Controller {
 	public static final Route textEditor = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "text-editor.html",
-				"markdown", false,
-				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
 				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
 				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
@@ -96,7 +94,7 @@ public class Extensions extends Controller {
 	 */
 	public static final Route markdownEditor = (request, response) -> {
 		// Générer la page
-		return renderTemplate(request, "text-editor.html",
+		return renderTemplate(request, "markdown-editor.html",
 				"markdown", true,
 				"highlighter", SparkUtils.queryParamString(request, "highlighter", configuration.getClientCodeHighlighter()),
 				"baseURL", configuration.getServerAbsoluteUrl(),

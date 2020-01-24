@@ -10,22 +10,15 @@
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
 <link type="text/css" rel="stylesheet" href="${stylesheet}" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
-<#if markdown && highlighter == "prism"><link type="text/css" rel="stylesheet" href="/libs/prism/prism.min.css" /></#if>
-<#if markdown && highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" /></#if>
-<#if markdown && highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-dark.css" /></#if>
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
 textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; white-space: pre; font-family: monospace; color: inherit; background-color: transparent; }
-<#if markdown>#preview { padding: 1em; }</#if>
 .larger { font-size: larger; height: 100%; }
 .smaller { font-size: smaller; height: 100%; }
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
-<#if markdown><script type="text/javascript" src="/libs/marked/marked.min.js"></script></#if>
-<#if markdown && highlighter == "prism"><script type="text/javascript" src="/libs/prism/prism.min.js" data-manual></script></#if>
-<#if markdown && highlighter == "codemirror"><script type="text/javascript" src="/libs/codemirror/addon/runmode/runmode-standalone.js"></script></#if>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
@@ -39,9 +32,6 @@ textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; wh
 
 		<div class="btn-group">
 			<button id="smallerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorSmaller"><i class="material-icons">text_fields</i></button>
-			<#if markdown><button id="previewButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorPreviewHTML"><i class="material-icons">pageview</i></button></#if>
-			<#if markdown><button id="editButton" type="button" class="btn btn-link" style="display: none; " data-translate="title" title="MarkdownEditorEditMarkdown"><i class="material-icons">edit</i></button></#if>
-			<#if markdown><a id="exportButton" href="#" class="btn btn-link" data-translate="title" title="MarkdownEditorExportHTML"><i class="material-icons">cloud_download</i></a></#if>
 			<button id="largerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorLarger"><i class="material-icons">format_size</i></button>
 		</div>
 
@@ -58,97 +48,13 @@ textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; wh
 	</header>
 	<main>
 		<textarea class="nimbus-hidden" autofocus data-translate="placeholder" placeholder="TextEditorPlaceholder"></textarea>
-		<#if markdown><div id="preview" class="nimbus-hidden"></div></#if>
 	</main>
 	<footer></footer>
 <script>
 "use strict";
 
-function getLineSeparator(content) {
-	if (!content || content.indexOf('\r\n') >= 0)
-		return 'crlf';
-	if (content.indexOf('\n') >= 0)
-		return 'lf';
-	return 'cr';
-}
-
-function formatLines(content, separator) {
-	return content.replace('\\r\\n', '\n').replace('\\r', '\n').split('\n').join(separator.replace('cr', '\r').replace('lf', '\n'));
-}
-
-<#if markdown>
-var relativeURLRoot = null;
-var xhrForFinalURL = new XMLHttpRequest();
-function markdownURL(href) {
-	// Récupérer le préfixe pour les URLs relatives
-	if (relativeURLRoot == null) {
-		var parts = xhrForFinalURL.responseURL.split('/');
-		parts.pop();
-		relativeURLRoot = parts.join('/') + '/';
-	}
-	// Résoudre les URLS relatives (./* ou ../*) et conserver les autres
-	return new URL(href, relativeURLRoot).toString();
-}
-function markdownToHtml(text) {
-	// https://marked.js.org/#/USING_PRO.md#renderer
-	var renderer = new marked.Renderer();
-	renderer.link = function(href, title, text) {
-		var t = title ? ' title="' + title + '"' : '';
-		return '<a target="_blank" href="' + markdownURL(href) + '"' + t + '>' + text + '</a>';
-	};
-	renderer.image = function(href, title, alt) {
-		var t = title ? ' title="' + title + '"' : '';
-		var a = alt ? ' alt="' + alt + '"' : '';
-		return '<img class="img-fluid" src="' + markdownURL(href) + '"' + t + a + ' />';
-	};
-	renderer.table = function(header, body) {
-		var h = header ? '<thead>' + header + '</thead>' : '';
-		var b = body ? '<tbody>' + body + '</tbody>' : '';
-		return '<table class="table table-sm table-responsive">' + h + b + '</table>';
-	};
-	renderer.blockquote = function(text) {
-		return '<blockquote class="border-left ml-4 pl-2 border-dark">' + text + '</blockquote>';
-	};
-	renderer.code = function(code, language, escaped) {
-		<#if highlighter == "prism">
-		if (typeof Prism === 'undefined' || !language || !Prism.languages[language])
-			return '<pre class="language-none"><code>' + code + '</code></pre>';
-		var c = Prism.highlight(code, Prism.languages[language]);
-		return ''
-			+ '<div class="code-toolbar">'
-			+ '  <pre class="language-' + language + '"><code>' + c + '</code></pre>'
-			+ '  <div class="toolbar"><div class="toolbar-item"><span>' + language + '</span></div></div>'
-			+ '</div>';
-		<#else>
-		var pre = $('<pre style="border-left: 2px solid #eee; background-color: #222; color: #eee; padding: 0.5em 1em; "><code></code></pre>');
-		<#if highlighter == "codemirror">
-		var support = language && NIMBUS.utils.codeMirrorLoadSupport(language);
-		pre.addClass('cm-s-nimbus-dark');
-		if (support)
-			CodeMirror.runMode(code, support.mime, pre.children('code')[0]);
-		else
-			pre.children('code').text(code);
-		<#else>
-		pre.children('code').text(code);
-		</#if>
-		if (language)
-			pre.prepend($('<span style="float: right; border-bottom: 1px solid #eee; " />').text(language));
-		return pre[0].outerHTML;
-		</#if>
-	};
-	// https://marked.js.org/#/USING_ADVANCED.md#options
-	return marked(text || '', {
-		// baseUrl: null, // null is the default value
-		breaks: true,
-		renderer: renderer,
-		// sanitize: false, // false is the default value
-		xhtml: true
-	});
-}
-</#if>
-
 //Initialiser la page
-NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirror">, 'code.js'</#if></#if>], function() {
+NIMBUS.init(['text.js'], function() {
 	// En haut à gauche, le bouton "Retour"
 	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 	// L'IHM est prête, on l'affiche
@@ -157,16 +63,10 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirr
 	var itemId = ${itemId};
 	// Récupération du contenu du fichier
 	$.get({
-		<#if markdown>
-		url: '/files/browseTo/' + itemId,
-		xhr: function() { return xhrForFinalURL; },
-		</#if>
-		<#if !markdown>
 		url: '/files/stream/' + itemId,
-		</#if>
 		dataType: 'text'
 	}).then(function(content, textStatus, jqXHR) {
-		var lineSeparator = getLineSeparator(content),
+		var lineSeparator = NIMBUS.utils.textAPI.getLineSeparator(content),
 			textarea = $('textarea').text(content),
 			saveButton = $('#saveButton'),
 			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
@@ -187,53 +87,6 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirr
 			else
 				textarea.wrap('<div class="larger" />');
 		});
-		<#if markdown>
-		// Passer du mode d'édition à la prévisualisation HTML
-		$('#previewButton').click(function(event) {
-			var preview = $('#preview');
-			// Cacher d'abord
-			preview.siblings().hide(); 
-			$('#previewButton,#smallerButton,#largerButton').hide();
-			// Afficher ensuite
-			preview.html(markdownToHtml(textarea.val())).removeClass('nimbus-hidden'); // afficher ensuite
-			$('#editButton').show();
-		});
-		// Passer de la prévisualisation HTML au mode d'édition
-		$('#editButton').click(function(event) {
-			var preview = $('#preview');
-			// Cacher d'abord
-			preview.empty().addClass('nimbus-hidden');
-			$('#editButton').hide();
-			// Afficher ensuite
-			preview.siblings().show();
-			textarea.focus();
-			$('#previewButton,#smallerButton,#largerButton').show();
-		});
-		// Exporter la note en HTML
-		$('#exportButton').attr('download', filename.replace('.md', '.html').replace('.markdown', '.html')).click(function() {
-			var html = '<!DOCTYPE html>'
-				+ '\n<html>'
-				+ '\n\t<head>'
-				+ '\n\t\t<title>' + filename + '</title>'
-				+ '\n\t\t<meta charset="UTF-8">'
-				+ '\n\t\t<link rel="stylesheet" href="${baseURL}${stylesheet}" />'
-				<#if highlighter == "prism">
-				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/libs/prism/prism.min.css" />'
-				+ '\n\t\t<script type="text/javascript" src="${baseURL}/libs/prism/prism.min.js"><' + '/script>'
-				</#if>
-				<#if highlighter == "codemirror">
-				+ '\n\t\t<link type="text/css" rel="stylesheet" href="${baseURL}/libs/codemirror/lib/codemirror.css" />'
-				+ '\n\t\t<link type="text/css" rel="stylesheet" href="${baseURL}/libs/codemirror/theme/nimbus-dark.css" />'
-				</#if>
-				+ '\n\t</head>'
-				+ '\n\t<body class="m-3">'
-				+ '\n' + markdownToHtml(textarea.val())
-				+ '\n\t</body>'
-				+ '\n</html>';
-			//$(this).attr('href', 'data:text/html;charset=UTF-8;base64,' + btoa(html));
-			$(this).attr('href', 'data:text/html;charset=UTF-8,' + encodeURIComponent(html));
-		});
-		</#if>
 
 		$('#lineSeparatorMenu').find('[data-separator=' + lineSeparator + ']').addClass('active');
 		$('#lineSeparatorMenu').click('button', function(event) {
@@ -250,7 +103,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirr
 		textarea.focus();
 
 		saveButton.on('click', function() {
-			var text = formatLines(textarea.val(), lineSeparator);
+			var text = NIMBUS.utils.textAPI.fixLineSeparator(textarea.val(), lineSeparator);
 			NIMBUS.utils.updateFileText(itemId, text).then(function() {
 				saveButton.addClass('nimbus-hidden');
 				textarea.removeClass('border border-danger')
@@ -264,23 +117,7 @@ NIMBUS.init(['text.js'<#if markdown>, 'markdown.js'<#if highlighter == "codemirr
 			'Ctrl-s': () => saveButton.click(),
 			'Ctrl-+': () => $('#largerButton').click(),
 			'Ctrl--': () => $('#smallerButton').click(),
-			<#if markdown>
-			'Ctrl-p': () => $('#previewButton,#editButton').filter(':visible').click(),
-			// 'Ctrl-e': () => $('#exportButton').click(), // ne fonctionne pas :-(, peut-être car ça simule un clic sur un lien ?
-			</#if>
 		});
-
-		<#if markdown>
-		// Changement de mode "edit"/"preview" par "swipe"
-		$('main').swipe().on('swipe', function(event, swipe) {
-			// le swipe doit être rapide pour déclencher le passage preview <=> textarea
-			// les swipes plus longs sont réservés au déplacement dans des pages avec scroll
-			if (swipe.duration > 200)
-				return;
-			if ('right' === swipe.direction || 'left' === swipe.direction)
-				$('#previewButton,#editButton').filter(':visible').click()
-		});
-		</#if>
 	});
 });
 </script>
