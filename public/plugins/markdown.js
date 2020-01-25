@@ -39,12 +39,20 @@
 				MarkdownActionEdit: "Ouvrir dans l'éditeur Markdown",
 				MarkdownEditorPreviewHTML: "Prévisualiser en HTML (Ctrl+P ou glisser horizontal)",
 				MarkdownEditorEditMarkdown: "Repasser en Markdown (Ctrl+P ou glisser horizontal)",
+				MarkdownEditorView: "Choisir la vue",
+				MarkdownEditorSplitView: "Vue côte à côte",
+				MarkdownEditorEditView: "Éditeur Markdown",
+				MarkdownEditorHTMLView: "Visualisation HTML",
 				MarkdownEditorExportHTML: "Exporter en HTML",
 			},
 			en: {
 				MarkdownActionEdit: "Open in Markdown editor",
 				MarkdownEditorPreviewHTML: "Preview HTML (Ctrl+P ou horizontal swipe)",
 				MarkdownEditorEditMarkdown: "Edit Markdown (Ctrl+P ou horizontal swipe)",
+				MarkdownEditorView: "Select layout",
+				MarkdownEditorSplitView: "Side-by-side",
+				MarkdownEditorEditView: "Markdown editor",
+				MarkdownEditorHTMLView: "HTML preview",
 				MarkdownEditorExportHTML: "Export to HTML",
 			}
 		}

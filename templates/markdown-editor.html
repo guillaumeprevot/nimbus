@@ -15,10 +15,24 @@
 <#if highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-dark.css" /></#if>
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
-textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; white-space: pre; font-family: monospace; color: inherit; background-color: transparent; }
-#preview { padding: 1em; }
-.larger { font-size: larger; height: 100%; }
-.smaller { font-size: smaller; height: 100%; }
+main { display: flex; }
+textarea { flex: 1 1 0; padding: 1em; overflow: auto; border: 0; white-space: pre; font-family: monospace; color: inherit; background-color: transparent; }
+#preview { flex: 1 1 0; padding: 1em; overflow: auto; display: block; }
+body.edit #editButton { display: none; }
+body.edit #preview { display: none; }
+body.html #htmlButton { display: none; }
+body.html textarea { display: none; }
+@media (min-width: 1024px) {
+	#htmlButton { display: none; }
+	#editButton { display: none; }
+}
+@media (max-width: 1023.9px) {
+	#viewButton { display: none; }
+	#viewMenu { display: none; }
+	body.split #preview { display: none; }
+	body.split #editButton { display: none; }
+}
+*/
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
@@ -30,7 +44,7 @@ textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; wh
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
-<body class="nimbus-hidden">
+<body class="nimbus-hidden split">
 	<header class="bg-primary">
 		<div class="float-left">
 			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
@@ -38,14 +52,22 @@ textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; wh
 		</div>
 
 		<div class="btn-group">
-			<button id="smallerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorSmaller"><i class="material-icons">text_fields</i></button>
-			<button id="previewButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorPreviewHTML"><i class="material-icons">pageview</i></button>
-			<button id="editButton" type="button" class="btn btn-link" style="display: none; " data-translate="title" title="MarkdownEditorEditMarkdown"><i class="material-icons">edit</i></button>
-			<a id="exportButton" href="#" class="btn btn-link" data-translate="title" title="MarkdownEditorExportHTML"><i class="material-icons">cloud_download</i></a>
-			<button id="largerButton" type="button" class="btn btn-link" data-translate="title" title="TextEditorLarger"><i class="material-icons">format_size</i></button>
 		</div>
 
 		<div class="float-right">
+			<div class="btn-group">
+				<button id="htmlButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorPreviewHTML"><i class="material-icons">pageview</i></button>
+				<button id="editButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorEditMarkdown"><i class="material-icons">edit</i></button>
+				<button id="viewButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="MarkdownEditorView" aria-haspopup="true" aria-expanded="false"><i class="material-icons">chrome_reader_mode</i></button>
+				<div id="viewMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="viewButton">
+					<button class="dropdown-item active" data-view="split" data-translate="text">MarkdownEditorSplitView</button>
+					<button class="dropdown-item" data-view="edit" data-translate="text">MarkdownEditorEditView</button>
+					<button class="dropdown-item" data-view="html" data-translate="text">MarkdownEditorHTMLView</button>
+				</div>
+			</div>
+
+			<a id="exportButton" href="#" class="btn btn-link" data-translate="title" title="MarkdownEditorExportHTML"><i class="material-icons">cloud_download</i></a>
+
 			<div class="btn-group">
 				<button id="lineSeparatorButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="TextEditorLineSeparator" aria-haspopup="true" aria-expanded="false"><i class="material-icons">wrap_text</i></button>
 				<div id="lineSeparatorMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="lineSeparatorButton">
@@ -58,11 +80,20 @@ textarea { width: 100%; height: 99%; border: 0; padding: 1em; overflow: auto; wh
 	</header>
 	<main>
 		<textarea class="nimbus-hidden" autofocus data-translate="placeholder" placeholder="TextEditorPlaceholder"></textarea>
-		<div id="preview" class="nimbus-hidden"></div>
+		<div id="preview"></div>
 	</main>
 	<footer></footer>
 <script>
 "use strict";
+
+var updatePreviewTimeout;
+function updatePreview(textarea) {
+	if (updatePreviewTimeout)
+		clearTimeout(updatePreviewTimeout);
+	updatePreviewTimeout = setTimeout(function() {
+		$('#preview').html(markdownToHtml(textarea.val())).removeClass('nimbus-hidden');
+	}, 500);
+}
 
 var relativeURLRoot = null;
 var xhrForFinalURL = new XMLHttpRequest();
@@ -149,46 +180,50 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 	}).then(function(content, textStatus, jqXHR) {
 		var lineSeparator = NIMBUS.utils.textAPI.getLineSeparator(content),
 			textarea = $('textarea').text(content),
+			preview = $('#preview'),
 			saveButton = $('#saveButton'),
 			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
 
 		$('title').text(filename);
 
-		// Rétrécir le texte
-		$('#smallerButton').click(function() {
-			if (textarea.parent().is('.larger'))
-				textarea.unwrap();
-			else
-				textarea.wrap('<div class="smaller" />');
-		});
-		// Agrandir le texte
-		$('#largerButton').click(function() {
-			if (textarea.parent().is('.smaller'))
-				textarea.unwrap();
-			else
-				textarea.wrap('<div class="larger" />');
-		});
-
 		// Passer du mode d'édition à la prévisualisation HTML
-		$('#previewButton').click(function(event) {
-			var preview = $('#preview');
+		$('#htmlButton').click(function(event) {
 			// Cacher d'abord
-			preview.siblings().hide(); 
-			$('#previewButton,#smallerButton,#largerButton').hide();
+			body.removeClass('split edit html');
+			// Mettre à jour la vue
+			$('#viewMenu [data-view=html]').addClass('active').siblings().removeClass('active');
+			preview.html(markdownToHtml(textarea.val())).show();
 			// Afficher ensuite
-			preview.html(markdownToHtml(textarea.val())).removeClass('nimbus-hidden'); // afficher ensuite
-			$('#editButton').show();
+			body.addClass('html');
 		});
 		// Passer de la prévisualisation HTML au mode d'édition
 		$('#editButton').click(function(event) {
-			var preview = $('#preview');
 			// Cacher d'abord
-			preview.empty().addClass('nimbus-hidden');
-			$('#editButton').hide();
+			body.removeClass('split edit html');
+			// Mettre à jour la vue
+			$('#viewMenu [data-view=edit]').addClass('active').siblings().removeClass('active');
+			preview.empty();
 			// Afficher ensuite
-			preview.siblings().show();
+			body.addClass('edit');
 			textarea.focus();
-			$('#previewButton,#smallerButton,#largerButton').show();
+		});
+		// Sélection de la vue par le menu
+		$('#viewMenu [data-view]').click(function(event) {
+			// Cacher d'abord
+			body.removeClass('split edit html');
+			// Mettre à jour la vue
+			var selectedMenuItem = $(event.target).closest('[data-view]').addClass('active');
+			var selectedView = selectedMenuItem.attr('data-view');
+			var currentMenuItem = selectedMenuItem.siblings('.active').removeClass('active');
+			var currentView = currentMenuItem.attr('data-view');
+			if (currentView === 'edit')
+				preview.html(markdownToHtml(textarea.val())).show();
+			if (selectedView === 'edit')
+				preview.empty();
+			// Afficher ensuite
+			body.addClass(selectedView);
+			if (selectedView !== 'html')
+				textarea.focus();
 		});
 
 		// Exporter la note en HTML
@@ -243,9 +278,7 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 		// Manipulation au clavier
 		body.keystrokes({
 			'Ctrl-s': () => saveButton.click(),
-			'Ctrl-+': () => $('#largerButton').click(),
-			'Ctrl--': () => $('#smallerButton').click(),
-			'Ctrl-p': () => $('#previewButton,#editButton').filter(':visible').click(),
+			'Ctrl-p': () => $('#htmlButton,#editButton').filter(':visible').click(),
 			// 'Ctrl-e': () => $('#exportButton').click(), // ne fonctionne pas :-(, peut-être car ça simule un clic sur un lien ?
 		});
 
@@ -256,8 +289,10 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 			if (swipe.duration > 200)
 				return;
 			if ('right' === swipe.direction || 'left' === swipe.direction)
-				$('#previewButton,#editButton').filter(':visible').click()
+				$('#htmlButton,#editButton').filter(':visible').click()
 		});
+		updatePreview(textarea);
+		textarea.on('input', () => updatePreview(textarea));
 	});
 });
 </script>
