@@ -321,6 +321,11 @@
 
 	/** Une source de données en lecture-seule représentant les dates (anniversaires, mariage, ...) des contacts */
 	function createContactDatesCalendarSource() {
+		// Paramètres généraux de la source
+		var name = NIMBUS.translate('CalendarContactDates');
+		var type = new CalendarEventType(name, '#00f', true, 'yearly', true);
+		var customActiveKey = 'nimbus-calendar-contact-dates-active';
+		var customNameKey = 'nimbus-calendar-contact-dates-name';
 		// Récupération des différents calendrier
 		return $.get('/items/list', {
 			recursive: true,
@@ -335,8 +340,8 @@
 				});
 			}));
 		}).then(function(results) {
-			// Récupération des dates qui nous intéressent
-			var dates = [];
+			// Récupération des évènements associés aux dates qui nous intéressent
+			var events = [];
 			// Formatage des dates
 			var formats = NIMBUS.translate('CalendarContactDatesFormats');
 			results.forEach(function(s) {
@@ -347,17 +352,12 @@
 					c.dates.forEach(function(d) {
 						if (typeof d.date === 'undefined' || typeof d.month === 'undefined' || ! formats[d.type])
 							return;
-						dates.push({ year: d.year, month: d.month - 1, date: d.date, repeated: true, label: NIMBUS.format(formats[d.type], name) });
+						events.push(new CalendarEvent({ type: type, date: CalendarDate.from(d.year, d.month - 1, d.date), label: NIMBUS.format(formats[d.type], name), repeat: 'yearly'}));
 					});
 				});
 			});
-			return dates;
-		}).then(function(dates) {
-			// Création de la source
-			var name = NIMBUS.translate('CalendarContactDates');
-			var type = new CalendarEventType(name, '#00f', true, 'yearly', true);
-			var customActiveKey = 'nimbus-calendar-contact-dates-active';
-			var customNameKey = 'nimbus-calendar-contact-dates-name';
+			return events;
+		}).then(function(events) {
 			return new CalendarSource({
 				name: localStorage.getItem(customNameKey) || name,
 				rename: function(newName) {
@@ -374,10 +374,7 @@
 				count: (type) => dates.length,
 				search: (searchTextLC) => [], /*exclus de la recherche*/
 				populate: function(startMoment, endMoment) {
-					var year = startMoment.year();
-					return Promise.resolve(dates.map(function(d) {
-						return new CalendarEvent({ type: type, date: CalendarDate.from(year, d.month, d.date), label: d.label, repeat: d.repeated ? 'yearly' : null});
-					}));
+					return Promise.resolve(events);
 				},
 				add: $.noop,
 				remove: $.noop,
