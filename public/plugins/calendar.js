@@ -345,7 +345,7 @@
 						return;
 					var name = c.displayName || c.nickname || [c.firstName, c.lastName].join(' ');
 					c.dates.forEach(function(d) {
-						if (! formats[d.type])
+						if (typeof d.date === 'undefined' || typeof d.month === 'undefined' || ! formats[d.type])
 							return;
 						dates.push({ year: d.year, month: d.month - 1, date: d.date, repeated: true, label: NIMBUS.format(formats[d.type], name) });
 					});
