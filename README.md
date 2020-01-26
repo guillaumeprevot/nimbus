@@ -79,15 +79,15 @@ Fait | Import, export et téléchargement simplifié des fichiers/dossiers
 Fait | Tests automatisés (mais à compléter au fur et à mesure)
 Fait | Installation simplifiée
 Fait | Documentation (présentation, technologies, installation, import, synchronisation)
-En cours | Documentation (types de fichier supportés, facets, plugins, applications) 
-Fait | Applications annexes (diaporama, lecteur audio/vidéo/ePub/PDF, éditeur de code/texte/Markdown/note)
-A faire | Applications annexes (contacts, calendrier, messagerie, ... il y a tellement de possibilités !)
+À continuer | Documentation (types de fichier supportés, facets, plugins, applications) 
+Fait | Applications annexes (image, audio, video, epub, pdf, url, texte, markdown, code, calendrier, contact)
+À étudier | Applications annexes (checksums, bookmark, wiki, RSS, messagerie... il y a tellement de possibilités !)
 Fait | Synchronisation (dossier local vers serveur et serveur vers dossier local)
-A faire | Synchronisation (bi-directionnelle et/ou temps réel)
+À étudier | Synchronisation (bi-directionnelle et/ou temps réel)
 
 ## Fichiers supportés
 
-Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions supplémentaires sont disponibles pour certains d'entre eux.
+Il est possible de stocker tout type de fichier dans `Nimbus` et, quand le format du fichier est reconnu, des fonctions supplémentaires sont disponibles :
 
 - Documents ePUB :
     - les documents `.epub` peuvent être consultés dans Nimbus, grâce à [EPUB.js](https://github.com/futurepress/epub.js), en utilisant l'action *Lire*
@@ -108,25 +108,30 @@ Tout type de fichier peut être stockés dans `Nimbus`. Toutefois, des fonctions
 - Images :
     - les images (`.jpeg`, `.png`, ...) [supportées par le navigateur](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Img) peuvent être visualisées dans le `Diaporama` de Nimbus
     - plusieurs propriétés (dimensions, coordonnées GPS, ...) peuvent être extraites de différents formats afin d'être disponibles lors de la navigation
+- Markdown :
+    - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked), en utilisant l'action `Ouvrir dans l'éditeur Markdown`
+	- la coloration syntaxique des blocs de code est faite grâce à [Prism.js](https://github.com/PrismJS/prism) ou [CodeMirror](https://codemirror.net/) (cf *client.code.highlighter* dans *nimbus.conf*)
 - Fichiers texte :
     - les fichiers texte (cf *text.file.extensions* dans *nimbus.conf*) peuvent être édités dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur de texte`
-    - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées en HTML, dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked) et [Prism.js](https://github.com/PrismJS/prism)
     - les notes au format HTML (`.html` ou `.note`), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
     - le `code source` peut être édité dans Nimbus grâce à [CodeMirror](https://codemirror.net/) en utilisant l'action `Ouvrir dans l'éditeur de code`
 
-De plus, certaines extensions sont interprétées comme fichiers contenant les données d'applications intégrées à Nimbus 
+De plus, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
+
+Enfin, certaines extensions sont interprétées comme fichiers contenant les données d'applications intégrées à Nimbus 
 
 - Notes chiffrées
     - l'extension `.secret` est utilisée par l'application de prise de notes chiffrées accessible en utilisant l'action `Afficher ou modifier le contenu`
 	- le chiffrement se fait côté client en *AES 256 bits GCM* grâce à [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Crypto), intégrée aux navigateurs
 - Agenda
-    - l'extension `.calendar` est utilisée par l'agenda accessible en utilisant l'action `Ouvrir dans l'agenda`
-	- l'agenda permet de combiner plusieurs fichiers `.calendar`, par exemple *personnel.calendar*, *professionnel.calendar* et *anniversaires.calendar*
+	- l'agenda permet de combiner un ou plusieurs fichiers `.calendar`, par exemple *personnel.calendar* et *professionnel.calendar*
+    - l'application est accessible via le menu général `Ouvrir l'agenda` ou l'action `Ouvrir dans l'agenda` de ces fichiers
+- Contact
+	- le carnet d'adresse est constitué de un ou plusieurs fichiers `.contacts`, par exemple *personnel.contacts* et *professionnel.contacts*
+	- l'application est accessible via le menu général `Ouvrir le carnet d'adresse` ou l'action `Ouvrir dans le carnet d'adresse` de ces fichiers
 - Applications
-	- l'extension `.application` est utilisée comme indicateurs pour des applications HTML/CSS/JS que l'on peut lancer en utilisant l'action `Lancer cette application`
+	- l'extension `.application` est utilisée comme marqueur pour des applications HTML/CSS/JS que l'on peut lancer en utilisant l'action `Lancer cette application`
 	- [une application fonctionnelle](./doc/template.application.png) est disponible dans `doc/template.application`. Elle permet de générer des squelettes d'application personnalisables
-
-Enfin, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
 
 ## Installation
 

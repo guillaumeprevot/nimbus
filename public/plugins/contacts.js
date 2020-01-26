@@ -343,7 +343,7 @@
 		}],
 		langs: {
 			fr: {
-				ContactsOpen: "Ouvrir le carnet d'adresse",
+				ContactsOpen: "Ouvrir dans le carnet d'adresse",
 				ContactsDescription0Contact: "aucun contact",
 				ContactsDescription1Contact: "1 contact",
 				ContactsDescriptionNContacts: "{0} contacts",
@@ -498,7 +498,7 @@
 				ContactListRemove: "Supprimer",
 			},
 			en: {
-				ContactsOpen: "Open address book",
+				ContactsOpen: "Open in address book",
 				ContactsDescription0Contact: "no contact",
 				ContactsDescription1Contact: "1 contact",
 				ContactsDescriptionNContacts: "{0} contacts",
