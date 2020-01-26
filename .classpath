@@ -3,10 +3,10 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.64.jar"/>
-	<classpathentry kind="lib" path="lib/bson-3.11.2.jar"/>
+	<classpathentry kind="lib" path="lib/bson-3.12.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/fontbox-2.0.17.jar"/>
+	<classpathentry kind="lib" path="lib/fontbox-2.0.18.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.29.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.8.6.jar"/>
 	<classpathentry kind="lib" path="lib/jaudiotagger-2.2.5.jar"/>
@@ -20,13 +20,13 @@
 	<classpathentry kind="lib" path="lib/jetty-util-9.4.18.v20190429.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-webapp-9.4.18.v20190429.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-xml-9.4.18.v20190429.jar"/>
-	<classpathentry kind="lib" path="lib/metadata-extractor-2.12.0.jar"/>
-	<classpathentry kind="lib" path="lib/mongodb-driver-3.11.2.jar"/>
-	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.11.2.jar"/>
+	<classpathentry kind="lib" path="lib/metadata-extractor-2.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb-driver-3.12.1.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.12.1.jar"/>
 	<classpathentry kind="lib" path="lib/mp3agic-0.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/pdfbox-2.0.17.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.7.29.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.29.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox-2.0.18.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.30.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.30.jar"/>
 	<classpathentry kind="lib" path="lib/spark-core-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/spark-template-freemarker-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-api-9.4.18.v20190429.jar"/>
