@@ -284,7 +284,7 @@ var storage = {
 	getSearchIn: () => localStorage.getItem(storage.searchInKey) || 'all',
 	setSearchIn: (mode) => localStorage.setItem(storage.searchInKey, mode),
 
-	searchForKey: 'nimbus-contacts-selected-for',
+	searchForKey: 'nimbus-contacts-search-for',
 	getSearchFor: () => localStorage.getItem(storage.searchForKey) || 'all',
 	setSearchFor: (mode) => localStorage.setItem(storage.searchForKey, mode),
 
@@ -593,7 +593,7 @@ NIMBUS.init(['contacts.js'], function() {
 					sources.forEach((s) => delete s.modified);
 					saveButton.addClass('nimbus-hidden');
 				}, () => {
-					NIMBUS.message(NIMBUS.translate('ContactSaveError'), true);
+					NIMBUS.message(NIMBUS.translate('ContactsSaveError'), true);
 					saveButton.removeClass('nimbus-hidden');
 				});
 		};

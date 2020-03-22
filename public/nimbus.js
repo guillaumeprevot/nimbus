@@ -75,7 +75,8 @@ var NIMBUS = (function() {
 		modal.find('.modal-title')
 			.text(title || NIMBUS.translate('CommonConfirmDefaultTitle'));
 		modal.find('.modal-body > p')
-			.text(question);
+			.text(question)
+			.toggleClass('text-danger', isDanger);
 		modal.find('.btn-primary')
 			.text(NIMBUS.translate('CommonConfirmOKButton'))
 			.one('click', () => defer.resolve());

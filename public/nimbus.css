@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
 [data-translate] { visibility: hidden; }
-.nimbus-hidden { display: none; }
+.nimbus-hidden { display: none !important; }
 
 #menu-button::before, #menu-button::after,
 #search-options::before, #search-options::after { display: none; }
