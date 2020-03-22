@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html class="nimbus-viewer nimbus-static-toolbars">
+<head>
+<title data-translate="text">BookmarksTitle</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="${stylesheet}" />
+<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
+<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style>
+
+header { display: flex; flex-direction: row; }
+header > .btn, header > .dropdown { flex: none; }
+header > #spacer { flex: auto; }
+header > #searchInput { flex: auto; max-width: 420px; }
+header > #searchInput:not(.active):not(:focus) { background-color: transparent; }
+
+#optionsMenu .dropdown-item .material-icons { float: right; }
+#optionsMenu .dropdown-item.selected span { padding-right: 30px; }
+#optionsMenu .dropdown-item:not(.selected) .material-icons { display: none; }
+
+main { display: flex; flex-direction: row; }
+#navigation { flex: none; min-width: 25%; overflow-y: auto; border-right: 1px solid var(--dark); margin-right: 0.5rem; background-color: rgba(128,128,128,0.2); }
+#navigation .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; }
+#navigation .list-group-item > span { flex: auto; padding: 0.5rem; text-align: left; }
+#navigation .list-group-item > .bookmark-select-folder { flex: auto; text-align: left; }
+#navigation .list-group-item > :not(span):not(.bookmark-select-folder) { flex: none; }
+#bookmarks { flex: auto; overflow-y: auto; }
+#bookmarks .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; }
+#bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin-top: 0.25rem; }
+#bookmarks .list-group-item > .bookmark-icon { flex: none; padding-top: 0.25rem; }
+#bookmarks .list-group-item > .bookmark-name { flex: none; padding-top: 0.5rem; padding-left: 0.5rem; }
+#bookmarks .list-group-item > .bookmark-description { flex: auto; padding-top: 0.5rem; padding-left: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#bookmarks .list-group-item > .bookmark-description:not(:empty)::before { content: ' ('; }
+#bookmarks .list-group-item > .bookmark-description:not(:empty)::after { content: ')'; } 
+#bookmarks .list-group-item > .bookmark-open-button { flex: none; max-width: 33%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#bookmarks .list-group-item > .bookmark-edit-button { flex: none; }
+
+#bookmarkModal .input-group .input-group-text { border-radius: 0; }
+#bookmarkModal .input-group:not(:first-of-type) { margin-top: -1px; }
+#bookmarkModal .input-group:first-of-type .input-group-prepend .input-group-text { border-top-left-radius: 0.25rem; }
+#bookmarkModal .input-group:first-of-type .input-group-append .input-group-text { border-top-right-radius: 0.25rem; }
+#bookmarkModal .input-group:last-of-type .input-group-prepend .input-group-text { border-bottom-left-radius: 0.25rem; }
+#bookmarkModal .input-group:last-of-type .input-group-append .input-group-text { border-bottom-right-radius: 0.25rem; }
+#bookmarkModal .valuelist > button { float: right; clear: right; }
+</style>
+<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
+<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/libs/moment/moment.min.js"></script>
+<#if lang == "fr"><script type="text/javascript" src="/libs/moment/fr.js"></script></#if>
+<script type="text/javascript" src="/libs/gp/gp.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-tagsinput.js"></script>
+<script type="text/javascript" src="/libs/gp/gp-valuelist.js"></script>
+<script type="text/javascript" src="/nimbus.js"></script>
+<script type="text/javascript" src="/langs/${lang}.js"></script>
+</head>
+<body class="nimbus-hidden">
+	<header class="bg-primary">
+		<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+		<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="BookmarksSave"><i class="material-icons">save</i></button>
+
+		<span id="spacer"></span>
+
+		<input id="searchInput" type="search" class="form-control" data-translate="placeholder title" placeholder="BookmarksSearchPlaceholder" title="BookmarksSearchTitle" />
+		<div id="optionsMenu" class="dropdown">
+			<button id="optionsMenuButton" type="button" class="btn btn-link" data-translate="title" title="BookmarksOptionsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">tune</i></button>
+			<div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionsMenuButton">
+				<button type="button" class="dropdown-item" data-search-in="name">
+					<i class="material-icons">check</i>
+					<span data-translate="text">BookmarksSearchInNames</span>
+				</button>
+				<button id="searchAllFieldsButton" type="button" class="dropdown-item selected" data-search-in="all">
+					<i class="material-icons">check</i>
+					<span data-translate="text">BookmarksSearchInAllFields</span>
+				</button>
+				<div class="dropdown-divider"></div>
+				<button type="button" class="dropdown-item" data-search-for="root">
+					<i class="material-icons">check</i>
+					<span data-translate="text">BookmarksSearchForRootBookmarks</span>
+				</button>
+				<button id="searchAllBookmarksButton" type="button" class="dropdown-item selected" data-search-for="all">
+					<i class="material-icons">check</i>
+					<span data-translate="text">BookmarksSearchForAllBookmarks</span>
+				</button>
+				<div class="dropdown-divider"></div>
+				<button type="button" class="dropdown-item" data-save-changes="manually">
+					<i class="material-icons">check</i>
+					<span data-translate="text">BookmarksSaveChangesManually</span>
+				</button>
+				<button id="saveChangesAutomaticallyButton" type="button" class="dropdown-item selected" data-save-changes="automatically">
+					<i class="material-icons">check</i>
+					<span data-translate="text">BookmarksSaveChangesAutomatically</span>
+				</button>
+			</div>
+		</div>
+		<button id="addBookmarkButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="BookmarksAddBookmark"><i class="material-icons">add</i></button>
+	</header>
+	<main>
+		<div id="navigation" class="list-group list-group-flush bg-secondary"></div>
+		<div id="bookmarks" class="list-group list-group-flush"></div>
+	</main>
+	<div id="alert-container"></div>
+	<footer class="bg-secondary"></footer>
+	<form>
+		<div id="bookmarkModal" class="modal fade">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" data-translate="text">BookmarkModalTitle</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="bookmarkName" data-translate="text">BookmarkNameLabel</label>
+							<input id="bookmarkName" type="text" class="form-control" data-translate="placeholder" placeholder="BookmarkNamePlaceholder" autofocus="autofocus" />
+						</div>
+						<div class="form-group">
+							<label for="bookmarkURL" data-translate="text">BookmarkURLLabel</label>
+							<input id="bookmarkURL" type="url" class="form-control" data-translate="placeholder" placeholder="BookmarkURLPlaceholder" />
+						</div>
+						<div class="form-group">
+							<label for="bookmarkIconURL" data-translate="text">BookmarkIconURLLabel</label>
+							<input id="bookmarkIconURL" type="url" class="form-control" data-translate="placeholder" placeholder="BookmarkIconURLPlaceholder" />
+						</div>
+						<div class="form-group">
+							<label for="bookmarkDescription" data-translate="text">BookmarkDescriptionLabel</label>
+							<input id="bookmarkDescription" type="text" class="form-control" data-translate="placeholder" placeholder="BookmarkDescriptionPlaceholder" />
+						</div>
+						<div class="form-group">
+							<label for="bookmarkKeywords" data-translate="text">BookmarkKeywordsLabel</label>
+							<input id="bookmarkKeywords" type="text" class="form-control" data-translate="placeholder" placeholder="BookmarkKeywordsPlaceholder" />
+						</div>
+						<div class="form-group">
+							<label for="bookmarkExtensions" data-translate="text">BookmarkExtensionsLabel</label>
+							<div id="bookmarkExtensions"></div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button id="bookmarkDeleteButton" type="button" class="btn btn-danger" data-translate="text">BookmarkDeleteButton</button>
+						<div style="flex: auto; "></div>
+						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">BookmarkCancelButton</button>
+						<button id="bookmarkValidateButton" type="button" class="btn btn-primary">
+							<span class="add" data-translate="text">BookmarkAddButton</span>
+							<span class="apply" data-translate="text">BookmarkApplyButton</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+<script>
+"use strict";
+// L'objet chargé de la sauvegarde des préférences, via localStorage
+var storage = {
+	selectedItemIdKey: 'nimbus-bookmarks-selected-item-id',
+	getSelectedItemId: () => localStorage.getItem(storage.selectedItemIdKey) != null ? parseInt(localStorage.getItem(storage.selectedItemIdKey)) : null,
+	setSelectedItemId: (itemId) => localStorage.setItem(storage.selectedItemIdKey, itemId.toString()),
+
+	searchInKey: 'nimbus-bookmarks-search-in',
+	getSearchIn: () => localStorage.getItem(storage.searchInKey) || 'all',
+	setSearchIn: (mode) => localStorage.setItem(storage.searchInKey, mode),
+
+	searchForKey: 'nimbus-bookmarks-search-for',
+	getSearchFor: () => localStorage.getItem(storage.searchForKey) || 'all',
+	setSearchFor: (mode) => localStorage.setItem(storage.searchForKey, mode),
+
+	saveChangesKey: 'nimbus-bookmarks-save-changes',
+	getSaveChanges: () => localStorage.getItem(storage.saveChangesKey) || 'automatically',
+	setSaveChanges: (mode) => localStorage.setItem(storage.saveChangesKey, mode),
+};
+
+// Cette méthode crée l'entrée dans la partie centrale pour le favori demandé
+function createBookmarkItem(source, folder, bookmark) {
+	return $('<div class="list-group-item">'
+			+ '  <img class="bookmark-image" />'
+			+ '  <i class="bookmark-icon material-icons material-icons-32">link</i>'
+			+ '  <span class="bookmark-name"></span>'
+			+ '  <span class="bookmark-description text-muted"></span>'
+			+ '  <a href="#" target="_blank" class="btn btn-link text-muted bookmark-open-button" />'
+			+ '  <button type="button" class="btn btn-link bookmark-edit-button"><i class="material-icons">edit</i></button>'
+			+ '</div>')
+			.data('source', source).data('folder', folder).data('bookmark', bookmark)
+			.children('.bookmark-image').attr('src', bookmark.iconURL).toggle(!!bookmark.iconURL).end()
+			.children('.bookmark-icon').toggle(!bookmark.iconURL).end()
+			.children('.bookmark-name').text(bookmark.name).end()
+			.children('.bookmark-description').text(bookmark.description || '').end()
+			.children('.bookmark-open-button').attr('href', bookmark.url || '#').text(bookmark.url || '').end()
+			.children('.bookmark-edit-button').attr('title', NIMBUS.translate('BookmarksEditBookmark')).end();	
+}
+
+// Cette méthode crée l'entrée de menu dans la zone de navigation à gauche pour le dossier demandé
+function createFolderNavigationItem(source, folder) {
+	return $('<div class="list-group-item">'
+			+ '  <button type="button" class="btn btn-link bookmark-icon-folder"><i class="material-icons"></i></button>'
+			+ '  <button type="button" class="btn btn-link bookmark-select-folder"></button>'
+			+ '  <button type="button" class="btn btn-link bookmark-rename-folder"><i class="material-icons">edit</i></button>'
+			+ '  <button type="button" class="btn btn-link bookmark-delete-folder"><i class="material-icons">delete</i></button>'
+			+ '</div>')
+			.data('source', source).data('folder', folder)
+			.find('.bookmark-icon-folder > i').attr('title', NIMBUS.translate('BookmarksSelectFolderIconTitle')).text(folder.icon || 'folder').end()
+			.children('.bookmark-select-folder').text(folder.name).end()
+			.children('.bookmark-rename-folder').attr('title', NIMBUS.translate('BookmarksRenameFolderTitle')).end()
+			.children('.bookmark-delete-folder').attr('title', NIMBUS.translate('BookmarksDeleteFolderTitle')).end();
+}
+
+// Cette méthode crée l'entrée de menu dans la zone de navigation à gauche pour la source demandée
+function createSourceNavigationItem(source) {
+	return $('<div class="list-group-item">'
+			+ '  <span></span>'
+			+ '  <button type="button" class="btn btn-link bookmark-rename-source"><i class="material-icons">edit</i></button>'
+			+ '  <button type="button" class="btn btn-link bookmark-add-folder"><i class="material-icons">add</i></button>'
+			+ '</div>')
+			.data('source', source)
+			.children('span').text(source.getNameOrDefault()).end()
+			.children('.bookmark-rename-source').attr('title', NIMBUS.translate('BookmarksRenameSourceTitle')).end()
+			.children('.bookmark-add-folder').attr('title', NIMBUS.translate('BookmarksAddFolderTitle')).end();
+}
+
+// Cette méthode met à jour le contenu de la zone centrale affichant les favoris d'un dossier
+function updateSelection(source, folder) {
+	var bookmarks = $('#bookmarks').empty();
+	$('#addBookmarkButton').toggleClass('nimbus-hidden', !folder);
+	if (!folder)
+		return;
+	folder.bookmarks.forEach(function(bookmark) {
+		createBookmarkItem(source, folder, bookmark).appendTo(bookmarks);
+	});
+}
+
+// Cette méthode filtre la grille en fonction du texte recherché
+function updateSearch() {
+	// Vérifier si la recherche est active
+	var searchTextLC = $('#searchInput').val().toLowerCase();
+	if (! searchTextLC) {
+		$('#navigation').children().show();
+		$('#bookmarks').children().show();
+		return;
+	}
+	// Récupérer l'API
+	var api = NIMBUS.utils.bookmarkAPI;
+	// Récupérer les paramètres de recherche
+	var searchAllFields = $('#searchAllFieldsButton').hasClass('selected');
+	var searchAllBookmarks = $('#searchAllBookmarksButton').hasClass('selected');
+	// Ajuster la navigation à gauche
+	var navigationItems = $('#navigation > *');
+	var sourceIndex = 0;
+	while (sourceIndex < navigationItems.length) {
+		var sourceItem = navigationItems.eq(sourceIndex);
+		var source = sourceItem.data('source');
+		var sourceVisible = false;
+		source.folders.forEach(function(folder, folderIndex) {
+			var folderVisible = folder.bookmarks.some(function(bookmark) {
+				return api.matchBookmark(bookmark, searchTextLC, searchAllFields, searchAllBookmarks);
+			});
+			navigationItems.eq(sourceIndex + 1 + folderIndex).toggle(folderVisible);
+			sourceVisible = sourceVisible || folderVisible;
+		});
+		sourceItem.toggle(sourceVisible);
+		sourceIndex += 1 + source.folders.length;
+	}
+}
+
+function editBookmark(source, folder, bookmark, isNew, callback, deleteCallback) {
+	// Récupérer l'API
+	var api = NIMBUS.utils.bookmarkAPI;
+	// Préparer le formulaire
+	var nameInput = $('#bookmarkName').val(bookmark.name || '');
+	var urlInput = $('#bookmarkURL').val(bookmark.url || '');
+	var iconURLInput = $('#bookmarkIconURL').val(bookmark.iconURL || '');
+	var descriptionInput = $('#bookmarkDescription').val(bookmark.description || '');
+	var keywordsInput = $('#bookmarkKeywords').val(bookmark.keywords || '').trigger('change');
+	$('#bookmarkExtensions').valueList('destroy').valueList({
+		addDefault: 'empty',
+		icon: 'public',
+		items: bookmark.extensions,
+		editor: new window.ValueList.TextEditor('url', NIMBUS.translate('BookmarkExtensionURL'), 'url'),
+		labelPlaceholder: NIMBUS.translate('BookmarkExtensionLabel'),
+		labelProperty: 'name',
+		addText: NIMBUS.translate('BookmarkExtensionAdd'),
+		actions: [
+			new window.ValueList.LinkAction('public', NIMBUS.translate('BookmarkExtensionOpen'), '%VALUE%'),
+			new window.ValueList.CopyToClipboardAction(NIMBUS.translate('BookmarkExtensionCopy')),
+		]
+	});
+	// Masquer le bouton de suppression en cas d'ajout
+	$('#bookmarkDeleteButton').toggle(!isNew).off('click').on('click', function() {
+		// Supprimer le favori
+		folder.bookmarks.splice(folder.bookmarks.indexOf(bookmark), 1);
+		// Fermer la fenêtre modale
+		$('#bookmarkModal').modal('hide');
+		// Appeler la callback
+		deleteCallback();
+	});
+	// Ajuster le bouton de validation (ajout ou modification ?)
+	$('#bookmarkValidateButton .add').toggle(isNew).siblings('.apply').toggle(!isNew);
+	// Ajuster l'action de validation au contexte en cours
+	$('#bookmarkValidateButton').off('click').on('click', function() {
+		// Récupérer le libellé actuel pour retrier si besoin
+		var oldName = bookmark.name || '';
+		// Ajuster les données
+		bookmark.name = nameInput.val() || undefined;
+		bookmark.url = urlInput.val() || undefined;
+		bookmark.iconURL = iconURLInput.val() || undefined;
+		bookmark.description = descriptionInput.val() || undefined;
+		bookmark.keywords = keywordsInput.val() || undefined;
+		bookmark.extensions = $('#bookmarkExtensions').valueList().extract().map((e) => new api.BookmarkExtension(e));
+		if (isNew)
+			folder.bookmarks.push(bookmark);
+		if (oldName !== bookmark.name)
+			folder.sort();
+		// Fermer la fenêtre modale
+		$('#bookmarkModal').modal('hide');
+		// Appeler la callback
+		callback();
+	});
+	// Afficher la fenêtre modale
+	$('#bookmarkModal').modal();
+}
+
+//Initialiser la page
+NIMBUS.init(['bookmarks.js'], function() {
+	// En haut à gauche, le bouton "Retour"
+	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
+
+	// Identifiant de l'élément sélectionné par défaut
+	var itemId = ${itemId!"null"};
+	if (itemId === null)
+		itemId = storage.getSelectedItemId();
+
+	// Récupération des différents calendrier
+	$.get('/items/list', {
+		recursive: true,
+		sortBy: 'name',
+		sortAscending: true,
+		folders: false,
+		hidden: null,
+		deleted: false,
+		extensions: 'bookmarks'
+	}).then(function(items) {
+		// Récupération de l'API
+		var api = NIMBUS.utils.bookmarkAPI;
+		// Création des sources
+		var sources = items.map((item) => new api.BookmarkSource(item));
+		// Chargement des sources
+		return Promise.all(sources.map((s) => s.load())).then((results) => {
+			// console.log(sources);
+			return sources;
+		});
+	}).then(function(sources) {
+		// Récupération de l'API
+		var api = NIMBUS.utils.bookmarkAPI;
+
+		// Gestion du bouton de sauvegarde
+		var saveButton = $('#saveButton');
+		// Extraction de la fonction de sauvegarde pour pour l'appeler sans simuler un clic sur le bouton
+		var save = function() {
+			var promises = sources.filter((s) => s.modified).map((s) => s.save());
+			Promise.all(promises).then(() => {
+					sources.forEach((s) => delete s.modified);
+					saveButton.addClass('nimbus-hidden');
+				}, () => {
+					NIMBUS.message(NIMBUS.translate('BookmarksSaveError'), true);
+					saveButton.removeClass('nimbus-hidden');
+				});
+		};
+		// Sauvegarde manuelle
+		saveButton.on('click', save);
+		// Détection des modifications par l'envoi d'évènements 'bookmarksourcechange'
+		var data = $(sources).on('bookmarksourcechange', function(event, source) {
+			source.modified = true;
+			if ($('#saveChangesAutomaticallyButton').hasClass('selected')) {
+				save();
+			} else {
+				saveButton.removeClass('nimbus-hidden');
+			}
+		});
+
+		// Récupération de la source demandée (ou la première par défaut)
+		var selectedSource = (itemId === null) ? sources[0] : sources.find((s) => s.item.id === itemId);
+		var selectedFolder = (selectedSource && selectedSource.folders.length > 0) ?  selectedSource.folders[0] : null;
+
+		// Préparation de la zone de navigation
+		var navigation = $('#navigation').empty();
+		sources.forEach(function(source) {
+			createSourceNavigationItem(source).appendTo(navigation);
+			source.folders.forEach(function(folder) {
+				createFolderNavigationItem(source, folder).appendTo(navigation);
+			});
+		});
+
+		// Chargement des bookmarks du premier dossier éventuel
+		var bookmarks = $('#bookmarks');
+		updateSelection(selectedSource, selectedFolder);
+
+		// Configuration de la zone de recherche
+		$('#searchInput').val('').change(function() {
+			// Marquer de la classe active pour forcer le fond blanc (cf <style />)
+			$(this).toggleClass('active', !!this.value);
+			// Filtrer la table en fonction de la recherche
+			updateSearch();
+		});
+
+		// Recherche dans le champs displayName ou dans tous les champs
+		var searchInButtons = $('#optionsMenu [data-search-in]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			searchInButtons.not(button).removeClass('selected');
+			updateSearch();
+			storage.setSearchIn(button.attr('data-search-in'));
+		});
+		var searchIn = storage.getSearchIn();
+		if (searchIn !== 'all')
+			searchInButtons.removeClass('selected').filter('[data-search-in=' + searchIn + ']').addClass('selected');
+
+		// Recherche dans le détail des favoris ou simplement l'en-tête
+		var searchForButtons = $('#optionsMenu [data-search-for]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			searchForButtons.not(button).removeClass('selected');
+			updateSearch();
+			storage.setSearchFor(button.attr('data-search-for'));
+		});
+		var searchFor = storage.getSearchFor();
+		if (searchFor !== 'all')
+			searchForButtons.removeClass('selected').filter('[data-search-for=' + searchFor + ']').addClass('selected');
+
+		// Sauvegarde auto (par défaut) ou sauvegarde manuelle
+		var saveChangesButtons = $('#optionsMenu [data-save-changes]').on('click', function(event) {
+			var button = $(event.target).closest('button').addClass('selected');
+			saveChangesButtons.not(button).removeClass('selected');
+			save();
+			storage.setSaveChanges(button.attr('data-save-changes'));
+		});
+		var saveChanges = storage.getSaveChanges();
+		if (saveChanges !== 'automatically')
+			saveChangesButtons.filter('[data-save-changes=' + saveChanges + ']').click();
+
+		// L'IHM est prête, on l'affiche
+		var body = $(document.body).removeClass('nimbus-hidden');
+
+		// Clic sur un bouton de renommage des sources
+		$('#navigation').on('click', '.bookmark-rename-source', function() {
+			// Récupérer l'élément cliqué et la source associée
+			var item = $(event.target).closest('.list-group-item');
+			var source = item.data('source');
+			// Demander le nouveau nom
+			NIMBUS.prompt(NIMBUS.translate('BookmarksRenameSourcePrompt'), source.getNameOrDefault(), '').then(function(newName) {
+				// Renommer la source
+				source.name = newName.trim() || null;
+				// Ajuster le titre dans la partie gauche
+				item.children('span').text(source.getNameOrDefault());
+				// Gérer la sauvegarde
+				data.trigger('bookmarksourcechange', source);
+			});
+		});
+
+		// Clic sur un bouton d'ajout d'un dossier
+		$('#navigation').on('click', '.bookmark-add-folder', function() {
+			// Récupérer l'élément cliqué et la source associée
+			var item = $(event.target).closest('.list-group-item');
+			var source = item.data('source');
+			// Demander le nom du dossier à créer
+			NIMBUS.prompt(NIMBUS.translate('BookmarksAddFolderPrompt'), '', '').then(function(name) {
+				if (name && name.trim()) {
+					// Ajouter le dossier
+					var folder = new api.BookmarkFolder({ name: name });
+					source.folders.push(folder);
+					// Ajuster le contenu de la partie gauche
+					createFolderNavigationItem(source, folder).insertAfter($('#navigation').children().eq(item.index() + source.folders.length - 1));
+					// Gérer la sauvegarde
+					data.trigger('bookmarksourcechange', source);
+				}
+			});
+		});
+
+		// Clic sur un bouton de sélection d'icône pour un dossier
+		$('#navigation').on('click', '.bookmark-icon-folder', function() {
+			// Récupérer l'élément cliqué, la source et le dossier associé
+			var item = $(event.target).closest('.list-group-item');
+			var source = item.data('source');
+			var folder = item.data('folder');
+			// Demander le nom du dossier à créer
+			NIMBUS.prompt(NIMBUS.translate('BookmarksSelectFolderIconPrompt'), folder.icon || '', '').then(function(newIcon) {
+				// Ajuster le modèle
+				folder.icon = newIcon.trim() || null;
+				// Ajuster le contenu de la partie gauche
+				item.children('.bookmark-icon-folder').children('i').text(folder.icon || 'folder');
+				// Gérer la sauvegarde
+				data.trigger('bookmarksourcechange', source);
+			});
+		});
+
+		// Clic sur un bouton de renommage d'un dossier
+		$('#navigation').on('click', '.bookmark-rename-folder', function() {
+			// Récupérer l'élément cliqué, la source et le dossier associé
+			var item = $(event.target).closest('.list-group-item');
+			var source = item.data('source');
+			var folder = item.data('folder');
+			// Demander le nouveau nom
+			NIMBUS.prompt(NIMBUS.translate('BookmarksRenameFolderPrompt'), folder.name || '', '').then(function(newName) {
+				if (newName && newName.trim()) {
+					// Ajuster le modèle
+					folder.name = newName.trim();
+					// Ajuster le contenu de la partie gauche
+					item.children('.bookmark-select-folder').text(folder.name);
+					// Gérer la sauvegarde
+					data.trigger('bookmarksourcechange', source);
+				}
+			});
+		});
+
+		// Clic sur un bouton de suppression de dossier
+		$('#navigation').on('click', '.bookmark-delete-folder', function() {
+			// Récupérer l'élément cliqué, la source et le dossier associé
+			var item = $(event.target).closest('.list-group-item');
+			var source = item.data('source');
+			var folder = item.data('folder');
+			// Demander le nouveau nom
+			NIMBUS.confirm('', NIMBUS.translate('BookmarksDeleteFolderConfirmation'), true).then(function() {
+				// Ajuster le modèle
+				source.folders.splice(source.folders.indexOf(folder), 1);
+				// Ajuster le contenu de la partie gauche
+				item.remove();
+				// Gérer la sauvegarde
+				data.trigger('bookmarksourcechange', source);
+			});
+		});
+
+		// Clic sur un bouton de sélection de dossier
+		$('#navigation').on('click', '.bookmark-select-folder', function() {
+			// Récupérer l'élément cliqué, la source et le dossier associé
+			var item = $(event.target).closest('.list-group-item');
+			selectedSource = item.data('source');
+			selectedFolder = item.data('folder');
+			// Afficher le contenu du dossier
+			updateSelection(selectedSource, selectedFolder);
+		});
+
+		// Clic sur un bouton d'ajout de favori
+		$('#addBookmarkButton').on('click', function()  {
+			// Créer un favori vide
+			var newBookmark = { extensions: [] };
+			// Editer ce favori 
+			editBookmark(selectedSource, selectedFolder, newBookmark, true, function() {
+				// Gérer la sauvegarde
+				data.trigger('bookmarksourcechange', selectedSource);
+				// Raffraichir la page
+				updateSelection(selectedSource, selectedFolder);
+			});
+		});
+
+		// Clic sur un bouton de modification de favori
+		$('#bookmarks').on('click', '.bookmark-edit-button', function(event) {
+			// Récupérer l'élément cliqué, la source, le dossier et le favori associés
+			var item = $(event.target).closest('.list-group-item');
+			var bookmark = item.data('bookmark');
+			selectedSource = item.data('source');
+			selectedFolder = item.data('folder');
+			editBookmark(selectedSource, selectedFolder, bookmark, false, function() {
+				// Gérer la sauvegarde
+				data.trigger('bookmarksourcechange', selectedSource);
+				// Raffraichir la page
+				updateSelection(selectedSource, selectedFolder);
+			}, function() {
+				// Gérer la sauvegarde
+				data.trigger('bookmarksourcechange', selectedSource);
+				// Raffraichir la page
+				item.remove();
+			});
+		});
+
+		// Plugin tagsinput pour les motes-clefs
+		$('#bookmarkKeywords').tagsinput({
+			label: $('#bookmarkKeywords').prev('label'),
+			inline: true,
+			// autocompleteValues: ['aaa', 'bbb', 'ccc']
+			autocompleteFunction: (term) => {
+				var termLC = term.toLowerCase();
+				var tags = [];
+				sources.forEach((source) => {
+					source.folders.forEach((folder) => {
+						folder.bookmarks.forEach((bookmark) => {
+							if (! bookmark.keywords)
+								return;
+							if (! bookmark.keywords.toLowerCase().includes(termLC))
+								return;
+							bookmark.keywords.split(',').forEach((word) => {
+								if (word.toLowerCase().includes(termLC) && !tags.includes(word))
+									tags.push(word);
+							});
+						});
+					});
+				});
+				return $.Deferred().resolve(tags);
+			}
+		});
+
+		// Configuration du plugin "valuelist"
+		window.ValueList.defaultOptions.moveToFirstPositionText = NIMBUS.translate('BookmarkExtensionMoveToFirstPosition');
+		window.ValueList.defaultOptions.moveToPreviousPositionText = NIMBUS.translate('BookmarkExtensionMoveToPreviousPosition');
+		window.ValueList.defaultOptions.moveToNextPositionText = NIMBUS.translate('BookmarkExtensionMoveToNextPosition');
+		window.ValueList.defaultOptions.moveToLastPositionText = NIMBUS.translate('BookmarkExtensionMoveToLastPosition');
+		window.ValueList.defaultOptions.removeText = NIMBUS.translate('BookmarkExtensionRemove');
+
+		// Manipulation au clavier
+		body.keystrokes({
+			'Ctrl-f': () => $('#searchInput').focus().select(),
+			'Ctrl-s': () => save(),
+		});
+
+		// Désactivation de la soumission des formulaires
+		$('form').on('submit', function() { return false; });
+	});
+});
+</script>
+
+</body>
+</html>

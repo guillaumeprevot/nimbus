@@ -80,8 +80,8 @@ Fait | Tests automatisés (mais à compléter au fur et à mesure)
 Fait | Installation simplifiée
 Fait | Documentation (présentation, technologies, installation, import, synchronisation)
 À continuer | Documentation (types de fichier supportés, facets, plugins, applications) 
-Fait | Applications annexes (image, audio, video, epub, pdf, url, texte, markdown, code, calendrier, contact)
-À étudier | Applications annexes (checksums, bookmark, wiki, RSS, messagerie... il y a tellement de possibilités !)
+Fait | Applications annexes (image, audio, video, epub, pdf, url, texte, markdown, code, calendrier, contacts, bookmarks)
+À étudier | Applications annexes (checksums, TODO, wiki, RSS, messagerie... il y a tellement de possibilités !)
 Fait | Synchronisation (dossier local vers serveur et serveur vers dossier local)
 À étudier | Synchronisation (bi-directionnelle et/ou temps réel)
 
@@ -129,6 +129,9 @@ Enfin, certaines extensions sont interprétées comme fichiers contenant les don
 - Contact
 	- le carnet d'adresse est constitué de un ou plusieurs fichiers `.contacts`, par exemple *personnel.contacts* et *professionnel.contacts*
 	- l'application est accessible via le menu général `Ouvrir le carnet d'adresse` ou l'action `Ouvrir dans le carnet d'adresse` de ces fichiers
+- Favoris / Bookmark
+	- les favoris Internet (a.k.a. bookmark) sont organisés dans un ou plusieurs fichiers `.bookmarks`, par exemple *personnel.bookmarks* et *professionnel.bookmarks*
+	- l'application est accessible via le menu général `Ouvrir le gestionnaire de favoris` ou l'action `Ouvrir dans le gestionnaire de favoris` de ces fichiers
 - Applications
 	- l'extension `.application` est utilisée comme marqueur pour des applications HTML/CSS/JS que l'on peut lancer en utilisant l'action `Lancer cette application`
 	- [une application fonctionnelle](./doc/template.application.png) est disponible dans `doc/template.application`. Elle permet de générer des squelettes d'application personnalisables

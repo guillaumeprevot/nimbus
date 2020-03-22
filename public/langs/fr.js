@@ -82,6 +82,7 @@ NIMBUS.lang = {
 	MainToolbarNewWindow: "Ouvrir une nouvelle fenêtre",
 	MainToolbarOpenCalendar: "Ouvrir l'agenda",
 	MainToolbarOpenContacts: "Ouvrir le carnet d'adresse",
+	MainToolbarOpenBookmarks: "Ouvrir le gestionnaire de favoris",
 	MainToolbarOpenAudioPlayer: "Ouvrir le lecteur audio",
 	MainToolbarAddFolder: "Créer un dossier",
 	MainToolbarUploadFiles: "Téléverser un ou plusieurs fichiers",
