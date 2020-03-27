@@ -227,18 +227,26 @@ function updateSelection(source, folder) {
 	$('#addBookmarkButton').toggleClass('nimbus-hidden', !folder);
 	if (!folder)
 		return;
+	// Ajouter les favoris dans la partie droite
 	folder.bookmarks.forEach(function(bookmark) {
-		createBookmarkItem(source, folder, bookmark).appendTo(bookmarks);
+		createBookmarkItem(source, folder, bookmark).hide().appendTo(bookmarks);
 	});
+	// Ajuster la visibilité en fonction de la recherche en cours
+	updateSearch(false, true);
 }
 
-// Cette méthode filtre la grille en fonction du texte recherché
-function updateSearch() {
+//Cette méthode filtre la grille en fonction du texte recherché
+function updateSearch(updateNavigation, updateBookmarks) {
+	// Si rien à mettre à jour, c'est vite-fait
+	if (!updateNavigation && !updateBookmarks)
+		return;
 	// Vérifier si la recherche est active
 	var searchTextLC = $('#searchInput').val().toLowerCase();
 	if (! searchTextLC) {
-		$('#navigation').children().show();
-		$('#bookmarks').children().show();
+		if (updateNavigation)
+			$('#navigation').children().show();
+		if (updateBookmarks)
+			$('#bookmarks').children().show();
 		return;
 	}
 	// Récupérer l'API
@@ -247,21 +255,31 @@ function updateSearch() {
 	var searchAllFields = $('#searchAllFieldsButton').hasClass('selected');
 	var searchAllBookmarks = $('#searchAllBookmarksButton').hasClass('selected');
 	// Ajuster la navigation à gauche
-	var navigationItems = $('#navigation > *');
-	var sourceIndex = 0;
-	while (sourceIndex < navigationItems.length) {
-		var sourceItem = navigationItems.eq(sourceIndex);
-		var source = sourceItem.data('source');
-		var sourceVisible = false;
-		source.folders.forEach(function(folder, folderIndex) {
-			var folderVisible = folder.bookmarks.some(function(bookmark) {
-				return api.matchBookmark(bookmark, searchTextLC, searchAllFields, searchAllBookmarks);
+	if (updateNavigation) {
+		var navigationItems = $('#navigation > *');
+		var sourceIndex = 0;
+		while (sourceIndex < navigationItems.length) {
+			var sourceItem = navigationItems.eq(sourceIndex);
+			var source = sourceItem.data('source');
+			var sourceVisible = false;
+			source.folders.forEach(function(folder, folderIndex) {
+				var folderVisible = folder.bookmarks.some(function(bookmark) {
+					return api.matchBookmark(bookmark, searchTextLC, searchAllFields, searchAllBookmarks);
+				});
+				navigationItems.eq(sourceIndex + 1 + folderIndex).toggle(folderVisible);
+				sourceVisible = sourceVisible || folderVisible;
 			});
-			navigationItems.eq(sourceIndex + 1 + folderIndex).toggle(folderVisible);
-			sourceVisible = sourceVisible || folderVisible;
+			sourceItem.toggle(sourceVisible);
+			sourceIndex += 1 + source.folders.length;
+		}
+	}
+	// Ajuster les bookmarks à droite
+	if (updateBookmarks) {
+		$('#bookmarks > *').each(function() {
+			var div = $(this);
+			var bookmark = div.data('bookmark');
+			div.toggle(api.matchBookmark(bookmark, searchTextLC, searchAllFields, searchAllBookmarks)); 
 		});
-		sourceItem.toggle(sourceVisible);
-		sourceIndex += 1 + source.folders.length;
 	}
 }
 
@@ -402,14 +420,14 @@ NIMBUS.init(['bookmarks.js'], function() {
 			// Marquer de la classe active pour forcer le fond blanc (cf <style />)
 			$(this).toggleClass('active', !!this.value);
 			// Filtrer la table en fonction de la recherche
-			updateSearch();
+			updateSearch(true, true);
 		});
 
 		// Recherche dans le champs displayName ou dans tous les champs
 		var searchInButtons = $('#optionsMenu [data-search-in]').on('click', function(event) {
 			var button = $(event.target).closest('button').addClass('selected');
 			searchInButtons.not(button).removeClass('selected');
-			updateSearch();
+			updateSearch(true, true);
 			storage.setSearchIn(button.attr('data-search-in'));
 		});
 		var searchIn = storage.getSearchIn();
@@ -420,7 +438,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 		var searchForButtons = $('#optionsMenu [data-search-for]').on('click', function(event) {
 			var button = $(event.target).closest('button').addClass('selected');
 			searchForButtons.not(button).removeClass('selected');
-			updateSearch();
+			updateSearch(true, true);
 			storage.setSearchFor(button.attr('data-search-for'));
 		});
 		var searchFor = storage.getSearchFor();
