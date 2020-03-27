@@ -30,7 +30,7 @@ main { display: flex; flex-direction: row; }
 #navigation .list-group-item > .bookmark-select-folder { flex: auto; text-align: left; }
 #navigation .list-group-item > :not(span):not(.bookmark-select-folder) { flex: none; }
 #bookmarks { flex: auto; overflow-y: auto; }
-#bookmarks .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; }
+#bookmarks .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; cursor: pointer; }
 #bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin-top: 0.25rem; }
 #bookmarks .list-group-item > .bookmark-icon { flex: none; padding-top: 0.25rem; }
 #bookmarks .list-group-item > .bookmark-name { flex: none; padding-top: 0.5rem; padding-left: 0.5rem; }
@@ -38,7 +38,6 @@ main { display: flex; flex-direction: row; }
 #bookmarks .list-group-item > .bookmark-description:not(:empty)::before { content: ' ('; }
 #bookmarks .list-group-item > .bookmark-description:not(:empty)::after { content: ')'; } 
 #bookmarks .list-group-item > .bookmark-open-button { flex: none; max-width: 33%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#bookmarks .list-group-item > .bookmark-edit-button { flex: none; }
 
 #bookmarkModal .input-group .input-group-text { border-radius: 0; }
 #bookmarkModal .input-group:not(:first-of-type) { margin-top: -1px; }
@@ -176,13 +175,12 @@ var storage = {
 
 // Cette méthode crée l'entrée dans la partie centrale pour le favori demandé
 function createBookmarkItem(source, folder, bookmark) {
-	return $('<div class="list-group-item">'
+	return $('<div class="list-group-item list-group-item-action bookmark-edit-button">'
 			+ '  <img class="bookmark-image" />'
 			+ '  <i class="bookmark-icon material-icons material-icons-32">link</i>'
 			+ '  <span class="bookmark-name"></span>'
 			+ '  <span class="bookmark-description text-muted"></span>'
 			+ '  <a href="#" target="_blank" class="btn btn-link text-muted bookmark-open-button" />'
-			+ '  <button type="button" class="btn btn-link bookmark-edit-button"><i class="material-icons">edit</i></button>'
 			+ '</div>')
 			.data('source', source).data('folder', folder).data('bookmark', bookmark)
 			.children('.bookmark-image').attr('src', bookmark.iconURL).toggle(!!bookmark.iconURL).end()
@@ -190,7 +188,7 @@ function createBookmarkItem(source, folder, bookmark) {
 			.children('.bookmark-name').text(bookmark.name).end()
 			.children('.bookmark-description').text(bookmark.description || '').end()
 			.children('.bookmark-open-button').attr('href', bookmark.url || '#').text(bookmark.url || '').end()
-			.children('.bookmark-edit-button').attr('title', NIMBUS.translate('BookmarksEditBookmark')).end();	
+			.attr('title', NIMBUS.translate('BookmarksEditBookmark'));
 }
 
 // Cette méthode crée l'entrée de menu dans la zone de navigation à gauche pour le dossier demandé
@@ -568,6 +566,12 @@ NIMBUS.init(['bookmarks.js'], function() {
 				// Raffraichir la page
 				updateSelection(selectedSource, selectedFolder);
 			});
+		});
+
+		// Clic sur un bouton de modification de favori
+		$('#bookmarks').on('click', '.bookmark-open-button', function(event) {
+			// Stopper la propagation pour ne pas éditer le favori
+			event.stopPropagation();
 		});
 
 		// Clic sur un bouton de modification de favori
