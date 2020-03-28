@@ -178,7 +178,7 @@ function createBookmarkItem(source, folder, bookmark) {
 	return $('<div class="list-group-item list-group-item-action bookmark-edit-button">'
 			+ '  <img class="bookmark-image" />'
 			+ '  <i class="bookmark-icon material-icons material-icons-32">link</i>'
-			+ '  <span class="bookmark-name"></span>'
+			+ '  <span class="bookmark-name" draggable="true"></span>'
 			+ '  <span class="bookmark-description text-muted"></span>'
 			+ '  <a href="#" target="_blank" class="btn btn-link text-muted bookmark-open-button" />'
 			+ '</div>')
@@ -193,9 +193,9 @@ function createBookmarkItem(source, folder, bookmark) {
 
 // Cette méthode crée l'entrée de menu dans la zone de navigation à gauche pour le dossier demandé
 function createFolderNavigationItem(source, folder) {
-	return $('<div class="list-group-item">'
+	return $('<div class="list-group-item bookmark-folder-item">'
 			+ '  <button type="button" class="btn btn-link bookmark-icon-folder"><i class="material-icons"></i></button>'
-			+ '  <button type="button" class="btn btn-link bookmark-select-folder"></button>'
+			+ '  <button type="button" class="btn btn-link bookmark-select-folder text-primary"></button>'
 			+ '  <button type="button" class="btn btn-link bookmark-rename-folder"><i class="material-icons">edit</i></button>'
 			+ '  <button type="button" class="btn btn-link bookmark-delete-folder"><i class="material-icons">delete</i></button>'
 			+ '</div>')
@@ -279,6 +279,75 @@ function updateSearch(updateNavigation, updateBookmarks) {
 			div.toggle(api.matchBookmark(bookmark, searchTextLC, searchAllFields, searchAllBookmarks)); 
 		});
 	}
+}
+function connectBookmarkDragAndDrop(sourceChangeCallback) {
+	var navigation = $('#navigation');
+	var bookmarks = $('#bookmarks');
+	var draggable = null;
+
+	// Activer le "drag" sur favoris à droite
+	bookmarks.on('dragstart', '.bookmark-name', function(e) {
+		draggable = $(e.target).closest('.bookmark-edit-button');
+		e.originalEvent.dataTransfer.setData('text/plain', e.target.innerText);
+		e.originalEvent.dataTransfer.dropEffect = 'move';
+	});
+
+	// Activer le "drop" sur les dossiers à gauche
+	navigation.on('dragover', '.bookmark-select-folder', function(e) {
+		// Vérifier avant qu'on a bien attrapé un favori
+		if (draggable === null)
+			return;
+		// Bloquer aussi le "drop" sur le même dossier qu'au départ
+		var item = $(e.target).closest('.bookmark-folder-item');
+		if (draggable.data('folder') === item.data('folder'))
+			return;
+		return false;
+	});
+
+	// Ajouter le style indicatif sur le drop
+	navigation.on('dragenter', '.bookmark-select-folder', function(e) {
+		var item = $(e.target);
+		var ok = draggable.data('folder') !== item.closest('.bookmark-folder-item').data('folder');
+		item.toggleClass('text-success', ok).toggleClass('text-danger', !ok);
+	});
+
+	// Retirer le style indicatif sur le drop
+	navigation.on('dragleave', '.bookmark-select-folder', function(e) {
+		$(e.target).removeClass('text-success text-danger');
+	});
+
+	// Déplacer le favori quand on relâche la souris
+	navigation.on('drop', '.bookmark-select-folder', function(e) {
+		// Récupérer la cible
+		var droppable = $(e.target).removeClass('text-success text-danger').closest('.bookmark-folder-item');
+		// Extraire les éléments concernés
+		var dragFolder = draggable.data('folder');
+		var dropFolder = droppable.data('folder');
+		var dragSource = draggable.data('source');
+		var dropSource = droppable.data('source');
+		var bookmark = draggable.data('bookmark');
+		// Ajouter le favori dans le dossier ciblé
+		dropFolder.bookmarks.push(bookmark);
+		dropFolder.sort();
+		dragFolder.bookmarks.splice(dragFolder.bookmarks.indexOf(bookmark), 1);
+		draggable.remove();
+		// Ajuster la liste des dossiers en cas de recherche
+		if ($('#searchInput').val())
+			updateSearch(true, false);
+		// Gérer la sauvegarde
+		if (dropSource !== dragSource)
+			sourceChangeCallback(dropSource);
+		sourceChangeCallback(dragSource);
+		// S'assurer de vider le contexte (car "dragend" ne sera pas appelé maintenant que le favori a disparu)
+		draggable = null;
+		// Rester sur la page
+		return false;
+	});
+
+	// Vider le contexte si on relâche ailleurs (car "drop" ne sera pas appelé)
+	bookmarks.on('dragend', '.bookmark-name', function(e) {
+		draggable = null;
+	});
 }
 
 function editBookmark(source, folder, bookmark, isNew, callback, deleteCallback) {
@@ -592,6 +661,11 @@ NIMBUS.init(['bookmarks.js'], function() {
 				// Raffraichir la page
 				item.remove();
 			});
+		});
+
+		// Permettre le déplacement des favoris d'un dossier à un autre par glisser/déposer 
+		connectBookmarkDragAndDrop(function(source) {
+			data.trigger('bookmarksourcechange', source);
 		});
 
 		// Plugin tagsinput pour les motes-clefs
