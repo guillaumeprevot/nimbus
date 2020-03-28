@@ -31,7 +31,7 @@ main { display: flex; flex-direction: row; }
 #navigation .list-group-item > :not(span):not(.bookmark-select-folder) { flex: none; }
 #bookmarks { flex: auto; overflow-y: auto; }
 #bookmarks .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; cursor: pointer; }
-#bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin-top: 0.25rem; }
+#bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin-top: 0.25rem; object-fit: scale-down; }
 #bookmarks .list-group-item > .bookmark-icon { flex: none; padding-top: 0.25rem; }
 #bookmarks .list-group-item > .bookmark-name { flex: none; padding-top: 0.5rem; padding-left: 0.5rem; }
 #bookmarks .list-group-item > .bookmark-description { flex: auto; padding-top: 0.5rem; padding-left: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
