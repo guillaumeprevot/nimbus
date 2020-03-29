@@ -29,11 +29,11 @@ public class CalendarFacet implements Facet {
 	public void updateMetadata(File file, String extension, Document bson) throws Exception {
 		try (FileReader reader = new FileReader(file, StandardCharsets.UTF_8)) {
 			JsonObject o = JsonParser.parseReader(reader).getAsJsonObject();
-			if (o.has("name"))
+			if (o.has("name") && !o.get("name").isJsonNull())
 				bson.append("displayName", o.get("name").getAsString());
-			if (o.has("types"))
+			if (o.has("types") && o.get("types").isJsonArray())
 				bson.append("typeCount", o.get("types").getAsJsonArray().size());
-			if (o.has("events"))
+			if (o.has("events") && o.get("events").isJsonArray())
 				bson.append("eventCount", o.get("events").getAsJsonArray().size());
 		} catch (Exception ex) {
 			bson.remove("displayName");

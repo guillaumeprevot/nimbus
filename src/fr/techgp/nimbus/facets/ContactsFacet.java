@@ -31,9 +31,9 @@ public class ContactsFacet implements Facet {
 	public void updateMetadata(File file, String extension, Document bson) throws Exception {
 		try (FileReader reader = new FileReader(file, StandardCharsets.UTF_8)) {
 			JsonObject o = JsonParser.parseReader(reader).getAsJsonObject();
-			if (o.has("name"))
+			if (o.has("name") && !o.get("name").isJsonNull())
 				bson.append("displayName", o.get("name").getAsString());
-			if (o.has("contacts")) {
+			if (o.has("contacts") && o.get("contacts").isJsonArray()) {
 				JsonArray contacts = o.get("contacts").getAsJsonArray();
 				bson.append("contactCount", contacts.size());
 				int favoriteCount = 0;

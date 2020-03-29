@@ -31,15 +31,15 @@ public class BookmarksFacet implements Facet {
 	public void updateMetadata(File file, String extension, Document bson) throws Exception {
 		try (FileReader reader = new FileReader(file, StandardCharsets.UTF_8)) {
 			JsonObject o = JsonParser.parseReader(reader).getAsJsonObject();
-			if (o.has("name"))
+			if (o.has("name") && !o.get("name").isJsonNull())
 				bson.append("displayName", o.get("name").getAsString());
-			if (o.has("folders")) {
+			if (o.has("folders") && o.get("folders").isJsonArray()) {
 				JsonArray folders = o.get("folders").getAsJsonArray();
 				bson.append("folderCount", folders.size());
 				int bookmarkCount = 0;
 				for (JsonElement e : folders) {
 					JsonObject f = e.getAsJsonObject();
-					if (f != null && f.has("bookmarks"))
+					if (f != null && f.has("bookmarks") && f.get("bookmarks").isJsonArray())
 						bookmarkCount += f.get("bookmarks").getAsJsonArray().size();
 				}
 				bson.append("bookmarkCount", bookmarkCount);
