@@ -29,6 +29,8 @@ main { display: flex; flex-direction: row; }
 #navigation .list-group-item > span { padding: 0.375rem 0.75rem; }
 #navigation .list-group-item > .bookmark-source-name { flex: auto; text-align: left; }
 #navigation .list-group-item > .bookmark-folder-name { flex: auto; text-align: left; }
+#navigation .bookmark-folder-item { border-left: 5px solid transparent; }
+#navigation .bookmark-folder-item.bookmark-folder-selected { border-left-color: var(--primary); }
 #bookmarks { flex: auto; overflow-y: auto; }
 #bookmarks .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; cursor: pointer; }
 #bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin-top: 0.25rem; object-fit: scale-down; }
@@ -516,7 +518,9 @@ NIMBUS.init(['bookmarks.js'], function() {
 		sources.forEach(function(source) {
 			createSourceNavigationItem(source).appendTo(navigation);
 			source.folders.forEach(function(folder) {
-				createFolderNavigationItem(source, folder).appendTo(navigation);
+				createFolderNavigationItem(source, folder)
+					.toggleClass('bookmark-folder-selected', folder === selectedFolder)
+					.appendTo(navigation);
 			});
 		});
 
@@ -668,6 +672,8 @@ NIMBUS.init(['bookmarks.js'], function() {
 			var item = $(event.target).closest('.list-group-item');
 			selectedSource = item.data('source');
 			selectedFolder = item.data('folder');
+			// Utiliser un marqueur visuel
+			item.addClass('bookmark-folder-selected').siblings().removeClass('bookmark-folder-selected');
 			// Afficher le contenu du dossier
 			updateSelection(selectedSource, selectedFolder);
 		});
@@ -696,8 +702,6 @@ NIMBUS.init(['bookmarks.js'], function() {
 			// Récupérer l'élément cliqué, la source, le dossier et le favori associés
 			var item = $(event.target).closest('.list-group-item');
 			var bookmark = item.data('bookmark');
-			selectedSource = item.data('source');
-			selectedFolder = item.data('folder');
 			editBookmark(selectedSource, selectedFolder, bookmark, false, function() {
 				// Gérer la sauvegarde
 				data.trigger('bookmarksourcechange', selectedSource);
