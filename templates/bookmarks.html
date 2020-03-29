@@ -629,11 +629,17 @@ NIMBUS.init(['bookmarks.js'], function() {
 			var source = item.data('source');
 			var folder = item.data('folder');
 			// Demander le nouveau nom
-			NIMBUS.confirm('', NIMBUS.translate('BookmarksDeleteFolderConfirmation'), true).then(function() {
+			NIMBUS.confirm('', NIMBUS.translate('BookmarksDeleteFolderConfirmation', folder.name), true).then(function() {
 				// Ajuster le modèle
 				source.folders.splice(source.folders.indexOf(folder), 1);
 				// Ajuster le contenu de la partie gauche
 				item.remove();
+				// Ajuster si besoin la partie droite
+				if (folder === selectedFolder) {
+					selectedFolder = null;
+					selectedSource = null;
+					updateSelection(selectedSource, selectedFolder);
+				}
 				// Gérer la sauvegarde
 				data.trigger('bookmarksourcechange', source);
 			});
