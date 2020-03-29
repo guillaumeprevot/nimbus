@@ -26,9 +26,9 @@ header > #searchInput:not(.active):not(:focus) { background-color: transparent; 
 main { display: flex; flex-direction: row; }
 #navigation { flex: none; min-width: 25%; overflow-y: auto; border-right: 1px solid var(--dark); margin-right: 0.5rem; background-color: rgba(128,128,128,0.2); }
 #navigation .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; }
-#navigation .list-group-item > span { flex: auto; padding: 0.5rem; text-align: left; }
-#navigation .list-group-item > .bookmark-select-folder { flex: auto; text-align: left; }
-#navigation .list-group-item > :not(span):not(.bookmark-select-folder) { flex: none; }
+#navigation .list-group-item > span { padding: 0.375rem 0.75rem; }
+#navigation .list-group-item > .bookmark-source-name { flex: auto; text-align: left; }
+#navigation .list-group-item > .bookmark-folder-name { flex: auto; text-align: left; }
 #bookmarks { flex: auto; overflow-y: auto; }
 #bookmarks .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; cursor: pointer; }
 #bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin-top: 0.25rem; object-fit: scale-down; }
@@ -101,7 +101,7 @@ main { display: flex; flex-direction: row; }
 		<button id="addBookmarkButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="BookmarksAddBookmark"><i class="material-icons">add</i></button>
 	</header>
 	<main>
-		<div id="navigation" class="list-group list-group-flush bg-secondary"></div>
+		<div id="navigation" class="list-group list-group-flush"></div>
 		<div id="bookmarks" class="list-group list-group-flush"></div>
 	</main>
 	<div id="alert-container"></div>
@@ -194,29 +194,46 @@ function createBookmarkItem(source, folder, bookmark) {
 // Cette méthode crée l'entrée de menu dans la zone de navigation à gauche pour le dossier demandé
 function createFolderNavigationItem(source, folder) {
 	return $('<div class="list-group-item bookmark-folder-item">'
-			+ '  <button type="button" class="btn btn-link bookmark-icon-folder"><i class="material-icons"></i></button>'
-			+ '  <button type="button" class="btn btn-link bookmark-select-folder text-primary" draggable="true"></button>'
-			+ '  <button type="button" class="btn btn-link bookmark-rename-folder"><i class="material-icons">edit</i></button>'
-			+ '  <button type="button" class="btn btn-link bookmark-delete-folder"><i class="material-icons">delete</i></button>'
+			+ '  <span class="bookmark-folder-icon"><i class="material-icons text-success"></i></span>'
+			+ '  <span class="bookmark-folder-name" draggable="true"></span>'
+			+ '  <div class="dropdown">'
+			+ '    <button class="btn btn-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'
+			+ '      <i class="material-icons">more_vert</i>'
+			+ '    </button>'
+			+ '    <div class="dropdown-menu">'
+			+ '      <button type="button" class="dropdown-item bookmark-folder-select-icon"></button>'
+			+ '      <button type="button" class="dropdown-item bookmark-folder-rename"></button>'
+			+ '      <div class="dropdown-divider"></div>'
+			+ '      <button type="button" class="dropdown-item text-danger bookmark-folder-delete"></button>'
+			+ '    </div>'
+			+ '  </div>'
 			+ '</div>')
 			.data('source', source).data('folder', folder)
-			.find('.bookmark-icon-folder > i').attr('title', NIMBUS.translate('BookmarksSelectFolderIconTitle')).text(folder.icon || 'folder').end()
-			.children('.bookmark-select-folder').text(folder.name).end()
-			.children('.bookmark-rename-folder').attr('title', NIMBUS.translate('BookmarksRenameFolderTitle')).end()
-			.children('.bookmark-delete-folder').attr('title', NIMBUS.translate('BookmarksDeleteFolderTitle')).end();
+			.find('.bookmark-folder-icon > i').text(folder.icon || 'folder').end()
+			.children('.bookmark-folder-name').text(folder.name).end()
+			.find('.bookmark-folder-select-icon').text(NIMBUS.translate('BookmarksSelectFolderIconTitle')).end()
+			.find('.bookmark-folder-rename').text(NIMBUS.translate('BookmarksRenameFolderTitle')).end()
+			.find('.bookmark-folder-delete').text(NIMBUS.translate('BookmarksDeleteFolderTitle')).end();
 }
 
 // Cette méthode crée l'entrée de menu dans la zone de navigation à gauche pour la source demandée
 function createSourceNavigationItem(source) {
-	return $('<div class="list-group-item">'
-			+ '  <span></span>'
-			+ '  <button type="button" class="btn btn-link bookmark-rename-source"><i class="material-icons">edit</i></button>'
-			+ '  <button type="button" class="btn btn-link bookmark-add-folder"><i class="material-icons">add</i></button>'
+	return $('<div class="list-group-item bookmark-source-item">'
+			+ '  <span class="bookmark-source-name"></span>'
+			+ '  <div class="dropdown">'
+			+ '    <button class="btn btn-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'
+			+ '      <i class="material-icons">more_vert</i>'
+			+ '    </button>'
+			+ '    <div class="dropdown-menu">'
+			+ '      <button type="button" class="dropdown-item bookmark-source-add-folder"></button>'
+			+ '      <button type="button" class="dropdown-item bookmark-source-rename"></button>'
+			+ '    </div>'
+			+ '  </div>'
 			+ '</div>')
 			.data('source', source)
 			.children('span').text(source.getNameOrDefault()).end()
-			.children('.bookmark-rename-source').attr('title', NIMBUS.translate('BookmarksRenameSourceTitle')).end()
-			.children('.bookmark-add-folder').attr('title', NIMBUS.translate('BookmarksAddFolderTitle')).end();
+			.find('.bookmark-source-rename').text(NIMBUS.translate('BookmarksRenameSourceTitle')).end()
+			.find('.bookmark-source-add-folder').text(	NIMBUS.translate('BookmarksAddFolderTitle')).end();
 }
 
 // Cette méthode met à jour le contenu de la zone centrale affichant les favoris d'un dossier
@@ -293,14 +310,14 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 	});
 
 	// Activer le "drag" des dossiers à gauche
-	navigation.on('dragstart', '.bookmark-select-folder', function(e) {
+	navigation.on('dragstart', '.bookmark-folder-name', function(e) {
 		draggable = $(e.target).closest('.bookmark-folder-item');
 		e.originalEvent.dataTransfer.setData('text/plain', e.target.innerText);
 		e.originalEvent.dataTransfer.dropEffect = 'move';
 	});
 
 	// Activer le "drop" sur les dossiers à gauche
-	navigation.on('dragover', '.bookmark-select-folder', function(e) {
+	navigation.on('dragover', '.bookmark-folder-name', function(e) {
 		// Vérifier avant qu'on a bien attrapé un favori
 		if (draggable === null)
 			return;
@@ -312,19 +329,19 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 	});
 
 	// Ajouter le style indicatif sur le drop
-	navigation.on('dragenter', '.bookmark-select-folder', function(e) {
+	navigation.on('dragenter', '.bookmark-folder-name', function(e) {
 		var item = $(e.target);
 		var ok = draggable.data('folder') !== item.closest('.bookmark-folder-item').data('folder');
 		item.toggleClass('text-success', ok).toggleClass('text-danger', !ok);
 	});
 
 	// Retirer le style indicatif sur le drop
-	navigation.on('dragleave', '.bookmark-select-folder', function(e) {
+	navigation.on('dragleave', '.bookmark-folder-name', function(e) {
 		$(e.target).removeClass('text-success text-danger');
 	});
 
 	// Déplacer le favori quand on relâche la souris
-	navigation.on('drop', '.bookmark-select-folder', function(e) {
+	navigation.on('drop', '.bookmark-folder-name', function(e) {
 		// Récupérer la cible
 		var droppable = $(e.target).removeClass('text-success text-danger').closest('.bookmark-folder-item');
 		// Extraire les éléments concernés
@@ -370,7 +387,7 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 	});
 
 	// Vider le contexte si on relâche ailleurs (car "drop" ne sera pas appelé)
-	navigation.on('dragend', '.bookmark-select-folder', function(e) {
+	navigation.on('dragend', '.bookmark-folder-name', function(e) {
 		draggable = null;
 	});
 }
@@ -552,7 +569,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 		var body = $(document.body).removeClass('nimbus-hidden');
 
 		// Clic sur un bouton de renommage des sources
-		$('#navigation').on('click', '.bookmark-rename-source', function() {
+		$('#navigation').on('click', '.bookmark-source-rename', function() {
 			// Récupérer l'élément cliqué et la source associée
 			var item = $(event.target).closest('.list-group-item');
 			var source = item.data('source');
@@ -568,7 +585,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 		});
 
 		// Clic sur un bouton d'ajout d'un dossier
-		$('#navigation').on('click', '.bookmark-add-folder', function() {
+		$('#navigation').on('click', '.bookmark-source-add-folder', function() {
 			// Récupérer l'élément cliqué et la source associée
 			var item = $(event.target).closest('.list-group-item');
 			var source = item.data('source');
@@ -587,7 +604,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 		});
 
 		// Clic sur un bouton de sélection d'icône pour un dossier
-		$('#navigation').on('click', '.bookmark-icon-folder', function() {
+		$('#navigation').on('click', '.bookmark-folder-select-icon', function() {
 			// Récupérer l'élément cliqué, la source et le dossier associé
 			var item = $(event.target).closest('.list-group-item');
 			var source = item.data('source');
@@ -597,14 +614,14 @@ NIMBUS.init(['bookmarks.js'], function() {
 				// Ajuster le modèle
 				folder.icon = newIcon.trim() || null;
 				// Ajuster le contenu de la partie gauche
-				item.children('.bookmark-icon-folder').children('i').text(folder.icon || 'folder');
+				item.children('.bookmark-folder-icon').children('i').text(folder.icon || 'folder');
 				// Gérer la sauvegarde
 				data.trigger('bookmarksourcechange', source);
 			});
 		});
 
 		// Clic sur un bouton de renommage d'un dossier
-		$('#navigation').on('click', '.bookmark-rename-folder', function() {
+		$('#navigation').on('click', '.bookmark-folder-rename', function() {
 			// Récupérer l'élément cliqué, la source et le dossier associé
 			var item = $(event.target).closest('.list-group-item');
 			var source = item.data('source');
@@ -615,7 +632,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 					// Ajuster le modèle
 					folder.name = newName.trim();
 					// Ajuster le contenu de la partie gauche
-					item.children('.bookmark-select-folder').text(folder.name);
+					item.children('.bookmark-folder-name').text(folder.name);
 					// Gérer la sauvegarde
 					data.trigger('bookmarksourcechange', source);
 				}
@@ -623,7 +640,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 		});
 
 		// Clic sur un bouton de suppression de dossier
-		$('#navigation').on('click', '.bookmark-delete-folder', function() {
+		$('#navigation').on('click', '.bookmark-folder-delete', function() {
 			// Récupérer l'élément cliqué, la source et le dossier associé
 			var item = $(event.target).closest('.list-group-item');
 			var source = item.data('source');
@@ -646,7 +663,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 		});
 
 		// Clic sur un bouton de sélection de dossier
-		$('#navigation').on('click', '.bookmark-select-folder', function() {
+		$('#navigation').on('click', '.bookmark-folder-name', function() {
 			// Récupérer l'élément cliqué, la source et le dossier associé
 			var item = $(event.target).closest('.list-group-item');
 			selectedSource = item.data('source');
