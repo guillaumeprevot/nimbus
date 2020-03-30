@@ -29,13 +29,15 @@ main { display: flex; flex-direction: row; }
 #navigation .list-group-item > span { padding: 0.375rem 0.75rem; }
 #navigation .list-group-item > .bookmark-source-name { flex: auto; text-align: left; }
 #navigation .list-group-item > .bookmark-folder-name { flex: auto; text-align: left; }
+#navigation .list-group-item > .bookmark-folder-icon { padding: 0.375rem 0.75rem; line-height: 1; }
+#navigation .list-group-item [data-toggle="dropdown"] { line-height: 1; border-width: 0; }
 #navigation .bookmark-folder-item { border-left: 5px solid transparent; }
 #navigation .bookmark-folder-item.bookmark-folder-selected { border-left-color: var(--primary); }
 #bookmarks { flex: auto; overflow-y: auto; }
 #bookmarks .list-group-item { display: flex; flex-direction: row; padding: 0.25rem 0.5rem; cursor: pointer; }
-#bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin-top: 0.25rem; object-fit: scale-down; }
-#bookmarks .list-group-item > .bookmark-icon { flex: none; padding-top: 0.25rem; }
-#bookmarks .list-group-item > .bookmark-name { flex: none; padding-top: 0.5rem; padding-left: 0.5rem; }
+#bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin: 2px 0; object-fit: scale-down; }
+#bookmarks .list-group-item > .bookmark-icon { flex: none; margin: 6px 4px; }
+#bookmarks .list-group-item > .bookmark-name { flex: none; padding: 0.375rem 0.5rem; }
 #bookmarks .list-group-item > .bookmark-description { flex: auto; padding-top: 0.5rem; padding-left: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #bookmarks .list-group-item > .bookmark-description:not(:empty)::before { content: ' ('; }
 #bookmarks .list-group-item > .bookmark-description:not(:empty)::after { content: ')'; } 
@@ -179,7 +181,7 @@ var storage = {
 function createBookmarkItem(source, folder, bookmark) {
 	return $('<div class="list-group-item list-group-item-action bookmark-edit-button">'
 			+ '  <img class="bookmark-image" />'
-			+ '  <i class="bookmark-icon material-icons material-icons-32">link</i>'
+			+ '  <i class="bookmark-icon material-icons text-muted">link</i>'
 			+ '  <span class="bookmark-name" draggable="true"></span>'
 			+ '  <span class="bookmark-description text-muted"></span>'
 			+ '  <a href="#" target="_blank" class="btn btn-link text-muted bookmark-open-button" />'
@@ -189,7 +191,7 @@ function createBookmarkItem(source, folder, bookmark) {
 			.children('.bookmark-icon').toggle(!bookmark.iconURL).end()
 			.children('.bookmark-name').text(bookmark.name).end()
 			.children('.bookmark-description').text(bookmark.description || '').end()
-			.children('.bookmark-open-button').attr('href', bookmark.url || '#').text(bookmark.url || '').end()
+			.children('.bookmark-open-button').attr('href', bookmark.url || '#').text(bookmark.url || '?').end()
 			.attr('title', NIMBUS.translate('BookmarksEditBookmark'));
 }
 
