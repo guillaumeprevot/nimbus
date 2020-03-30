@@ -49,8 +49,6 @@
 		this.name = null; //item.name.replace(/.bookmarks/gi, '');
 		// Liste des dossiers de cette source, un tableau de BookmarkFolder
 		this.folders = [];
-		// Indique si les favoris sont actuellement triés
-		this.sorted = false;
 	}
 
 	BookmarkSource.prototype.getNameOrDefault = function() {
@@ -79,12 +77,6 @@
 				return folder;
 			});
 		});
-	};
-
-	BookmarkSource.prototype.sort = function() {
-		this.folders.sort((b1, b2) => (b1.name || '').localeCompare(b2.name || ''));
-		this.folders.filter((f) => f.bookmarks.length > 1).forEach((f) => f.sort());
-		this.sorted = true;
 	};
 
 	BookmarkSource.prototype.save = function() {
@@ -219,6 +211,7 @@
 				BookmarksSelectFolderIconPrompt: "Choisir un nom dans Materiel Icons",
 				BookmarksRenameFolderTitle: "Renommer le dossier",
 				BookmarksRenameFolderPrompt: "Choisir le nouveau nom du dossier",
+				BookmarksSortFolderTitle: "Trier le contenu alphabétiquement",
 				BookmarksDeleteFolderTitle: "Supprimer le dossier et son contenu",
 				BookmarksDeleteFolderConfirmation: "Êtes-vous sûr de vouloir supprimer le dossier \"{0}\" et son contenu ?",
 				BookmarksEditBookmark: "Modifier ce favori",
@@ -278,6 +271,7 @@
 				BookmarksSelectFolderIconPrompt: "Select icon's name from Materiel Icons",
 				BookmarksRenameFolderTitle: "Rename folder",
 				BookmarksRenameFolderPrompt: "Enter the new name of the folder",
+				BookmarksSortFolderTitle: "Sort content alphabetically",
 				BookmarksDeleteFolderTitle: "Delete this folder and all bookmark in this folder",
 				BookmarksDeleteFolderConfirmation: "Are you sure you want to delete the folder \"{0}\" and all of it's bookmarks?",
 				BookmarksEditBookmark: "Edit this bookmark",

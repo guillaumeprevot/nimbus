@@ -205,6 +205,7 @@ function createFolderNavigationItem(source, folder) {
 			+ '    <div class="dropdown-menu">'
 			+ '      <button type="button" class="dropdown-item bookmark-folder-select-icon"></button>'
 			+ '      <button type="button" class="dropdown-item bookmark-folder-rename"></button>'
+			+ '      <button type="button" class="dropdown-item bookmark-folder-sort"></button>'
 			+ '      <div class="dropdown-divider"></div>'
 			+ '      <button type="button" class="dropdown-item text-danger bookmark-folder-delete"></button>'
 			+ '    </div>'
@@ -215,6 +216,7 @@ function createFolderNavigationItem(source, folder) {
 			.children('.bookmark-folder-name').text(folder.name).end()
 			.find('.bookmark-folder-select-icon').text(NIMBUS.translate('BookmarksSelectFolderIconTitle')).end()
 			.find('.bookmark-folder-rename').text(NIMBUS.translate('BookmarksRenameFolderTitle')).end()
+			.find('.bookmark-folder-sort').text(NIMBUS.translate('BookmarksSortFolderTitle')).end()
 			.find('.bookmark-folder-delete').text(NIMBUS.translate('BookmarksDeleteFolderTitle')).end();
 }
 
@@ -303,10 +305,12 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 	var navigation = $('#navigation');
 	var bookmarks = $('#bookmarks');
 	var draggable = null;
+	var draggableIsBookmark = null;
 
 	// Activer le "drag" des favoris à droite
 	bookmarks.on('dragstart', '.bookmark-name', function(e) {
 		draggable = $(e.target).closest('.bookmark-edit-button');
+		draggableIsBookmark = true;
 		e.originalEvent.dataTransfer.setData('text/plain', e.target.innerText);
 		e.originalEvent.dataTransfer.dropEffect = 'move';
 	});
@@ -314,8 +318,21 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 	// Activer le "drag" des dossiers à gauche
 	navigation.on('dragstart', '.bookmark-folder-name', function(e) {
 		draggable = $(e.target).closest('.bookmark-folder-item');
+		draggableIsBookmark = false;
 		e.originalEvent.dataTransfer.setData('text/plain', e.target.innerText);
 		e.originalEvent.dataTransfer.dropEffect = 'move';
+	});
+
+	// Activer le "drop" des favoris sur d'autres favoris pour les trier
+	bookmarks.on('dragover', '.bookmark-edit-button', function(e) {
+		// Vérifier avant qu'on a bien attrapé un favori
+		if (draggable === null || !draggableIsBookmark)
+			return;
+		// Bloquer aussi le "drop" d'un favori sur lui-même
+		var item = $(e.target).closest('.bookmark-edit-button');
+		if (draggable.data('bookmark') === item.data('bookmark'))
+			return;
+		return false;
 	});
 
 	// Activer le "drop" sur les dossiers à gauche
@@ -323,7 +340,7 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 		// Vérifier avant qu'on a bien attrapé un favori
 		if (draggable === null)
 			return;
-		// Bloquer aussi le "drop" sur le même dossier qu'au départ
+		// Bloquer aussi le "drop" d'un dossier sur lui-même ou d'un bookmark sur son dossier d'origine
 		var item = $(e.target).closest('.bookmark-folder-item');
 		if (draggable.data('folder') === item.data('folder'))
 			return;
@@ -343,6 +360,32 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 	});
 
 	// Déplacer le favori quand on relâche la souris
+	bookmarks.on('drop', '.bookmark-edit-button', function(e) {
+		// Récupérer la cible
+		var droppable = $(e.target).closest('.bookmark-edit-button');
+		// Extraire les éléments concernés
+		var folder = draggable.data('folder');
+		var source = draggable.data('source');
+		var bookmark = draggable.data('bookmark');
+		var target = droppable.data('bookmark');
+		// Retirer le favori de sa position actuel
+		folder.bookmarks.splice(folder.bookmarks.indexOf(bookmark), 1);
+		if (draggable.index() > droppable.index()) {
+			draggable.insertBefore(droppable);
+			folder.bookmarks.splice(folder.bookmarks.indexOf(target), 0, bookmark);
+		} else {
+			draggable.insertAfter(droppable);
+			folder.bookmarks.splice(folder.bookmarks.indexOf(target) + 1, 0, bookmark);
+		}
+		// Gérer la sauvegarde
+		sourceChangeCallback(source);
+		// S'assurer de vider le contexte (car "dragend" ne sera pas appelé maintenant que le favori a disparu)
+		draggable = null;
+		// Rester sur la page
+		return false;
+	});
+
+	// Déplacer le favori quand on relâche la souris
 	navigation.on('drop', '.bookmark-folder-name', function(e) {
 		// Récupérer la cible
 		var droppable = $(e.target).removeClass('text-success text-danger').closest('.bookmark-folder-item');
@@ -353,10 +396,9 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 		var dropSource = droppable.data('source');
 		var bookmark = draggable.data('bookmark');
 		// Vérifier si on déplace un favori ou un dossier
-		if (typeof bookmark !== 'undefined') {
+		if (draggableIsBookmark) {
 			// Déplacer le favori dans le dossier ciblé
 			dropFolder.bookmarks.push(bookmark);
-			dropFolder.sort();
 			dragFolder.bookmarks.splice(dragFolder.bookmarks.indexOf(bookmark), 1);
 			draggable.remove();
 			// Ajuster la liste des dossiers en cas de recherche
@@ -440,8 +482,6 @@ function editBookmark(source, folder, bookmark, isNew, callback, deleteCallback)
 		bookmark.extensions = $('#bookmarkExtensions').valueList().extract().map((e) => new api.BookmarkExtension(e));
 		if (isNew)
 			folder.bookmarks.push(bookmark);
-		if (oldName !== bookmark.name)
-			folder.sort();
 		// Fermer la fenêtre modale
 		$('#bookmarkModal').modal('hide');
 		// Appeler la callback
@@ -641,6 +681,20 @@ NIMBUS.init(['bookmarks.js'], function() {
 					data.trigger('bookmarksourcechange', source);
 				}
 			});
+		});
+
+		// Clic sur un bouton de tri d'un dossier
+		$('#navigation').on('click', '.bookmark-folder-sort', function() {
+			// Récupérer l'élément cliqué, la source et le dossier associé
+			var item = $(event.target).closest('.list-group-item');
+			var source = item.data('source');
+			var folder = item.data('folder');
+			// Ajuster le modèle
+			folder.sort();
+			// Ajuster le contenu de la partie droite
+			updateSelection(selectedSource, selectedFolder);
+			// Gérer la sauvegarde
+			data.trigger('bookmarksourcechange', source);
 		});
 
 		// Clic sur un bouton de suppression de dossier
