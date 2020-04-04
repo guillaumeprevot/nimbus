@@ -570,7 +570,7 @@ NIMBUS.init(['bookmarks.js'], function() {
 		// Sauvegarde manuelle
 		saveButton.on('click', save);
 		// Détection des modifications par l'envoi d'évènements 'bookmarksourcechange'
-		var data = $(sources).on('bookmarksourcechange', function(event, source) {
+		var data = $(api).on('bookmarksourcechange', function(event, source) {
 			source.modified = true;
 			if ($('#saveChangesAutomaticallyButton').hasClass('selected')) {
 				save();

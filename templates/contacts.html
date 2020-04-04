@@ -600,7 +600,7 @@ NIMBUS.init(['contacts.js'], function() {
 		// Sauvegarde manuelle
 		saveButton.on('click', save);
 		// Détection des modifications par l'envoi d'évènements 'contactsourcechange'
-		var data = $(sources).on('contactsourcechange', function(event, source) {
+		var data = $(api).on('contactsourcechange', function(event, source) {
 			source.modified = true;
 			if ($('#saveChangesAutomaticallyButton').hasClass('selected')) {
 				save();
