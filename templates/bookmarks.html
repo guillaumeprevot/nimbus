@@ -38,7 +38,9 @@ main { display: flex; flex-direction: row; }
 #bookmarks .list-group-item > .bookmark-image { flex: none; width: 32px; height: 32px; margin: 2px 0; object-fit: scale-down; }
 #bookmarks .list-group-item > .bookmark-icon { flex: none; margin: 6px 4px; }
 #bookmarks .list-group-item > .bookmark-name { flex: none; padding: 0.375rem 0.5rem; }
-#bookmarks .list-group-item > .bookmark-description { flex: auto; padding-top: 0.5rem; padding-left: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#bookmarks .list-group-item > .bookmark-keywords { flex: none; padding: 0.375rem 0; }
+#bookmarks .list-group-item > .bookmark-keywords > .badge { margin-right: 0.3rem; }
+#bookmarks .list-group-item > .bookmark-description { flex: auto; padding: 0.375rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #bookmarks .list-group-item > .bookmark-description:not(:empty)::before { content: ' ('; }
 #bookmarks .list-group-item > .bookmark-description:not(:empty)::after { content: ')'; } 
 #bookmarks .list-group-item > .bookmark-open-button { flex: none; max-width: 33%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -183,6 +185,7 @@ function createBookmarkItem(source, folder, bookmark) {
 			+ '  <img class="bookmark-image" />'
 			+ '  <i class="bookmark-icon material-icons text-muted">link</i>'
 			+ '  <span class="bookmark-name" draggable="true"></span>'
+			+ '  <span class="bookmark-keywords"></span>'
 			+ '  <span class="bookmark-description text-muted"></span>'
 			+ '  <a href="#" target="_blank" class="btn btn-link text-muted bookmark-open-button" />'
 			+ '</div>')
@@ -190,6 +193,8 @@ function createBookmarkItem(source, folder, bookmark) {
 			.children('.bookmark-image').attr('src', bookmark.iconURL).toggle(!!bookmark.iconURL).end()
 			.children('.bookmark-icon').toggle(!bookmark.iconURL).end()
 			.children('.bookmark-name').text(bookmark.name).end()
+			.children('.bookmark-keywords').append((bookmark.keywords || '').split(',')
+					.map(kw => $('<span class="badge badge-primary" />').text(kw))).toggle(!!bookmark.keywords).end()
 			.children('.bookmark-description').text(bookmark.description || '').end()
 			.children('.bookmark-open-button').attr('href', bookmark.url || '#').text(bookmark.url || '?').end()
 			.attr('title', NIMBUS.translate('BookmarksEditBookmark'));
