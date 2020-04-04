@@ -130,7 +130,12 @@ main { display: flex; flex-direction: row; }
 						</div>
 						<div class="form-group">
 							<label for="bookmarkIconURL" data-translate="text">BookmarkIconURLLabel</label>
-							<input id="bookmarkIconURL" type="url" class="form-control" data-translate="placeholder" placeholder="BookmarkIconURLPlaceholder" />
+							<div class="input-group">
+								<input id="bookmarkIconURL" type="url" class="form-control" data-translate="placeholder" placeholder="BookmarkIconURLPlaceholder" />
+								<div class="input-group-append">
+									<button class="input-group-text btn btn-link" type="button" id="bookmarkIconURLButton"><i class="material-icons material-icons-16">refresh</i></button>
+								</div>
+							</div>
 						</div>
 						<div class="form-group">
 							<label for="bookmarkDescription" data-translate="text">BookmarkDescriptionLabel</label>
@@ -464,6 +469,24 @@ function editBookmark(source, folder, bookmark, isNew, callback, deleteCallback)
 			new window.ValueList.LinkAction('public', NIMBUS.translate('BookmarkExtensionOpen'), '%VALUE%'),
 			new window.ValueList.CopyToClipboardAction(NIMBUS.translate('BookmarkExtensionCopy')),
 		]
+	});
+	// Tenter de proposer un favicon
+	var iconURLImage = new Image(32, 32);
+	$('#bookmarkIconURLButton').off('click').on('click', function() {
+		if (!urlInput.val()) {
+			iconURLInput.val('');
+			return;
+		}
+		var faviconURL = new URL('/favicon.ico', urlInput.val());
+		iconURLImage.src = faviconURL.href;
+		iconURLImage.onload = function() {
+			iconURLInput.val(faviconURL.href);
+		};
+		iconURLImage.onerror = function() {
+			faviconURL = new URL('/favicon.png', urlInput.val());
+			iconURLImage.onerror = null;
+			iconURLImage.src = faviconURL.href;
+		};
 	});
 	// Masquer le bouton de suppression en cas d'ajout
 	$('#bookmarkDeleteButton').toggle(!isNew).off('click').on('click', function() {
