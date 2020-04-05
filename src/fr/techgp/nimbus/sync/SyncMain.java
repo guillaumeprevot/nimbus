@@ -11,10 +11,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -58,18 +62,15 @@ public class SyncMain {
 					"nimbus.direction",
 					"Sync direction (u=upload/d=download) ?",
 					(s) -> s.equalsIgnoreCase("u") || s.equalsIgnoreCase("d"));
-			String traceOnly = getPropertyAsString(
+			boolean traceOnly = getPropertyAsBoolean(
 					"nimbus.traceOnly",
-					"Trace only (y/n) ?",
-					(s) -> s.equalsIgnoreCase("y") || s.equalsIgnoreCase("n"));
-			String skipExistingWithSameDateAndSize = getPropertyAsString(
+					"Trace only (y/n) ?");
+			boolean skipExistingWithSameDateAndSize = getPropertyAsBoolean(
 					"nimbus.skipExistingWithSameDateAndSize",
-					"Skip files with same date and size (y/n) ?",
-					(s) -> s.equalsIgnoreCase("y") || s.equalsIgnoreCase("n"));
-			String forceHTTPSCertificate = getPropertyAsString(
+					"Skip files with same date and size (y/n) ?");
+			boolean forceHTTPSCertificate = getPropertyAsBoolean(
 					"nimbus.forceHTTPSCertificate",
-					"Force HTTPS certificate as trusted (y/n) ?",
-					(s) -> s.equalsIgnoreCase("y") || s.equalsIgnoreCase("n"));
+					"Force HTTPS certificate as trusted (y/n) ?");
 
 			// Prepare synchronization instance
 			Sync sync = new Sync();
@@ -77,9 +78,9 @@ public class SyncMain {
 			sync.login = login;
 			sync.password = new String(password);
 			sync.direction = direction;
-			sync.traceOnly = "y".equalsIgnoreCase(traceOnly);
-			sync.skipExistingWithSameDateAndSize = "y".equalsIgnoreCase(skipExistingWithSameDateAndSize);
-			sync.forceHTTPSCertificate = "y".equalsIgnoreCase(forceHTTPSCertificate);
+			sync.traceOnly = traceOnly;
+			sync.skipExistingWithSameDateAndSize = skipExistingWithSameDateAndSize;
+			sync.forceHTTPSCertificate = forceHTTPSCertificate;
 			if (writer != null) {
 				sync.ontrace = (s) -> { writer.format(s + "\n"); };
 				sync.onerror = (s) -> { writer.format(s + "\n"); System.err.println(s); System.exit(3); };
@@ -97,10 +98,14 @@ public class SyncMain {
 						"nimbus." + index + ".serverFolderId",
 						"Please enter the server folder id (type 'root' to select all server content)",
 						(s) -> "root".equals(s) || s.matches("\\d+"));
-				System.out.printf("Sync local folder %s with server folder %s at %s with account %s (skip=%s, unsecured=%s)\n",
-						localFolder, serverFolderId, url, login, skipExistingWithSameDateAndSize, forceHTTPSCertificate);
+				Set<Long> skipItemIds = getPropertyAsLongSet(
+						"nimbus." + index + ".skipItemIds",
+						"(Optionnal) Provide the coma-separated list of item ids to skip");
+				System.out.printf("Sync local folder %s with server folder %s at %s with account %s (skip=%s, unsecured=%s, skipped=%s)\n",
+						localFolder, serverFolderId, url, login, skipExistingWithSameDateAndSize, forceHTTPSCertificate, skipItemIds);
 				sync.localFolder = new File(localFolder);
 				sync.serverFolderId = "root".equals(serverFolderId) ? null : Long.valueOf(serverFolderId);
+				sync.skipItemIds = skipItemIds;
 				sync.run();
 			}
 		} catch (Exception ex) {
@@ -157,6 +162,40 @@ public class SyncMain {
 			}
 		}
 		return s;
+	}
+
+	@SuppressWarnings("resource")
+	private static final boolean getPropertyAsBoolean(String name, String label) {
+		String s = System.getProperty(name);
+		Console console = System.console();
+		while (s == null || s.trim().length() == 0 || (!s.equalsIgnoreCase("y") && !s.equalsIgnoreCase("n"))) {
+			if (console != null)
+				s = console.readLine(label + ": ");
+			else {
+				System.out.println(label + ": ");
+				s = new Scanner(System.in).nextLine();
+			}
+		}
+		return "y".equalsIgnoreCase(s);
+	}
+
+	@SuppressWarnings("resource")
+	private static final Set<Long> getPropertyAsLongSet(String name, String label) {
+		String s = System.getProperty(name);
+		Console console = System.console();
+		if (s == null || s.trim().length() == 0 || !s.matches("\\d+(,\\d+)*")) {
+			do {
+				if (console != null)
+					s = console.readLine(label + ": ");
+				else {
+					System.out.println(label + ": ");
+					s = new Scanner(System.in).nextLine();
+				}
+			} while (StringUtils.isNotBlank(s) && !s.matches("\\d+(,\\d+)*"));
+		}
+		if (StringUtils.isBlank(s))
+			return Collections.emptySet();
+		return Arrays.stream(s.split(",")).map(Long::valueOf).collect(Collectors.toSet());
 	}
 
 	private static final char[] getPropertyAsPassword(String name, String label, Function<char[], Boolean> check) {

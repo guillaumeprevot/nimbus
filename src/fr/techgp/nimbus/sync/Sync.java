@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ public class Sync {
 	public String jsessionid;
 	public File localFolder;
 	public Long serverFolderId;
+	public Set<Long> skipItemIds;
 	public boolean traceOnly;
 	public boolean skipExistingWithSameDateAndSize;
 	public boolean forceHTTPSCertificate;
@@ -174,6 +176,11 @@ public class Sync {
 		Iterator<SyncItem> it = items.iterator();
 		while (it.hasNext()) {
 			SyncItem item = it.next();
+			// Element indiqué comme devant être zappé, on zappe
+			if (item.nimbusId != null && this.skipItemIds.contains(item.nimbusId)) {
+				it.remove();
+				continue;
+			}
 			// Fichier identique des 2 côtés, on peut le zapper
 			if (item.isSkipable(this.skipExistingWithSameDateAndSize, this::dateDiffMatcher)) {
 				it.remove();

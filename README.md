@@ -266,6 +266,7 @@ Options obligatoires : en ligne de commande (*-Doption=valeur*), dans le fichier
 - `nimbus.forceHTTPSCertificate` (*y* ou *n*) : si *y*, désactive la vérification du certificat HTTPS présenté par le serveur. C'est déconseillé en dehors des tests
 - `nimbus.[index].localFolder` : le chemin complet vers le dossier local, existant, qui sera utilisé pour la synchronisation
 - `nimbus.[index].serverFolderId` : l'identifiant du dossier dans Nimbus qui sera utilisé pour la synchronisation (la colonne *N°* peut aider)
+- `nimbus.[index].skipItemIds` : la liste des identifiants d'élément sur le serveur à excure de la synchronisation (la colonne *N°* peut aider également)
 
 Comportement :
 - la demande de mot de passe se fait de manière sécurisée, si possible grâce à [Console.readPassword()](https://docs.oracle.com/javase/8/docs/api/java/io/Console.html), sinon grâce à un [JPasswordField](https://docs.oracle.com/javase/8/docs/api/javax/swing/JPasswordField.html)
@@ -288,9 +289,9 @@ Exemple 1 : envoyer le dossier "/home/user/documents" dans le dossier n°1 de l'
 java -Dnimbus.login=adm -Dnimbus.0.localFolder=/home/user/documents -Dnimbus.0.serverFolderId=1 -Dnimbus.direction=u fr.techgp.nimbus.sync.SyncMain 0
 ```
 
-Exemple 2 : sauvegarder sur clef USB l'ensemble des données de l'utilisateur "adm", depuis la racine
+Exemple 2 : sauvegarder sur clef USB les données de l'utilisateur "adm", depuis la racine, sauf les dossiers n°2 et 3
 ```bash
-java -Dnimbus.login=adm -Dnimbus.0.localFolder=/home/usb/storage -Dnimbus.0.serverFolderId=root -Dnimbus.direction=d fr.techgp.nimbus.sync.SyncMain 0
+java -Dnimbus.login=adm -Dnimbus.0.localFolder=/home/usb/storage -Dnimbus.0.serverFolderId=root -Dnimbus.0.skipItemIds=2,3 -Dnimbus.direction=d fr.techgp.nimbus.sync.SyncMain 0
 ```
 
 Le dossier `doc` contient un exemple de fichier de configuration [sync-example.conf](./doc/sync-example.conf) ainsi qu'un exemple de script [sync-example.bat](./doc/sync-example.bat).
