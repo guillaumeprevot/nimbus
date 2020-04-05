@@ -60,9 +60,11 @@ public class Files extends Controller {
 		Long parentId = null;
 		for (Part part : requestParts) {
 			if ("parentId".equals(part.getName())) {
-				String parentIdString = IOUtils.toString(part.getInputStream(), "UTF-8");
-				parentId = (StringUtils.isBlank(parentIdString) || "null".equals(parentIdString)) ? null : Long.valueOf(parentIdString);
-				break;
+				try (InputStream is = part.getInputStream()) {
+					String parentIdString = IOUtils.toString(is, "UTF-8");
+					parentId = (StringUtils.isBlank(parentIdString) || "null".equals(parentIdString)) ? null : Long.valueOf(parentIdString);
+					break;
+				}
 			}
 		}
 		Item parent = parentId == null ? null : Item.findById(parentId);

@@ -552,32 +552,30 @@ function fillTests(add) {
 		return $.get("/items/info/5").then((result) => assertObject(result, (o) => o.iconURL === '/files/thumbnail/2?size=32'));
 	});
 
-	var autocompleteResult;
-	add("DOWNLOAD / Vérifier l'auto-complétion des vidéos YouTube", function() {
-		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=8TCxE0bWQeQ" }).then((result) => assertArray(result, 2, (r) => { autocompleteResult = r; return r.name && r.value && r.label && r.value.indexOf("http") === 0; }));
-	});
-	add("DOWNLOAD / Vérifier que l'autocomplétion YouTube échoue si la vidéo est inconnue", function() {
-		return $.get("/download/autocomplete", { url: "https://www.youtube.com/watch?v=hg-i47g1TKY" }).then((result) => assertArray(result, 0));
+	var downloadURL = "https://www.w3schools.com/tags/movie.mp4";
+	var downloadName = "movie.mp4";
+	add("DOWNLOAD / Vérifier que l'auto-complétion répond, même sans résultat", function() {
+		return $.get("/download/autocomplete", { url: downloadURL }).then((result) => assertArray(result, 0));
 	});
 	add("DOWNLOAD / Télécharger une vidéo", function() {
-		return $.post("/download/add", { url: autocompleteResult.value, name: autocompleteResult.name }).then((result) => assertEquals(result, "8"));
+		return $.post("/download/add", { url: downloadURL/*, name: downloadName*/ }).then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier les informations sur l'élément téléchargé", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === autocompleteResult.name && r.mimetype.indexOf("video/") === 0
-				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4"
+				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465))));
 	});
 	add("DOWNLOAD / Actualiser un fichier téléchargé", function() {
 		return wait(3).then(() => $.post("/download/refresh?itemId=8")).then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé n'ont pas changé", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === autocompleteResult.name && r.mimetype.indexOf("video/") === 0
-				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 1081707))));
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4"
+				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465))));
 	});
 	add("DOWNLOAD / Marquer le téléchargement comme vu", function() {
 		return wait(3).then(() => $.post("/download/done?itemId=8")).then(assertEmpty);
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé ont été nettoyées", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === autocompleteResult.name && r.mimetype.indexOf("video/") === 0 && !r.status));
+		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4" && !r.status));
 	});
 
 	var metadataDatetime = Date.now();

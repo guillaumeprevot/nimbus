@@ -43,7 +43,7 @@ public final class WebUtils {
 		try {
 			HttpURLConnection connection = openURL(url);
 			try (InputStream stream = connection.getInputStream()) {
-				byte[] bytes = IOUtils.toByteArray(connection.getInputStream());
+				byte[] bytes = IOUtils.toByteArray(stream);
 				String mimetype = connection.getContentType();
 				if (StringUtils.isBlank(mimetype))
 					mimetype = defaultMimetype;

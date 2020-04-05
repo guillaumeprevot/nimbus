@@ -60,8 +60,10 @@ public class Import {
 			// Prepare MongoDB
 			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
 
-			// Check alternate "java fr.techgp.nimbus.Import <login> <parentId> <folderPath>"
-			if (args.length != 3)
+			// Vérifier l'appel :
+			// - soit "java fr.techgp.nimbus.Import <login> <folderPath> <parentId>" pour importer dans un dossier spécifique
+			// - soit "java fr.techgp.nimbus.Import <login> <folderPath>" pour importer à la racine
+			if (args.length < 2 || args.length > 3)
 				throw new UnsupportedOperationException();
 
 			// Récupérer l'utilisateur pour qui on fait l'import

@@ -72,8 +72,10 @@ public class SyncItem {
 		String query = "/items/add/folder?name=" + URLEncoder.encode(this.name, "UTF-8") + "&parentId=" + (parentId == null ? "" : parentId.toString());
 		this.nimbusId = sync.sendRequest(jsessionid, query, true, false, true, (c) -> {
 			if (c.getResponseCode() != HttpServletResponse.SC_OK)
-				return null;
-			return Long.valueOf(IOUtils.toString(c.getInputStream(), StandardCharsets.UTF_8));
+				return (Long) null;
+			try (InputStream stream = c.getInputStream()) {
+				return Long.valueOf(IOUtils.toString(stream, StandardCharsets.UTF_8));
+			}
 		});
 		return this.nimbusId != null;
 	}

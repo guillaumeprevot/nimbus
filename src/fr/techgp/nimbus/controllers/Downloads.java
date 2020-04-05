@@ -8,13 +8,11 @@ import java.net.HttpURLConnection;
 import java.util.Date;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
-import fr.techgp.nimbus.utils.YoutubeUtils;
 import spark.HaltException;
 import spark.Response;
 import spark.Route;
@@ -23,40 +21,16 @@ public class Downloads extends Controller {
 
 	/**
 	 * Cette méthode propose des alternatives de téléchargement en fonction d'une URL "url".
-	 * Pour le moment, les suggestions sont uniquement des URLs de vidéos YouTube si l'URL correspond à une page YouTube.
+	 * Pas d'autocomplétion pour le moment.
+	 * Il n'y avait que YouTube mais la méthode change trop souvent alors que je n'utilise pas cette fonction.
 	 *
 	 * (url) => [{label, value, name}, ...]
 	 *
 	 * @see YoutubeUtils
 	 */
 	public static final Route autocomplete = (request, response) -> {
-		String url = request.queryParams("url");
+		// String url = request.queryParams("url");
 		JsonArray results = new JsonArray();
-		if (YoutubeUtils.isYoutubeVideo(url)) {
-			String id = YoutubeUtils.getYoutubeVideoId(url);
-			if (id != null) {
-				try {
-					String[] metadatas = new String[2]; // title and formats
-					YoutubeUtils.iterateYoutubeVideoMetadata(id, (name, value) -> {
-						if ("title".equals(name))
-							metadatas[0] = value;
-						else if ("url_encoded_fmt_stream_map".equals(name))
-							metadatas[1] = value;
-					});
-					if (StringUtils.isNotBlank(metadatas[1])) {
-						YoutubeUtils.iterateYoutubeVideoOptions(metadatas[1], (itag, downloadURL) -> {
-							JsonObject result = new JsonObject();
-							result.addProperty("label", String.format("%s.%s (%dx%d, %s+%s)", metadatas[0], itag.extension, itag.width, itag.height, itag.videoEncoding, itag.audioEncoding));
-							result.addProperty("value", downloadURL);
-							result.addProperty("name", metadatas[0] + "." + itag.extension);
-							results.add(result);
-						});
-					}
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
 		return SparkUtils.renderJSON(response, results);
 	};
 

@@ -2,6 +2,8 @@ package fr.techgp.nimbus.sync;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -61,7 +63,9 @@ public class Sync {
 			connection.setDoOutput(true); // pour envoyer le formulaire
 
 			// Envoyer le formulaire d'authentification
-			connection.getOutputStream().write(form);
+			try (OutputStream os = connection.getOutputStream()) {
+				os.write(form);
+			}
 
 			// Si ça fonctionne, le serveur doit nous renvoyer un code 302 redirigeant vers la page demandée "/"
 			if (connection.getResponseCode() != HttpServletResponse.SC_FOUND) {
@@ -112,8 +116,10 @@ public class Sync {
 	protected final JsonArray getContentFromServerFolder(String jsessionid) throws IOException {
 		String query = "/items/list?recursive=true&deleted=false&parentId=" + (this.serverFolderId == null ? "" : this.serverFolderId.toString());
 		return sendRequest(jsessionid, query, false, false, true, (c) -> {
-			String json = IOUtils.toString(c.getInputStream(), StandardCharsets.UTF_8);
-			return JsonParser.parseString(json).getAsJsonArray();
+			try (InputStream is = c.getInputStream()) {
+				String json = IOUtils.toString(is, StandardCharsets.UTF_8);
+				return JsonParser.parseString(json).getAsJsonArray();
+			}
 		});
 	}
 
@@ -121,8 +127,9 @@ public class Sync {
 		ArrayList<SyncItem> results = new ArrayList<>();
 		for (int i = 0; i < array.size(); i++) {
 			JsonObject o = array.get(i).getAsJsonObject();
-			if (parentId == null && o.get("parentId") != null && !o.get("parentId").isJsonNull()
-					|| parentId != null && (o.get("parentId") == null || o.get("parentId").getAsLong() != parentId.longValue()))
+			boolean hasParent = o.get("parentId") != null && !o.get("parentId").isJsonNull();
+			if (parentId == null && hasParent
+					|| parentId != null && (!hasParent || o.get("parentId").getAsLong() != parentId.longValue()))
 				continue;
 			SyncItem item = new SyncItem();
 			item.name = o.get("name").getAsString();
