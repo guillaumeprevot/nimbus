@@ -76,6 +76,7 @@ public class SyncMain {
 			sync.url = url;
 			sync.login = login;
 			sync.password = new String(password);
+			sync.direction = direction;
 			sync.traceOnly = "y".equalsIgnoreCase(traceOnly);
 			sync.skipExistingWithSameDateAndSize = "y".equalsIgnoreCase(skipExistingWithSameDateAndSize);
 			sync.forceHTTPSCertificate = "y".equalsIgnoreCase(forceHTTPSCertificate);
@@ -84,7 +85,7 @@ public class SyncMain {
 				sync.onerror = (s) -> { writer.format(s + "\n"); System.err.println(s); System.exit(3); };
 			}
 			// Authentication
-			String jsessionid = sync.authenticateAndGetJSESSIONID();
+			sync.jsessionid = sync.authenticateAndGetJSESSIONID();
 			// Parcours des dossiers demandés
 			for (String index : args) {
 				System.out.println(index);
@@ -100,7 +101,7 @@ public class SyncMain {
 						localFolder, serverFolderId, url, login, skipExistingWithSameDateAndSize, forceHTTPSCertificate);
 				sync.localFolder = new File(localFolder);
 				sync.serverFolderId = "root".equals(serverFolderId) ? null : Long.valueOf(serverFolderId);
-				sync.run(jsessionid, direction);
+				sync.run();
 			}
 		} catch (Exception ex) {
 			System.err.println("Export failed due to an unexpected error");

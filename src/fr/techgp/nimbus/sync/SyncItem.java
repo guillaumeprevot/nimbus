@@ -65,12 +65,12 @@ public class SyncItem {
 				&& this.nimbusLength.equals(this.localLength);
 	}
 
-	public boolean createNimbusFolder(Sync sync, String jsessionid, Long parentId) throws IOException {
+	public boolean createNimbusFolder(Sync sync, Long parentId) throws IOException {
 		this.nimbusDate = System.currentTimeMillis();
 		this.nimbusFolder = true;
 		this.nimbusLength = null;
 		String query = "/items/add/folder?name=" + URLEncoder.encode(this.name, "UTF-8") + "&parentId=" + (parentId == null ? "" : parentId.toString());
-		this.nimbusId = sync.sendRequest(jsessionid, query, true, false, true, (c) -> {
+		this.nimbusId = sync.sendRequest(query, true, false, true, (c) -> {
 			if (c.getResponseCode() != HttpServletResponse.SC_OK)
 				return (Long) null;
 			try (InputStream stream = c.getInputStream()) {
@@ -87,9 +87,9 @@ public class SyncItem {
 		return (file.exists() || file.mkdirs()) && file.setLastModified(this.nimbusDate);
 	}
 
-	public boolean updateNimbusFile(Sync sync, String jsessionid, Long parentId, File file) throws IOException {
+	public boolean updateNimbusFile(Sync sync, Long parentId, File file) throws IOException {
 		String query = "/files/upload";
-		return sync.sendRequest(jsessionid, query, true, true, true, (c) -> {
+		return sync.sendRequest(query, true, true, true, (c) -> {
 			// L'idée est de ne pas intégrer HttpClient pour si peu
 			try (MultiPartAdapter adapter = new MultiPartAdapter(c, "******")) {
 				adapter.addFormField("parentId", parentId == null ? "" : parentId.toString());
@@ -106,9 +106,9 @@ public class SyncItem {
 		});
 	}
 
-	public boolean updateLocalFile(Sync sync, String jsessionid, File file) throws IOException {
+	public boolean updateLocalFile(Sync sync, File file) throws IOException {
 		String query = "/files/stream/" + this.nimbusId;
-		boolean success = sync.sendRequest(jsessionid, query, false, false, true, (c) -> {
+		boolean success = sync.sendRequest(query, false, false, true, (c) -> {
 			if (c.getResponseCode() != HttpServletResponse.SC_OK)
 				return false;
 			try (InputStream is = c.getInputStream();
@@ -126,11 +126,11 @@ public class SyncItem {
 		return success;
 	}
 
-	public boolean deleteNimbus(Sync sync, String jsessionid) throws IOException {
+	public boolean deleteNimbus(Sync sync) throws IOException {
 		if (this.nimbusId == null)
 			return true;
 		String query = "/trash/delete?itemIds=" + this.nimbusId;
-		return sync.sendRequest(jsessionid, query, true, false, true, c -> {
+		return sync.sendRequest(query, true, false, true, c -> {
 			boolean result = c.getResponseCode() == HttpServletResponse.SC_OK;
 			if (result) {
 				SyncItem.this.nimbusId = null;

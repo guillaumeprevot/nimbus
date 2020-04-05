@@ -36,6 +36,8 @@ public class Sync {
 	public String url;
 	public String login;
 	public String password;
+	public String direction;
+	public String jsessionid;
 	public File localFolder;
 	public Long serverFolderId;
 	public boolean traceOnly;
@@ -95,9 +97,9 @@ public class Sync {
 		}
 	}
 
-	public final void run(String jsessionid, String direction) throws IOException {
+	public final void run() throws IOException {
 		// Extract content from Nimbus
-		JsonArray array = this.getContentFromServerFolder(jsessionid);
+		JsonArray array = this.getContentFromServerFolder();
 		// Transform array into the item tree
 		ArrayList<SyncItem> items = this.buildTreeFromJSON(array, this.serverFolderId);
 		// Merge info from existing items found on disk
@@ -105,17 +107,17 @@ public class Sync {
 		// Minimize modification tree
 		this.minimize(items);
 		// Run synchronization ...
-		if (direction.equalsIgnoreCase("u"))
+		if (this.direction.equalsIgnoreCase("u"))
 			// ... from local folder to server
-			this.toServer(jsessionid, items, this.localFolder, this.serverFolderId, "");
+			this.toServer(items, this.localFolder, this.serverFolderId, "");
 		else
 			// ... from server to local folder
-			this.toLocal(jsessionid, items, this.localFolder, "");
+			this.toLocal(items, this.localFolder, "");
 	}
 
-	protected final JsonArray getContentFromServerFolder(String jsessionid) throws IOException {
+	protected final JsonArray getContentFromServerFolder() throws IOException {
 		String query = "/items/list?recursive=true&deleted=false&parentId=" + (this.serverFolderId == null ? "" : this.serverFolderId.toString());
-		return sendRequest(jsessionid, query, false, false, true, (c) -> {
+		return sendRequest(query, false, false, true, (c) -> {
 			try (InputStream is = c.getInputStream()) {
 				String json = IOUtils.toString(is, StandardCharsets.UTF_8);
 				return JsonParser.parseString(json).getAsJsonArray();
@@ -189,7 +191,7 @@ public class Sync {
 		}
 	}
 
-	protected final void toLocal(String jsessionid, ArrayList<SyncItem> items, File folder, String prefix) throws IOException {
+	protected final void toLocal(ArrayList<SyncItem> items, File folder, String prefix) throws IOException {
 		if (items == null)
 			return;
 		for (SyncItem item : items) {
@@ -223,7 +225,7 @@ public class Sync {
 						item.createLocalFolder(file);
 				}
 				// On parcourt ensuite récursivement
-				this.toLocal(jsessionid, item.children, file, prefix + "  ");
+				this.toLocal(item.children, file, prefix + "  ");
 				continue;
 			}
 
@@ -244,13 +246,13 @@ public class Sync {
 					else
 						this.ontrace.accept(prefix + "|- [++++++] " + item.name);
 					if (!this.traceOnly)
-						item.updateLocalFile(this, jsessionid, file);
+						item.updateLocalFile(this, file);
 				}
 			}
 		}
 	}
 
-	protected final void toServer(String jsessionid, ArrayList<SyncItem> items, File folder, Long parentId, String prefix) throws IOException {
+	protected final void toServer(ArrayList<SyncItem> items, File folder, Long parentId, String prefix) throws IOException {
 		if (items == null)
 			return;
 		for (SyncItem item : items) {
@@ -263,7 +265,7 @@ public class Sync {
 				else
 					this.ontrace.accept(prefix + "|- [DELETE] " + item.name);
 				if (!this.traceOnly)
-					item.deleteNimbus(this, jsessionid);
+					item.deleteNimbus(this);
 				continue;
 			}
 
@@ -273,7 +275,7 @@ public class Sync {
 				if (item.isNimbusFile()) {
 					this.ontrace.accept(prefix + "|- [DELETE] " + item.name);
 					if (!this.traceOnly)
-						item.deleteNimbus(this, jsessionid);
+						item.deleteNimbus(this);
 				}
 				// Si le dossier est absent du serveur, on le crée
 				if (item.isNimbusFolder()) {
@@ -281,10 +283,10 @@ public class Sync {
 				} else {
 					this.ontrace.accept(prefix + "+- [++++++] " + item.name);
 					if (!this.traceOnly)
-						item.createNimbusFolder(this, jsessionid, parentId);
+						item.createNimbusFolder(this, parentId);
 				}
 				// On parcourt ensuite récursivement
-				this.toServer(jsessionid, item.children, file, item.nimbusId, prefix + "  ");
+				this.toServer(item.children, file, item.nimbusId, prefix + "  ");
 				continue;
 			}
 
@@ -294,7 +296,7 @@ public class Sync {
 				if (item.isNimbusFolder()) {
 					this.ontrace.accept(prefix + "+- [DELETE] " + item.name);
 					if (!this.traceOnly)
-						item.deleteNimbus(this, jsessionid);
+						item.deleteNimbus(this);
 				}
 				// Téléverser le fichier si nécessaire (différents) ou forcé (option)
 				if (item.isSkipable(this.skipExistingWithSameDateAndSize, this::dateDiffMatcher)) {
@@ -305,13 +307,13 @@ public class Sync {
 					else
 						this.ontrace.accept(prefix + "|- [++++++] " + item.name);
 					if (!this.traceOnly)
-						item.updateNimbusFile(this, jsessionid, parentId, file);
+						item.updateNimbusFile(this, parentId, file);
 				}
 			}
 		}
 	}
 
-	protected final <T> T sendRequest(String jsessionid, String query, boolean isPost, boolean output, boolean input, SyncRequest<T> consumer) throws IOException {
+	protected final <T> T sendRequest(String query, boolean isPost, boolean output, boolean input, SyncRequest<T> consumer) throws IOException {
 		HttpURLConnection.setFollowRedirects(false);
 		HttpURLConnection connection = (HttpURLConnection) new URL(this.url + query).openConnection();
 		try {
@@ -323,7 +325,7 @@ public class Sync {
 			connection.setDoInput(input);
 			connection.setUseCaches(false);
 			connection.setAllowUserInteraction(false);
-			connection.setRequestProperty("Cookie", "JSESSIONID=" + jsessionid);
+			connection.setRequestProperty("Cookie", "JSESSIONID=" + this.jsessionid);
 			return consumer.consume(connection);
 		} finally {
 			connection.disconnect();
