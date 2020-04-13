@@ -37,7 +37,7 @@
 #items .name { width: auto; }
 #items .name > .badge { float: right; margin-right: 0.5em;  }
 #items .name > .description { font-size: small; display: inline; }
-#items .actions { width: 50px; text-align: center; }
+#items .actions { width: 52px; text-align: center; }
 #items > thead th.sortable { cursor: pointer; }
 #items > tbody { cursor: pointer; }
 #items > tbody > tr > td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }

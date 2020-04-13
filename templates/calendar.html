@@ -12,6 +12,12 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
+header .float-left { min-width: calc(110px + 1em); height: 100%; }
+header .float-right { min-width: 110px; }
+
+#periodLongDescription, #periodShortDescription { text-transform: capitalize; padding-top: 13px; line-height: 1; }
+#periodLongDescription { display: inline-block; min-width: 150px; }
+
 #sourceMenu div.dropdown-item { display: flex; align-items: center; }
 #sourceMenu div.dropdown-item span { flex: auto; padding-right: 1.25rem; }
 #sourceMenu div.dropdown-item .btn { flex: none; padding: 0.25rem; }
@@ -68,6 +74,8 @@
 				<i class="material-icons">event</i>
 				<input id="selectInput" type="date" style="opacity: 0; position: absolute; left: 0; width: 100%; top: 0; height: 100%; "/>
 			</div>
+			<span id="periodShortDescription" class="text-white"></span>
+			<span id="periodLongDescription" class="text-white"></span>
 			<div class="btn-group">
 				<button id="viewButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSelectView" aria-haspopup="true" aria-expanded="false"><i class="material-icons">visibility</i></button>
 				<div id="viewMenu" class="dropdown-menu" aria-labelledby="viewButton"></div>
@@ -105,10 +113,7 @@
 		<div id="weeks"></div>
 	</main>
 	<div id="alert-container"></div>
-	<footer class="bg-secondary">
-		<span id="periodShortDescription" class="text-white"></span>
-		<span id="periodLongDescription" class="text-white"></span>
-	</footer>
+	<footer class="bg-secondary"></footer>
 	<form>
 		<div id="eventTypeModal" class="modal fade">
 			<div class="modal-dialog">
@@ -521,10 +526,10 @@ function connectMainView(calendar) {
 		// Si le calendrier montre 6 semaines ou moins (autrement dit en vues semaine, multi-semaines et mois),
 		// et que l'affichage ne descend pas en dessous de 640px (cf @media queries ci-dessus qui passent les n° de semaine en bloc),
 		// on donne une hauteur min à chaque semaine pour utiliser l'espace disponible en hauteur, s'il y en a.
-		// Cette hauteur min vaut (hauteurTotale - hauteurHeader - hauteurFooter - hauteurDays) / nbSemaine - bordDeChaqueSemaine)
+		// Cette hauteur min vaut (hauteurTotale - hauteurHeader - hauteurDays) / nbSemaine - bordDeChaqueSemaine)
 		var weekNumbers = $('#weeks > .week > .week-number');
 		if (weekNumbers.length <= 6 && weeks.innerWidth() >= 640)
-			weekNumbers.css('min-height', 'calc((100vh - 93px - 0.75rem) / ' + weekNumbers.length + ' - 1px)');
+			weekNumbers.css('min-height', 'calc(((100vh - 82.35px) / ' + weekNumbers.length + ') + 1px)');
 
 		// Récupérer la méthode de formatage en fonction de la langue
 		var formatDates = NIMBUS.translate('formatCalendarEventDates');
