@@ -187,12 +187,12 @@ var storage = {
 // Cette méthode crée l'entrée dans la partie centrale pour le favori demandé
 function createBookmarkItem(source, folder, bookmark) {
 	return $('<div class="list-group-item list-group-item-action bookmark-edit-button">'
-			+ '  <img class="bookmark-image" />'
+			+ '  <img class="bookmark-image"></img>'
 			+ '  <i class="bookmark-icon material-icons text-muted">link</i>'
 			+ '  <span class="bookmark-name" draggable="true"></span>'
 			+ '  <span class="bookmark-keywords"></span>'
 			+ '  <span class="bookmark-description text-muted"></span>'
-			+ '  <a href="#" target="_blank" class="btn btn-link text-muted bookmark-open-button" />'
+			+ '  <a href="#" target="_blank" class="btn btn-link text-muted bookmark-open-button"></a>'
 			+ '</div>')
 			.data('source', source).data('folder', folder).data('bookmark', bookmark)
 			.children('.bookmark-image').attr('src', bookmark.iconURL).toggle(!!bookmark.iconURL).end()

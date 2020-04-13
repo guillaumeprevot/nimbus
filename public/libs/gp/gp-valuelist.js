@@ -36,7 +36,7 @@
 		this.build = (item) => {
 			var editor = $(''
 					+ '<div class="button-group" style="position: relative; flex-basis: 1.5rem; ">'
-					+ '  <span class="form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: absolute; cursor: pointer; border-radius: 0; text-align: left; white-space: nowrap; overflow: hidden; color: black; " />'
+					+ '  <span class="form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: absolute; cursor: pointer; border-radius: 0; text-align: left; white-space: nowrap; overflow: hidden; color: black; "></span>'
 					+ '  <div class="dropdown-menu">'
 					+ '    <div class="p-2 form-row">'
 					+ '      <div class="col-md-3"><input type="text" min="1" max="31" class="form-control valuelist-date" placeholder="JJ"></div>'
@@ -222,7 +222,7 @@
 					+ '  <div class="input-group-prepend" draggable="true">'
 					+ '    <span class="input-group-text"><i class="material-icons material-icons-16"></i></span>'
 					+ '  </div>'
-					+ '  <input type="text" class="form-control" style="flex: 1 1 0; " />'
+					+ '  <input type="text" class="form-control" style="flex: 1 1 0; "></input>'
 					+ '  <span class="form-control" style="flex: 1 1 0; display: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; "></span>'
 					+ '  <select class="custom-select" style="width: auto; flex: 0 0 auto; width: 0; color: transparent; "></select>'
 					+ '  <div class="input-group-append">'

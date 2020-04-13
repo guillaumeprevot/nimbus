@@ -615,7 +615,7 @@ NIMBUS.init(['contacts.js'], function() {
 		var selectedSource = (itemId === null) ? sources[0] : sources.find((s) => s.item.id === itemId);
 		// Création d'un onglet par fichier ".contacts"
 		navigation.append(sources.map(function(source, index) {
-			var a = $('<a class="nav-link" href="#"><span /> <i class="badge badge-light" /></a>')
+			var a = $('<a class="nav-link" href="#"><span></span> <i class="badge badge-light"></i></a>')
 				.toggleClass('active', source === selectedSource)
 				.children('span').text(source.getNameOrDefault()).end()
 				.children('.badge').text('' + source.contacts.length).end();
