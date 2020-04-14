@@ -537,8 +537,9 @@ function connectMainView(calendar) {
 		var days = weeks.find('.day-content').get();
 		var minMoment = moment(data.startOfWeek);
 		var maxMoment = moment(data.endOfWeek);
+		var minYear = minMoment.year();
 		data.events.forEach(function(event) {
-			var eventMoment = event.date.toMoment();
+			var eventMoment = event.date.toMoment(minYear);
 			var periods = [];
 			var momentRepeat, stopMoment, startOffset, dayCount;
 			if (event.repeat !== null) {

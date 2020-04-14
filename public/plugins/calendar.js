@@ -22,8 +22,8 @@
 		return new CalendarDate(year, month, date);
 	};
 
-	CalendarDate.prototype.toMoment = function() {
-		return moment().year(this.year).month(this.month).date(this.date).startOf('day');
+	CalendarDate.prototype.toMoment = function(defaultYear) {
+		return moment().year((typeof this.year === 'undefined') ? defaultYear : this.year).month(this.month).date(this.date).startOf('day');
 	};
 
 	CalendarDate.prototype.toString = function() {
@@ -296,14 +296,14 @@
 				function add(date, label, repeated) {
 					results.push(new CalendarEvent({ type: type, date: date, label: label, repeat: repeated ? 'yearly' : null}));
 				}
-				add(CalendarDate.from(startYear, 0, 1), "Jour de l'an", true);
-				add(CalendarDate.from(startYear, 4, 1), "Fête du Travail", true);
-				add(CalendarDate.from(startYear, 4, 8), "8 Mai 1945", true);
-				add(CalendarDate.from(startYear, 6, 14), "Fête Nationale", true);
-				add(CalendarDate.from(startYear, 7, 15), "Assomption", true);
-				add(CalendarDate.from(startYear, 10, 1), "Toussaint", true);
-				add(CalendarDate.from(startYear, 10, 11), "Armistice 1918", true);
-				add(CalendarDate.from(startYear, 11, 25), "Noël", true);
+				add(CalendarDate.from(undefined, 0, 1), "Jour de l'an", true);
+				add(CalendarDate.from(undefined, 4, 1), "Fête du Travail", true);
+				add(CalendarDate.from(undefined, 4, 8), "8 Mai 1945", true);
+				add(CalendarDate.from(undefined, 6, 14), "Fête Nationale", true);
+				add(CalendarDate.from(undefined, 7, 15), "Assomption", true);
+				add(CalendarDate.from(undefined, 10, 1), "Toussaint", true);
+				add(CalendarDate.from(undefined, 10, 11), "Armistice 1918", true);
+				add(CalendarDate.from(undefined, 11, 25), "Noël", true);
 				for (year = startYear; year <= endYear; year++) {
 					easter = calculateEasterDateArray(year);
 					add(CalendarDate.from(moment(easter).add(1, 'days')), "Lundi de Pâques", false);
@@ -596,7 +596,8 @@
 				CalendarEventModalApplyButton: "Appliquer",
 
 				formatCalendarEventDates: function(event) {
-					var d = event.date.toMoment().format('L');
+					var f = (typeof event.date.year === 'undefined') ? 'DD/MM' : 'L';
+					var d = event.date.toMoment(1900).format(f);
 					var r = event.repeat;
 					var e = event.endDate ? event.endDate.toMoment().format('L') : null;
 					r = (r === 'daily') ? 'jour' : (r === 'weekly') ? 'semaine' : (r === 'monthly') ? 'mois' : (r === 'quarterly') ? 'trimestre' : (r === 'yearly') ? 'année' : '';
@@ -604,8 +605,10 @@
 						return 'chaque ' + r + ' du ' + d + ' au ' + e;
 					if (e)
 						return 'du ' + d + ' au ' + e;
-					if (r)
+					if (r && (typeof event.date.year !== 'undefined'))
 						return 'chaque ' + r + ' depuis le ' + d;
+					if (r && (typeof event.date.year === 'undefined'))
+						return 'chaque ' + r + ' le ' + d;
 					return 'le ' + d;
 				},
 			},
@@ -691,15 +694,19 @@
 				CalendarEventModalApplyButton: "Apply",
 
 				formatCalendarEventDates: function(event) {
-					var d = event.date.toMoment().format('L');
+					var f = (typeof event.date.year === 'undefined') ? 'MMM Do' : 'll';
+					var d = event.date.toMoment(1900).format(f);
 					var r = event.repeat;
 					var e = event.endDate ? event.endDate.toMoment().format('L') : null;
+					r = (r === 'daily') ? 'day' : (r === 'weekly') ? 'week' : (r === 'monthly') ? 'month' : (r === 'quarterly') ? 'quarter' : (r === 'yearly') ? 'year' : '';
 					if (e && r)
 						return 'each ' + r + ' from ' + d + ' until ' + e;
 					if (e)
 						return 'from ' + d + ' until ' + e;
-					if (r)
+					if (r && (typeof event.date.year !== 'undefined'))
 						return 'each ' + r + ' from ' + d;
+					if (r && (typeof event.date.year === 'undefined'))
+						return 'each ' + r + ' on ' + d;
 					return 'on ' + d;
 				},
 			}
