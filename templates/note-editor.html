@@ -68,11 +68,11 @@ blockquote { margin: 15px 40px; }
 					<button type="button" class="dropdown-item appear-3" id="audioButton2"><i class="material-icons">audiotrack</i> <span data-translate="text">NoteEditorInsertAudio</span></button>
 					<button type="button" class="dropdown-item appear-3" data-command="insertHorizontalRule"><i class="material-icons">vertical_align_center</i> <span data-translate="text">NoteEditorInsertHR</span></button>
 					<div class="dropdown-divider"></div>
-					<button type="button" class="dropdown-item" data-translate="text" id="pasteAsHTMLButton">NoteEditorPasteAsHTML</button>
-					<button type="button" class="dropdown-item active" data-translate="text" id="pasteAsTextButton">NoteEditorPasteAsText</button>
+					<button type="button" class="dropdown-item" id="enablePasteAsHTMLButton"><i class="material-icons">warning</i> <span data-translate="text">NoteEditorEnablePasteAsHTML</span></button>
+					<button type="button" class="dropdown-item" id="enableObjectResizingButton"><i class="material-icons">format_shapes</i> <span data-translate="text">NoteEditorEnableObjectResizing</span></button>
 					<div class="dropdown-divider"></div>
-					<button type="button" class="dropdown-item" data-translate="text" id="printButton">NoteEditorPrint</button>
-					<button type="button" class="dropdown-item" data-translate="text" id="sourceButton">NoteEditorSource</button>
+					<button type="button" class="dropdown-item" id="printButton"><i class="material-icons">print</i> <span data-translate="text">NoteEditorPrint</span></button>
+					<button type="button" class="dropdown-item" id="sourceButton"><i class="material-icons">code</i> <span data-translate="text">NoteEditorSource</span></button>
 				</div>
 			</div>
 		</div>
@@ -246,7 +246,7 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 		// les flèches pour ajouter et la croix pour supprimer des lignes et des colonnes dans les tableaux
 		document.execCommand('enableInlineTableEditing', null, true);
 		// les carrés pour changer les dimensions des éléments, comme des tableaux ou des images
-		document.execCommand('enableObjectResizing', null, true);
+		document.execCommand('enableObjectResizing', null, false);
 
 		// les boutons les plus simples
 		$('button[data-command]').each(function(event) {
@@ -356,17 +356,13 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 		promptButton($('#audioButton,#audioButton2'), 'insertHTML', 'NoteEditorInsertAudioPrompt', 'https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3', '<audio controls src="%VALUE%"></audio>');
 
 		// Coller depuis le presse-papier en HTML ou en texte
-		var pasteAsHTMLButton = $('#pasteAsHTMLButton');
-		var pasteAsTextButton = $('#pasteAsTextButton');
+		var enablePasteAsHTMLButton = $('#enablePasteAsHTMLButton');
 		if (document.queryCommandSupported('insertHTML') && document.queryCommandSupported('insertText')) {
-			pasteAsHTMLButton.click(function() {
-				pasteAsHTMLButton.addClass('active').next().removeClass('active');
-			});
-			pasteAsTextButton.click(function() {
-				pasteAsTextButton.addClass('active').prev().removeClass('active');
+			enablePasteAsHTMLButton.click(function() {
+				enablePasteAsHTMLButton.toggleClass('active');
 			});
 			editor.on('paste', function(event) {
-				if (pasteAsHTMLButton.hasClass('active')) {
+				if (enablePasteAsHTMLButton.hasClass('active')) {
 					var html = event.originalEvent.clipboardData.getData('text/html');
 					document.execCommand('insertHTML', null, html);
 				} else {
@@ -376,10 +372,14 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 				event.preventDefault();
 			});
 		} else {
-			pasteAsHTMLButton.prev().hide();
-			pasteAsHTMLButton.hide();
-			pasteAsTextButton.hide();
+			enablePasteAsHTMLButton.hide();
 		}
+
+		// Bouton pour activer le redimensionnement des images ou tableaux
+		$('#enableObjectResizingButton').click(function(event) {
+			var button = $(event.target).closest('button').toggleClass('active');
+			document.execCommand('enableObjectResizing', null, button.hasClass('active'));
+		});
 
 		// Bouton d'impression
 		$('#printButton').click(function(event) {
