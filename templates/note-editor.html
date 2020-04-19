@@ -11,8 +11,11 @@
 <link type="text/css" rel="stylesheet" href="${stylesheet}" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<style id="contentStyle">
+blockquote:not(.blockquote) { margin-left: 30px; }
+blockquote.blockquote { margin: 15px 30px; border-left: 3px solid var(--secondary); padding-left: 10px; font-size: unset; }
+</style>
 <style>
-blockquote { margin: 15px 40px; }
 .material-icons-placeholder { display: inline-block; width: 24px; height: 24px; text-align: center; }
 .dropdown-menu button > small:empty { display: none; }
 .dropdown-menu button > small::before { content: " ("; }
@@ -136,7 +139,7 @@ blockquote { margin: 15px 40px; }
 			<button type="button" class="btn btn-link" data-translate="title" data-command="insertOrderedList" title="NoteEditorInsertOrderedList"><i class="material-icons">format_list_numbered</i></button>
 			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="outdent" title="NoteEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
 			<button type="button" class="btn btn-link disappear-1" data-translate="title" data-command="indent" title="NoteEditorIndent"><i class="material-icons">format_indent_increase</i></button>
-			<button type="button" class="btn btn-link" data-translate="title" data-command="formatBlock" data-command-params="BLOCKQUOTE" title="NoteEditorQuote"><i class="material-icons">format_quote</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" id="quoteButton" title="NoteEditorQuote"><i class="material-icons">format_quote</i></button>
 		</div>
 		<div class="btn-group">
 			<span class="nimbus-toolbar-separator disappear-6"></span>
@@ -247,6 +250,8 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 		document.execCommand('enableInlineTableEditing', null, true);
 		// les carrés pour changer les dimensions des éléments, comme des tableaux ou des images
 		document.execCommand('enableObjectResizing', null, false);
+		// s'assurer de découper les blocs en deux plutôt que d'ajouter des <br /> partout
+		document.execCommand('insertBrOnReturn', null, false);
 
 		// les boutons les plus simples
 		$('button[data-command]').each(function(event) {
@@ -331,20 +336,24 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 			againButton.attr('data-command', button.attr('data-command'));
 		});
 
+		// Quote
+		$('#quoteButton').toggle(document.queryCommandSupported('formatBlock')).click(function() {
+			// Au départ, je faisais simplement : document.execCommand('formatBlock', false, 'BLOCKQUOTE');
+			// Malheureusement, indent/outdent utilisent aussi "blockquote" implicitement donc difficile de styler l'un sans l'autre.
+			// Du coup, je format le bloc avec un tag marqueur "ADDRESS" que je remplace ensuite en un <blockquote class="blockquote" />
+			document.execCommand('formatBlock', false, 'ADDRESS');
+			editor.find('ADDRESS').replaceWith(function() {
+				return $('<blockquote class="blockquote" />').append($(this).contents());
+			});
+		});
+
 		// Création de tableau
 		promptButton($('#tableButton,#tableButton2'), 'insertHTML', 'NoteEditorInsertTablePrompt', '3x3', function(size) {
-			var html = '<table class="table table-bordered  table-hover table-sm /*table-striped table-responsive*/" style="width: auto; max-width: 100%; word-break: break-all; ">';
 			var rows = parseInt(size);
 			var cols = parseInt(size.substring(size.indexOf('x') + 1));
-			for (var row = 0; row < rows; row++) {
-				html += '<tr>';
-				for (var col = 0; col < cols; col++) {
-					html += '<td />';
-				}
-				html += '</tr>';
-			}
-			html += '</table>';
-			return html;
+			return '<table class="table table-bordered table-hover table-sm" style="width: auto; max-width: 100%; ">'
+				+ ('<tr>' + '<td />'.repeat(cols) + '</tr>').repeat(rows)
+				+ '</table>'
 		});
 		// Création de lien
 		promptButton($('#linkButton,#linkButton2'), 'createLink', 'NoteEditorLinkPrompt', 'https://', null);
@@ -383,15 +392,16 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 
 		// Bouton d'impression
 		$('#printButton').click(function(event) {
-			var style = '${baseURL}${stylesheet}';
+			var baseStyle = '${baseURL}${stylesheet}';
+			var customStyle = $('#contentStyle').text();
 			var html = '<!DOCTYPE html>'
 				+ '\n<html>'
 				+ '\n  <head>'
 				+ '\n    <title>' + filename + '</title>'
 				+ '\n    <meta charset="UTF-8">'
 				+ '\n    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
-				+ '\n    <link type="text/css" rel="stylesheet" href="' + style + '" />'
-				+ '\n    <style>blockquote { margin: 15px 40px; }</style>'
+				+ '\n    <link type="text/css" rel="stylesheet" href="' + baseStyle + '" />'
+				+ '\n    <style>' + customStyle + '</style>'
 				+ '\n  </head>'
 				+ '\n  <body>'
 				+ '\n    <div style="font-family:' + defaultFontFamily + ', Roboto, Arial, sans-serif; font-size:' + defaultFontSize + 'pt; padding: 1em; ">'
