@@ -222,6 +222,7 @@ function open(url) {
 
 	// Récupération de quelques éléments DOM
 	var main = $('main');
+	var scrollbarSize = 17;
 	var showTextLayer = true;
 	var textLayer = main.children('div');
 	var canvas = main.children('canvas');
@@ -319,12 +320,26 @@ function open(url) {
 
 	// Changer la rotation et redessiner la page
 	function changeRotation(offset) {
+		// Ajuster l'échelle en fonction du mode
+		var height = main.height(),
+			width = main.width(),
+			heightFactor = height / canvas[0].height,
+			widthFactor = width / canvas[0].width;
+		var factor;
+		if (zoomModeButton === zoomFitButton)
+			factor = Math.min(main.width() / canvas[0].height, main.height() / canvas[0].width);
+		else if (zoomModeButton === zoomWidthButton)
+			factor = (main.width() - scrollbarSize) / canvas[0].height;
+		else if (zoomModeButton === zoomHeightButton)
+			factor = (main.height() - scrollbarSize) / canvas[0].width;
+		else
+			factor = null;
+		if (factor !== null)
+			scale = canvasQuality * scale * factor;
+		// Appliquer la rotation
 		rotation = (rotation + 360 + offset) % 360;
+		// Afficher la page en cours avec la nouvelle rotation et le zoom éventuellement ajusté
 		renderPage(pageIndex);
-		// On quitte le mode de zoom en cours
-		if (zoomModeButton)
-			zoomModeButton.removeClass('active');
-		zoomModeButton = null;
 	};
 
 	// Manipulation par la barre d'outils
@@ -386,25 +401,23 @@ function open(url) {
 	});
 	// Ajuster le zoom pour que la page s'affiche en entière
 	var zoomFitButton = header.find('.zoom-fit').click(function() {
-		var height = main.height() - 17/*if scrollbar are visible*/,
-			width = main.width() - 17/*if scrollbar are visible*/,
+		var height = main.height(),
+			width = main.width(),
 			heightFactor = height / canvas[0].height,
 			widthFactor = width / canvas[0].width;
 		changeScale(canvasQuality * scale * Math.min(widthFactor, heightFactor), zoomFitButton);
 	});
 	// Ajuster le zoom pour que la page s'affiche en pleine largeur
 	var zoomWidthButton = header.find('.zoom-width').click(function() {
-		var newWidth = main.width() - 17/*if scrollbar are visible*/,
-			currentWidth = canvas[0].width,
-			currentScale = scale;
-		changeScale(canvasQuality * currentScale * newWidth / currentWidth, zoomWidthButton);
+		var width = main.width(),
+			widthFactor = (width - scrollbarSize) / canvas[0].width;
+		changeScale(canvasQuality * scale * widthFactor, zoomWidthButton);
 	});
 	// Ajuster le zoom pour que la page s'affiche en pleine hauteur
 	var zoomHeightButton = header.find('.zoom-height').click(function() {
-		var newHeight = main.height() - 17/*if scrollbar are visible*/,
-			currentHeight = canvas[0].height,
-			currentScale = scale;
-		changeScale(canvasQuality * currentScale * newHeight / currentHeight, zoomHeightButton);
+		var height = main.height(),
+			heightFactor = (height - scrollbarSize) / canvas[0].height;
+		changeScale(canvasQuality * scale * heightFactor, zoomHeightButton);
 	});
 	// Zoomer à une valeur définie par le menu
 	header.on('click', 'a.zoom-pct', function(event) {
