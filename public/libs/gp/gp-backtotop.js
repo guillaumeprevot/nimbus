@@ -6,8 +6,8 @@
 		this.options = $.extend({}, BackToTop.defaultOptions, options);
 		this.scroll = this.scroll.bind(this);
 		this.click = this.click.bind(this);
-		// The new button
-		this.button = $('<button type="button" class="btn btn-default backtotop" />')
+		// Le nouveau bouton
+		this.button = $('<button type="button" class="btn btn-default gp-backtotop" />')
 			.css('position', 'fixed')
 			.css('z-index', '' + this.options.zIndex)
 			.css('bottom', this.options.distance + 'em')
@@ -51,6 +51,6 @@
 		container: document.body,
 	};
 
-	$.addPlugin('backToTop', BackToTop);
+	$.addPlugin('gpbacktotop', BackToTop);
 
 })(jQuery);

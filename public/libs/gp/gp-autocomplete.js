@@ -1,18 +1,18 @@
 (function($) {
 	"use strict";
 
-	function AutoComplete(input, options) {
-		this.input = $(input);
+	function AutoComplete(target, options) {
+		this.target = $(target);
 		this.options = $.extend({}, AutoComplete.defaultOptions, options);
 		this.update = this.update.bind(this);
 		this.select = this.select.bind(this);
 		this.autoclose = this.autoclose.bind(this);
-		this.input
+		this.target
+			.wrap('<div class="dropdown gp-autocomplete" />')
 			.on('input', this.update)
 			.on('focus', this.update)
 			.on('blur', this.autoclose);
-		this.container = $('<div class="dropdown autocomplete" />')
-			.insertAfter(this.input);
+		this.container = this.target.parent();
 		this.menu = $('<div class="dropdown-menu" />')
 			.appendTo(this.container)
 			.css('width', '100%')
@@ -23,7 +23,8 @@
 
 	$.extend(AutoComplete.prototype, {
 		destroy: function() {
-			this.input
+			this.target
+				.unwrap()
 				.off('input', this.update)
 				.off('focus', this.update)
 				.off('blur', this.autoclose);
@@ -31,7 +32,7 @@
 		},
 		update: function() {
 			var self = this;
-			var term = self.input.val();
+			var term = self.target.val();
 			self.menu.empty();
 			if ((term !== self.options.wildcard) && self.options.min > 0 && term.length < self.options.min) {
 				self.toggleMenu(false);
@@ -48,15 +49,9 @@
 						if (term === self.options.wildcard || !self.options.bold)
 							a.text(label);
 						else {
-							var r = '';
-							var s;
-							while ((s = expr.exec(label)) !== null) {
-								r = r + label.substring(0, expr.lastIndex - term.length)
-									+ '<b>' + label.substring(expr.lastIndex - term.length, expr.lastIndex) + '</b>';
-								label = label.substring(expr.lastIndex);
-							}
-							r = r + label;
-							a.append(r);
+							a.html(label.replace(expr, function(s) {
+								return '<b>' + s + '</b>';
+							}));
 						}
 						return a[0];
 					}));
@@ -79,9 +74,9 @@
 
 			// Update input content
 			if (this.options.input === 'clear')
-				this.input.val('')
+				this.target.val('')
 			else if (this.options.input === 'update')
-				this.input.val(result.value || result.label);
+				this.target.val(result.value || result.label);
 
 			// Reload is necessary
 			if (this.options.menu === 'close') {
@@ -92,7 +87,7 @@
 				if (this.menu.is(':empty'))
 					this.toggleMenu(false);
 			} else if (this.options.menu === 'reload') {
-				this.input.trigger('input');
+				this.target.trigger('input');
 			}
 			return false;
 		},
@@ -139,6 +134,6 @@
 		});
 	};
 
-	$.addPlugin('autocomplete', AutoComplete);
+	$.addPlugin('gpautocomplete', AutoComplete);
 
 })(jQuery);

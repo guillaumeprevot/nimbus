@@ -455,7 +455,7 @@ function open(url) {
 	});
 
 	// Manipulation au clavier
-	body.keystrokes({
+	body.gpkeystrokes({
 		'Home': () => firstPageButton.click(),
 		'PageUp': () => previousPageButton.click(),
 		'PageDown': () => nextPageButton.click(),
@@ -468,15 +468,15 @@ function open(url) {
 	});
 
 	// Changement de page par "swipe"
-	main.swipe().on('swipe', function(event, swipe) {
+	main.gpswipe().on('gp.swipe', function(event, swipe) {
 		// le swipe doit être rapide pour déclencher le changement de page
 		// les swipes plus longs sont réservés au déplacement dans des pages fortement zoomées
 		if (swipe.duration > 200)
 			return;
-		if ('right' === swipe.direction || 'bottom' === swipe.direction)
-			previousPageButton.click();
-		else if ('left' === swipe.direction || 'top' === swipe.direction)
+		if ('left' === swipe.direction)
 			nextPageButton.click();
+		else if ('right' === swipe.direction)
+			previousPageButton.click();
 	});
 }
 

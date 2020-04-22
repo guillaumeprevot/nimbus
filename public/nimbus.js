@@ -241,8 +241,8 @@ var NIMBUS = (function() {
 				$('.modal-body').autovalidateModal();
 
 			// Ajout d'un bouton "Back to top" en fils de document.body
-			if ($.fn.backToTop) {
-				$(document).backToTop({
+			if ($.fn.gpbacktotop) {
+				$(document).gpbacktotop({
 					title: NIMBUS.translate('CommonBackToTop'),
 					contentHTML: '<i class="material-icons">keyboard_arrow_up</i>',
 					container: document.body
@@ -349,7 +349,7 @@ NIMBUS.utils = (function() {
 	}
 
 	function autocompleteInput(input, extensions) {
-		input.autocomplete({
+		input.gpautocomplete({
 			min: 2,
 			bold: true,
 			input: 'update',
@@ -477,8 +477,8 @@ NIMBUS.navigation = (function() {
 
 	/** Initialiser le comportement pour l'upload de fichier(s) */
 	function prepareFileUpload() {
-		// Ajout de fichier local en utilisant le plugin jquery fileupload
-		$('#add-file-input').hide().fileupload({
+		// Ajout de fichier local en utilisant le plugin jquery gpfileupload
+		$('#add-file-input').hide().gpfileupload({
 			url : '/files/upload',
 			// method: 'POST',
 			// dropSelector: document,
@@ -613,7 +613,7 @@ NIMBUS.navigation = (function() {
 			validateButton.prop('disabled', urlInput.val().trim().length === 0);
 		});
 		// Profiter de l'auto-complétion des URLs (Youtube pour l'instant)
-		urlInput.autocomplete({
+		urlInput.gpautocomplete({
 			min: 22,
 			bold: false,
 			input: 'update',
@@ -654,7 +654,7 @@ NIMBUS.navigation = (function() {
 		var tagsInput = $('#rename-tags');
 		var validateButton = $('#rename-validate-button');
 		// Composant d'edition d'une liste de tags
-		tagsInput.tagsinput({
+		tagsInput.gptagsinput({
 			autocompleteURL: '/items/tags',
 			label: tagsInput.prev(),
 			inline: false

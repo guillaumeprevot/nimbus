@@ -305,7 +305,7 @@ function open(src, subtitles) {
 			.next().addClass('active').data('track')['default'] = true;
 
 	// Manipulation au clavier
-	$(document.body).keystrokes({
+	$(document.body).gpkeystrokes({
 		'Home': () => video.currentTime = 0,
 		'PageUp': () => video.currentTime -= 5,
 		'Shift-PageUp': () => video.currentTime -= 10,

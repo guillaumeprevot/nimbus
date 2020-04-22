@@ -1,6 +1,8 @@
 (function($) {
 	"use strict";
 
+	window.GP = {};
+
 	$.addPlugin = function(name, Constructor) {
 		// Composant en jQuery, proposant 3 appels possibles
 		$.fn[name] = function(params) {
@@ -57,10 +59,10 @@
 	/*
 	 * C'est un plugin jQuery qui écoute la manipulation au doigt et envoie des évènements "swipe", "", "" et ""
 	 */
-	$.fn.swipe = function() {
-		return this.addClass('swipe').on('touchstart', function(startEvent) {
+	$.fn.gpswipe = function() {
+		return this.addClass('gp-swipe').on('touchstart', function(startEvent) {
 			var startX, startY, startTime, moveX, moveY;
-			var target = $(startEvent.target).closest('.swipe');
+			var target = $(startEvent.target).closest('.gp-swipe');
 			function touchmove(event) {
 				var t = event.originalEvent.touches;
 				if (t) {
@@ -78,14 +80,14 @@
 					var radians = Math.atan2((startY - moveY), (moveX - startX));
 					var directions = ['left', 'bottomleft', 'bottom', 'bottomright', 'right', 'topright', 'top', 'topleft'];
 					var index = Math.floor((radians + Math.PI + Math.PI / 8) / (Math.PI / 4)) % 8;
-					target.trigger('swipe', [{ direction: directions[index], duration: Date.now() - startTime }]);
-					// target.trigger('swipe.' + directions[index]);
+					target.trigger('gp.swipe', [{ direction: directions[index], duration: Date.now() - startTime }]);
+					// target.trigger('gp.swipe.' + directions[index]);
 				});
 			}
 		});
 	};
 
-	$.fn.keystrokes = function(options, filter) {
+	$.fn.gpkeystrokes = function(options, filter) {
 		// Map pour transformer les valeurs de "event.key" en nom utilisés ici
 		var keyMap = {
 			' ': 'Space',
@@ -121,7 +123,7 @@
 				keystrokes[normalize(p)] = options[p];
 			}
 		}
-		return this.addClass('keystrokes').keydown(function(event) {
+		return this.addClass('gp-keystrokes').keydown(function(event) {
 			var keystroke = keystrokeFromEvent(event);
 			var callback = keystrokes[keystroke];
 			if (callback && (!filter || filter(event))) {

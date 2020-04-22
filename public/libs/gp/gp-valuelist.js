@@ -39,17 +39,17 @@
 					+ '  <span class="form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: absolute; cursor: pointer; border-radius: 0; text-align: left; white-space: nowrap; overflow: hidden; color: black; "></span>'
 					+ '  <div class="dropdown-menu">'
 					+ '    <div class="p-2 form-row">'
-					+ '      <div class="col-md-3"><input type="text" min="1" max="31" class="form-control valuelist-date" placeholder="JJ"></div>'
-					+ '      <div class="col-md-3"><input type="text" min="1" max="12" class="form-control valuelist-month" placeholder="MM"></div>'
-					+ '      <div class="col-md-4"><input type="text" min="1900" class="form-control valuelist-year" placeholder="AAAA"></div>'
+					+ '      <div class="col-md-3"><input type="text" min="1" max="31" class="form-control gp-valuelist-date" placeholder="JJ"></div>'
+					+ '      <div class="col-md-3"><input type="text" min="1" max="12" class="form-control gp-valuelist-month" placeholder="MM"></div>'
+					+ '      <div class="col-md-4"><input type="text" min="1900" class="form-control gp-valuelist-year" placeholder="AAAA"></div>'
 					+ '      <div class="col-md-2"><button type="button" class="btn btn-link btn-sm btn-block px-0 text-danger" title="Clear"><i class="material-icons">delete</i></button></div>'
 					+ '    </div>'
 					+ '  </div>'
 					+ '</div>');
 			showValue(item, editor);
-			editor.find('.valuelist-date').val(item.date || '').attr('placeholder', datePlaceholder);
-			editor.find('.valuelist-month').val(item.month || '').attr('placeholder', monthPlaceholder);
-			editor.find('.valuelist-year').val(item.year || '').attr('placeholder', yearPlaceholder);
+			editor.find('.gp-valuelist-date').val(item.date || '').attr('placeholder', datePlaceholder);
+			editor.find('.gp-valuelist-month').val(item.month || '').attr('placeholder', monthPlaceholder);
+			editor.find('.gp-valuelist-year').val(item.year || '').attr('placeholder', yearPlaceholder);
 			editor.find('.btn-outline-danger').attr('title', clearButton).on('click', () => {
 				editor.find('input').val('');
 				editor.children('span').text(placeholder);
@@ -65,11 +65,11 @@
 			return !editor.find('input').get().map((input) => input.value || '').join('');
 		};
 		this.apply = (item, editor) => {
-			item.year = editor.find('.valuelist-year').val();
+			item.year = editor.find('.gp-valuelist-year').val();
 			item.year = item.year ? parseInt(item.year) : undefined;
-			item.month = editor.find('.valuelist-month').val();
+			item.month = editor.find('.gp-valuelist-month').val();
 			item.month = item.month ? parseInt(item.month) : undefined;
-			item.date = editor.find('.valuelist-date').val();
+			item.date = editor.find('.gp-valuelist-date').val();
 			item.date = item.date ? parseInt(item.date) : undefined;
 		};
 		this.text = (editor) => {
@@ -124,7 +124,7 @@
 
 	function ValueList(target, options) {
 		var self = this;
-		this.target = $(target).addClass('valuelist');
+		this.target = $(target).addClass('gp-valuelist');
 		this.options = $.extend({}, ValueList.defaultOptions, options);
 		// Ajout d'un bouton pour ajouter une entrée
 		this.addButton = $('<button type="button" class="btn btn-link" />')
@@ -140,27 +140,27 @@
 			this.append({});
 		// Gestion des actions personnalisées
 		if (this.options.actions)
-			this.target.on('click', '.input-group .valuelist-action', this.executeAction.bind(this));
+			this.target.on('click', '.input-group .gp-valuelist-action', this.executeAction.bind(this));
 		// Gestion du bouton pour remonter en premier
-		this.target.on('click', '.input-group:not(:first-child) .valuelist-first', this.moveEntryFirst);
+		this.target.on('click', '.input-group:not(:first-child) .gp-valuelist-first', this.moveEntryFirst);
 		// Gestion du bouton pour remonter d'une ligne
-		this.target.on('click', '.input-group:not(:first-child) .valuelist-previous', this.moveEntryPrevious);
+		this.target.on('click', '.input-group:not(:first-child) .gp-valuelist-previous', this.moveEntryPrevious);
 		// Gestion du bouton pour descendre d'une ligne
-		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-next', this.moveEntryNext);
+		this.target.on('click', '.input-group:not(:last-of-type) .gp-valuelist-next', this.moveEntryNext);
 		// Gestion du bouton pour descendre en dernier
-		this.target.on('click', '.input-group:not(:last-of-type) .valuelist-last', this.moveEntryLast);
+		this.target.on('click', '.input-group:not(:last-of-type) .gp-valuelist-last', this.moveEntryLast);
 		// Gestion du bouton pour supprimer une entrée
-		this.target.on('click', '.input-group .valuelist-remove', this.removeEntry);
+		this.target.on('click', '.input-group .gp-valuelist-remove', this.removeEntry);
 		// Gestion du tri par DnD de l'icone en 'prepend'
 		this.enableDnD();
 	}
 
 	$.extend(ValueList.prototype, {
 		destroy: function() {
-			this.target.empty().removeClass('valuelist').off('click dragstart dragover drop dragend', '**');
+			this.target.empty().removeClass('gp-valuelist').off('click dragstart dragover drop dragend', '**');
 		},
 		executeAction: function(event) {
-			var button = $(event.target).closest('.valuelist-action');
+			var button = $(event.target).closest('.gp-valuelist-action');
 			var action = button.data('action');
 			var entry = button.closest('.input-group');
 			var editor = entry.children().eq(1);
@@ -196,7 +196,7 @@
 			}).on('dragover', '.input-group-prepend', function(event) {
 				if (draggable === null)
 					return;
-				var dropTarget = $(event.target).closest('.valuelist');
+				var dropTarget = $(event.target).closest('.gp-valuelist');
 				if (dropTarget.length !== 1 || !dropTarget.has(draggable).length)
 					return;
 				return false;
@@ -228,12 +228,12 @@
 					+ '  <div class="input-group-append">'
 					+ '    <button type="button" class="input-group-text btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons material-icons-16">expand_more</i></button>'
 					+ '    <div class="dropdown-menu dropdown-menu-right">'
-					+ '      <button type="button" class="dropdown-item valuelist-first"><i class="material-icons">expand_less</i> <span>' + this.options.moveToFirstPositionText + '</span></button>'
-					+ '      <button type="button" class="dropdown-item valuelist-previous"><i class="material-icons">arrow_drop_up</i> <span>' + this.options.moveToPreviousPositionText + '</span></button>'
-					+ '      <button type="button" class="dropdown-item valuelist-next"><i class="material-icons">arrow_drop_down</i> <span>' + this.options.moveToNextPositionText + '</span></button>'
-					+ '      <button type="button" class="dropdown-item valuelist-last"><i class="material-icons">expand_more</i> <span>' + this.options.moveToLastPositionText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item gp-valuelist-first"><i class="material-icons">expand_less</i> <span>' + this.options.moveToFirstPositionText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item gp-valuelist-previous"><i class="material-icons">arrow_drop_up</i> <span>' + this.options.moveToPreviousPositionText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item gp-valuelist-next"><i class="material-icons">arrow_drop_down</i> <span>' + this.options.moveToNextPositionText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item gp-valuelist-last"><i class="material-icons">expand_more</i> <span>' + this.options.moveToLastPositionText + '</span></button>'
 					+ '      <div role="separator" class="dropdown-divider"></div>'
-					+ '      <button type="button" class="dropdown-item valuelist-remove text-danger"><i class="material-icons">delete</i> <span>' + this.options.removeText + '</span></button>'
+					+ '      <button type="button" class="dropdown-item gp-valuelist-remove text-danger"><i class="material-icons">delete</i> <span>' + this.options.removeText + '</span></button>'
 					+ '    </div>'
 					+ '  </div>'
 					+ '</div>');
@@ -253,7 +253,7 @@
 
 			if (this.options.actions) {
 				actionMenuSeparator = $('<div role="separator" class="dropdown-divider"></div>').prependTo(actionMenu);
-				this.options.actions.filter((action) => action.enabled).forEach((action, index) => action.build(div).addClass('valuelist-action').data('action', action).insertBefore(actionMenuSeparator));
+				this.options.actions.filter((action) => action.enabled).forEach((action, index) => action.build(div).addClass('gp-valuelist-action').data('action', action).insertBefore(actionMenuSeparator));
 			}
 			if (this.options.types) {
 				// Ajouter les types prédéfinis dans le select
@@ -333,8 +333,8 @@
 		removeText: 'Remove',
 	};
 
-	window.ValueList = ValueList;
+	window.GP.ValueList = ValueList;
 
-	$.addPlugin('valueList', ValueList);
+	$.addPlugin('gpvaluelist', ValueList);
 
 })(jQuery);

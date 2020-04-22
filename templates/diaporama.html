@@ -343,7 +343,7 @@ function run(items, play, selection) {
 	$(document.body).removeClass('nimbus-hidden');
 
 	// Manipulation au clavier
-	$(document.body).keystrokes({
+	$(document.body).gpkeystrokes({
 		'Home': () => diaporama.first(),
 		'ArrowLeft': () => diaporama.previous(),
 		'PageUp': () => diaporama.previous(),

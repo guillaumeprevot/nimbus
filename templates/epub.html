@@ -179,7 +179,7 @@ function open(content) {
 	});
 
 	// Navigation au clavier
-	body.keystrokes({
+	body.gpkeystrokes({
 		'PageUp': () => rendition.prev(),
 		'PageDown': () => rendition.next(),
 		'ArrowLeft': () => rendition.prev(),
@@ -198,11 +198,11 @@ function open(content) {
 	});
 
 	// Changement de page par "swipe"
-	main.swipe().on('swipe', function(event, swipe) {
-		if ('right' === swipe.direction || 'bottom' === swipe.direction)
-			rendition.prev();
-		else if ('left' === swipe.direction || 'top' === swipe.direction)
+	main.gpswipe().on('gp.swipe', function(event, swipe) {
+		if ('left' === swipe.direction)
 			rendition.next();
+		else if ('right' === swipe.direction)
+			rendition.prev();
 	});
 
 	// Changement de mode entre "swipe" et sélection de texte

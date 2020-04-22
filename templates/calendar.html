@@ -997,7 +997,7 @@ NIMBUS.init(['calendar.js'], function() {
 		calendar.update();
 
 		// Manipulation au clavier
-		body.keystrokes({
+		body.gpkeystrokes({
 			'PageUp': () => calendar.showPrevious(),
 			'PageDown': () => calendar.showNext(),
 			'Ctrl-s': () => save(),
@@ -1005,12 +1005,12 @@ NIMBUS.init(['calendar.js'], function() {
 		});
 
 		// Changement de période  "swipe"
-		$('main').swipe().on('swipe', function(event, swipe) {
+		$('main').gpswipe().on('gp.swipe', function(event, swipe) {
 			// swipe.duration: milliseconds between "touchstart" and "touchend" events
 			// swipe.direction: 8 directions including "top" "bottom" "left" "right"
-			if (swipe.direction === 'left')
+			if ('left' === swipe.direction)
 				calendar.showNext();
-			else if (swipe.direction === 'right')
+			else if ('right' === swipe.direction)
 				calendar.showPrevious();
 		});
 

@@ -518,7 +518,7 @@ NIMBUS.init(['audio.js'], function() {
 	$(document.body).removeClass('nimbus-hidden');
 
 	// Manipulation au clavier
-	$(document.body).keystrokes({
+	$(document.body).gpkeystrokes({
 		'Home': () => player.playFirst(),
 		'PageUp': () => player.playPrevious(),
 		'PageDown': () => player.playNext(),

@@ -276,14 +276,14 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 		});
 
 		// Manipulation au clavier
-		body.keystrokes({
+		body.gpkeystrokes({
 			'Ctrl-s': () => saveButton.click(),
 			'Ctrl-p': () => $('#htmlButton,#editButton').filter(':visible').click(),
 			// 'Ctrl-e': () => $('#exportButton').click(), // ne fonctionne pas :-(, peut-être car ça simule un clic sur un lien ?
 		});
 
 		// Changement de mode "edit"/"preview" par "swipe"
-		$('main').swipe().on('swipe', function(event, swipe) {
+		$('main').gpswipe().on('gp.swipe', function(event, swipe) {
 			// le swipe doit être rapide pour déclencher le passage preview <=> textarea
 			// les swipes plus longs sont réservés au déplacement dans des pages avec scroll
 			if (swipe.duration > 200)

@@ -51,7 +51,7 @@ main { display: flex; flex-direction: row; }
 #bookmarkModal .input-group:first-of-type .input-group-append .input-group-text { border-top-right-radius: 0.25rem; }
 #bookmarkModal .input-group:last-of-type .input-group-prepend .input-group-text { border-bottom-left-radius: 0.25rem; }
 #bookmarkModal .input-group:last-of-type .input-group-append .input-group-text { border-bottom-right-radius: 0.25rem; }
-#bookmarkModal .valuelist > button { float: right; clear: right; }
+#bookmarkModal .gp-valuelist > button { float: right; clear: right; }
 </style>
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
@@ -451,23 +451,24 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 function editBookmark(source, folder, bookmark, isNew, callback, deleteCallback) {
 	// Récupérer l'API
 	var api = NIMBUS.utils.bookmarkAPI;
+	var valueList = window.GP.ValueList;
 	// Préparer le formulaire
 	var nameInput = $('#bookmarkName').val(bookmark.name || '');
 	var urlInput = $('#bookmarkURL').val(bookmark.url || '');
 	var iconURLInput = $('#bookmarkIconURL').val(bookmark.iconURL || '');
 	var descriptionInput = $('#bookmarkDescription').val(bookmark.description || '');
 	var keywordsInput = $('#bookmarkKeywords').val(bookmark.keywords || '').trigger('change');
-	$('#bookmarkExtensions').valueList('destroy').valueList({
+	$('#bookmarkExtensions').gpvaluelist('destroy').gpvaluelist({
 		addDefault: 'empty',
 		icon: 'public',
 		items: bookmark.extensions,
-		editor: new window.ValueList.TextEditor('url', NIMBUS.translate('BookmarkExtensionURL'), 'url'),
+		editor: new valueList.TextEditor('url', NIMBUS.translate('BookmarkExtensionURL'), 'url'),
 		labelPlaceholder: NIMBUS.translate('BookmarkExtensionLabel'),
 		labelProperty: 'name',
 		addText: NIMBUS.translate('BookmarkExtensionAdd'),
 		actions: [
-			new window.ValueList.LinkAction('public', NIMBUS.translate('BookmarkExtensionOpen'), '%VALUE%'),
-			new window.ValueList.CopyToClipboardAction(NIMBUS.translate('BookmarkExtensionCopy')),
+			new valueList.LinkAction('public', NIMBUS.translate('BookmarkExtensionOpen'), '%VALUE%'),
+			new valueList.CopyToClipboardAction(NIMBUS.translate('BookmarkExtensionCopy')),
 		]
 	});
 	// Tenter de proposer un favicon
@@ -509,7 +510,7 @@ function editBookmark(source, folder, bookmark, isNew, callback, deleteCallback)
 		bookmark.iconURL = iconURLInput.val() || undefined;
 		bookmark.description = descriptionInput.val() || undefined;
 		bookmark.keywords = keywordsInput.val() || undefined;
-		bookmark.extensions = $('#bookmarkExtensions').valueList().extract().map((e) => new api.BookmarkExtension(e));
+		bookmark.extensions = $('#bookmarkExtensions').gpvaluelist().extract().map((e) => new api.BookmarkExtension(e));
 		if (isNew)
 			folder.bookmarks.push(bookmark);
 		// Fermer la fenêtre modale
@@ -804,8 +805,8 @@ NIMBUS.init(['bookmarks.js'], function() {
 			data.trigger('bookmarksourcechange', source);
 		});
 
-		// Plugin tagsinput pour les motes-clefs
-		$('#bookmarkKeywords').tagsinput({
+		// Plugin gptagsinput pour les mots-clefs
+		$('#bookmarkKeywords').gptagsinput({
 			label: $('#bookmarkKeywords').prev('label'),
 			inline: true,
 			// autocompleteValues: ['aaa', 'bbb', 'ccc']
@@ -830,15 +831,17 @@ NIMBUS.init(['bookmarks.js'], function() {
 			}
 		});
 
-		// Configuration du plugin "valuelist"
-		window.ValueList.defaultOptions.moveToFirstPositionText = NIMBUS.translate('BookmarkExtensionMoveToFirstPosition');
-		window.ValueList.defaultOptions.moveToPreviousPositionText = NIMBUS.translate('BookmarkExtensionMoveToPreviousPosition');
-		window.ValueList.defaultOptions.moveToNextPositionText = NIMBUS.translate('BookmarkExtensionMoveToNextPosition');
-		window.ValueList.defaultOptions.moveToLastPositionText = NIMBUS.translate('BookmarkExtensionMoveToLastPosition');
-		window.ValueList.defaultOptions.removeText = NIMBUS.translate('BookmarkExtensionRemove');
+		// Configuration du plugin "gpvaluelist"
+		$.extend(window.GP.ValueList.defaultOptions, {
+			moveToFirstPositionText: NIMBUS.translate('BookmarkExtensionMoveToFirstPosition'),
+			moveToPreviousPositionText: NIMBUS.translate('BookmarkExtensionMoveToPreviousPosition'),
+			moveToNextPositionText: NIMBUS.translate('BookmarkExtensionMoveToNextPosition'),
+			moveToLastPositionText: NIMBUS.translate('BookmarkExtensionMoveToLastPosition'),
+			removeText: NIMBUS.translate('BookmarkExtensionRemove'),
+		});
 
 		// Manipulation au clavier
-		body.keystrokes({
+		body.gpkeystrokes({
 			'Ctrl-f': () => $('#searchInput').focus().select(),
 			'Ctrl-s': () => save(),
 		});

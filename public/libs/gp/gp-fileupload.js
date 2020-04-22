@@ -1,8 +1,10 @@
 (function($) {
 	"use strict";
 
-	function FileUpload(originalInput, options) {
+	function FileUpload(target, options) {
 		var self = this;
+		this.target = $(target);
+		this.options = $.extend({}, FileUpload.defaultOptions, options);
 		this.internalChange = this.internalChange.bind(this);
 		this.internalDragOver = this.internalDragOver.bind(this);
 		this.internalDrop = this.internalDrop.bind(this);
@@ -10,8 +12,7 @@
 		this.internalProgress = this.internalProgress.bind(this);
 		this.internalStop = this.internalStop.bind(this);
 
-		this.originalInput = $(originalInput).on('change', this.internalChange);
-		this.options = $.extend({}, FileUpload.defaultOptions, options);
+		this.target.on('change', this.internalChange);
 		if (this.options.dropSelector)
 			$(this.options.dropSelector).on('dragover', this.internalDragOver).on('drop', this.internalDrop);
 		if (this.options.abortOnEscape)
@@ -93,7 +94,7 @@
 				}
 
 				// Add files
-				var paramName = self.originalInput.attr('name');
+				var paramName = self.target.attr('name');
 				for (var i = 0; i < files.length; i++) {
 					formData.append(paramName, files[i], files[i].name);
 				}
@@ -136,7 +137,7 @@
 				this.uploadAjax.abort();
 		},
 		destroy: function() {
-			this.originalInput.off('change', this.start);
+			this.target.off('change', this.internalChange);
 			if (this.options.dropSelector)
 				$(this.options.dropSelector).off('dragover', this.internalDragOver).off('drop', this.internalDrop);
 			if (this.options.abortOnEscape)
@@ -165,6 +166,6 @@
 		onstop: null,
 	};
 
-	$.addPlugin('fileupload', FileUpload);
+	$.addPlugin('gpfileupload', FileUpload);
 
 })(jQuery);

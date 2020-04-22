@@ -289,7 +289,7 @@ function buildChunks(app) {
 		backToTopContent: app.backToTopButton ? ('<ul class="list-group">' + 'abcdefghijklmnopqrstuvwxyz'.split('').map(c => '<li class="list-group-item">' + c + '</li>').join('') + '</ul>') : '',
 		backToTopScript: app.backToTopButton ? `
 			// Bouton pour revenir en haut de page
-			$('main').backToTop({
+			$('main').gpbacktotop({
 				title: NIMBUS.translate('TemplateBackToTop'),
 				contentHTML: '<i class="material-icons">keyboard_arrow_up</i>',
 				container: document.body
@@ -365,7 +365,7 @@ $(function() {
 
 			// Manipulation au clavier
 			/*
-			$(document.body).keystrokes({
+			$(document.body).gpkeystrokes({
 				'Shift-Cmd-Ctrl-Alt-a': () => alert('a'),
 			}, function filter(event) {
 				return true;
