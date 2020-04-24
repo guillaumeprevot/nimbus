@@ -129,8 +129,6 @@
 				AudioAddModalArtistTab: "Artiste",
 				AudioAddModalSearchPlaceholder: "Rechercher ...",
 				AudioAddModalNoResultMessage: "Aucun résultat",
-				AudioAddModalValidateButton: "Ajouter à la liste de lecture",
-				AudioAddModalCloseButton: "Fermer",
 			},
 			en: {
 				AudioActionPlay: "Play",
@@ -165,8 +163,6 @@
 				AudioAddModalArtistTab: "Artist",
 				AudioAddModalSearchPlaceholder: "Search...",
 				AudioAddModalNoResultMessage: "No result found.",
-				AudioAddModalValidateButton: "Add to playlist",
-				AudioAddModalCloseButton: "Close",
 			}
 		}
 	});

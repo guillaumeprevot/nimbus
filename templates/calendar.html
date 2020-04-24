@@ -167,7 +167,7 @@ header .float-right { min-width: 110px; }
 	</form>
 	<form>
 		<div id="eventModal" class="modal fade">
-			<div class="modal-dialog">
+			<div class="modal-dialog modal-dialog-scrollable">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h4 class="modal-title" data-translate="text">CalendarEventModalTitle</h4>
@@ -175,7 +175,7 @@ header .float-right { min-width: 110px; }
 					<div class="modal-body">
 						<div class="form-group">
 							<label for="eventModalType" data-translate="text">CalendarEventModalTypeLabel</label>
-							<select id="eventModalType" class="form-control" required="required" autofocus="autofocus"></select>
+							<select id="eventModalType" class="form-control" required="required"></select>
 						</div>
 						<div class="form-group">
 							<label for="eventModalDate" data-translate="text">CalendarEventModalDateLabel</label>
@@ -578,12 +578,14 @@ function connectMainView(calendar) {
 			periods.forEach(function(p) {
 				if (p >= 0 && p < days.length)
 					$('<div />').data('event', event).data('source', source)
-						.text(event.label || event.type.label).css('border-color', event.type.color)
+						.css('border-color', event.type.color)
 						.css('text-decoration', !!event.done ? 'line-through' : '')
 						.css('font-weight', !!event.important ? 'bold' : '')
-						.attr('title', formatedDates)
 						.prop('draggable', !source.readonly)
-						.appendTo(days[p]);
+						.appendTo(days[p])
+						.append($('<span />')
+								.text(event.label || event.type.label)
+								.attr('title', formatedDates));
 			});
 		});
 	});
@@ -889,7 +891,7 @@ function editEventType(calendar, source, type, isNew, callback) {
 
 function editEvent(calendar, event, isNew) {
 	// Préparer le "select" permettant de choisir le type
-	var typeSelect = $('#eventModalType').empty().prop('autofocus', ! event.type);
+	var typeSelect = $('#eventModalType').empty().prop('autofocus', isNew && !event.type);
 	calendar.sources.forEach(function(s) {
 		if (s.readonly)
 			return;
@@ -904,7 +906,7 @@ function editEvent(calendar, event, isNew) {
 	// Préparer le reste du formulaire
 	var dateInput = $('#eventModalDate').val(event.date.toMoment().format(inputDateFormat));
 	var repeatSelect = $('#eventModalRepeat').val(event.repeat || '');
-	var labelInput = $('#eventModalLabel').val(event.label || '').prop('autofocus', !!event.type);
+	var labelInput = $('#eventModalLabel').val(event.label || '').prop('autofocus', isNew && !!event.type);
 	var endDateInput = $('#eventModalEndDate').val(event.endDate ? event.endDate.toMoment().format(inputDateFormat) : '');
 	var doneCheckbox = $('#eventModalDone').prop('checked', !!event.done);
 	var importantCheckbox = $('#eventModalImportant').prop('checked', !!event.important);

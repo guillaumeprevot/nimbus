@@ -167,7 +167,7 @@ table.table-sm td:first-child img { max-height: 32px; }
 							<div class="col-md-8">
 								<div class="form-group">
 									<label for="contactDisplayName" data-translate="text">ContactModalDisplayNameLabel</label>
-									<input id="contactDisplayName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalDisplayNamePlaceholder" autofocus="autofocus" />
+									<input id="contactDisplayName" type="text" class="form-control" data-translate="placeholder" placeholder="ContactModalDisplayNamePlaceholder" />
 								</div>
 							</div>
 							<div class="col-md-4">
@@ -424,7 +424,7 @@ function editContact(source, contact, isNew, callback) {
 	// Créer une action personnalisée partagée par toutes les listes
 	var copyToClipboardAction = new valueList.CopyToClipboardAction(NIMBUS.translate('ContactListCopy'));
 	// Préparer le formulaire
-	var displayNameInput = $('#contactDisplayName').val(contact.displayName || '');
+	var displayNameInput = $('#contactDisplayName').val(contact.displayName || '').prop('autofocus', isNew);
 	var pictureInput = $('#contactPicture').val(contact.picture || '').trigger('change');
 	var favoriteCheckbox = $('#contactFavorite').prop('checked', !!contact.favorite);
 	var firstNameInput = $('#contactFirstName').val(contact.firstName || '');

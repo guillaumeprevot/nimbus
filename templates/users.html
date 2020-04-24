@@ -61,7 +61,7 @@
 					<p class="alert alert-danger"></p>
 					<div class="form-group">
 						<label for="login-input" data-translate="text">UsersEditLoginLabel</label>
-						<input id="login-input" class="form-control" data-translate="placeholder" type="text" placeholder="UsersEditLoginPlaceholder" autofocus="autofocus" />
+						<input id="login-input" class="form-control" data-translate="placeholder" type="text" placeholder="UsersEditLoginPlaceholder" />
 					</div>
 					<div class="form-group">
 						<label for="password-input" data-translate="text">UsersEditPasswordLabel</label>
@@ -73,7 +73,7 @@
 					</div>
 					<div class="form-group">
 						<label for="name-input" data-translate="text">UsersEditNameLabel</label>
-						<input id="name-input" class="form-control" data-translate="placeholder" type="text" placeholder="UsersEditNamePlaceholder" autofocus="autofocus" />
+						<input id="name-input" class="form-control" data-translate="placeholder" type="text" placeholder="UsersEditNamePlaceholder" />
 					</div>
 					<div class="form-group">
 						<label for="quota-input" data-translate="text">UsersEditQuotaLabel</label>
@@ -200,7 +200,7 @@ function editUser(user, callback) {
 		adminInput = $('#admin-input'),
 		quotaInput = $('#quota-input');
 
-	loginInput.val(user.login).prop('disabled', !insert);
+	loginInput.val(user.login).prop('disabled', !insert).prop('autofocus', insert);
 	passwordInput.val('').attr('placeholder', insert ? NIMBUS.translate('UsersEditPasswordCreatePlaceholder') : NIMBUS.translate('UsersEditPasswordUpdatePlaceholder'));
 	password2Input.val('').attr('placeholder', insert ? NIMBUS.translate('UsersEditPasswordConfirmationCreatePlaceholder') : NIMBUS.translate('UsersEditPasswordConfirmationUpdatePlaceholder'));
 	nameInput.val(user.name);

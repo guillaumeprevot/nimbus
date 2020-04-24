@@ -183,8 +183,8 @@ NIMBUS.lang = {
 	MainShareURLLabel: "Shared address",
 	MainShareURLPlaceholder: "(automatic)",
 	MainShareRemoveButton: "Do not share anymore",
-	MainShareCancelButton: "Cancel",
-	MainShareValidateButton: "Start sharing",
+	MainShareCloseButton: "Close",
+	MainShareApplyButton: "Apply",
 
 	MainDeleteTitle: "Delete",
 	MainDeleteMessage: "Are you sure you want to delete this item ?",
