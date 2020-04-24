@@ -19,17 +19,17 @@
 </head>
 <body class="nimbus-hidden">
 
-<table id="items" class="table" style="width: 800px; max-width: 100%; margin: 40px auto 0;">
+<table id="items" class="table" style="width: auto; max-width: 100%; margin: 40px auto 0; table-layout: unset; ">
 	<thead class="thead-light">
 		<tr>
-			<th>
+			<th style="min-width: 300px; ">
 				<input id="select-all" type="checkbox" class="nimbus-hidden" />
 				<span data-translate="text">TrashNameColumn</span>
 			</th>
-			<th data-translate="text" style="text-align: right; ">TrashLengthColumn</th>
-			<th data-translate="text">TrashCreateDateColumn</th>
-			<th data-translate="text">TrashDeleteDateColumn</th>
-			<th data-translate="text">TrashPathColumn</th>
+			<th data-translate="text" style="min-width: 110px; text-align: right; ">TrashLengthColumn</th>
+			<th data-translate="text" style="min-width: 150px; ">TrashCreateDateColumn</th>
+			<th data-translate="text" style="min-width: 150px; ">TrashDeleteDateColumn</th>
+			<th data-translate="text" class="d-none d-lg-table-cell">TrashPathColumn</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -99,11 +99,11 @@ function execute() {
 	$.get('/trash/items').then(function(items) {
 		$('#items > tbody').append(items.map(function(item) {
 			return $('<tr />').attr('data-id', item.id.toString())
-				.append($('<td />').text(item.name))
+				.append($('<td />').text(item.name).attr('title', item.path).css('white-space', 'normal'))
 				.append($('<td style="text-align: right; "/>').text(NIMBUS.formatLength(item.length)))
 				.append($('<td />').text(NIMBUS.formatDatetime(item.createDate)))
 				.append($('<td />').text(NIMBUS.formatDatetime(item.deleteDate)))
-				.append($('<td />').text(item.path))
+				.append($('<td class="d-none d-lg-table-cell" />').text(item.path))
 				[0];
 		}));
 		if (items.length > 0) {

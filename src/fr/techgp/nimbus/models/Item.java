@@ -2,6 +2,7 @@ package fr.techgp.nimbus.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -207,6 +208,10 @@ public class Item {
 
 	public static final Item findById(Long id) {
 		return getCollection().find().filter(Filters.eq("_id", id)).map(Item::read).first();
+	}
+
+	public static final List<Item> findByIds(Collection<Long> ids) {
+		return findAll(Filters.in("_id", ids));
 	}
 
 	/**

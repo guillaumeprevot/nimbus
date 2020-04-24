@@ -17,7 +17,6 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -89,7 +88,6 @@ public class Items extends Controller {
 		Boolean hidden = SparkUtils.queryParamBoolean(request, "hidden", null); // true/false/null
 		Boolean deleted = SparkUtils.queryParamBoolean(request, "deleted", null); // true/false/null
 		String extensions = request.queryParams("extensions");
-		boolean pretty = SparkUtils.queryParamBoolean(request, "pretty", false);
 
 		// Vérifier l'accès à l'élément racine
 		if (parentId != null && !Item.hasItem(userLogin, parentId))
@@ -104,11 +102,6 @@ public class Items extends Controller {
 		items.addAll(fileItems);
 
 		// Retourner la liste en un document JSON
-		if (pretty) {
-			response.type("application/json");
-			JsonArray a = items.stream().map(Items::asJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
-			return new GsonBuilder().setPrettyPrinting().create().toJson(a);
-		}
 		return SparkUtils.renderJSONCollection(response, items, Items::asJSON);
 	};
 

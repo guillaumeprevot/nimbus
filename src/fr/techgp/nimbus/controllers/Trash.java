@@ -1,10 +1,11 @@
 package fr.techgp.nimbus.controllers;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.models.Item;
@@ -50,13 +51,33 @@ public class Trash extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Récupérer les éléments
 		List<Item> items = Item.findAll(userLogin, null, true, null, true, null, null, null, null, true, null);
-		// Retourner la liste en un document JSON
-		if (SparkUtils.queryParamBoolean(request, "pretty", false)) {
-			response.type("application/json");
-			JsonArray a = items.stream().map(Trash::asJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
-			return new GsonBuilder().setPrettyPrinting().create().toJson(a);
+		// Récupérer la liste des ids des différents 'path', qu'il va falloir transformer en noms pour l'utilisateur
+		HashSet<Long> pathIds = new HashSet<>();
+		for (Item item : items) {
+			if (StringUtils.isNotBlank(item.path)) {
+				Arrays.stream(item.path.substring(0, item.path.length() - 1).split(",")).map(Long::valueOf).forEach(pathIds::add);
+			}
 		}
-		return SparkUtils.renderJSONCollection(response, items, Trash::asJSON);
+		// Récupérer la map associant les noms aux ids
+		HashMap<Long, String> names = new HashMap<>();
+		for (Item item : Item.findByIds(pathIds)) {
+			names.put(item.id, item.name);
+		}
+		// Retourner la liste en un document JSON
+		return SparkUtils.renderJSONCollection(response, items, (item) -> {
+			JsonObject node = new JsonObject();
+			node.addProperty("id", item.id);
+			node.addProperty("parentId", item.parentId);
+			node.addProperty("name", item.name);
+			node.addProperty("createDate", item.createDate.getTime());
+			node.addProperty("deleteDate", item.deleteDate.getTime());
+			node.addProperty("length", item.content.getLong("length"));
+			if (StringUtils.isNotBlank(item.path)) {
+				String[] path = item.path.substring(0, item.path.length() - 1).split(",");
+				node.addProperty("path", Arrays.stream(path).map(Long::valueOf).map(names::get).collect(Collectors.joining("/")));
+			}
+			return node;
+		});
 	};
 
 	/**
@@ -119,29 +140,5 @@ public class Trash extends Controller {
 			Item.erase(item);
 		});
 	};
-
-	/**
-	 * Cette méthode encode un élément "item" en un objet JSON pour être renvoyé côté client contenant :
-	 *
-	 * @param item
-	 * @return le JsonObject associé à l'élément
-	 */
-	private static final JsonObject asJSON(Item item) {
-		JsonObject node = new JsonObject();
-		node.addProperty("id", item.id);
-		node.addProperty("parentId", item.parentId);
-		if (StringUtils.isBlank(item.path))
-			node.addProperty("path", "");
-		else {
-			// TODO Améliorer les performances dans Trash.asJSON
-			String[] path = item.path.substring(0, item.path.length() - 1).split(",");
-			node.addProperty("path", Arrays.stream(path).map(s -> Item.findById(Long.valueOf(s)).name).reduce((s1, s2) -> s1 + "," + s2).orElse(""));
-		}
-		node.addProperty("name", item.name);
-		node.addProperty("createDate", item.createDate.getTime());
-		node.addProperty("deleteDate", item.deleteDate.getTime());
-		node.addProperty("length", item.content.getLong("length"));
-		return node;
-	}
 
 }
