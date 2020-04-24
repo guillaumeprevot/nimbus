@@ -751,19 +751,23 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Afficher le nombre d'élément dans la corbeille */
-	function updateTrashMenu(count) {
-		var n = (typeof count === 'number') ? count : parseInt(count),
-			span = $('#trash-menu-entry').children(':last-child');
-		if (n === 0)
-			span.text(NIMBUS.translate('MainToolbarTrashEmpty'));
-		else if (n === 1)
-			span.text(NIMBUS.translate('MainToolbarTrashOneItem'));
-		else
-			span.text(NIMBUS.translate('MainToolbarTrashMultipleItem', n));
+	function prepareTrashMenu() {
+		var span = $('#trash-menu-entry').children(':last-child');
+		$('.nimbus-menu').on('show.bs.dropdown', function() {
+			$.get('/trash/count').then(function(count) {
+				var n = (typeof count === 'number') ? count : parseInt(count);
+				if (n === 0)
+					span.text(NIMBUS.translate('MainToolbarTrashEmpty'));
+				else if (n === 1)
+					span.text(NIMBUS.translate('MainToolbarTrashOneItem'));
+				else
+					span.text(NIMBUS.translate('MainToolbarTrashMultipleItem', n));
+			});
+		});
 	}
 
 	/** Afficher le quota dans le menu */
-	function updateUsageMenu() {
+	function prepareUsageMenu() {
 		var usedProgress = $('#usage-menu-entry > :first-child');
 		var freeProgress = $('#usage-menu-entry > :last-child');
 		$('.nimbus-menu').on('show.bs.dropdown', function() {
@@ -960,7 +964,6 @@ NIMBUS.navigation = (function() {
 				itemIds: itemIds.join(',')
 			}).done(function() {
 				refreshItems(false);
-				$.get('/trash/count').then(updateTrashMenu);
 				$('#delete-dialog').modal('hide');
 			});
 		});
@@ -1372,7 +1375,7 @@ NIMBUS.navigation = (function() {
 	}
 
 	/** Initialiser la page principale */
-	function init(options, trashCount) {
+	function init(options) {
 		// Préparation du IntersectionObserver qui optimisera le chargement des miniatures au moment où elles deviennent visibles
 		thumbnailObserver = new IntersectionObserver(function(entries) {
 			entries.forEach(entry => {
@@ -1417,10 +1420,10 @@ NIMBUS.navigation = (function() {
 		prepareRenameItem();
 		// Initialiser le comportement pour le partage de fichier
 		prepareShareItem();
-		// Affichage du nombre d'élément dans la corbeille
-		updateTrashMenu(trashCount);
+		// Initialiser le comportement pour la corbeille
+		prepareTrashMenu();
 		// Affichage du quota dans le menu
-		updateUsageMenu();
+		prepareUsageMenu();
 		// Choix du thème
 		prepareThemeMenu();
 		// Clic sur le bouton "Supprimer", on prépare et on affiche la fenêtre

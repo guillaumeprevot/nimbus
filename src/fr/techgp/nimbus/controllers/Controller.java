@@ -171,7 +171,6 @@ public class Controller {
 				"plugins", configuration.getClientPlugins(),
 				"name", StringUtils.withDefault(user.name, user.login),
 				"admin", user.admin,
-				"trashCount", Item.trashCount(login),
 				"textFileExtensions", configuration.getTextFileExtensions(),
 				"showHiddenItems", user.showHiddenItems,
 				"showItemTags", user.showItemTags,
