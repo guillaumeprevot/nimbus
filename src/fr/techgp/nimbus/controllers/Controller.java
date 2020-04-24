@@ -2,12 +2,16 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -270,12 +274,16 @@ public class Controller {
 			// Récupérer l'utilisateur connecté
 			String userLogin = request.session().attribute("userLogin");
 			// Récupérer les identifiants des éléments demandés
-			String[] ids = itemIds.split(",");
-			for (String itemIdString : ids) {
-				// Récupérer l'élément de chaque identifiant
-				Item item = Item.findById(Long.valueOf(itemIdString));
+			Set<Long> ids = Arrays.stream(itemIds.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+			// Récupérer les éléments demandés
+			List<Item> items = Item.findByIds(ids);
+			// Vérifier la pertinence des ids demandés
+			if (items.size() != ids.size())
+				return SparkUtils.haltBadRequest();
+			// Parcourir les éléments à traiter
+			for (Item item : items) {
 				// Vérifier les droits d'accès
-				if (item == null || !item.userLogin.equals(userLogin))
+				if (! item.userLogin.equals(userLogin))
 					return SparkUtils.haltBadRequest();
 				// Laisser l'appelant "consommer" l'élément
 				consumer.accept(item);
