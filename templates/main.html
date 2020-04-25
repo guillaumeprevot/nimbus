@@ -55,6 +55,10 @@
 				<i class="material-icons">create_new_folder</i>
 				<span data-translate="text">MainToolbarAddFolder</span>
 			</a>
+			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#touch-file-dialog">
+				<i class="material-icons">note_add</i>
+				<span data-translate="text">MainToolbarTouchFile</span>
+			</a>
 			<a class="dropdown-item" href="#" onclick="$('#add-file-input').click();">
 				<i class="material-icons">cloud_upload</i>
 				<span data-translate="text">MainToolbarUploadFiles</span>
@@ -62,26 +66,6 @@
 			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#add-url-dialog">
 				<i class="material-icons">link</i>
 				<span data-translate="text">MainToolbarDownloadURL</span>
-			</a>
-			<a class="dropdown-item" href="#" data-target="#touch-file-dialog">
-				<i class="material-icons">note_add</i>
-				<span data-translate="text">MainToolbarTouchFile</span>
-			</a>
-			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="txt" data-touch-editor="text-editor.html">
-				<i class="material-icons">subject</i>
-				<span data-translate="text">MainToolbarAddTextFile</span>
-			</a>
-			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="html" data-touch-editor="note-editor.html">
-				<i class="material-icons">art_track</i>
-				<span data-translate="text">MainToolbarAddNote</span>
-			</a>
-			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="secret" data-touch-editor="secret-editor.html">
-				<i class="material-icons">lock</i>
-				<span data-translate="text">MainToolbarAddSecretNote</span>
-			</a>
-			<a class="dropdown-item" href="#" data-target="#touch-file-dialog" data-touch-extension="markdown" data-touch-editor="markdown-editor.html">
-				<i class="material-icons">list_alt</i>
-				<span data-translate="text">MainToolbarAddMarkdownNote</span>
 			</a>
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="/preferences.html">
@@ -239,12 +223,30 @@
 			<div class="modal-body">
 				<fieldset>
 					<div class="form-group">
+						<label for="touch-file-type" data-translate="text">MainTouchFileTypeLabel</label>
+						<select id="touch-file-type" class="form-control" name="type">
+							<option data-translate="text" value="" data-touch-editor="">MainTouchFileTypeDefault</option>
+							<option data-translate="text" value="txt" data-touch-editor="text-editor.html">MainTouchFileTypeText</option>
+							<option data-translate="text" value="note" data-touch-editor="note-editor.html">MainTouchFileTypeNote</option>
+							<option data-translate="text" value="secret" data-touch-editor="secret-editor.html">MainTouchFileTypeSecretNote</option>
+							<option data-translate="text" value="md" data-touch-editor="markdown-editor.html">MainTouchFileTypeMarkdown</option>
+							<option data-translate="text" value="calendar" data-touch-editor="calendar.html">MainTouchFileTypeCalendar</option>
+							<option data-translate="text" value="contacts" data-touch-editor="contacts.html">MainTouchFileTypeContacts</option>
+							<option data-translate="text" value="bookmarks" data-touch-editor="bookmarks.html">MainTouchFileTypeBookmarks</option>
+							<option data-translate="text" value="" data-touch-editor="code-editor.html">MainTouchFileTypeCode</option>
+						</select>
+					</div>
+					<div class="form-group">
 						<label for="touch-file-name" data-translate="text">MainTouchFileNameLabel</label>
 						<div class="input-group">
 							<input id="touch-file-name" class="form-control" data-translate="placeholder" autofocus="autofocus" name="name" type="text" maxlength="128" placeholder="MainTouchFileNamePlaceholder" />
 							<div class="input-group-append"><span class="input-group-text"></span></div>
 						</div>
 						<div class="invalid-feedback" data-translate="text">MainTouchFileNameConflictErrorMessage</div>
+					</div>
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="touch-file-open">
+						<label class="custom-control-label" for="touch-file-open" data-translate="text">MainTouchFileOpenCheckbox</label>
 					</div>
 				</fieldset>
 			</div>
@@ -420,6 +422,7 @@
 var plugins = [<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>];
 if (plugins.indexOf('calendar.js') === -1) $('[href="/calendar.html"]').hide();
 if (plugins.indexOf('contacts.js') === -1) $('[href="/contacts.html"]').hide();
+if (plugins.indexOf('bookmarks.js') === -1) $('[href="/bookmarks.html"]').hide();
 if (plugins.indexOf('audio.js') === -1) $('[href="/audio.html"]').hide();
 if (plugins.indexOf('text.js') === -1) $('[data-touch-extension="txt"]').hide();
 if (plugins.indexOf('note.js') === -1) $('[data-touch-extension="note"]').hide();

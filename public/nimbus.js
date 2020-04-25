@@ -545,32 +545,44 @@ NIMBUS.navigation = (function() {
 	function prepareTouchFile() {
 		// Récupérer les composants concernés
 		var dialog = $('#touch-file-dialog');
-		var input = $('#touch-file-name');
+		var typeSelect = $('#touch-file-type');
+		var nameInput = $('#touch-file-name');
+		var openCheckbox = $('#touch-file-open');
 		var validateButton = $('#touch-file-validate-button');
-		var touchExtension;
-		var touchEditor;
 		// Initialiser le statut de la fenêtre à l'ouverture
 		dialog.on('show.bs.modal', function() {
-			input.val('').removeClass('is-invalid');
+			typeSelect.change();
+			nameInput.val('').removeClass('is-invalid');
 			validateButton.prop('disabled', true);
 		});
+		// Ajuster la fenêtre en fonction du type
+		typeSelect.on('change', function() {
+			var extension = typeSelect.val();
+			var editor = typeSelect.children(':selected').attr('data-touch-editor');
+			nameInput.parent().toggleClass('input-group', !!extension);
+			nameInput.next().toggle(!!extension);
+			nameInput.next().find('.input-group-text').text('.' + extension);
+			openCheckbox.parent().toggle(!!editor);
+		});
 		// Désactiver le bouton de validation quand le nom est vide
-		input.on('input', function() {
-			validateButton.prop('disabled', input.val().trim().length === 0);
+		nameInput.on('input', function() {
+			validateButton.prop('disabled', nameInput.val().trim().length === 0);
 		});
 		// Validation de la fenêtre
 		validateButton.click(function() {
-			var name = input.val();
-			if (touchExtension)
-				name = name + '.' + touchExtension;
+			var extension = typeSelect.val();
+			var name = nameInput.val();
+			if (extension)
+				name = name + '.' + extension;
 			$.post('/files/touch', {
 				parentId: getCurrentPathId(),
 				name: name
 			}).fail(function() {
-				input.addClass('is-invalid');
+				nameInput.addClass('is-invalid');
 			}).done(function(idString) {
-				if (touchEditor) {
-					window.location.assign('/' + touchEditor + '?' + $.param({
+				var editor = typeSelect.children(':selected').attr('data-touch-editor');
+				if (openCheckbox.prop('checked') && !!editor) {
+					window.location.assign('/' + editor + '?' + $.param({
 						itemId: idString,
 						fromUrl: window.location.href,
 						fromTitle: $('title').text()
@@ -580,18 +592,6 @@ NIMBUS.navigation = (function() {
 					dialog.modal('hide');
 				}
 			});
-		});
-		$('#menu-button').next().on('click', '[data-target="#touch-file-dialog"]', function(event) {
-			var entry = $(event.target).closest('[data-target]');
-			touchExtension = entry.attr('data-touch-extension');
-			touchEditor = entry.attr('data-touch-editor');
-			if (touchExtension) {
-				input.parent().addClass('input-group').find('.input-group-text').text('.' + touchExtension).parent().show();
-			} else {
-				input.parent().removeClass('input-group').find('.input-group-append').hide();
-			}
-			dialog.find('.modal-title').text(entry.children('span').text());
-			dialog.modal('show');
 		});
 	}
 
@@ -1411,10 +1411,10 @@ NIMBUS.navigation = (function() {
 		prepareSearch();
 		// Initialiser le comportement pour l'ajout de dossier
 		prepareAddFolder();
-		// Initialiser le comportement pour l'upload de fichier(s)
-		prepareFileUpload();
 		// Initialiser le comportement pour l'ajout de fichier texte vide
 		prepareTouchFile();
+		// Initialiser le comportement pour l'upload de fichier(s)
+		prepareFileUpload();
 		// Initialiser le comportement pour l'ajout de fichier depuis une URL
 		prepareAddURL();
 		// Initialiser le comportement pour le renommage de fichier/dossier
