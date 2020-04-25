@@ -26,7 +26,7 @@
 
 <nav class="navbar navbar-expand navbar-dark fixed-top bg-primary">
 	<div class="nimbus-menu dropdown">
-		<button id="menu-button" class="btn btn-link text-light dropdown-toggle" data-translate="title" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="MainToolbarTitle">
+		<button id="menu-button" class="btn btn-link text-light" data-translate="title" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="MainToolbarTitle">
 			<i class="material-icons">menu</i>
 		</button>
 		<div class="dropdown-menu" aria-labelledby="menu-button">
@@ -125,13 +125,13 @@
 				<a class="nav-link" href="/nav">${appName}</a>
 			</li>
 		</ul>
-		<div id="search-group" class="mx-2 form-inline">
-			<input id="search-input" class="form-control" data-translate="placeholder" type="search" placeholder="MainSearchPlaceholder" />
-			<button id="search-clear" class="btn btn-link text-light" data-translate="title" title="MainSearchClear">
-				<i class="material-icons">clear</i>
-			</button>
-			<div class="btn-group">
-				<button id="search-options" class="btn btn-link text-light dropdown-toggle" data-translate="title" data-toggle="dropdown" title="MainSearchOptions">
+		<div id="search-group" class="input-group mx-2">
+			<input id="search-input" class="form-control border-secondary" data-translate="placeholder" type="search" placeholder="MainSearchPlaceholder" />
+			<div class="input-group-append">
+				<button id="search-clear" class="btn btn-outline-secondary text-light" data-translate="title" title="MainSearchClear" type="button">
+					<i class="material-icons">clear</i>
+				</button>
+				<button id="search-options" class="btn btn-outline-secondary text-light" data-translate="title" title="MainSearchOptions" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<i class="material-icons">search</i>
 				</button>
 				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="search-options">

@@ -896,20 +896,21 @@ NIMBUS.navigation = (function() {
 
 	/** Préparer la zone de recherche */
 	function prepareSearch() {
+		var input = $('#search-input'),
+			clearButton = $('#search-clear');
 		// Le texte de la zone de recherche change
-		$('#search-input').change(function() {
-			var self = $(this);
+		input.change(function() {
 			// Raffraichir la liste des éléments
 			refreshItems(false);
 			// Sélectionner le texte de l'input pour faciliter une seconde recherche
-			self.select();
+			input.select();
 			// Ajuster la visibilité du bouton vidant la recherche
-			$('#search-clear').toggleClass('nimbus-hidden', self.val() === '');
+			clearButton.toggleClass('nimbus-hidden', input.val() === '');
 		});
 		// Le bouton pour vider la recherche
-		$('#search-clear').toggleClass('nimbus-hidden', !$('#search-input').val()).click(function() {
+		clearButton.toggleClass('nimbus-hidden', input.val() === '').click(function() {
 			// Vider la rechercher et lancer "change" pour raffraichir la liste des éléments
-			$('#search-input').val('').change();
+			input.val('').change();
 		});
 		// Choix des options de recherche
 		$('#search-group').on('click', '.dropdown-menu > a', function(event) {

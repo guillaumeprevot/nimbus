@@ -3,10 +3,12 @@
 [data-translate] { visibility: hidden; }
 .nimbus-hidden { display: none !important; }
 
-#menu-button::before, #menu-button::after,
-#search-options::before, #search-options::after { display: none; }
 #search-group { width: auto; }
+#search-group .input-group-append { margin-left: 0; /* cancel bootswatch rule "margin-left:-1px" */}
+#search-group .btn { padding: 4px 6px; /* prevent material-icons from expanding the button */}
 #search-input { width: 170px; }
+#search-input:not(.active):not(:focus) { background-color: transparent; color: var(--light); }
+#search-options { border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem; /* fix border radius since dropdown-toggle class is not used */}
 #add-file-input { display: none; }
 #progress { display: none; }
 #progress > :first-child { flex: auto; }
@@ -45,7 +47,8 @@
 #items > tbody > tr:not(.active) > td.icon > :first-child { display:none; }
 #items > tbody > tr.active td.icon > :last-child { display: none; }
 
-@media (max-width: 1023px) {
+/* bootstrap breakpoint for small devices */
+@media (max-width: 767.98px) {
 	#path .nav-item:not(.active) { display: none; }
 	#search-input { width: 100px; }
 }
