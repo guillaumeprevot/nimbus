@@ -34,19 +34,19 @@
 				<i class="material-icons">home</i>
 				<span data-translate="text">MainToolbarNewWindow</span>
 			</a>
-			<a class="dropdown-item" target="_blank" href="/calendar.html">
+			<a class="dropdown-item" target="_blank" href="/calendar.html" data-plugin="calendar">
 				<i class="material-icons">event</i>
 				<span data-translate="text">MainToolbarOpenCalendar</span>
 			</a>
-			<a class="dropdown-item" target="_blank" href="/contacts.html">
+			<a class="dropdown-item" target="_blank" href="/contacts.html" data-plugin="contacts">
 				<i class="material-icons">contacts</i>
 				<span data-translate="text">MainToolbarOpenContacts</span>
 			</a>
-			<a class="dropdown-item" target="_blank" href="/bookmarks.html">
+			<a class="dropdown-item" target="_blank" href="/bookmarks.html" data-plugin="bookmarks">
 				<i class="material-icons">bookmarks</i>
 				<span data-translate="text">MainToolbarOpenBookmarks</span>
 			</a>
-			<a class="dropdown-item" target="_blank" href="/audio.html">
+			<a class="dropdown-item" target="_blank" href="/audio.html" data-plugin="audio">
 				<i class="material-icons">audiotrack</i>
 				<span data-translate="text">MainToolbarOpenAudioPlayer</span>
 			</a>
@@ -226,14 +226,14 @@
 						<label for="touch-file-type" data-translate="text">MainTouchFileTypeLabel</label>
 						<select id="touch-file-type" class="form-control" name="type">
 							<option data-translate="text" value="" data-touch-editor="">MainTouchFileTypeDefault</option>
-							<option data-translate="text" value="txt" data-touch-editor="text-editor.html">MainTouchFileTypeText</option>
-							<option data-translate="text" value="note" data-touch-editor="note-editor.html">MainTouchFileTypeNote</option>
-							<option data-translate="text" value="secret" data-touch-editor="secret-editor.html">MainTouchFileTypeSecretNote</option>
-							<option data-translate="text" value="md" data-touch-editor="markdown-editor.html">MainTouchFileTypeMarkdown</option>
-							<option data-translate="text" value="calendar" data-touch-editor="calendar.html">MainTouchFileTypeCalendar</option>
-							<option data-translate="text" value="contacts" data-touch-editor="contacts.html">MainTouchFileTypeContacts</option>
-							<option data-translate="text" value="bookmarks" data-touch-editor="bookmarks.html">MainTouchFileTypeBookmarks</option>
-							<option data-translate="text" value="" data-touch-editor="code-editor.html">MainTouchFileTypeCode</option>
+							<option data-translate="text" value="txt" data-touch-editor="text-editor.html" data-plugin="text">MainTouchFileTypeText</option>
+							<option data-translate="text" value="note" data-touch-editor="note-editor.html" data-plugin="note">MainTouchFileTypeNote</option>
+							<option data-translate="text" value="secret" data-touch-editor="secret-editor.html" data-plugin="secret">MainTouchFileTypeSecretNote</option>
+							<option data-translate="text" value="md" data-touch-editor="markdown-editor.html" data-plugin="md">MainTouchFileTypeMarkdown</option>
+							<option data-translate="text" value="calendar" data-touch-editor="calendar.html" data-plugin="calendar">MainTouchFileTypeCalendar</option>
+							<option data-translate="text" value="contacts" data-touch-editor="contacts.html" data-plugin="contacts">MainTouchFileTypeContacts</option>
+							<option data-translate="text" value="bookmarks" data-touch-editor="bookmarks.html" data-plugin="bookmarks">MainTouchFileTypeBookmarks</option>
+							<option data-translate="text" value="" data-touch-editor="code-editor.html" data-plugin="code">MainTouchFileTypeCode</option>
 						</select>
 					</div>
 					<div class="form-group">
@@ -420,14 +420,6 @@
 
 // Récupérer la liste des plugins demandés
 var plugins = [<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>];
-if (plugins.indexOf('calendar.js') === -1) $('[href="/calendar.html"]').hide();
-if (plugins.indexOf('contacts.js') === -1) $('[href="/contacts.html"]').hide();
-if (plugins.indexOf('bookmarks.js') === -1) $('[href="/bookmarks.html"]').hide();
-if (plugins.indexOf('audio.js') === -1) $('[href="/audio.html"]').hide();
-if (plugins.indexOf('text.js') === -1) $('[data-touch-extension="txt"]').hide();
-if (plugins.indexOf('note.js') === -1) $('[data-touch-extension="note"]').hide();
-if (plugins.indexOf('secret.js') === -1) $('[data-touch-extension="secret"]').hide();
-if (plugins.indexOf('markdown.js') === -1) $('[data-touch-extension="markdown"]').hide();
 
 //Initialiser la page
 NIMBUS.init(plugins, function() {

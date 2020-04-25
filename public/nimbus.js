@@ -223,6 +223,22 @@ var NIMBUS = (function() {
 			return $.Deferred().resolve();
 		}
 
+		// Vérification en fonction des plugins activés
+		function checkPlugins() {
+			$('[data-plugin]').each(function(i, e) {
+				var names = e.getAttribute('data-plugin').split(' ');
+				e.removeAttribute('data-plugin');
+				for (var i = 0; i  < names.length; i++) {
+					if (plugins.indexOf(names[i] + '.js') === -1) {
+						// 'display: none' suffirait pour des 'div's mais pas pour des 'option's
+						e.parentNode.removeChild(e);
+						break;
+					}
+				}
+			});
+			return $.Deferred().resolve();
+		}
+
 		// Modification offscreen à effectuer en dernier
 		function finishOffscreen() {
 			// Fermeture auto des "alertes" en cliquant dessus
@@ -254,6 +270,7 @@ var NIMBUS = (function() {
 		$(function() {
 			loadPlugins()
 				.then(translatePage)
+				.then(checkPlugins)
 				.then(callback) // Finalisation spécifique à la page en cours
 				.then(finishOffscreen);
 		});
@@ -549,6 +566,8 @@ NIMBUS.navigation = (function() {
 		var nameInput = $('#touch-file-name');
 		var openCheckbox = $('#touch-file-open');
 		var validateButton = $('#touch-file-validate-button');
+		// Masquer le combo si un seul type est disponible
+		typeSelect.parent().toggle(typeSelect.children().length > 1);
 		// Initialiser le statut de la fenêtre à l'ouverture
 		dialog.on('show.bs.modal', function() {
 			typeSelect.change();
