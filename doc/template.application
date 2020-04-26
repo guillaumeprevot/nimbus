@@ -404,8 +404,9 @@ $(function() {
 				$('.alert').hide();
 				$.post('/items/exists', { parentId: parentId, names: [filename]}).then(function(result) {
 					var exists = result === 'true';
-					if (exists && !$('#nameOverride').is(':checked')) {
-						$('#name').addClass('is-invalid');
+					var conflict = exists && !$('#nameOverride').is(':checked');
+					$('#name').toggleClass('is-invalid', conflict);
+					if (conflict) {
 						$('.alert-warning').show();
 						return $.Deferred().resolve();
 					}
