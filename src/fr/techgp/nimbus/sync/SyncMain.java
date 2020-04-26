@@ -18,6 +18,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
@@ -183,7 +184,8 @@ public class SyncMain {
 	private static final Set<Long> getPropertyAsLongSet(String name, String label) {
 		String s = System.getProperty(name);
 		Console console = System.console();
-		if (s == null || s.trim().length() == 0 || !s.matches("\\d+(,\\d+)*")) {
+		Predicate<String> check = (input) -> StringUtils.isBlank(input) || input.matches("\\d+(,\\d+)*");
+		if (s == null || !check.test(s)) {
 			do {
 				if (console != null)
 					s = console.readLine(label + ": ");
@@ -191,7 +193,7 @@ public class SyncMain {
 					System.out.println(label + ": ");
 					s = new Scanner(System.in).nextLine();
 				}
-			} while (StringUtils.isNotBlank(s) && !s.matches("\\d+(,\\d+)*"));
+			} while (!check.test(s));
 		}
 		if (StringUtils.isBlank(s))
 			return Collections.emptySet();
