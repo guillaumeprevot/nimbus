@@ -51,22 +51,22 @@
 				<span data-translate="text">MainToolbarOpenAudioPlayer</span>
 			</a>
 			<div class="dropdown-divider"></div>
-			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#add-folder-dialog">
+			<button class="dropdown-item" type="button" data-toggle="modal" data-target="#add-folder-dialog">
 				<i class="material-icons">create_new_folder</i>
 				<span data-translate="text">MainToolbarAddFolder</span>
-			</a>
-			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#touch-file-dialog">
+			</button>
+			<button class="dropdown-item" type="button" data-toggle="modal" data-target="#touch-file-dialog">
 				<i class="material-icons">note_add</i>
 				<span data-translate="text">MainToolbarTouchFile</span>
-			</a>
-			<a class="dropdown-item" href="#" onclick="$('#add-file-input').click();">
+			</button>
+			<button class="dropdown-item" type="button" onclick="$('#add-file-input').click();">
 				<i class="material-icons">cloud_upload</i>
 				<span data-translate="text">MainToolbarUploadFiles</span>
-			</a>
-			<a class="dropdown-item" href="#" data-toggle="modal" data-target="#add-url-dialog">
+			</button>
+			<button class="dropdown-item" type="button" data-toggle="modal" data-target="#add-url-dialog">
 				<i class="material-icons">link</i>
 				<span data-translate="text">MainToolbarDownloadURL</span>
-			</a>
+			</button>
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="/preferences.html">
 				<i class="material-icons">account_box</i>
@@ -123,8 +123,8 @@
 					<div class="dropdown-divider"></div>
 					<a href="#" data-translate="text" class="dropdown-item" id="search-option-folders">MainSearchInFolders</a>
 					<a href="#" data-translate="text" class="dropdown-item" id="search-option-files">MainSearchInFiles</a>
-					<a href="#" data-translate="text" class="dropdown-item" data-extensions="application">MainSearchInApplications</a>
-					<a href="#" data-translate="text" class="dropdown-item" data-extensions="url">MainSearchInShortcuts</a>
+					<a href="#" data-translate="text" class="dropdown-item" data-plugin="application" data-extensions="application">MainSearchInApplications</a>
+					<a href="#" data-translate="text" class="dropdown-item" data-plugin="windows-shortcut" data-extensions="url">MainSearchInShortcuts</a>
 					<a href="#" data-translate="text" class="dropdown-item" data-extensions="note,secret,appcache,css,csv,html,html,js,json,less,markdown,md,md5,sha1,sha256,sha512,ts,txt,xml">MainSearchInTextFiles</a>
 					<a href="#" data-translate="text" class="dropdown-item" data-extensions="aac,m3u,mid,midi,mp3,oga,ogg,wav,weba,wma">MainSearchInAudio</a>
 					<a href="#" data-translate="text" class="dropdown-item" data-extensions="3gp,avi,m4a,mkv,mov,mp4,mpeg,mpg,ogv,webm,wmv">MainSearchInVideo</a>
