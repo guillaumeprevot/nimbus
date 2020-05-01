@@ -50,7 +50,7 @@
 			editor.find('.gp-valuelist-date').val(item.date || '').attr('placeholder', datePlaceholder);
 			editor.find('.gp-valuelist-month').val(item.month || '').attr('placeholder', monthPlaceholder);
 			editor.find('.gp-valuelist-year').val(item.year || '').attr('placeholder', yearPlaceholder);
-			editor.find('.btn-outline-danger').attr('title', clearButton).on('click', () => {
+			editor.find('.text-danger').attr('title', clearButton).on('click', () => {
 				editor.find('input').val('');
 				editor.children('span').text(placeholder);
 			});

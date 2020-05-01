@@ -64,7 +64,7 @@ main { display: flex; flex-direction: row; }
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
 <body class="nimbus-hidden">
-	<header class="bg-primary">
+	<header>
 		<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="BookmarksSave"><i class="material-icons">save</i></button>
 
 		<span id="spacer"></span>
@@ -108,7 +108,7 @@ main { display: flex; flex-direction: row; }
 		<div id="bookmarks" class="list-group list-group-flush"></div>
 	</main>
 	<div id="alert-container"></div>
-	<footer class="bg-secondary"></footer>
+	<footer></footer>
 	<form>
 		<div id="bookmarkModal" class="modal fade">
 			<div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -148,9 +148,9 @@ main { display: flex; flex-direction: row; }
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button id="bookmarkDeleteButton" type="button" class="btn btn-danger" data-translate="text">BookmarkDeleteButton</button>
+						<button id="bookmarkDeleteButton" type="button" class="btn btn-outline-danger" data-translate="text">BookmarkDeleteButton</button>
 						<div style="flex: auto; "></div>
-						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">BookmarkCancelButton</button>
+						<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">BookmarkCancelButton</button>
 						<button id="bookmarkValidateButton" type="button" class="btn btn-primary">
 							<span class="add" data-translate="text">BookmarkAddButton</span>
 							<span class="apply" data-translate="text">BookmarkApplyButton</span>
@@ -205,7 +205,7 @@ function createBookmarkItem(source, folder, bookmark) {
 // Cette méthode crée l'entrée de menu dans la zone de navigation à gauche pour le dossier demandé
 function createFolderNavigationItem(source, folder) {
 	return $('<div class="list-group-item bookmark-folder-item">'
-			+ '  <span class="bookmark-folder-icon"><i class="material-icons text-success"></i></span>'
+			+ '  <span class="bookmark-folder-icon"><i class="material-icons text-muted"></i></span>'
 			+ '  <span class="bookmark-folder-name" draggable="true"></span>'
 			+ '  <div class="dropdown">'
 			+ '    <button class="btn btn-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'

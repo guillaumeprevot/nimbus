@@ -25,7 +25,7 @@ main { padding: 1em; }
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
 <body class="nimbus-hidden">
-	<header class="bg-primary">
+	<header>
 		<div class="float-left">
 			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
 		</div>
@@ -582,12 +582,12 @@ NIMBUS.init(['audio.js'], function() {
 			// Afficher les résultats
 			addResults.append(results.map(function(result) {
 				var div = $(''
-						+ '<div class="list-group-item list-group-item-action">'
-						+ '  <div class="d-flex w-100 justify-content-between">'
+						+ '<div class="list-group-item">'
+						+ '  <div class="d-flex w-100 justify-content-between text-muted">'
 						+ '    <p class="mb-1"></p>'
 						+ '    <small></small>'
 						+ '  </div>'
-						+ '  <span class="text-success"></span>'
+						+ '  <span></span>'
 						+ '</div>');
 				div.find('p').text(result.name);
 				if (result.duration)

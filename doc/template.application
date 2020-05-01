@@ -28,7 +28,7 @@ document.write('<link type="text/css" rel="stylesheet" href="' + stylesheet + '"
 <script type="text/javascript" src="/nimbus.js"></script>
 </head>
 <body class="nimbus-hidden">
-	<header class="bg-primary">
+	<header>
 		<div class="float-left">
 			<button id="generate-button" type="button" class="btn btn-link" data-translate="title" title="TemplateGenerate"><i class="material-icons">check</i></button>
 		</div>
@@ -327,7 +327,7 @@ function buildHTML(app) {
 		${buildScript('/nimbus.js')}
 	</head>
 	<body class="nimbus-hidden">
-		<header class="bg-primary">
+		<header>
 			<div class="float-left">
 				${chunks.saveButton}
 			</div>

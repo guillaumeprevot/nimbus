@@ -790,8 +790,8 @@ NIMBUS.navigation = (function() {
 		var usedProgress = $('#usage-menu-entry > :first-child');
 		var freeProgress = $('#usage-menu-entry > :last-child');
 		$('.nimbus-menu').on('show.bs.dropdown', function() {
-			usedProgress.text('')/*.css('width', '100%')*/.removeClass('bg-danger bg-warning bg-primary').addClass('progress-bar-striped progress-bar-animated');
-			freeProgress.text('')/*.css('width', '0')*/;
+			usedProgress.text('').removeClass('bg-danger bg-warning bg-primary').addClass('progress-bar-striped progress-bar-animated');
+			freeProgress.text('');
 			$.get('/items/quota').then(function(result) {
 				var usedPct = Math.round(result.usedSpace * 100.0 / result.maxSpace);
 				var freePct = Math.round(result.freeSpace * 100.0 / result.maxSpace);
@@ -1022,7 +1022,7 @@ NIMBUS.navigation = (function() {
 					return;
 				ul.append(data.map(function(item) {
 					var li = $('<li class="list-group-item list-group-item-action" />').attr('data-itemId', item.id);
-					var div = $('<div />').text(item.name).append('<span class="badge badge-primary badge-pill">' + (item.itemCount || 0) + '</span>');
+					var div = $('<div />').text(item.name).append('<span class="badge badge-primary">' + (item.itemCount || 0) + '</span>');
 					return li.append(div)[0];
 				}));
 			});
@@ -1334,7 +1334,7 @@ NIMBUS.navigation = (function() {
 				// Ajout de la ligne
 				$('<tr />').data('item', item)
 					.addClass(facet.name)
-					.append($('<td class="icon"><i class="material-icons text-primary">check</i></td>').append(icon))
+					.append($('<td class="icon"><i class="material-icons">check</i></td>').append(icon))
 					.append($('<td class="name" />').append(tags).append(name).append(description))
 					.append(cells)
 					.append($('<td class="actions" />').append(actionsButton))

@@ -15,14 +15,14 @@
 header .float-left { min-width: calc(110px + 1em); height: 100%; text-align: left; }
 header .float-right { min-width: 110px; }
 
-#periodLongDescription, #periodShortDescription { text-transform: capitalize; padding-top: 13px; line-height: 1; }
+#periodLongDescription, #periodShortDescription { text-transform: capitalize; padding-top: 13px; line-height: 1; color: var(--white); }
 #periodLongDescription { display: inline-block; min-width: 150px; }
 
 #sourceMenu div.dropdown-item { display: flex; align-items: center; }
 #sourceMenu div.dropdown-item span { flex: auto; padding-right: 1.25rem; }
 #sourceMenu div.dropdown-item .btn { flex: none; padding: 0.25rem; }
 
-#days { position: sticky; top: 0; display: flex; flex-direction: row; font-weight: bold; }
+#days { position: sticky; top: 0; display: flex; flex-direction: row; font-weight: bold; background-color: var(--primary); color: var(--white); border-bottom: 1px solid var(--dark); }
 #days > div { flex: 1 1 1px; text-align: center; text-transform: capitalize; }
 #days > div:first-child { flex: 0 0 2em; }
 #weeks .popover { max-width: unset; }
@@ -30,7 +30,9 @@ header .float-right { min-width: 110px; }
 .week { display: flex; flex-direction: row; }
 .week-number { flex: 0 0 2em; text-align: right; padding: 2px; }
 .day { flex: 1 1 1px; }
-.day-header { max-height: 1.5em; text-align: right; padding: 0 0.5em; }
+.day-header { max-height: 1.5em; text-align: right; padding: 0 0.5em; background-color: var(--primary); color: var(--white); }
+.day-header.day-header-today { background-color: var(--info); }
+.day-header.day-header-out:not(.day-header-today) { background-color: var(--secondary); }
 .day-header > .month-name { float: left; font-weight: bold; text-transform: capitalize; }
 .day-header > .day-name { display: none; }
 .day-content { min-height: 4em; padding: 0.2em; }
@@ -62,7 +64,7 @@ header .float-right { min-width: 110px; }
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
 <body class="nimbus-hidden">
-	<header class="bg-primary">
+	<header>
 		<div class="float-left">
 			<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="CalendarSave"><i class="material-icons">save</i></button>
 		</div>
@@ -73,8 +75,8 @@ header .float-right { min-width: 110px; }
 				<i class="material-icons">event</i>
 				<input id="selectInput" type="date" style="opacity: 0; position: absolute; left: 0; width: 100%; top: 0; height: 100%; "/>
 			</div>
-			<span id="periodShortDescription" class="text-white"></span>
-			<span id="periodLongDescription" class="text-white"></span>
+			<span id="periodShortDescription"></span>
+			<span id="periodLongDescription"></span>
 			<div class="btn-group">
 				<button id="viewButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="CalendarSelectView" aria-haspopup="true" aria-expanded="false"><i class="material-icons">visibility</i></button>
 				<div id="viewMenu" class="dropdown-menu" aria-labelledby="viewButton"></div>
@@ -99,7 +101,7 @@ header .float-right { min-width: 110px; }
 		</div>
 	</header>
 	<main>
-		<div id="days" class="bg-primary text-white border-bottom border-dark">
+		<div id="days">
 			<div>&nbsp;</div>
 			<div></div>
 			<div></div>
@@ -112,7 +114,7 @@ header .float-right { min-width: 110px; }
 		<div id="weeks"></div>
 	</main>
 	<div id="alert-container"></div>
-	<footer class="bg-secondary"></footer>
+	<footer></footer>
 	<form>
 		<div id="eventTypeModal" class="modal fade">
 			<div class="modal-dialog">
@@ -154,7 +156,7 @@ header .float-right { min-width: 110px; }
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">CalendarEventTypeCancelButton</button>
+						<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">CalendarEventTypeCancelButton</button>
 						<button id="eventTypeValidateButton" type="button" class="btn btn-primary">
 							<span class="add" data-translate="text">CalendarEventTypeAddButton</span>
 							<span class="apply" data-translate="text">CalendarEventTypeApplyButton</span>
@@ -217,7 +219,7 @@ header .float-right { min-width: 110px; }
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">CalendarEventModalCancelButton</button>
+						<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">CalendarEventModalCancelButton</button>
 						<button id="eventModalValidateButton" type="button" class="btn btn-primary">
 							<span class="add" data-translate="text">CalendarEventModalAddButton</span>
 							<span class="apply" data-translate="text">CalendarEventModalApplyButton</span>
@@ -507,10 +509,9 @@ function connectMainView(calendar) {
 				$('<div class="day border-left border-dark" />')
 					.toggleClass('day-out', out)
 					.attr('data-day', m.format(inputDateFormat))
-					.append($('<div class="day-header text-white" />')
-							.toggleClass('bg-info', today)
-							.toggleClass('bg-secondary', out && !today)
-							.toggleClass('bg-primary', !out && !today)
+					.append($('<div class="day-header" />')
+							.toggleClass('day-header-today', today)
+							.toggleClass('day-header-out', out)
 							.append($('<span class="month-name" />').text(m.date() === 1 ? m.format('MMMM') : ''))
 							.append($('<span class="day-name" />').text(weekdays[(firstDayOfWeek + m.weekday()) % 7]))
 							.append($('<span class="day-number" />').text(m.format(m.date() === 1 ? 'Do' : 'D'))))

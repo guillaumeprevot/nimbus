@@ -54,7 +54,7 @@ table.table-sm td:first-child img { max-height: 32px; }
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
 <body class="nimbus-hidden">
-	<header class="bg-primary">
+	<header>
 		<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="ContactsSave"><i class="material-icons">save</i></button>
 		<span id="spacer"></span>
 		<input id="searchInput" type="search" class="form-control" data-translate="placeholder title" placeholder="ContactsSearchPlaceholder" title="ContactsSearchTitle" />
@@ -121,7 +121,7 @@ table.table-sm td:first-child img { max-height: 32px; }
 		</div>
 	</main>
 	<div id="alert-container"></div>
-	<footer class="bg-secondary"></footer>
+	<footer></footer>
 	<form>
 		<div id="actionsModal" class="modal fade">
 			<div class="modal-dialog">
@@ -233,7 +233,7 @@ table.table-sm td:first-child img { max-height: 32px; }
 					</div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-link" data-translate="text" data-dismiss="modal">ContactModalCancelButton</button>
+						<button type="button" class="btn btn-secondary" data-translate="text" data-dismiss="modal">ContactModalCancelButton</button>
 						<button id="contactValidateButton" type="button" class="btn btn-primary noautovalidate">
 							<span class="add" data-translate="text">ContactModalAddButton</span>
 							<span class="apply" data-translate="text">ContactModalApplyButton</span>
@@ -337,7 +337,7 @@ function AddressEditor(format, placeholder) {
 		editor.find('.gp-valuelist-city').val(item.city || '');
 		editor.find('.gp-valuelist-state').val(item.state || '');
 		editor.find('.gp-valuelist-country').val(item.country || '');
-		editor.find('.btn-outline-danger').on('click', () => {
+		editor.find('.text-danger').on('click', () => {
 			editor.find('input').val('');
 			editor.children('span').text(placeholder);
 		});
@@ -608,7 +608,7 @@ NIMBUS.init(['contacts.js'], function() {
 		var selectedSource = (itemId === null) ? sources[0] : sources.find((s) => s.item.id === itemId);
 		// Création d'un onglet par fichier ".contacts"
 		navigation.append(sources.map(function(source, index) {
-			var a = $('<a class="nav-link" href="#"><span></span> <i class="badge badge-light"></i></a>')
+			var a = $('<a class="nav-link" href="#"><span></span> <i class="badge badge-primary"></i></a>')
 				.toggleClass('active', source === selectedSource)
 				.children('span').text(source.getNameOrDefault()).end()
 				.children('.badge').text('' + source.contacts.length).end();
