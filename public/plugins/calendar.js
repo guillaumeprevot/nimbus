@@ -505,17 +505,11 @@
 			icon: 'event',
 			caption: 'CalendarOpen',
 			accept: accept,
-			execute: function(item) {
-				window.location.assign('/calendar.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
-			}
+			execute: (item) => window.location.assign('/calendar.html?itemId=' + item.id)
 		}],
 		langs: {
 			fr: {
-				CalendarOpen: "Ouvrir dans l'agenda",
+				CalendarOpen: "Ouvrir dans l'application Agenda",
 				CalendarDescription0Event: "aucun évènement",
 				CalendarDescription1Event: "1 évènement",
 				CalendarDescriptionNEvents: "{0} évènements",
@@ -613,7 +607,7 @@
 				},
 			},
 			en: {
-				CalendarOpen: "Open in calendar",
+				CalendarOpen: "Open in Calendar application",
 				CalendarDescription0Event: "no event",
 				CalendarDescription1Event: "1 event",
 				CalendarDescriptionNEvents: "{0} events",

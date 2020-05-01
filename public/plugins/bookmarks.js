@@ -131,8 +131,7 @@
 		BookmarkExtension: BookmarkExtension,
 		BookmarkFolder: BookmarkFolder,
 		BookmarkSource: BookmarkSource,
-		matchBookmark: matchBookmark,
-		createLink: (l) => $('<a target="_blank" />').text(l.name || l.url).attr('href', l.url)
+		matchBookmark: matchBookmark
 	};
 
 	// Permettre l'ouverture des fichiers ".bookmarks" dans les différents éditeurs de texte
@@ -173,17 +172,11 @@
 			icon: 'bookmarks',
 			caption: 'BookmarksOpen',
 			accept: accept,
-			execute: function(item) {
-				window.location.assign('/bookmarks.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
-			}
+			execute: (item) => window.location.assign('/bookmarks.html?itemId=' + item.id)
 		}],
 		langs: {
 			fr: {
-				BookmarksOpen: "Ouvrir dans le gestionnaire de favoris",
+				BookmarksOpen: "Ouvrir dans l'application Favoris",
 				BookmarksDescription0Bookmark: "aucun favori",
 				BookmarksDescription1Bookmark: "1 favori",
 				BookmarksDescriptionNBookmarks: "{0} favoris",
@@ -243,7 +236,7 @@
 				BookmarkApplyButton: "Appliquer les changements",
 			},
 			en: {
-				BookmarksOpen: "Open in bookmark manager",
+				BookmarksOpen: "Open in Bookmarks application",
 				BookmarksDescription0Bookmark: "no bookmark",
 				BookmarksDescription1Bookmark: "1 bookmark",
 				BookmarksDescriptionNBookmarks: "{0} bookmarks",

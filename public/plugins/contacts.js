@@ -333,17 +333,11 @@
 			icon: 'contacts',
 			caption: 'ContactsOpen',
 			accept: accept,
-			execute: function(item) {
-				window.location.assign('/contacts.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
-			}
+			execute: (item) => window.location.assign('/contacts.html?itemId=' + item.id)
 		}],
 		langs: {
 			fr: {
-				ContactsOpen: "Ouvrir dans le carnet d'adresse",
+				ContactsOpen: "Ouvrir dans l'application Contacts",
 				ContactsDescription0Contact: "aucun contact",
 				ContactsDescription1Contact: "1 contact",
 				ContactsDescriptionNContacts: "{0} contacts",
@@ -498,7 +492,7 @@
 				ContactListRemove: "Supprimer",
 			},
 			en: {
-				ContactsOpen: "Open in address book",
+				ContactsOpen: "Open in Contacts application",
 				ContactsDescription0Contact: "no contact",
 				ContactsDescription1Contact: "1 contact",
 				ContactsDescriptionNContacts: "{0} contacts",

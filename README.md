@@ -125,13 +125,13 @@ Enfin, certaines extensions sont interprétées comme fichiers contenant les don
 	- le chiffrement se fait côté client en *AES 256 bits GCM* grâce à [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Crypto), intégrée aux navigateurs
 - Agenda
 	- l'agenda permet de combiner un ou plusieurs fichiers `.calendar`, par exemple *personnel.calendar* et *professionnel.calendar*
-    - l'application est accessible via le menu général `Ouvrir l'agenda` ou l'action `Ouvrir dans l'agenda` de ces fichiers
+    - l'application est accessible via le menu général `Ouvrir l'application Agenda` ou l'action `Ouvrir dans l'application Agenda` de ces fichiers
 - Contact
 	- le carnet d'adresse est constitué de un ou plusieurs fichiers `.contacts`, par exemple *personnel.contacts* et *professionnel.contacts*
-	- l'application est accessible via le menu général `Ouvrir le carnet d'adresse` ou l'action `Ouvrir dans le carnet d'adresse` de ces fichiers
+	- l'application est accessible via le menu général `Ouvrir l'application Contacts` ou l'action `Ouvrir dans l'application Contacts` de ces fichiers
 - Favoris / Bookmark
 	- les favoris Internet (a.k.a. bookmark) sont organisés dans un ou plusieurs fichiers `.bookmarks`, par exemple *personnel.bookmarks* et *professionnel.bookmarks*
-	- l'application est accessible via le menu général `Ouvrir le gestionnaire de favoris` ou l'action `Ouvrir dans le gestionnaire de favoris` de ces fichiers
+	- l'application est accessible via le menu général `Ouvrir l'application Favoris` ou l'action `Ouvrir dans l'application Favoris` de ces fichiers
 - Applications
 	- l'extension `.application` est utilisée comme marqueur pour des applications HTML/CSS/JS que l'on peut lancer en utilisant l'action `Lancer cette application`
 	- [une application fonctionnelle](./doc/template.application.png) est disponible dans `doc/template.application`. Elle permet de générer des squelettes d'application personnalisables

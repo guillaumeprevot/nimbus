@@ -80,9 +80,9 @@ NIMBUS.lang = {
 
 	MainToolbarTitle: "Menu",
 	MainToolbarNewWindow: "Open new window",
-	MainToolbarOpenCalendar: "Open Calendar",
-	MainToolbarOpenContacts: "Open Contacts",
-	MainToolbarOpenBookmarks: "Open Bookmark manager",
+	MainToolbarOpenCalendar: "Open Calendar application",
+	MainToolbarOpenContacts: "Open Contacts application",
+	MainToolbarOpenBookmarks: "Open Bookmarks application",
 	MainToolbarOpenAudioPlayer: "Open Audio player",
 	MainToolbarAddFolder: "Create a new folder",
 	MainToolbarTouchFile: "Create a new file",

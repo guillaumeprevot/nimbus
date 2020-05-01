@@ -151,9 +151,7 @@ public class Extensions extends Controller {
 	public static final Route calendar = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "calendar.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null));
 	};
 
 	/**
@@ -164,9 +162,7 @@ public class Extensions extends Controller {
 	public static final Route contacts = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "contacts.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null));
 	};
 
 	/**
@@ -177,9 +173,7 @@ public class Extensions extends Controller {
 	public static final Route bookmarks = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "bookmarks.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", SparkUtils.queryParamLong(request, "itemId", null));
 	};
 
 }
