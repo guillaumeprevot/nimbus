@@ -69,6 +69,7 @@ NIMBUS.init(['text.js'], function() {
 		var lineSeparator = NIMBUS.utils.textAPI.getLineSeparator(content),
 			textarea = $('textarea').text(content),
 			saveButton = $('#saveButton'),
+			saveMessage = null,
 			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
 
 		$('title').text(filename);
@@ -104,11 +105,14 @@ NIMBUS.init(['text.js'], function() {
 
 		saveButton.on('click', function() {
 			var text = NIMBUS.utils.textAPI.fixLineSeparator(textarea.val(), lineSeparator);
+			if (saveMessage !== null) {
+				saveMessage.remove();
+				saveMessage = null;
+			}
 			NIMBUS.utils.updateFileText(itemId, text).then(function() {
 				saveButton.addClass('nimbus-hidden');
-				textarea.removeClass('border border-danger')
 			}, function() {
-				textarea.addClass('border border-danger');
+				saveMessage = NIMBUS.message(NIMBUS.translate('CommonSaveFileError', filename), true);
 			})
 		});
 

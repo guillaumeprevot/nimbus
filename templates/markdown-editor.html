@@ -121,10 +121,10 @@ function markdownToHtml(text) {
 	renderer.table = function(header, body) {
 		var h = header ? '<thead>' + header + '</thead>' : '';
 		var b = body ? '<tbody>' + body + '</tbody>' : '';
-		return '<table class="table table-sm table-responsive">' + h + b + '</table>';
+		return '<table class="table table-bordered table-hover table-sm" style="width: auto; max-width: 100%; ">' + h + b + '</table>';
 	};
 	renderer.blockquote = function(text) {
-		return '<blockquote class="border-left ml-4 pl-2 border-dark">' + text + '</blockquote>';
+		return '<blockquote class="ml-4 pl-2" style="border-left: 3px solid var(--secondary); ">' + text + '</blockquote>';
 	};
 	renderer.code = function(code, language, escaped) {
 		<#if highlighter == "prism">
@@ -181,6 +181,7 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 			textarea = $('textarea').text(content),
 			preview = $('#preview'),
 			saveButton = $('#saveButton'),
+			saveMessage = null,
 			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
 
 		$('title').text(filename);
@@ -266,11 +267,14 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 
 		saveButton.on('click', function() {
 			var text = NIMBUS.utils.textAPI.fixLineSeparator(textarea.val(), lineSeparator);
+			if (saveMessage !== null) {
+				saveMessage.remove();
+				saveMessage = null;
+			}
 			NIMBUS.utils.updateFileText(itemId, text).then(function() {
 				saveButton.addClass('nimbus-hidden');
-				textarea.removeClass('border border-danger')
 			}, function() {
-				textarea.addClass('border border-danger');
+				saveMessage = NIMBUS.message(NIMBUS.translate('CommonSaveFileError', filename), true);
 			})
 		});
 

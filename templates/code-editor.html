@@ -183,6 +183,8 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 	}).then(function(content, textStatus, jqXHR) {
 		// Find the save button (would upload content to the server on click)
 		var saveButton = $('#saveButton');
+		// Message container if an error occured while trying to save
+		var saveMessage = null;
 		// Extract the text file name from HTTP response header
 		var filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
 		// Show filename as page title (=> in browser tab)
@@ -243,10 +245,14 @@ NIMBUS.init(['text.js', 'code.js'], function() {
 		// Implementing "save" command, invoked by default key maps on "Ctrl+S" or "Cmd+S".
 		CodeMirror.commands.save = function(cm) {
 			var text = cm.getValue(lineSeparator.replace('cr', '\r').replace('lf', '\n'));
+			if (saveMessage !== null) {
+				saveMessage.remove();
+				saveMessage = null;
+			}
 			NIMBUS.utils.updateFileText(itemId, text).then(function() {
-				saveButton.addClass('nimbus-hidden').removeClass('text-danger');
+				saveButton.addClass('nimbus-hidden');
 			}, function() {
-				saveButton.addClass('text-danger');
+				saveMessage = NIMBUS.message(NIMBUS.translate('CommonSaveFileError', filename), true);
 			});
 		};
 		saveButton.on('click', function() {

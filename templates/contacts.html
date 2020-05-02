@@ -120,7 +120,6 @@ table.table-sm td:first-child img { max-height: 32px; }
 			</table>
 		</div>
 	</main>
-	<div id="alert-container"></div>
 	<footer></footer>
 	<form>
 		<div id="actionsModal" class="modal fade">
@@ -579,14 +578,20 @@ NIMBUS.init(['contacts.js'], function() {
 
 		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
+		// Message d'erreur éventuel à la sauvegarde 
+		var saveMessage = null;
 		// Extraction de la fonction de sauvegarde pour pour l'appeler sans simuler un clic sur le bouton
 		var save = function() {
+			if (saveMessage !== null) {
+				saveMessage.remove();
+				saveMessage = null;
+			}
 			var promises = sources.filter((s) => s.modified).map((s) => s.save());
 			Promise.all(promises).then(() => {
 					sources.forEach((s) => delete s.modified);
 					saveButton.addClass('nimbus-hidden');
 				}, () => {
-					NIMBUS.message(NIMBUS.translate('ContactsSaveError'), true);
+					saveMessage = NIMBUS.message(NIMBUS.translate('CommonSaveGenericError'), true);
 					saveButton.removeClass('nimbus-hidden');
 				});
 		};

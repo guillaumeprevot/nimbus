@@ -254,6 +254,8 @@ NIMBUS.lang = {
 	CommonPromptDefaultPlaceholder: "",
 	CommonPromptValidateButton: "Valider",
 	CommonPromptCancelButton: "Annuler",
+	CommonSaveFileError: "Une erreur est survenue pendant l'enregistrement de {0}. Veuillez vérifier que le serveur est accessible et réessayer.",
+	CommonSaveGenericError: "Une erreur est survenue pendant la sauvegarde. Veuillez vérifier que le serveur est accessible et réessayer.",
 
 	ActionNavigate: "Ouvrir",
 	ActionNavigateTab: "Ouvrir dans un nouvel onglet",

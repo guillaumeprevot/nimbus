@@ -113,7 +113,6 @@ header .float-right { min-width: 110px; }
 		</div>
 		<div id="weeks"></div>
 	</main>
-	<div id="alert-container"></div>
 	<footer></footer>
 	<form>
 		<div id="eventTypeModal" class="modal fade">
@@ -961,14 +960,20 @@ NIMBUS.init(['calendar.js'], function() {
 	}).then(function(calendar) {
 		// Gestion du bouton de sauvegarde
 		var saveButton = $('#saveButton');
+		// Message d'erreur éventuel à la sauvegarde 
+		var saveMessage = null;
 		// Extraction de la fonction de sauvegarde pour pour l'appeler sans simuler un clic sur le bouton
 		var save = function() {
+			if (saveMessage !== null) {
+				saveMessage.remove();
+				saveMessage = null;
+			}
 			var promises = calendar.sources.filter((s) => s.modified).map((s) => s.save());
 			Promise.all(promises).then(() => {
 					calendar.sources.forEach((s) => delete s.modified);
 					saveButton.addClass('nimbus-hidden');
 				}, () => {
-					NIMBUS.message(NIMBUS.translate('CalendarSaveError'), true);
+					saveMessage = NIMBUS.message(NIMBUS.translate('CommonSaveGenericError'), true);
 					saveButton.removeClass('nimbus-hidden');
 				});
 		};

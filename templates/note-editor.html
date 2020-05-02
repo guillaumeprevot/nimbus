@@ -224,6 +224,7 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 	}).then(function(content, textStatus, jqXHR) {
 		var editor = $('#editor'),
 			saveButton = $('#saveButton'),
+			saveMessage = null,
 			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
 
 		$('title').text(filename);
@@ -235,12 +236,15 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 
 		saveButton.on('click', function() {
 			var text = editor.html();
+			if (saveMessage !== null) {
+				saveMessage.remove();
+				saveMessage = null;
+			}
 			NIMBUS.utils.updateFileText(itemId, text).then(function() {
 				saveButton.addClass('nimbus-hidden');
-				editor.removeClass('border border-danger')
 				updateToolbar();
 			}, function() {
-				editor.addClass('border border-danger');
+				saveMessage = NIMBUS.message(NIMBUS.translate('CommonSaveFileError', filename), true);
 			});
 		});
 
@@ -351,6 +355,7 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 		promptButton($('#tableButton,#tableButton2'), 'insertHTML', 'NoteEditorInsertTablePrompt', '3x3', function(size) {
 			var rows = parseInt(size);
 			var cols = parseInt(size.substring(size.indexOf('x') + 1));
+			// Pas de thead>tr>th car mauvaise compatibilité entre Bootstrap et document.execCommand et pb en cas d'ajout de colonne 
 			return '<table class="table table-bordered table-hover table-sm" style="width: auto; max-width: 100%; ">'
 				+ ('<tr>' + '<td />'.repeat(cols) + '</tr>').repeat(rows)
 				+ '</table>'

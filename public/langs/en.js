@@ -254,6 +254,8 @@ NIMBUS.lang = {
 	CommonPromptDefaultPlaceholder: "",
 	CommonPromptValidateButton: "Validate",
 	CommonPromptCancelButton: "Cancel",
+	CommonSaveFileError: "An error occurred while trying to save {0}. Please check your network access and try again.",
+	CommonSaveGenericError: "An error occurred while trying to save changes. Please check your network access and try again.",
 
 	ActionNavigate: "Open",
 	ActionNavigateTab: "Open in a new tab",
