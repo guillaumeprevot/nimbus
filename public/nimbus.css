@@ -4,11 +4,8 @@
 .nimbus-hidden { display: none !important; }
 
 #search-group { width: auto; }
-#search-group .input-group-append { margin-left: 0; /* cancel bootswatch rule "margin-left:-1px" */}
 #search-group .btn { padding: 4px 6px; /* prevent material-icons from expanding the button */}
 #search-input { width: 170px; }
-#search-input:not(.active):not(:focus) { background-color: transparent; color: var(--light); }
-#search-options { border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem; /* fix border radius since dropdown-toggle class is not used */}
 #add-file-input { display: none; }
 #progress { display: none; }
 #progress > :first-child { flex: auto; }
