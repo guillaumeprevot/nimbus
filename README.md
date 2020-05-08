@@ -29,7 +29,7 @@ Le développement du projet s'organise selon 4 axes :
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
 [Spark](http://sparkjava.com/) | Java | [2.9.1](https://github.com/perwendel/spark/releases) | Apache 2.0 | Framework Java pour application web
-[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.3](https://www.mvnrepository.com/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
+[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.4](https://www.mvnrepository.com/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.6](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
 [FreeMarker](https://freemarker.apache.org/) | Java | [2.3.30](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.30](http://www.slf4j.org/download.html) | MIT | Gestion des logs
@@ -42,6 +42,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | [2.2.5](https://dl.bintray.com/ijabz/maven/net/jthink/jaudiotagger/) | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | [0.9.1](https://github.com/mpatric/mp3agic/releases) | MIT | Support des fichiers MP3
 [Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | [1.65](https://www.bouncycastle.org/latest_releases.html) | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
+[Jetty](https://www.eclipse.org/jetty/) | transitive | [9.4.28](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Dépendances de Spark à garder à jour
 [jQuery](http://api.jquery.com/) | JS | [3.5.0](https://jquery.com/download/) | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | [4.4.1](https://github.com/twbs/bootstrap/releases) | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | [4.4.1](https://github.com/thomaspark/bootswatch/releases) | MIT | Thèmes pour Bootstrap dont Flatly et Darkly

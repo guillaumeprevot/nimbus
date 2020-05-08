@@ -4,7 +4,7 @@
 	<groupId>fr.techgp.nimbus</groupId>
 	<artifactId>nimbus</artifactId>
 	<packaging>jar</packaging>
-	<version>1.6</version>
+	<version>1.7-SNAPSHOT</version>
 	<name>Nimbus</name>
 
 	<properties>
@@ -85,7 +85,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongodb-driver</artifactId>
-			<version>[3.12.3,)</version>
+			<version>[3.12.4,)</version>
 		</dependency>
 		<!--
 			https://pdfbox.apache.org/
@@ -150,6 +150,33 @@
 			<version>0.7</version>0.7.1 dispo mais pas par Maven
 		</dependency>
 		-->
+
+		<!-- Keep Jetty up-to-date -->
+
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server -->
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>[9.4.28.v20200408,10.0.0-alpha0)</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-webapp -->
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-webapp</artifactId>
+			<version>[9.4.28.v20200408,10.0.0-alpha0)</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-server -->
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>websocket-server</artifactId>
+			<version>[9.4.28.v20200408,10.0.0-alpha0)</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-servlet -->
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>websocket-servlet</artifactId>
+			<version>[9.4.28.v20200408,10.0.0-alpha0)</version>
+		</dependency>
 
 		<dependency>
 			<groupId>fr.techgp.deps</groupId>
