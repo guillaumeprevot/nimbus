@@ -144,6 +144,15 @@
 			<version>[2.6,)</version>
 		</dependency>
 		<!--
+			https://commons.apache.org/proper/commons-lang/
+			https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+		-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>[3.10,)</version>
+		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.jclarion</groupId>
 			<artifactId>image4j</artifactId>

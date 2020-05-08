@@ -44,7 +44,14 @@ public class Controller {
 
 		Spark.redirect.get("/", "/nav");
 
-		Spark.before("/*", new StaticFiles(configuration, "public"));
+		// Spark.before("/*", new StaticFiles(configuration, "public"));
+		Spark.get("/favicon.ico", StaticFiles.publicFolder);
+		Spark.get("/favicon.png", StaticFiles.publicFolder);
+		Spark.get("/nimbus.css", StaticFiles.publicFolder);
+		Spark.get("/nimbus.js", StaticFiles.publicFolder);
+		Spark.get("/langs/*", StaticFiles.publicFolder);
+		Spark.get("/libs/*", StaticFiles.publicFolder);
+		Spark.get("/plugins/*", StaticFiles.publicFolder);
 
 		Spark.before("/nav", Filters.filterAuthenticatedOrRedirect);
 		Spark.before("/nav/*", Filters.filterAuthenticatedOrRedirect);

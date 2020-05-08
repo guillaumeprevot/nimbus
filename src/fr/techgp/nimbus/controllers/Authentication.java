@@ -74,8 +74,7 @@ public class Authentication extends Controller {
 		File file = new File(configuration.getStorageFolder(), background);
 		if (!file.exists())
 			return SparkUtils.haltNotFound();
-		StaticFiles.cacheable(request, response, configuration, file);
-		return null;
+		return StaticFiles.sendCacheable(request.raw(), response.raw(), file);
 	};
 
 	private static final String renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {

@@ -31,6 +31,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Spark](http://sparkjava.com/) | Java | [2.9.1](https://github.com/perwendel/spark/releases) | Apache 2.0 | Framework Java pour application web
 [MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.4](https://www.mvnrepository.com/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.6](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
+[Commons Lang](https://commons.apache.org/proper/commons-lang/) | Java | [3.10](https://commons.apache.org/proper/commons-lang/download_lang.cgi) | Apache 2.0 | Utilitaire
 [FreeMarker](https://freemarker.apache.org/) | Java | [2.3.30](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.30](http://www.slf4j.org/download.html) | MIT | Gestion des logs
 [Gson](https://github.com/google/gson) | Java | [2.8.6](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
