@@ -26,10 +26,10 @@ import com.google.gson.JsonPrimitive;
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
-import spark.Route;
 
 public class Items extends Controller {
 

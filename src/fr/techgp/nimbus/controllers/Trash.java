@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
-import spark.Route;
-import spark.utils.StringUtils;
+import fr.techgp.nimbus.utils.StringUtils;
 
 public class Trash extends Controller {
 

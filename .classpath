@@ -28,8 +28,6 @@
 	<classpathentry kind="lib" path="lib/pdfbox-2.0.19.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.30.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.30.jar"/>
-	<classpathentry kind="lib" path="lib/spark-core-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/spark-template-freemarker-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-api-9.4.28.v20200408.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-client-9.4.28.v20200408.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-common-9.4.28.v20200408.jar"/>

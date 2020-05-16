@@ -21,9 +21,9 @@ import org.apache.commons.io.IOUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import spark.Request;
-import spark.Response;
-import spark.Spark;
+import fr.techgp.nimbus.server.Spark;
+import fr.techgp.nimbus.server.Request;
+import fr.techgp.nimbus.server.Response;
 
 public final class SparkUtils {
 

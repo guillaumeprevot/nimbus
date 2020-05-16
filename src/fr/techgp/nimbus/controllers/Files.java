@@ -28,12 +28,12 @@ import com.google.gson.JsonArray;
 import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Request;
+import fr.techgp.nimbus.server.Response;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.ImageUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import spark.Request;
-import spark.Response;
-import spark.Route;
 
 public class Files extends Controller {
 
@@ -191,7 +191,7 @@ public class Files extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
-		String path = request.splat()[0];
+		String path = request.pathInfo().substring("/files/browse/".length());
 		if (StringUtils.isBlank(path))
 			return SparkUtils.haltBadRequest();
 		try {
@@ -227,11 +227,12 @@ public class Files extends Controller {
 			}
 			url.append(item.name);
 			try {
+				// TODO : est-ce encvore utile maintenant que response.redirect appelle "encodeRedirectURL"
 				response.redirect(new URI(null, null, url.toString(), null, null).toASCIIString());
 			} catch (URISyntaxException ex) {
 				ex.printStackTrace();
 			}
-			return null;
+			return "";
 		});
 	};
 

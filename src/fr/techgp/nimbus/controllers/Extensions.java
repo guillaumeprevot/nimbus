@@ -1,7 +1,7 @@
 package fr.techgp.nimbus.controllers;
 
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
-import spark.Route;
 
 public class Extensions extends Controller {
 

@@ -2,12 +2,12 @@ package fr.techgp.nimbus;
 
 import java.util.Scanner;
 
+import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.techgp.nimbus.controllers.Controller;
 import fr.techgp.nimbus.models.Mongo;
-import spark.Spark;
 
 public class Application {
 
@@ -43,25 +43,14 @@ public class Application {
 			// Prepare MongoDB
 			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
 
-			// Replaced by the custom StaticFiles filter to deal with cache
-			// Spark.externalStaticFileLocation("public");
-
-			// Prepare server
-			if (configuration.getServerKeystore() != null)
-				Spark.secure(configuration.getServerKeystore(), configuration.getServerKeystorePassword(), null, null);
-			Spark.port(configuration.getServerPort());
+			// Prepare FreeMarker
+			FreeMarker.init(dev);
 
 			// Configure routes
 			Controller.init(logger, configuration, dev);
 
-			// Enable GZIP for all responses
-			/*
-			Spark.after("*", (request, response) -> {
-				String accceptEncoding = request.headers("Accept-Encoding");
-				if (accceptEncoding != null && accceptEncoding.startsWith("gzip,"))
-					response.header("Content-Encoding", "gzip");
-			});
-			*/
+			// Prepare Jetty
+			Server server = Jetty.init(configuration.getServerPort(), configuration.getServerKeystore(), configuration.getServerKeystorePassword());
 
 			// Launch URL
 			/*
@@ -87,7 +76,7 @@ public class Application {
 					String command = scanner.next();
 					if (configuration.getServerStopCommand().equals(command)) {
 						logger.info("Arrêt de l'application");
-						Spark.stop();
+						server.stop();
 						logger.info("Application arrêtée");
 						break;
 					}

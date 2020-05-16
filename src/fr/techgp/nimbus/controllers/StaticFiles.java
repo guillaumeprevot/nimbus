@@ -16,9 +16,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.eclipse.jetty.io.EofException;
 
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
-import spark.Route;
 
 /** Ce controlleur remplace la gestion des fichiers statiques par Spark afin de gérer la mise en cache par Etag / Last-Modified / If-None-Match / If-Modified-Since */
 public class StaticFiles extends Controller {

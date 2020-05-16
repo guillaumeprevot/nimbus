@@ -3,10 +3,10 @@ package fr.techgp.nimbus.controllers;
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import spark.Route;
 
 public class Users extends Controller {
 

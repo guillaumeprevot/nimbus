@@ -10,12 +10,12 @@ import java.util.Date;
 import com.google.gson.JsonArray;
 
 import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.server.HaltException;
+import fr.techgp.nimbus.server.Response;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
-import spark.HaltException;
-import spark.Response;
-import spark.Route;
 
 public class Downloads extends Controller {
 
@@ -126,9 +126,9 @@ public class Downloads extends Controller {
 
 			// Renvoyer l'id (surtout pour "add" mais pas utile pour "refresh")
 			return item.id.toString();
+		} catch (HaltException ex) {
+			throw ex;
 		} catch (Exception ex) {
-			if (ex instanceof HaltException)
-				throw (HaltException) ex;
 			ex.printStackTrace();
 			return SparkUtils.haltInternalServerError();
 		}

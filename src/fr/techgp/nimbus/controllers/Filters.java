@@ -3,12 +3,12 @@ package fr.techgp.nimbus.controllers;
 import java.util.Base64;
 
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Filter;
+import fr.techgp.nimbus.server.Request;
+import fr.techgp.nimbus.server.Response;
+import fr.techgp.nimbus.server.Spark;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import spark.Filter;
-import spark.Request;
-import spark.Response;
-import spark.Spark;
 
 public class Filters extends Controller {
 

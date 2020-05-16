@@ -1,0 +1,158 @@
+package fr.techgp.nimbus.server;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.zip.GZIPOutputStream;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
+
+public class Router {
+
+	private static final Router INSTANCE = new Router();
+
+	public static final Router getInstance() {
+		return INSTANCE;
+	}
+
+	public static final String NOT_FOUND = "<html><body><h2>404 Not found</h2></body></html>";
+	public static final String INTERNAL_SERVER_ERROR = "<html><body><h2>500 Internal Server Error</h2></body></html>";
+
+	private List<BeforeEntry> befores = new ArrayList<>();
+	private List<RouteEntry> routes = new ArrayList<>();
+	private List<AfterEntry> afters = new ArrayList<>();
+
+	public void process(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Request req = new Request(request, false);
+		Response res = new Response(response);
+		Object body = null;
+		try {
+			for (BeforeEntry e : this.befores) {
+				if (e.matcher.matches(req)) {
+					e.filter.handle(req, res);
+				}
+			}
+			for (RouteEntry e : this.routes) {
+				if (e.matcher.matches(req)) {
+					body = e.route.handle(req, res);
+					if (body != null)
+						break;
+				}
+			}
+			for (AfterEntry e : this.afters) {
+				if (e.matcher.matches(req)) {
+					e.filter.handle(req, res);
+				}
+			}
+
+		} catch (HaltException ex) {
+			if (ex.getCode() != -1)
+				res.status(ex.getCode());
+			body = res.body() != null ? ex.getBody() : "";
+
+		} catch (Exception ex) {
+			res.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			body = INTERNAL_SERVER_ERROR;
+		}
+
+		// No body but was redirected => OK
+		if (res.status() == HttpServletResponse.SC_FOUND && body == null)
+			body = "";
+
+		// No match
+		if (body == null) {
+			res.status(HttpServletResponse.SC_NOT_FOUND);
+			body = NOT_FOUND;
+		}
+
+		if (!response.isCommitted()) {
+			if (response.getContentType() == null)
+				response.setContentType("text/html; charset=utf-8");
+			// Check if GZIP is wanted/accepted and in that case handle that
+			try (OutputStream os = checkAndWrap(request, response, true)) {
+				if (body instanceof byte[])
+					os.write((byte[]) body);
+				else if (body instanceof ByteBuffer)
+					os.write(((ByteBuffer) body).array());
+				else if (body instanceof InputStream)
+					IOUtils.copy((InputStream) body, os, 1024 * 1024);
+				else
+					os.write(body.toString().getBytes(StandardCharsets.UTF_8));
+				os.flush();
+			}
+		}
+	}
+
+	public Router before(String path, Filter filter) {
+		return before(Matcher.Path.of(path), filter);
+	}
+
+	public Router before(Matcher matcher, Filter filter) {
+		BeforeEntry e = new BeforeEntry();
+		e.matcher = matcher;
+		e.filter = filter;
+		this.befores.add(e);
+		return this;
+	}
+
+	public Router route(String path, Route route) {
+		return route(Matcher.Path.of(path), route);
+	}
+
+	public Router route(Matcher matcher, Route route) {
+		RouteEntry e = new RouteEntry();
+		e.matcher = matcher;
+		e.route = route;
+		this.routes.add(e);
+		return this;
+	}
+
+	public Router after(String path, Filter filter) {
+		return after(Matcher.Path.of(path), filter);
+	}
+
+	public Router after(Matcher matcher, Filter filter) {
+		AfterEntry e = new AfterEntry();
+		e.matcher = matcher;
+		e.filter = filter;
+		this.afters.add(e);
+		return this;
+	}
+
+	private static OutputStream checkAndWrap(HttpServletRequest req, HttpServletResponse res, boolean requireWantsHeader) throws IOException {
+		OutputStream responseStream = res.getOutputStream();
+		// GZIP Support handled here. First we must ensure that we want to use gzip, and that the client supports gzip
+		boolean acceptsGzip = Collections.list(req.getHeaders("Accept-Encoding")).stream().anyMatch(h -> h != null && h.contains("gzip"));
+		boolean wantGzip = res.getHeaders("Content-Encoding").contains("gzip");
+		if (acceptsGzip && (wantGzip || !requireWantsHeader)) {
+			responseStream = new GZIPOutputStream(responseStream, true);
+			if (!wantGzip)
+				res.setHeader("Content-Encoding", "gzip");
+		}
+		return responseStream;
+	}
+
+	private static final class BeforeEntry {
+		public Matcher matcher;
+		public Filter filter;
+	}
+
+	private static final class RouteEntry {
+		public Matcher matcher;
+		public Route route;
+	}
+
+	private static final class AfterEntry {
+		public Matcher matcher;
+		public Filter filter;
+	}
+
+}

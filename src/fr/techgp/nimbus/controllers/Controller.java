@@ -17,32 +17,26 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
 import fr.techgp.nimbus.Configuration;
+import fr.techgp.nimbus.FreeMarker;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Request;
+import fr.techgp.nimbus.server.Spark;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import freemarker.template.TemplateExceptionHandler;
-import freemarker.template.TemplateModelException;
-import spark.ModelAndView;
-import spark.Request;
-import spark.Spark;
-import spark.TemplateEngine;
-import spark.template.freemarker.FreeMarkerEngine;
 
 public class Controller {
 
 	protected static Logger logger = null;
 	protected static Configuration configuration;
-	protected static TemplateEngine templateEngine;
 
 	public static final void init(Logger logger, Configuration configuration, boolean dev) {
 		Controller.logger = logger;
 		Controller.configuration = configuration;
-		Controller.templateEngine = prepareTemplateEngine(dev);
 
-		Spark.redirect.get("/", "/nav");
+		Spark.redirect("/", "/nav");
 
 		// Spark.before("/*", new StaticFiles(configuration, "public"));
 		Spark.get("/favicon.ico", StaticFiles.publicFolder);
@@ -57,10 +51,10 @@ public class Controller {
 		Spark.before("/nav/*", Filters.filterAuthenticatedOrRedirect);
 		Spark.get("/nav", (request, response) -> nav(request));
 		Spark.get("/nav/*", (request, response) -> {
-			String[] splat = request.splat();
-			if (splat.length == 0) // "/nav/"
+			String splat = request.pathInfo().substring("/nav/".length());
+			if (splat.length() == 0) // "/nav/"
 				return nav(request);
-			String[] path = splat[0].split("/");
+			String[] path = splat.split("/");
 			return actionOnSingleItem(request, path[path.length - 1], (item) -> {
 				if (item.folder)
 					return nav(request);
@@ -187,35 +181,6 @@ public class Controller {
 	}
 
 	/**
-	 * Cette méthode prépare le moteur de rendu des vues en utilisant FreeMarker.
-	 *
-	 * @param dev indique si on active les fonctions utiles pendant le DEV mais à désactiver en PROD.
-	 * @return retourne le TemplateEngine utilisant FreeMarker
-	 */
-	private static final TemplateEngine prepareTemplateEngine(boolean dev) {
-		try {
-			// https://freemarker.apache.org/docs/pgui_quickstart_createconfiguration.html
-			freemarker.template.Version version = freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS;
-			freemarker.template.Configuration configuration = new freemarker.template.Configuration(version);
-			configuration.setDirectoryForTemplateLoading(new File("templates"));
-			configuration.setDefaultEncoding("UTF-8");
-			if (dev) {
-				configuration.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-				configuration.setTemplateUpdateDelayMilliseconds(500);
-			} else {
-				configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-			}
-			configuration.setNumberFormat("###0.##");
-			configuration.setLogTemplateExceptions(false);
-			configuration.setWrapUncheckedExceptions(true);
-			configuration.setSharedVariable("appName", "Nimbus");
-			return new FreeMarkerEngine(configuration);
-		} catch (TemplateModelException | IOException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	/**
 	 * Cette méthode génère un template FreeMarker avec les paramètres indiqués
 	 *
 	 * @param name le nom du template à générer
@@ -233,7 +198,8 @@ public class Controller {
 		for (int i = 0; i < paramAndValues.length; i += 2) {
 			attributes.put((String) paramAndValues[i], paramAndValues[i + 1]);
 		}
-		return Controller.templateEngine.render(new ModelAndView(attributes, name));
+
+		return FreeMarker.render(name, attributes);
 	}
 
 	/**

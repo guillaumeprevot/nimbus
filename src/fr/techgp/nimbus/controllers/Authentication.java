@@ -3,10 +3,10 @@ package fr.techgp.nimbus.controllers;
 import java.io.File;
 
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Request;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import spark.Request;
-import spark.Route;
 
 public class Authentication extends Controller {
 

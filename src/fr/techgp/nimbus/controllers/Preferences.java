@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.Optional;
 
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
-import spark.Route;
 
 public class Preferences extends Controller {
 
