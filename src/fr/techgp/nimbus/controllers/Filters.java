@@ -30,12 +30,12 @@ public class Filters extends Controller {
 	};
 
 	private static final void redirect(Request request, Response response) {
-		String q = request.queryString();
+		String q = request.query();
 		if (StringUtils.isNotBlank(q))
 			q = "?" + q;
 		else
 			q = "";
-		request.session().attribute("urlToLoad", request.pathInfo() + q);
+		request.session().attribute("urlToLoad", request.path() + q);
 		response.redirect("/login.html");
 		Spark.halt();
 	}
@@ -70,7 +70,7 @@ public class Filters extends Controller {
 		String login = request.session().attribute("userLogin");
 		if (login == null && allowBasicAuthentication) {
 			// L'utilisateur n'est pas connecté mais envoie-t-il ses identifiants ?
-			String authorization = request.headers("Authorization");
+			String authorization = request.header("Authorization");
 			if (authorization != null && authorization.startsWith("Basic")) {
 				// On décode
 				String base64Credentials = authorization.substring("Basic".length()).trim();

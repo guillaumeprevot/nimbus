@@ -80,14 +80,14 @@ public class Items extends Controller {
 		// Extraire la requête
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		boolean recursive = SparkUtils.queryParamBoolean(request, "recursive", false);
-		String sortBy = request.queryParams("sortBy");
+		String sortBy = request.queryParameter("sortBy");
 		boolean sortAscending = SparkUtils.queryParamBoolean(request, "sortAscending", false);
-		String searchBy = request.queryParams("searchBy");
+		String searchBy = request.queryParameter("searchBy");
 		String searchText = SparkUtils.queryParamString(request, "searchText", "").toLowerCase();
 		Boolean folders = SparkUtils.queryParamBoolean(request, "folders", null); // true/false/null
 		Boolean hidden = SparkUtils.queryParamBoolean(request, "hidden", null); // true/false/null
 		Boolean deleted = SparkUtils.queryParamBoolean(request, "deleted", null); // true/false/null
-		String extensions = request.queryParams("extensions");
+		String extensions = request.queryParameter("extensions");
 
 		// Vérifier l'accès à l'élément racine
 		if (parentId != null && !Item.hasItem(userLogin, parentId))
@@ -115,7 +115,7 @@ public class Items extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
-		String[] filenames = request.queryParamsValues("names[]");
+		String[] filenames = request.queryParameterValues("names[]");
 		// Vérifier si la racine demandée est accessible à l'utilisateur
 		if (parentId != null) {
 			Item parent = Item.findById(parentId);
@@ -133,7 +133,7 @@ public class Items extends Controller {
 	 * (itemId) => JSON
 	 */
 	public static final Route info = (request, response) -> {
-		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
+		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			// Retourner l'élément en JSON
 			return SparkUtils.renderJSON(response, asJSON(item));
 		});
@@ -146,7 +146,7 @@ public class Items extends Controller {
 	 */
 	public static final Route infos = (request, response) -> {
 		// Extraire la requête
-		String itemIds = request.queryParams("itemIds");
+		String itemIds = request.queryParameter("itemIds");
 		// Préparer le résultat
 		JsonArray results = new JsonArray();
 		// Parcourir chaque élément
@@ -185,7 +185,7 @@ public class Items extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
-		String name = request.queryParams("name");
+		String name = request.queryParameter("name");
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
@@ -211,12 +211,12 @@ public class Items extends Controller {
 	 */
 	public static final Route duplicate = (request, response) -> {
 		// Vérifier qu'un nom ou un couple de pattern est proposé
-		String newName = request.queryParams("name");
-		String firstPattern = request.queryParams("firstPattern");
-		String nextPattern = request.queryParams("nextPattern");
+		String newName = request.queryParameter("name");
+		String firstPattern = request.queryParameter("firstPattern");
+		String nextPattern = request.queryParameter("nextPattern");
 		if (StringUtils.isBlank(newName) && (StringUtils.isBlank(firstPattern) || StringUtils.isBlank(nextPattern)))
 			return SparkUtils.haltBadRequest();
-		return actionOnSingleItem(request, request.queryParams("itemId"), (source) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (source) -> {
 			// Vérifier que le nom proposé pour la copie est correct
 			if (StringUtils.isNotBlank(newName) && Item.hasItemWithName(source.userLogin, source.parentId, newName))
 				return SparkUtils.haltConflict();
@@ -252,11 +252,11 @@ public class Items extends Controller {
 	 * (itemId, name, tags, iconURL) =>
 	 */
 	public static final Route rename = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Extraire la requête
-			String name = request.queryParams("name");
-			String tags = request.queryParams("tags");
-			String iconURL = request.queryParams("iconURL");
+			String name = request.queryParameter("name");
+			String tags = request.queryParameter("tags");
+			String iconURL = request.queryParameter("iconURL");
 			// Vérifier que le nom choisi pour la copie est correct
 			Item existing = Item.findItemWithName(item.userLogin, item.parentId, name);
 			if (existing != null && !existing.id.equals(item.id))
@@ -294,7 +294,7 @@ public class Items extends Controller {
 	 * (itemId, hidden) =>
 	 */
 	public static final Route hide = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Extraire la requête
 			boolean hidden = SparkUtils.queryParamBoolean(request, "hidden", true);
 			// On met à jour l'élément
@@ -316,7 +316,7 @@ public class Items extends Controller {
 	 * (itemId) => ""
 	 */
 	public static final Route refresh = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			if (!item.folder) {
 				// On recalcule et on sauvegarde les méta-données
 				updateFile(item, null, true);
@@ -369,9 +369,9 @@ public class Items extends Controller {
 	 * (itemId, metadata[]) => ""
 	 */
 	public static final Route metadata = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Extraire la requête
-			String json = request.queryParams("metadata");
+			String json = request.queryParameter("metadata");
 			JsonElement element = JsonParser.parseString(json);
 			if (!element.isJsonArray())
 				return SparkUtils.haltBadRequest();
@@ -439,7 +439,7 @@ public class Items extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
-		String itemIds = request.queryParams("itemIds");
+		String itemIds = request.queryParameter("itemIds");
 		String conflict = SparkUtils.queryParamString(request, "conflict", "skip");
 		String firstConflictPattern = SparkUtils.queryParamString(request, "firstConflictPattern", "Conflict of {0}");
 		String nextConflictPattern = SparkUtils.queryParamString(request, "nextConflictPattern", "Conflict ({1}) of {0}");
@@ -565,7 +565,7 @@ public class Items extends Controller {
 		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
 			zos.setLevel(Deflater.DEFAULT_COMPRESSION);
 			// Extraire la requête
-			String itemIds = request.queryParams("itemIds");
+			String itemIds = request.queryParameter("itemIds");
 			// Parcourir chaque élément
 			actionOnMultipleItems(request, itemIds, (item) -> {
 				// ... pour l'ajouter au zip définitivement

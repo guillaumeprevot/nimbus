@@ -17,7 +17,7 @@ public class Shares extends Controller {
 	 * (itemId, duration) => sharedPassword
 	 */
 	public static final Route add = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Extraire la requête
 			Integer duration = SparkUtils.queryParamInteger(request, "duration", null);
 			// Créer un partage avec un mot de passe aléatoire
@@ -41,7 +41,7 @@ public class Shares extends Controller {
 	 * (itemId) => ""
 	 */
 	public static final Route delete = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			if (StringUtils.isBlank(item.sharedPassword))
 				return SparkUtils.haltBadRequest();
 			// Supprimer le partage
@@ -65,8 +65,8 @@ public class Shares extends Controller {
 	 */
 	public static final Route get = (request, response) -> {
 		// Extraire et vérifier la requête
-		Long itemId = Long.valueOf(request.params(":itemId"));
-		String password = request.queryParams("password");
+		Long itemId = Long.valueOf(request.pathParameter(":itemId"));
+		String password = request.queryParameter("password");
 		if (itemId == null || StringUtils.isBlank(password))
 			return SparkUtils.haltBadRequest();
 		// Rechercher l'élément et en vérifier l'accès

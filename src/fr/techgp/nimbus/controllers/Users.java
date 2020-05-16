@@ -18,7 +18,7 @@ public class Users extends Controller {
 	 */
 	public static final Route page = (request, response) -> {
 		return renderTemplate(request, "users.html",
-				"fromUrl", request.headers("Referer"));
+				"fromUrl", request.header("Referer"));
 	};
 
 	/**
@@ -44,7 +44,7 @@ public class Users extends Controller {
 	 */
 	public static final Route insert = (request, response) -> {
 		// Récupérer le login de l'utilisateur à modifier
-		String login = request.params(":login");
+		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
 			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
@@ -52,14 +52,14 @@ public class Users extends Controller {
 		if (user != null)
 			return SparkUtils.haltConflict();
 		// Récupérer le mot de passe
-		String password = request.queryParams("password");
+		String password = request.queryParameter("password");
 		if (StringUtils.isBlank(password))
 			return SparkUtils.haltBadRequest();
 		// Récupérer le formulaire
 		user = new User();
 		user.login = login;
 		user.password = CryptoUtils.hashPassword(password);
-		user.name = request.queryParams("name");
+		user.name = request.queryParameter("name");
 		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
 		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
 		User.insert(user);
@@ -77,7 +77,7 @@ public class Users extends Controller {
 	 */
 	public static final Route update = (request, response) -> {
 		// Récupérer le login de l'utilisateur à modifier
-		String login = request.params(":login");
+		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
 			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
@@ -85,10 +85,10 @@ public class Users extends Controller {
 		if (user == null)
 			return SparkUtils.haltNotFound();
 		// Appliquer le formulaire
-		String password = request.queryParams("password");
+		String password = request.queryParameter("password");
 		if (StringUtils.isNotBlank(password))
 			user.password = CryptoUtils.hashPassword(password);
-		user.name = request.queryParams("name");
+		user.name = request.queryParameter("name");
 		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
 		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
 		User.update(user);
@@ -105,7 +105,7 @@ public class Users extends Controller {
 	 */
 	public static final Route delete = (request, response) -> {
 		// Récupérer le login de l'utilisateur à supprimer
-		String login = request.params(":login");
+		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
 			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur

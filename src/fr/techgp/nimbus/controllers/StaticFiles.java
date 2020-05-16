@@ -26,7 +26,7 @@ public class StaticFiles extends Controller {
 	private static final FastDateFormat CACHE_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
 
 	public static final Route publicFolder = (request, response) -> {
-		String path = request.pathInfo();
+		String path = request.path();
 		if (path.contains(".."))
 			return SparkUtils.haltForbidden();
 		File file = new File("public", path);

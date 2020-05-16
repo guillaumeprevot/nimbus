@@ -46,7 +46,7 @@ public class Downloads extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
-		String url = request.queryParams("url");
+		String url = request.queryParameter("url");
 		String name = SparkUtils.queryParamString(request, "name", url.substring(url.lastIndexOf('/') + 1));
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
@@ -70,7 +70,7 @@ public class Downloads extends Controller {
 	 * @see Downloads#execute(Item, Response)
 	 */
 	public static final Route refresh = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Vérifier que le fichier en question a bien une URL à l'origine
 			String url = item.content.getString("sourceURL");
 			if (StringUtils.isBlank(url))
@@ -89,7 +89,7 @@ public class Downloads extends Controller {
 	 * @see Item#update(Item)
 	 */
 	public static final Route done = (request, response) -> {
-		return actionOnSingleItem(request, request.queryParams("itemId"), (item) -> {
+		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			item.content.remove("status");
 			item.content.remove("progress");
 			item.updateDate = new Date();

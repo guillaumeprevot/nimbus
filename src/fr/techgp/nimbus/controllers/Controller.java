@@ -51,7 +51,7 @@ public class Controller {
 		Spark.before("/nav/*", Filters.filterAuthenticatedOrRedirect);
 		Spark.get("/nav", (request, response) -> nav(request));
 		Spark.get("/nav/*", (request, response) -> {
-			String splat = request.pathInfo().substring("/nav/".length());
+			String splat = request.path().substring("/nav/".length());
 			if (splat.length() == 0) // "/nav/"
 				return nav(request);
 			String[] path = splat.split("/");
@@ -59,7 +59,7 @@ public class Controller {
 				if (item.folder)
 					return nav(request);
 				response.redirect("/files/stream/" + item.id);
-				return null;
+				return "";
 			});
 		});
 

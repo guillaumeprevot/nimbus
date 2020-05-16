@@ -36,10 +36,10 @@ public class Authentication extends Controller {
 	 * @see login.html
 	 */
 	public static final Route login = (request, response) -> {
-		String login = request.queryParams("login");
-		String password = request.queryParams("password");
+		String login = request.queryParameter("login");
+		String password = request.queryParameter("password");
 		String error = authenticate(login, password);
-		String urlToLoad = StringUtils.withDefault(request.queryParams("urlToLoad"), "/");
+		String urlToLoad = StringUtils.withDefault(request.queryParameter("urlToLoad"), "/");
 		if (error != null) {
 			if (logger.isWarnEnabled())
 				logger.warn("Authentification échouée (" + login + " / " + request.ip() + ") : " + error);
@@ -47,7 +47,7 @@ public class Authentication extends Controller {
 		}
 		request.session().attribute("userLogin", login);
 		response.redirect(urlToLoad);
-		return null;
+		return "";
 	};
 
 	/**
@@ -59,7 +59,7 @@ public class Authentication extends Controller {
 		request.session().removeAttribute("userLogin");
 		request.session().attribute("logout", Boolean.TRUE);
 		response.redirect("/login.html");
-		return null;
+		return "";
 	};
 
 	/**
@@ -80,7 +80,7 @@ public class Authentication extends Controller {
 	private static final String renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {
 		return renderTemplate(request, "login.html",
 				"background", StringUtils.isNotBlank(configuration.getClientLoginBackground()),
-				"login", StringUtils.withDefault(request.queryParams("login"), ""),
+				"login", StringUtils.withDefault(request.queryParameter("login"), ""),
 				"urlToLoad", StringUtils.withDefault(urlToLoad, "/"),
 				"error", error,
 				"logout", logout,

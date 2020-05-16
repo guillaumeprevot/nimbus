@@ -60,14 +60,28 @@ public class Request {
 //		return this.request.getServletPath(); // /servlet
 //	}
 
-	public String pathInfo() {
-		// TODO à renommer en path
+	public String path() {
 		return this.request.getPathInfo(); // /item/info/2
 	}
 
-	public String queryString() {
-		// TODO à renommer en "query"
+	public String pathParameter(String name) {
+		return this.params.get(name); // :itemId => 2
+	}
+
+	public void pathParameter(String name, String value) {
+		this.params.put(name, value); // see Matcher.Path.params
+	}
+
+	public String query() {
 		return this.request.getQueryString(); // param1=value1&param2=value21&param2=value22
+	}
+
+	public String queryParameter(String name) {
+		return this.request.getParameter(name); // param1 => value1, param2 => value21
+	}
+
+	public String[] queryParameterValues(String name) {
+		return this.request.getParameterValues(name); // param1 => [value1], param2 => [value21, value22]
 	}
 
 	public String uri() {
@@ -98,33 +112,12 @@ public class Request {
 //		return this.request.getHeader("User-Agent");
 //	}
 
-//	public String referrer() {
-//		return this.request.getHeader("Referrer");
+//	public String referer() {
+//		return this.request.getHeader("Referer");
 //	}
 
-	public String headers(String name) {
-		// TODO à renommer en "header"
+	public String header(String name) {
 		return this.request.getHeader(name);
-	}
-
-	public String params(String name) {
-		// TODO à refactoriser en "attribute"
-		return this.params.get(name);
-	}
-
-	public void params(String name, String value) {
-		// TODO à refactoriser en "attribute"
-		this.params.put(name, value);
-	}
-
-	public String queryParams(String name) {
-		// TODO à renommer en "queryParameter"
-		return this.request.getParameter(name);
-	}
-
-	public String[] queryParamsValues(String name) {
-		// TODO à renommer en "queryParameterValues"
-		return this.request.getParameterValues(name);
 	}
 
 	@SuppressWarnings("unchecked")

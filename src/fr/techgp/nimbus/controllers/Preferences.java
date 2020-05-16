@@ -18,7 +18,7 @@ public class Preferences extends Controller {
 	 * (theme) => ""
 	 */
 	public static final Route theme = (request, response) -> {
-		request.session().attribute("theme", request.queryParams("theme"));
+		request.session().attribute("theme", request.queryParameter("theme"));
 		return "";
 	};
 
@@ -32,7 +32,7 @@ public class Preferences extends Controller {
 		User user = User.findByLogin(request.session().attribute("userLogin"));
 		// Générer la page
 		return renderTemplate(request, "preferences.html",
-				"fromUrl", request.headers("Referer"),
+				"fromUrl", request.header("Referer"),
 				"plugins", configuration.getClientPlugins(),
 				"name", user.name,
 				"showHiddenItems", user.showHiddenItems,
@@ -51,8 +51,8 @@ public class Preferences extends Controller {
 	 */
 	public static final Route save = (request, response) -> {
 		// Vérifier le formulaire
-		String password = StringUtils.withDefault(request.queryParams("password"), "");
-		String passwordConfirmation = StringUtils.withDefault(request.queryParams("passwordConfirmation"), "");
+		String password = StringUtils.withDefault(request.queryParameter("password"), "");
+		String passwordConfirmation = StringUtils.withDefault(request.queryParameter("passwordConfirmation"), "");
 		if (!password.equals(passwordConfirmation))
 			return SparkUtils.haltBadRequest();
 		// Récupérer l'utilisateur connecté
@@ -60,12 +60,12 @@ public class Preferences extends Controller {
 		// Appliquer le formulaire
 		if (StringUtils.isNotBlank(password))
 			user.password = CryptoUtils.hashPassword(password);
-		user.name = request.queryParams("name");
-		user.showHiddenItems = "true".equals(request.queryParams("showHiddenItems"));
-		user.showItemTags = "true".equals(request.queryParams("showItemTags"));
-		user.showItemDescription = "true".equals(request.queryParams("showItemDescription"));
-		user.showItemThumbnail = "true".equals(request.queryParams("showItemThumbnail"));
-		user.visibleItemColumns = Optional.ofNullable(request.queryParamsValues("visibleItemColumns[]")).map((a) -> Arrays.asList(a)).orElse(null);
+		user.name = request.queryParameter("name");
+		user.showHiddenItems = "true".equals(request.queryParameter("showHiddenItems"));
+		user.showItemTags = "true".equals(request.queryParameter("showItemTags"));
+		user.showItemDescription = "true".equals(request.queryParameter("showItemDescription"));
+		user.showItemThumbnail = "true".equals(request.queryParameter("showItemThumbnail"));
+		user.visibleItemColumns = Optional.ofNullable(request.queryParameterValues("visibleItemColumns[]")).map((a) -> Arrays.asList(a)).orElse(null);
 		User.update(user);
 		return "";
 	};

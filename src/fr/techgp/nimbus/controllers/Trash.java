@@ -22,7 +22,7 @@ public class Trash extends Controller {
 	 */
 	public static final Route page = (request, response) -> {
 		return renderTemplate(request, "trash.html",
-				"fromUrl", request.headers("Referer"));
+				"fromUrl", request.header("Referer"));
 	};
 
 	/**
@@ -90,7 +90,7 @@ public class Trash extends Controller {
 	 */
 	public static final Route delete = (request, response) -> {
 		// Extraire la requête
-		String itemIds = request.queryParams("itemIds");
+		String itemIds = request.queryParameter("itemIds");
 		// Parcourir chaque élément pour le supprimer
 		return actionOnMultipleItems(request, itemIds, Item::delete);
 	};
@@ -105,7 +105,7 @@ public class Trash extends Controller {
 	 */
 	public static final Route restore = (request, response) -> {
 		// Extraire la requête
-		String itemIds = request.queryParams("itemIds");
+		String itemIds = request.queryParameter("itemIds");
 		// Parcourir chaque élément pour le restaurer
 		return actionOnMultipleItems(request, itemIds, Item::restore);
 	};
@@ -119,7 +119,7 @@ public class Trash extends Controller {
 	 */
 	public static final Route erase = (request, response) -> {
 		// Extraire la requête
-		String itemIds = request.queryParams("itemIds");
+		String itemIds = request.queryParameter("itemIds");
 		// Parcourir chaque élément
 		return actionOnMultipleItems(request, itemIds, (item) -> {
 			// ... pour l'effacer définitivement

@@ -89,22 +89,22 @@ public interface Matcher {
 		}
 
 		public static Matcher is(String path) {
-			return (req) -> path.equals(req.pathInfo());
+			return (req) -> path.equals(req.path());
 		}
 
 		public static Matcher startsWith(String prefix) {
-			return (req) -> req.pathInfo().startsWith(prefix);
+			return (req) -> req.path().startsWith(prefix);
 		}
 
 		public static Matcher endsWith(String suffix) {
-			return (req) -> req.pathInfo().endsWith(suffix);
+			return (req) -> req.path().endsWith(suffix);
 		}
 
 		public static Matcher params(String path) {
 			String[] model = path.substring(1).split("/");
 			return (req) -> {
 				// System.out.println("Checking " + req.pathInfo().substring(1) + " against " + path.substring(1));
-				String[] value = req.pathInfo().substring(1).split("/");
+				String[] value = req.path().substring(1).split("/");
 				if (value.length != model.length)
 					return false;
 				Map<String, String> m = new HashMap<>();
@@ -114,14 +114,14 @@ public interface Matcher {
 					else if (!model[i].equals(value[i]))
 						return false; // and check to fixed chunck match to model
 				}
-				m.entrySet().forEach(e -> req.params(e.getKey(), e.getValue()));
+				m.entrySet().forEach(e -> req.pathParameter(e.getKey(), e.getValue()));
 				return true;
 			};
 		}
 
 		public static Matcher like(String regexp) {
 			Pattern r = Pattern.compile(regexp);
-			return (req) -> r.matcher(req.pathInfo()).matches();
+			return (req) -> r.matcher(req.path()).matches();
 		}
 	}
 

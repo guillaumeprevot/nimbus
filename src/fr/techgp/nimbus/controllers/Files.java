@@ -135,7 +135,7 @@ public class Files extends Controller {
 		prepareUploadRequest(request, configuration);
 
 		// Rechercher l'élément et en vérifier l'accès
-		Item item = Item.findById(Long.valueOf(request.params(":itemId")));
+		Item item = Item.findById(Long.valueOf(request.pathParameter(":itemId")));
 		if (item == null || !item.userLogin.equals(userLogin))
 			return SparkUtils.haltBadRequest();
 
@@ -169,7 +169,7 @@ public class Files extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
-		String name = request.queryParams("name");
+		String name = request.queryParameter("name");
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
@@ -191,7 +191,7 @@ public class Files extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
-		String path = request.pathInfo().substring("/files/browse/".length());
+		String path = request.path().substring("/files/browse/".length());
 		if (StringUtils.isBlank(path))
 			return SparkUtils.haltBadRequest();
 		try {
@@ -219,7 +219,7 @@ public class Files extends Controller {
 	 * (itemId) => redirect
 	 */
 	public static final Route browseTo = (request, response) -> {
-		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
+		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			StringBuilder url = new StringBuilder("/files/browse/");
 			if (StringUtils.isNotBlank(item.path)) {
 				String[] path = item.path.substring(0, item.path.length() - 1).split(",");
@@ -227,7 +227,6 @@ public class Files extends Controller {
 			}
 			url.append(item.name);
 			try {
-				// TODO : est-ce encvore utile maintenant que response.redirect appelle "encodeRedirectURL"
 				response.redirect(new URI(null, null, url.toString(), null, null).toASCIIString());
 			} catch (URISyntaxException ex) {
 				ex.printStackTrace();
@@ -243,8 +242,8 @@ public class Files extends Controller {
 	 * (itemId[, Range]) => stream
 	 */
 	public static final Route stream = (request, response) -> {
-		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
-			String range = request.headers("Range");
+		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
+			String range = request.header("Range");
 			if (range != null && range.startsWith("bytes="))
 				return returnFileRange(response, item, range.substring("bytes=".length()));
 			return returnFile(response, item, false, null, null);
@@ -257,7 +256,7 @@ public class Files extends Controller {
 	 * (itemId) => stream
 	 */
 	public static final Route download = (request, response) -> {
-		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
+		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			return returnFile(response, item, true, null, null);
 		});
 	};
@@ -270,7 +269,7 @@ public class Files extends Controller {
 	 */
 	public static final Route thumbnail = (request, response) -> {
 		int size = SparkUtils.queryParamInteger(request, "size", 32);
-		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
+		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			return returnFile(response, item, false, size, size);
 		});
 	};
@@ -282,7 +281,7 @@ public class Files extends Controller {
 	 */
 	public static final Route useAsFolderIcon = (request, response) -> {
 		int size = SparkUtils.queryParamInteger(request, "size", 32);
-		return actionOnSingleItem(request, request.params(":itemId"), (item) -> {
+		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			// Vérifier que l'élément a bien un parent
 			if (item.parentId == null)
 				return SparkUtils.haltBadRequest();
