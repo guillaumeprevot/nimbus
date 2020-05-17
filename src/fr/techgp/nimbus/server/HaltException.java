@@ -22,11 +22,11 @@ public class HaltException extends RuntimeException {
 		this.body = body;
 	}
 
-	public int getCode() {
+	public int code() {
 		return this.code;
 	}
 
-	public String getBody() {
+	public String body() {
 		return this.body;
 	}
 

@@ -54,9 +54,9 @@ public class Router {
 			}
 
 		} catch (HaltException ex) {
-			if (ex.getCode() != -1)
-				res.status(ex.getCode());
-			body = res.body() != null ? ex.getBody() : "";
+			if (ex.code() != -1)
+				res.status(ex.code());
+			body = ex.body() != null ? ex.body() : "";
 
 		} catch (Exception ex) {
 			res.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

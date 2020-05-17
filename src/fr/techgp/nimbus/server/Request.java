@@ -120,6 +120,14 @@ public class Request {
 		return this.request.getHeader(name);
 	}
 
+	public int intHeader(String name) {
+		return this.request.getIntHeader(name);
+	}
+
+	public long dateHeader(String name) {
+		return this.request.getDateHeader(name);
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T> T attribute(String name) {
 		return (T) this.request.getAttribute(name);

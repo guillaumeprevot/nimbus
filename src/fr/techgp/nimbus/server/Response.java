@@ -54,6 +54,22 @@ public class Response {
 		this.response.addHeader(name, value);
 	}
 
+	public void intHeader(String name, int value) {
+		this.response.setIntHeader(name, value);
+	}
+
+	public void addIntHeader(String name, int value) {
+		this.response.addIntHeader(name, value);
+	}
+
+	public void dateHeader(String name, long value) {
+		this.response.setDateHeader(name, value);
+	}
+
+	public void addDateHeader(String name, long value) {
+		this.response.addDateHeader(name, value);
+	}
+
 	public void redirect(String location) {
 		try {
 			this.response.sendRedirect(this.response.encodeRedirectURL(location));

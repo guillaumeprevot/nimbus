@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -17,8 +19,6 @@ import fr.techgp.nimbus.server.Router;
 
 // https://www.eclipse.org/jetty/documentation/current/
 // https://www.eclipse.org/jetty/documentation/current/embedding-jetty.html
-// from spark.embeddedserver.jetty.JettyHandler
-// from spark.embeddedserver.jetty.JettyServer
 public class Jetty {
 
 	public static final class RouterHandler extends SessionHandler {
@@ -49,6 +49,9 @@ public class Jetty {
 		} else {
 			connector = new ServerConnector(server);
 		}
+		// Utilisation de MultiPartFormInputStream (rapide) au lieu de MultiPartInputStreamParser (legacy)
+		// https://webtide.com/fast-multipart-formdata/
+		connector.getConnectionFactory(HttpConnectionFactory.class).getHttpConfiguration().setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
 		connector.setPort(port);
 		server.setConnectors(new Connector[] { connector });
 
