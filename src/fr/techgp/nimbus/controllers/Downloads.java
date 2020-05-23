@@ -110,8 +110,8 @@ public class Downloads extends Controller {
 				checkQuotaAndHaltIfNecessary(item.userLogin, newLength - file.length());
 
 			// Utiliser le code de retour de la requête HTTP comme réponse
+			//response.statusMessage(connection.getResponseMessage());
 			response.status(connection.getResponseCode());
-			response.body(connection.getResponseMessage());
 
 			// Vider le fichier actuel
 			file.delete();

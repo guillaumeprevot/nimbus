@@ -1,14 +1,11 @@
 package fr.techgp.nimbus.server;
 
-import java.io.IOException;
-
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 public class Response {
 
 	private final HttpServletResponse response;
-	private String body;
+	private Render body;
 
 	public Response(HttpServletResponse response) {
 		this.response = response;
@@ -34,12 +31,20 @@ public class Response {
 		this.response.setContentType(contentType);
 	}
 
-	public String body() {
+	public Render body() {
 		return this.body;
 	}
 
-	public void body(String body) {
+	public void body(Render body) {
 		this.body = body;
+	}
+
+	public void body(String body) {
+		this.body = Render.string(body);
+	}
+
+	public void body(byte[] body) {
+		this.body = Render.bytes(body);
 	}
 
 	public String header(String name) {
@@ -70,42 +75,28 @@ public class Response {
 		this.response.addDateHeader(name, value);
 	}
 
-	public void redirect(String location) {
-		try {
-			this.response.sendRedirect(this.response.encodeRedirectURL(location));
-		} catch (IOException ex) {
-			// TODO Spark was hiding this exception. Should I do it ?
-		}
+	public void renderRedirect(String location) {
+		this.status(HttpServletResponse.SC_FOUND);
+		this.header("Location", this.response.encodeRedirectURL(location));
+		this.body(Render.empty());
 	}
 
-	public void setContentLength(int length) {
+	public void length(int length) {
 		this.response.setContentLength(length);
 	}
 
-	public void cookie(String name, String value) {
-		cookie(name, value, null, null, -1, true, true);
+	public Cookie cookie(String name, String value) {
+		return cookie(name, "", value, null, -1, true, true);
 	}
 
-	public void cookie(String name, String value, int maxAge, boolean secured, boolean httpOnly) {
-		cookie(name, value, null, null, maxAge, secured, httpOnly);
+	public Cookie removeCookie(String name) {
+		return cookie(name, "", "", null, 0, true, true);
 	}
 
-	public void cookie(String name, String value, String path, String domain, int maxAge, boolean secured, boolean httpOnly) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setPath(path);
-		cookie.setDomain(domain);
-		cookie.setMaxAge(maxAge);
-		cookie.setSecure(secured);
-		cookie.setHttpOnly(httpOnly);
-		this.response.addCookie(cookie);
-	}
-
-	public void removeCookie(String name) {
-		cookie(name, "", null, null, 0, false, false);
-	}
-
-	public void removeCookie(String name, String path) {
-		cookie(name, "", path, null, 0, false, false);
+	public Cookie cookie(String name, String path, String value, String domain, int maxAge, boolean secure, boolean httpOnly) {
+		Cookie cookie = new Cookie(name).path(path).value(value).domain(domain).maxAge(maxAge).secure(secure).httpOnly(httpOnly);
+		this.response.addCookie(cookie.raw());
+		return cookie;
 	}
 
 }

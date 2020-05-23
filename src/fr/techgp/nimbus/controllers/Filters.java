@@ -6,7 +6,6 @@ import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Filter;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
-import fr.techgp.nimbus.server.Spark;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
@@ -36,8 +35,8 @@ public class Filters extends Controller {
 		else
 			q = "";
 		request.session().attribute("urlToLoad", request.path() + q);
-		response.redirect("/login.html");
-		Spark.halt();
+		response.renderRedirect("/login.html");
+		SparkUtils.halt();
 	}
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié */

@@ -22,7 +22,7 @@ import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Request;
-import fr.techgp.nimbus.server.Spark;
+import fr.techgp.nimbus.server.Router;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -32,25 +32,26 @@ public class Controller {
 	protected static Logger logger = null;
 	protected static Configuration configuration;
 
-	public static final void init(Logger logger, Configuration configuration, boolean dev) {
+	public static final Router init(Logger logger, Configuration configuration, boolean dev) {
 		Controller.logger = logger;
 		Controller.configuration = configuration;
+		Router r = Router.getInstance();
 
-		Spark.redirect("/", "/nav");
+		r.redirect("/", "/nav");
 
-		// Spark.before("/*", new StaticFiles(configuration, "public"));
-		Spark.get("/favicon.ico", StaticFiles.publicFolder);
-		Spark.get("/favicon.png", StaticFiles.publicFolder);
-		Spark.get("/nimbus.css", StaticFiles.publicFolder);
-		Spark.get("/nimbus.js", StaticFiles.publicFolder);
-		Spark.get("/langs/*", StaticFiles.publicFolder);
-		Spark.get("/libs/*", StaticFiles.publicFolder);
-		Spark.get("/plugins/*", StaticFiles.publicFolder);
+		// router.before("/*", new StaticFiles(configuration, "public"));
+		r.get("/favicon.ico", StaticFiles.publicFolder);
+		r.get("/favicon.png", StaticFiles.publicFolder);
+		r.get("/nimbus.css", StaticFiles.publicFolder);
+		r.get("/nimbus.js", StaticFiles.publicFolder);
+		r.get("/langs/*", StaticFiles.publicFolder);
+		r.get("/libs/*", StaticFiles.publicFolder);
+		r.get("/plugins/*", StaticFiles.publicFolder);
 
-		Spark.before("/nav", Filters.filterAuthenticatedOrRedirect);
-		Spark.before("/nav/*", Filters.filterAuthenticatedOrRedirect);
-		Spark.get("/nav", (request, response) -> nav(request));
-		Spark.get("/nav/*", (request, response) -> {
+		r.before("/nav", Filters.filterAuthenticatedOrRedirect);
+		r.before("/nav/*", Filters.filterAuthenticatedOrRedirect);
+		r.get("/nav", (request, response) -> nav(request));
+		r.get("/nav/*", (request, response) -> {
 			String splat = request.path().substring("/nav/".length());
 			if (splat.length() == 0) // "/nav/"
 				return nav(request);
@@ -58,94 +59,94 @@ public class Controller {
 			return actionOnSingleItem(request, path[path.length - 1], (item) -> {
 				if (item.folder)
 					return nav(request);
-				response.redirect("/files/stream/" + item.id);
+				response.renderRedirect("/files/stream/" + item.id);
 				return "";
 			});
 		});
 
-		Spark.get("/login/background", Authentication.background); // URL publique
-		Spark.get("/login.html", Authentication.page); // URL publique
-		Spark.post("/login.html", Authentication.login); // URL publique
-		Spark.get("/logout", Authentication.logout); // URL publique
+		r.get("/login/background", Authentication.background); // URL publique
+		r.get("/login.html", Authentication.page); // URL publique
+		r.post("/login.html", Authentication.login); // URL publique
+		r.get("/logout", Authentication.logout); // URL publique
 
-		Spark.before("/users.html", Filters.filterAdministratorOrRedirect);
-		Spark.before("/user/*", Filters.filterAdministrator);
-		Spark.get("/users.html", Users.page);
-		Spark.get("/user/list", Users.list);
-		Spark.post("/user/insert/:login", Users.insert);
-		Spark.post("/user/update/:login", Users.update);
-		Spark.post("/user/delete/:login", Users.delete);
+		r.before("/users.html", Filters.filterAdministratorOrRedirect);
+		r.before("/user/*", Filters.filterAdministrator);
+		r.get("/users.html", Users.page);
+		r.get("/user/list", Users.list);
+		r.post("/user/insert/:login", Users.insert);
+		r.post("/user/update/:login", Users.update);
+		r.post("/user/delete/:login", Users.delete);
 
-		Spark.before("/files/*", Filters.filterAuthenticated);
-		Spark.post("/files/upload", Files.upload);
-		Spark.post("/files/update/:itemId", Files.update);
-		Spark.post("/files/touch", Files.touch);
-		Spark.get("/files/browse/*", Files.browse);
-		Spark.get("/files/browseTo/:itemId", Files.browseTo);
-		Spark.get("/files/stream/:itemId", Files.stream);
-		Spark.get("/files/download/:itemId", Files.download);
-		Spark.get("/files/thumbnail/:itemId", Files.thumbnail);
-		Spark.post("/files/useAsFolderIcon/:itemId", Files.useAsFolderIcon);
+		r.before("/files/*", Filters.filterAuthenticated);
+		r.post("/files/upload", Files.upload);
+		r.post("/files/update/:itemId", Files.update);
+		r.post("/files/touch", Files.touch);
+		r.get("/files/browse/*", Files.browse);
+		r.get("/files/browseTo/:itemId", Files.browseTo);
+		r.get("/files/stream/:itemId", Files.stream);
+		r.get("/files/download/:itemId", Files.download);
+		r.get("/files/thumbnail/:itemId", Files.thumbnail);
+		r.post("/files/useAsFolderIcon/:itemId", Files.useAsFolderIcon);
 
-		Spark.before("/items/*", Filters.filterAuthenticated);
-		Spark.get("/items/quota", Items.quota);
-		Spark.get("/items/list", Items.list);
-		Spark.post("/items/exists", Items.exists); // pour éviter 414 URI Too Long
-		Spark.get("/items/info/:itemId", Items.info);
-		Spark.get("/items/infos", Items.infos);
-		Spark.get("/items/tags", Items.tags);
-		Spark.post("/items/add/folder", Items.addFolder);
-		Spark.post("/items/duplicate", Items.duplicate);
-		Spark.post("/items/rename", Items.rename);
-		Spark.post("/items/hide", Items.hide);
-		Spark.post("/items/refresh", Items.refresh);
-		Spark.post("/items/metadata", Items.metadata);
-		Spark.post("/items/move", Items.move);
-		Spark.get("/items/zip", Items.zip);
+		r.before("/items/*", Filters.filterAuthenticated);
+		r.get("/items/quota", Items.quota);
+		r.get("/items/list", Items.list);
+		r.post("/items/exists", Items.exists); // pour éviter 414 URI Too Long
+		r.get("/items/info/:itemId", Items.info);
+		r.get("/items/infos", Items.infos);
+		r.get("/items/tags", Items.tags);
+		r.post("/items/add/folder", Items.addFolder);
+		r.post("/items/duplicate", Items.duplicate);
+		r.post("/items/rename", Items.rename);
+		r.post("/items/hide", Items.hide);
+		r.post("/items/refresh", Items.refresh);
+		r.post("/items/metadata", Items.metadata);
+		r.post("/items/move", Items.move);
+		r.get("/items/zip", Items.zip);
 
-		Spark.before("/trash.html", Filters.filterAuthenticatedOrRedirect);
-		Spark.before("/trash/*", Filters.filterAuthenticated);
-		Spark.get("/trash.html", Trash.page);
-		Spark.get("/trash/count", Trash.count);
-		Spark.get("/trash/items", Trash.items);
-		Spark.post("/trash/delete", Trash.delete);
-		Spark.post("/trash/restore", Trash.restore);
-		Spark.post("/trash/erase", Trash.erase);
+		r.before("/trash.html", Filters.filterAuthenticatedOrRedirect);
+		r.before("/trash/*", Filters.filterAuthenticated);
+		r.get("/trash.html", Trash.page);
+		r.get("/trash/count", Trash.count);
+		r.get("/trash/items", Trash.items);
+		r.post("/trash/delete", Trash.delete);
+		r.post("/trash/restore", Trash.restore);
+		r.post("/trash/erase", Trash.erase);
 
-		Spark.before("/download/*", Filters.filterAuthenticated);
-		Spark.get("/download/autocomplete", Downloads.autocomplete);
-		Spark.post("/download/add", Downloads.add);
-		Spark.post("/download/refresh", Downloads.refresh);
-		Spark.post("/download/done", Downloads.done);
+		r.before("/download/*", Filters.filterAuthenticated);
+		r.get("/download/autocomplete", Downloads.autocomplete);
+		r.post("/download/add", Downloads.add);
+		r.post("/download/refresh", Downloads.refresh);
+		r.post("/download/done", Downloads.done);
 
-		Spark.before("/share/add", Filters.filterAuthenticated);
-		Spark.before("/share/delete", Filters.filterAuthenticated);
-		Spark.post("/share/add", Shares.add);
-		Spark.post("/share/delete", Shares.delete);
-		Spark.get("/share/get/:itemId", Shares.get); // URL publique
+		r.before("/share/add", Filters.filterAuthenticated);
+		r.before("/share/delete", Filters.filterAuthenticated);
+		r.post("/share/add", Shares.add);
+		r.post("/share/delete", Shares.delete);
+		r.get("/share/get/:itemId", Shares.get); // URL publique
 
-		Spark.before("/preferences.html", Filters.filterAuthenticatedOrRedirect);
-		Spark.before("/preferences/save", Filters.filterAuthenticated);
-		Spark.get("/preferences/theme", Preferences.theme); // URL publique
-		Spark.get("/preferences.html", Preferences.page);
-		Spark.post("/preferences/save", Preferences.save);
+		r.before("/preferences.html", Filters.filterAuthenticatedOrRedirect);
+		r.before("/preferences/save", Filters.filterAuthenticated);
+		r.get("/preferences/theme", Preferences.theme); // URL publique
+		r.get("/preferences.html", Preferences.page);
+		r.post("/preferences/save", Preferences.save);
 
-		Spark.get("/epub.html", Extensions.epub); // URL publique
-		Spark.get("/pdf.html", Extensions.pdf); // URL publique
-		Spark.get("/video.html", Extensions.video); // URL publique
-		Spark.get("/audio.html", Extensions.audio); // URL publique
-		Spark.get("/diaporama.html", Extensions.diaporama); // URL publique
-		Spark.get("/text-editor.html", Extensions.textEditor); // URL publique
-		Spark.get("/markdown-editor.html", Extensions.markdownEditor); // URL publique
-		Spark.get("/note-editor.html", Extensions.noteEditor); // URL publique
-		Spark.get("/code-editor.html", Extensions.codeEditor); // URL publique
-		Spark.get("/secret-editor.html", Extensions.secretEditor); // URL publique
-		Spark.get("/calendar.html", Extensions.calendar); // URL publique
-		Spark.get("/contacts.html", Extensions.contacts); // URL publique
-		Spark.get("/bookmarks.html", Extensions.bookmarks); // URL publique
+		r.get("/epub.html", Extensions.epub); // URL publique
+		r.get("/pdf.html", Extensions.pdf); // URL publique
+		r.get("/video.html", Extensions.video); // URL publique
+		r.get("/audio.html", Extensions.audio); // URL publique
+		r.get("/diaporama.html", Extensions.diaporama); // URL publique
+		r.get("/text-editor.html", Extensions.textEditor); // URL publique
+		r.get("/markdown-editor.html", Extensions.markdownEditor); // URL publique
+		r.get("/note-editor.html", Extensions.noteEditor); // URL publique
+		r.get("/code-editor.html", Extensions.codeEditor); // URL publique
+		r.get("/secret-editor.html", Extensions.secretEditor); // URL publique
+		r.get("/calendar.html", Extensions.calendar); // URL publique
+		r.get("/contacts.html", Extensions.contacts); // URL publique
+		r.get("/bookmarks.html", Extensions.bookmarks); // URL publique
 
 		// Accès à la page de test en mode DEV uniquement
-		Spark.get("/test.html", (request, response) -> {
+		r.get("/test.html", (request, response) -> {
 			if (!dev)
 				return SparkUtils.haltNotFound();
 			User.findAll().forEach((u) -> {
@@ -163,6 +164,8 @@ public class Controller {
 			return renderTemplate(request, "test.html",
 					"serverAbsoluteUrl", configuration.getServerAbsoluteUrl());
 		});
+
+		return r;
 	}
 
 	private static final Object nav(Request request) {

@@ -227,11 +227,13 @@ public class Files extends Controller {
 			}
 			url.append(item.name);
 			try {
-				response.redirect(new URI(null, null, url.toString(), null, null).toASCIIString());
+				// Le nom de fichier peut contenir des caractères gênants comme %
+				String asciiURL = new URI(null, null, url.toString(), null, null).toASCIIString();
+				response.renderRedirect(asciiURL);
+				return "";
 			} catch (URISyntaxException ex) {
-				ex.printStackTrace();
+				return SparkUtils.haltBadRequest();
 			}
-			return "";
 		});
 	};
 

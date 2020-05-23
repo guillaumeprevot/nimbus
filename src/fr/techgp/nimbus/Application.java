@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.techgp.nimbus.controllers.Controller;
 import fr.techgp.nimbus.models.Mongo;
+import fr.techgp.nimbus.server.Router;
 
 public class Application {
 
@@ -47,10 +48,10 @@ public class Application {
 			FreeMarker.init(dev);
 
 			// Configure routes
-			Controller.init(logger, configuration, dev);
+			Router router = Controller.init(logger, configuration, dev);
 
 			// Prepare Jetty
-			Server server = Jetty.init(configuration.getServerPort(), configuration.getServerKeystore(), configuration.getServerKeystorePassword());
+			Server server = Jetty.init(configuration.getServerPort(), configuration.getServerKeystore(), configuration.getServerKeystorePassword(), router);
 
 			// Launch URL
 			/*

@@ -46,7 +46,7 @@ public class Authentication extends Controller {
 			return renderLoginPage(request, true, false, urlToLoad);
 		}
 		request.session().attribute("userLogin", login);
-		response.redirect(urlToLoad);
+		response.renderRedirect(urlToLoad);
 		return "";
 	};
 
@@ -58,7 +58,7 @@ public class Authentication extends Controller {
 	public static final Route logout = (request, response) -> {
 		request.session().removeAttribute("userLogin");
 		request.session().attribute("logout", Boolean.TRUE);
-		response.redirect("/login.html");
+		response.renderRedirect("/login.html");
 		return "";
 	};
 
@@ -74,7 +74,7 @@ public class Authentication extends Controller {
 		File file = new File(configuration.getStorageFolder(), background);
 		if (!file.exists())
 			return SparkUtils.haltNotFound();
-		return StaticFiles.sendCacheable(request.raw(), response.raw(), file);
+		return StaticFiles.sendCacheable(request, response, file);
 	};
 
 	private static final String renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {

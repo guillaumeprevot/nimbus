@@ -23,18 +23,23 @@ public class Jetty {
 
 	public static final class RouterHandler extends SessionHandler {
 
+		private final Router router;
+
+		public RouterHandler(Router router) {
+			this.router = router;
+		}
+
 		@Override
 		public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 				throws IOException, ServletException {
-			this.getSessionCookieConfig().setHttpOnly(true);
-			Router.getInstance().process(request, response);
+			this.router.process(request, response);
 			baseRequest.setHandled(true);
 		}
 
 	}
 
 	@SuppressWarnings("resource")
-	public static final Server init(int port, String keystore, String keystorePassword) throws Exception {
+	public static final Server init(int port, String keystore, String keystorePassword, Router router) throws Exception {
 		// Create server
 		Server server = new Server();
 
@@ -56,7 +61,7 @@ public class Jetty {
 		server.setConnectors(new Connector[] { connector });
 
 		// Add handler
-		RouterHandler handler = new RouterHandler();
+		RouterHandler handler = new RouterHandler(router);
 		handler.getSessionCookieConfig().setHttpOnly(true);
 		server.setHandler(handler);
 

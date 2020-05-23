@@ -1,10 +1,7 @@
 package fr.techgp.nimbus.server;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +10,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.io.EofException;
 
 public class Router {
 
@@ -33,7 +30,6 @@ public class Router {
 	public void process(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Request req = new Request(request, false);
 		Response res = new Response(response);
-		Object body = null;
 		try {
 			for (BeforeEntry e : this.befores) {
 				if (e.matcher.matches(req)) {
@@ -42,8 +38,16 @@ public class Router {
 			}
 			for (RouteEntry e : this.routes) {
 				if (e.matcher.matches(req)) {
-					body = e.route.handle(req, res);
-					if (body != null)
+					Object body = e.route.handle(req, res);
+					if (body != null) {
+						if (body instanceof byte[])
+							res.body((byte[]) body);
+						else if (body instanceof String)
+							res.body((String) body);
+						else
+							throw new UnsupportedOperationException("Unsupported body type : " + body.getClass().getName());
+					}
+					if (res.body() != null)
 						break;
 				}
 			}
@@ -56,21 +60,18 @@ public class Router {
 		} catch (HaltException ex) {
 			if (ex.code() != -1)
 				res.status(ex.code());
-			body = ex.body() != null ? ex.body() : "";
+			if (ex.body() != null)
+				res.body(ex.body());
 
 		} catch (Exception ex) {
 			res.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			body = INTERNAL_SERVER_ERROR;
+			res.body(INTERNAL_SERVER_ERROR);
 		}
 
-		// No body but was redirected => OK
-		if (res.status() == HttpServletResponse.SC_FOUND && body == null)
-			body = "";
-
 		// No match
-		if (body == null) {
+		if (res.body() == null) {
 			res.status(HttpServletResponse.SC_NOT_FOUND);
-			body = NOT_FOUND;
+			res.body(NOT_FOUND);
 		}
 
 		if (!response.isCommitted()) {
@@ -78,15 +79,10 @@ public class Router {
 				response.setContentType("text/html; charset=utf-8");
 			// Check if GZIP is wanted/accepted and in that case handle that
 			try (OutputStream os = checkAndWrap(request, response, true)) {
-				if (body instanceof byte[])
-					os.write((byte[]) body);
-				else if (body instanceof ByteBuffer)
-					os.write(((ByteBuffer) body).array());
-				else if (body instanceof InputStream)
-					IOUtils.copy((InputStream) body, os, 1024 * 1024);
-				else
-					os.write(body.toString().getBytes(StandardCharsets.UTF_8));
+				res.body().render(os);
 				os.flush();
+			} catch (EofException ex) {
+				// Requête interrompue par le client
 			}
 		}
 	}
@@ -95,12 +91,28 @@ public class Router {
 		return before(Matcher.Path.of(path), filter);
 	}
 
+	public Router before(String method, String path, Filter filter) {
+		return before(Matcher.Method.is(method).and(Matcher.Path.of(path)), filter);
+	}
+
 	public Router before(Matcher matcher, Filter filter) {
 		BeforeEntry e = new BeforeEntry();
 		e.matcher = matcher;
 		e.filter = filter;
 		this.befores.add(e);
 		return this;
+	}
+
+	public Router get(String path, Route route) {
+		return route(Matcher.Method.GET.and(Matcher.Path.of(path)), route);
+	}
+
+	public Router post(String path, Route route) {
+		return route(Matcher.Method.POST.and(Matcher.Path.of(path)), route);
+	}
+
+	public Router redirect(String from, String to) {
+		return route(Matcher.Path.is(from), (req, resp) -> { resp.renderRedirect(to); return ""; });
 	}
 
 	public Router route(String path, Route route) {
@@ -117,6 +129,10 @@ public class Router {
 
 	public Router after(String path, Filter filter) {
 		return after(Matcher.Path.of(path), filter);
+	}
+
+	public Router after(String method, String path, Filter filter) {
+		return after(Matcher.Method.is(method).and(Matcher.Path.of(path)), filter);
 	}
 
 	public Router after(Matcher matcher, Filter filter) {

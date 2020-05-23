@@ -1,8 +1,12 @@
 package fr.techgp.nimbus.server;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +22,8 @@ public class Request {
 	private final boolean checkProxy;
 	/** The session wrapper */
 	private Session session;
+	/** The cookie collections */
+	private List<Cookie> cookies;
 
 	public Request(HttpServletRequest request, boolean checkProxy) {
 		this.request = request;
@@ -141,6 +147,20 @@ public class Request {
 		this.request.removeAttribute(name);
 	}
 
+	public Cookie cookie(String name) {
+		return this.cookie((c) -> c.name().equals(name));
+	}
+
+	public Cookie cookie(String name, String path) {
+		return this.cookie((c) -> c.name().equals(name) && c.path().equals(path));
+	}
+
+	public Cookie cookie(Predicate<Cookie> predicate) {
+		if (this.cookies == null)
+			this.cookies = Arrays.stream(this.request.getCookies()).map(Cookie::new).collect(Collectors.toList());
+		return this.cookies.stream().filter(predicate).findAny().orElse(null);
+	}
+
 	public Session session() {
 		if (this.session == null)
 			this.session = new Session(this, this.request.getSession());
@@ -158,7 +178,6 @@ public class Request {
 	protected void invalidateSession() {
 		this.session = null;
 	}
-
 
 	private static final String getMethod(HttpServletRequest request, boolean checkProxy) {
 		if (checkProxy) {

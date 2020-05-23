@@ -21,7 +21,7 @@ import org.apache.commons.io.IOUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import fr.techgp.nimbus.server.Spark;
+import fr.techgp.nimbus.server.HaltException;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 
@@ -31,44 +31,52 @@ public final class SparkUtils {
 		//
 	}
 
+	public static final void halt() {
+		throw new HaltException(-1, null);
+	}
+
+	public static final void halt(int code, String body) {
+		throw new HaltException(code, body);
+	}
+
 	public static final Object haltNotModified() {
-		Spark.halt(HttpServletResponse.SC_NOT_MODIFIED, ""); // 304
+		halt(HttpServletResponse.SC_NOT_MODIFIED, ""); // 304
 		return null;
 	}
 
 	public static final Object haltBadRequest() {
-		Spark.halt(HttpServletResponse.SC_BAD_REQUEST, "Bad Request"); // 400
+		halt(HttpServletResponse.SC_BAD_REQUEST, "Bad Request"); // 400
 		return null;
 	}
 
 	public static final Object haltUnauthorized() {
-		Spark.halt(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"); // 401
+		halt(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"); // 401
 		return null;
 	}
 
 	public static final Object haltForbidden() {
-		Spark.halt(HttpServletResponse.SC_FORBIDDEN, "Forbidden"); // 403
+		halt(HttpServletResponse.SC_FORBIDDEN, "Forbidden"); // 403
 		return null;
 	}
 
 	public static final Object haltNotFound() {
-		Spark.halt(HttpServletResponse.SC_NOT_FOUND, "Not Found"); // 404
+		halt(HttpServletResponse.SC_NOT_FOUND, "Not Found"); // 404
 		return null;
 	}
 
 	public static final Object haltConflict() {
-		Spark.halt(HttpServletResponse.SC_CONFLICT, "Conflict"); // 409
+		halt(HttpServletResponse.SC_CONFLICT, "Conflict"); // 409
 		return null;
 	}
 
 	public static final Object haltInternalServerError() {
-		Spark.halt(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error"); // 500
+		halt(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error"); // 500
 		return null;
 	}
 
 	public static final Object haltInsufficientStorage() {
 		// Emprunté de WEBDAV : https://tools.ietf.org/html/rfc4918#section-11.5
-		Spark.halt(507, "Insufficient Storage"); // 507
+		halt(507, "Insufficient Storage"); // 507
 		return null;
 	}
 
