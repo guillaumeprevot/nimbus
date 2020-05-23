@@ -1,79 +1,31 @@
 package fr.techgp.nimbus.server;
 
-public class Cookie {
+public interface Cookie {
 
-	private final javax.servlet.http.Cookie cookie;
+	public String name();
 
-	public Cookie(String name) {
-		super();
-		this.cookie = new javax.servlet.http.Cookie(name, "");
-	}
+	public String path();
 
-	public Cookie(javax.servlet.http.Cookie cookie) {
-		super();
-		this.cookie = cookie;
-	}
+	public void path(String path);
 
-	public javax.servlet.http.Cookie raw() {
-		return this.cookie;
-	}
+	public String value();
 
-	public String name() {
-		return this.cookie.getName();
-	}
+	public void value(String value);
 
-	public String path() {
-		return this.cookie.getPath();
-	}
+	public String domain();
 
-	public Cookie path(String path) {
-		this.cookie.setPath(path);
-		return this;
-	}
+	public void domain(String domain);
 
-	public String value() {
-		return this.cookie.getValue();
-	}
+	public int maxAge();
 
-	public Cookie value(String value) {
-		this.cookie.setValue(value);
-		return this;
-	}
+	public void maxAge(int maxAge);
 
-	public String domain() {
-		return this.cookie.getDomain();
-	}
+	public boolean secure();
 
-	public Cookie domain(String domain) {
-		this.cookie.setDomain(domain);
-		return this;
-	}
+	public void secure(boolean secure);
 
-	public int maxAge() {
-		return this.cookie.getMaxAge();
-	}
+	public boolean httpOnly();
 
-	public Cookie maxAge(int maxAge) {
-		this.cookie.setMaxAge(maxAge);
-		return this;
-	}
-
-	public boolean secure() {
-		return this.cookie.getSecure();
-	}
-
-	public Cookie secure(boolean secure) {
-		this.cookie.setSecure(secure);
-		return this;
-	}
-
-	public boolean httpOnly() {
-		return this.cookie.isHttpOnly();
-	}
-
-	public Cookie httpOnly(boolean httpOnly) {
-		this.cookie.setHttpOnly(httpOnly);
-		return this;
-	}
+	public void httpOnly(boolean httpOnly);
 
 }

@@ -2,8 +2,10 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
+
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -46,8 +48,7 @@ public class Authentication extends Controller {
 			return renderLoginPage(request, true, false, urlToLoad);
 		}
 		request.session().attribute("userLogin", login);
-		response.renderRedirect(urlToLoad);
-		return "";
+		return Render.redirect(urlToLoad);
 	};
 
 	/**
@@ -58,8 +59,7 @@ public class Authentication extends Controller {
 	public static final Route logout = (request, response) -> {
 		request.session().removeAttribute("userLogin");
 		request.session().attribute("logout", Boolean.TRUE);
-		response.renderRedirect("/login.html");
-		return "";
+		return Render.redirect("/login.html");
 	};
 
 	/**
@@ -70,14 +70,18 @@ public class Authentication extends Controller {
 	public static final Route background = (request, response) -> {
 		String background = configuration.getClientLoginBackground();
 		if (StringUtils.isBlank(background))
-			throw Halt.notFound();
+			return Render.notFound();
 		File file = new File(configuration.getStorageFolder(), background);
 		if (!file.exists())
-			throw Halt.notFound();
-		return StaticFiles.sendCacheable(request, response, file);
+			return Render.notFound();
+		// Indiquer le bon type MIME
+		String extension = FilenameUtils.getExtension(file.getName());
+		String mimetype = configuration.getMimeType(extension);
+		// Renvoyer le fichier tout en gérant le cache
+		return Render.staticFile(file, mimetype);
 	};
 
-	private static final String renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {
+	private static final Render renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {
 		return renderTemplate(request, "login.html",
 				"background", StringUtils.isNotBlank(configuration.getClientLoginBackground()),
 				"login", StringUtils.withDefault(request.queryParameter("login"), ""),

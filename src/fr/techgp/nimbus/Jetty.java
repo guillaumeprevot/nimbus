@@ -16,6 +16,8 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import fr.techgp.nimbus.server.Router;
+import fr.techgp.nimbus.server.impl.ServletRequest;
+import fr.techgp.nimbus.server.impl.ServletResponse;
 
 // https://www.eclipse.org/jetty/documentation/current/
 // https://www.eclipse.org/jetty/documentation/current/embedding-jetty.html
@@ -32,7 +34,15 @@ public class Jetty {
 		@Override
 		public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 				throws IOException, ServletException {
-			this.router.process(request, response);
+			ServletRequest req = new ServletRequest(request, false); // TODO surcharger pour optimiser les Upload
+			ServletResponse res = new ServletResponse(response);
+			this.router.process(req, res, () -> {
+				try {
+					return response.getOutputStream();
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
+				}
+			});
 			baseRequest.setHandled(true);
 		}
 

@@ -26,7 +26,7 @@ import com.google.gson.JsonPrimitive;
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -66,7 +66,7 @@ public class Items extends Controller {
 		result.addProperty("maxSpace", maxSpace);
 		result.addProperty("clientQuotaWarning", clientQuotaWarning);
 		result.addProperty("clientQuotaDanger", clientQuotaDanger);
-		return SparkUtils.renderJSON(response, result);
+		return Render.json(result);
 	};
 
 	/**
@@ -92,7 +92,7 @@ public class Items extends Controller {
 
 		// Vérifier l'accès à l'élément racine
 		if (parentId != null && !Item.hasItem(userLogin, parentId))
-			throw Halt.badRequest();
+			return Render.badRequest();
 
 		// Récupérer les éléments
 		List<Item> items = Item.findAll(userLogin, parentId, recursive, sortBy, sortAscending, searchBy, searchText, folders, hidden, deleted, extensions);
@@ -103,7 +103,7 @@ public class Items extends Controller {
 		items.addAll(fileItems);
 
 		// Retourner la liste en un document JSON
-		return SparkUtils.renderJSONCollection(response, items, Items::asJSON);
+		return Render.json(items, Items::asJSON);
 	};
 
 	/**
@@ -121,11 +121,11 @@ public class Items extends Controller {
 		if (parentId != null) {
 			Item parent = Item.findById(parentId);
 			if (parent == null || !parent.userLogin.equals(userLogin))
-				throw Halt.badRequest();
+				return Render.badRequest();
 		}
 		// Tester si un élément existe déjà avec l'un des noms demandés
 		boolean result = Item.hasItemsWithNames(userLogin, parentId, filenames);
-		return Boolean.toString(result);
+		return Render.string(Boolean.toString(result));
 	};
 
 	/**
@@ -136,7 +136,7 @@ public class Items extends Controller {
 	public static final Route info = (request, response) -> {
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			// Retourner l'élément en JSON
-			return SparkUtils.renderJSON(response, asJSON(item));
+			return Render.json(asJSON(item));
 		});
 	};
 
@@ -148,14 +148,12 @@ public class Items extends Controller {
 	public static final Route infos = (request, response) -> {
 		// Extraire la requête
 		String itemIds = request.queryParameter("itemIds");
-		// Préparer le résultat
-		JsonArray results = new JsonArray();
-		// Parcourir chaque élément
-		actionOnMultipleItems(request, itemIds, (item) -> {
-			results.add(asJSON(item));
-		});
+		// Récupérer les éléments
+		List<Item> items = loadMultipleItems(request, itemIds);
+		if (items == null)
+			return Render.badRequest();
 		// Retourner la liste en JSON
-		return SparkUtils.renderJSON(response, results);
+		return Render.json(items, Items::asJSON);
 	};
 
 	/**
@@ -174,7 +172,7 @@ public class Items extends Controller {
 			if (StringUtils.isNotBlank(tag) && ("".equals(term) || tag.toLowerCase().contains(term)))
 				results.add(tag);
 		});
-		return SparkUtils.renderJSON(response, results);
+		return Render.json(results);
 	};
 
 	/**
@@ -190,13 +188,13 @@ public class Items extends Controller {
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
-			throw Halt.conflict();
+			return Render.conflict();
 		// Ajouter un dossier dans le dossier demandé avec le nom donné
 		Item item = Item.add(userLogin, parentId, true, name, null);
 		if (item == null)
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Retourner son id
-		return item.id.toString();
+		return Render.string(item.id.toString());
 	};
 
 	/**
@@ -216,15 +214,15 @@ public class Items extends Controller {
 		String firstPattern = request.queryParameter("firstPattern");
 		String nextPattern = request.queryParameter("nextPattern");
 		if (StringUtils.isBlank(newName) && (StringUtils.isBlank(firstPattern) || StringUtils.isBlank(nextPattern)))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (source) -> {
 			// Vérifier que le nom proposé pour la copie est correct
 			if (StringUtils.isNotBlank(newName) && Item.hasItemWithName(source.userLogin, source.parentId, newName))
-				throw Halt.conflict();
+				return Render.conflict();
 
 			// Vérification des quotas d'espace disque
-			if (!source.folder)
-				checkQuotaAndHaltIfNecessary(source.userLogin, source.content.getLong("length"));
+			if (!source.folder && !checkQuotaAndHaltIfNecessary(source.userLogin, source.content.getLong("length")))
+				return Render.insufficientStorage();
 
 			// Trouver un nom unique pour la copie, si le nom n'est pas fourni
 			String duplicateName = StringUtils.isNotBlank(newName) ? newName : Item.findName(source, firstPattern, nextPattern);
@@ -243,7 +241,7 @@ public class Items extends Controller {
 				}
 			}
 			// Retourner l'id de l'élément ainsi créé
-			return item.id.toString();
+			return Render.string(item.id.toString());
 		});
 	};
 
@@ -261,7 +259,7 @@ public class Items extends Controller {
 			// Vérifier que le nom choisi pour la copie est correct
 			Item existing = Item.findItemWithName(item.userLogin, item.parentId, name);
 			if (existing != null && !existing.id.equals(item.id))
-				throw Halt.conflict();
+				return Render.conflict();
 			// On met à jour l'élément
 			item.name = name;
 			item.tags = StringUtils.isBlank(tags) ? null : Arrays.asList(tags.split(","));
@@ -285,7 +283,7 @@ public class Items extends Controller {
 			// Ajuster la date de modification du dossier parent
 			if (item.parentId != null)
 				Item.notifyFolderContentChanged(item.parentId, 0);
-			return "";
+			return Render.EMPTY;
 		});
 	};
 
@@ -307,7 +305,7 @@ public class Items extends Controller {
 			// Ajuster la date de modification du dossier parent
 			if (item.parentId != null)
 				Item.notifyFolderContentChanged(item.parentId, 0);
-			return "";
+			return Render.EMPTY;
 		});
 	};
 
@@ -354,7 +352,7 @@ public class Items extends Controller {
 			// Ajuster la date de modification du dossier parent
 			if (item.parentId != null)
 				Item.notifyFolderContentChanged(item.parentId, 0);
-			return "";
+			return Render.EMPTY;
 		});
 	};
 
@@ -375,13 +373,13 @@ public class Items extends Controller {
 			String json = request.queryParameter("metadata");
 			JsonElement element = JsonParser.parseString(json);
 			if (!element.isJsonArray())
-				throw Halt.badRequest();
+				return Render.badRequest();
 			// Via la liste "metadata", les méta-données seront ajustées comme demandées côté client
 			JsonArray array = element.getAsJsonArray();
 			for (int i = 0; i < array.size(); i++) {
 				element = array.get(i);
 				if (!element.isJsonObject())
-					throw Halt.badRequest();
+					return Render.badRequest();
 				JsonObject object = element.getAsJsonObject();
 				String name = object.get("name").getAsString();
 				String action = object.get("action").getAsString();
@@ -390,7 +388,7 @@ public class Items extends Controller {
 				else {
 					JsonElement valueElement = object.get("value");
 					if (!valueElement.isJsonPrimitive())
-						throw Halt.badRequest();
+						return Render.badRequest();
 					JsonPrimitive valuePrimitive = valueElement.getAsJsonPrimitive();
 					Object value;
 					String type = object.get("type").getAsString();
@@ -427,7 +425,7 @@ public class Items extends Controller {
 			// Ajuster la date de modification du dossier parent
 			if (item.parentId != null)
 				Item.notifyFolderContentChanged(item.parentId, 0);
-			return "";
+			return Render.EMPTY;
 		});
 	};
 
@@ -448,37 +446,42 @@ public class Items extends Controller {
 		// Récupérer et vérifier l'accès à la cible
 		Item targetParent = targetParentId == null ? null : Item.findById(targetParentId);
 		if (targetParentId != null && (targetParent == null || !targetParent.userLogin.equals(userLogin)))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Le chemin concaténé jusqu'à la cible
 		String path = targetParent == null ? "" : (targetParent.path + targetParent.id + ",");
+		// Récupérer les éléments
+		List<Item> items = loadMultipleItems(request, itemIds);
+		if (items == null)
+			return Render.badRequest();
 		// Parcourir chaque élément
-		return actionOnMultipleItems(request, itemIds, (item) -> {
+		for (Item item : items) {
 			// Rien à faire si l'élément est déjà dans la cible
 			if (item.parentId == targetParentId)
-				return;
+				continue;
 			// Erreur si on tente de déplacer un élément dans lui-même ou un de ses descendants
 			if (path.startsWith(item.path + item.id + ","))
-				return;
+				return Render.badRequest();
 			// Lancer l'opération pour cet élément
-			move(item, targetParent, conflict, firstConflictPattern, nextConflictPattern);
-		});
+			return move(item, targetParent, conflict, firstConflictPattern, nextConflictPattern); // TODO Vérifier
+		}
+		return Render.EMPTY;
 	};
 
-	private static final boolean move(Item item, Item targetParent, String conflict, String firstConflictPattern, String nextConflictPattern) {
+	private static final Render move(Item item, Item targetParent, String conflict, String firstConflictPattern, String nextConflictPattern) {
 		// Vérifier la présence d'un élément portant le même nom dans la destination, qui représenterait un conflit
 		Long targetParentId = targetParent == null ? null : targetParent.id;
 		Item existingItem = Item.findItemWithName(item.userLogin, targetParentId, item.name);
 
 		// Les conflits entre fichier et dossier ne sont pas gérés. On stoppe l'opération dans ces cas de figure
 		if (existingItem != null && (existingItem.folder != item.folder))
-			throw Halt.conflict();
+			return Render.conflict();
 
 		if (! item.folder) {
 
 			// Fichier inexistant dans la destination, il suffit de le déplacer
 			if (existingItem == null) {
 				Item.move(item, targetParent, null);
-				return true;
+				return null;
 			}
 			// Fichier existant dans la destination, il faut résoudre le conflit comme demandé
 			boolean done = true;
@@ -513,12 +516,11 @@ public class Items extends Controller {
 				done = false;
 				break;
 			case "abort":
-				throw Halt.conflict();
+				return Render.conflict();
 			default:
-				throw Halt.badRequest();
+				return Render.badRequest();
 			}
-			return done;
-
+			return null;
 		}
 
 		// Récupérer le contenu du dossier "item"
@@ -526,7 +528,7 @@ public class Items extends Controller {
 		// Pour des dossiers vides n'existant pas dans la destination, il suffit de les déplacer
 		if (existingItem == null && children.isEmpty()) {
 			Item.move(item, targetParent, null);
-			return true;
+			return null;
 		}
 		// Pour les dossiers non vides, on déplacera les sous-éléments un par un dans la destination
 		if (existingItem == null) {
@@ -540,14 +542,14 @@ public class Items extends Controller {
 			});
 		}
 		// Déplacer chaque sous-élément de "item" vers "existingItem"
-		boolean allMoved = true;
 		for (Item child : children) {
-			allMoved &= move(child, existingItem, conflict, firstConflictPattern, nextConflictPattern);
+			Render r = move(child, existingItem, conflict, firstConflictPattern, nextConflictPattern);
+			if (r != null)
+				return r;
 		}
 		// Si tous les éléments ont été déplacés, le dossier source est vide et peut être supprimé
-		if (allMoved)
-			Item.erase(item);
-		return allMoved;
+		Item.erase(item);
+		return null;
 	}
 
 	/**
@@ -556,26 +558,28 @@ public class Items extends Controller {
 	 * (itemIds) => cloud.zip
 	 */
 	public static final Route zip = (request, response) -> {
+		// Extraire la requête
+		String itemIds = request.queryParameter("itemIds");
+		// Récupérer les éléments
+		List<Item> items = loadMultipleItems(request, itemIds);
+		if (items == null)
+			return Render.badRequest();
 		// Use temp zip file
 		File file = File.createTempFile("cloud", null);
 		// Generate file
 		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
 			zos.setLevel(Deflater.DEFAULT_COMPRESSION);
-			// Extraire la requête
-			String itemIds = request.queryParameter("itemIds");
 			// Parcourir chaque élément
-			actionOnMultipleItems(request, itemIds, (item) -> {
+			for (Item item : items) {
 				// ... pour l'ajouter au zip définitivement
-				try {
-					zipItem(item, null, zos);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					throw new RuntimeException(ex);
-				}
-			});
+				zipItem(item, null, zos);
+			}
+		} catch (Exception ex) {
+			file.delete();
+			return Render.internalServerError();
 		}
 		// Retourner le fichier zip
-		return SparkUtils.renderFile(response, "application/zip", file, "cloud.zip");
+		return Render.file(file, "application/zip", "cloud.zip", true, true);
 	};
 
 	/**

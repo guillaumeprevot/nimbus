@@ -1,61 +1,25 @@
 package fr.techgp.nimbus.server;
 
-import javax.servlet.http.HttpSession;
+public interface Session {
 
-public class Session {
+	public String id();
 
-	private final Request request;
-	private final HttpSession session;
+	public long creationTime();
 
-	public Session(Request request, HttpSession session) {
-		this.request = request;
-		this.session = session;
-	}
+	public long lastAccessedTime();
 
-	public HttpSession raw() {
-		return this.session;
-	}
+	public boolean isNew();
 
-	public String id() {
-		return this.session.getId();
-	}
+	public <T> T attribute(String name);
 
-	public long creationTime() {
-		return this.session.getCreationTime();
-	}
+	public void attribute(String name, Object value);
 
-	public long lastAccessedTime() {
-		return this.session.getLastAccessedTime();
-	}
+	public void removeAttribute(String name);
 
-	public boolean isNew() {
-		return this.session.isNew();
-	}
+	public int maxInactiveInterval();
 
-	@SuppressWarnings("unchecked")
-	public <T> T attribute(String name) {
-		return (T) this.session.getAttribute(name);
-	}
+	public void maxInactiveInterval(int interval);
 
-	public void attribute(String name, Object value) {
-		this.session.setAttribute(name, value);
-	}
-
-	public void removeAttribute(String name) {
-		this.session.removeAttribute(name);
-	}
-
-	public int maxInactiveInterval() {
-		return this.session.getMaxInactiveInterval();
-	}
-
-	public void maxInactiveInterval(int interval) {
-		this.session.setMaxInactiveInterval(interval);
-	}
-
-	public void invalidate() {
-		this.request.invalidateSession();
-		this.session.invalidate();
-	}
+	public void invalidate();
 
 }

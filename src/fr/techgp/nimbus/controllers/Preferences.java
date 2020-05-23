@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -19,7 +19,7 @@ public class Preferences extends Controller {
 	 */
 	public static final Route theme = (request, response) -> {
 		request.session().attribute("theme", request.queryParameter("theme"));
-		return "";
+		return Render.EMPTY;
 	};
 
 	/**
@@ -54,7 +54,7 @@ public class Preferences extends Controller {
 		String password = StringUtils.withDefault(request.queryParameter("password"), "");
 		String passwordConfirmation = StringUtils.withDefault(request.queryParameter("passwordConfirmation"), "");
 		if (!password.equals(passwordConfirmation))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Récupérer l'utilisateur connecté
 		User user = User.findByLogin(request.session().attribute("userLogin"));
 		// Appliquer le formulaire
@@ -67,7 +67,7 @@ public class Preferences extends Controller {
 		user.showItemThumbnail = "true".equals(request.queryParameter("showItemThumbnail"));
 		user.visibleItemColumns = Optional.ofNullable(request.queryParameterValues("visibleItemColumns[]")).map((a) -> Arrays.asList(a)).orElse(null);
 		User.update(user);
-		return "";
+		return Render.EMPTY;
 	};
 
 }

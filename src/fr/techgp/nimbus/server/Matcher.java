@@ -114,7 +114,7 @@ public interface Matcher {
 					else if (!model[i].equals(value[i]))
 						return false; // and check to fixed chunck match to model
 				}
-				m.entrySet().forEach(e -> req.pathParameter(e.getKey(), e.getValue()));
+				m.entrySet().forEach(e -> req.addPathParameter(e.getKey(), e.getValue()));
 				return true;
 			};
 		}

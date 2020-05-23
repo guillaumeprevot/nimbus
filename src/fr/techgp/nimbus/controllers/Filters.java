@@ -3,57 +3,60 @@ package fr.techgp.nimbus.controllers;
 import java.util.Base64;
 
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.Filter;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
+import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Filters extends Controller {
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié */
-	public static final Filter filterAuthenticatedOrRedirect = (request, response) -> {
+	public static final Route filterAuthenticatedOrRedirect = (request, response) -> {
 		String login = getLogin(request, response, false);
 		if (login == null)
-			redirect(request, response);
+			return redirect(request);
+		return null;
 	};
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié en tant qu'administrateur */
-	public static final Filter filterAdministratorOrRedirect = (request, response) -> {
+	public static final Route filterAdministratorOrRedirect = (request, response) -> {
 		String login = getLogin(request, response, false);
 		if (login == null)
-			redirect(request, response);
+			return redirect(request);
 		User user = User.findByLogin(login);
 		if (user == null || !user.admin)
-			redirect(request, response);
+			return redirect(request);
+		return null;
 	};
 
-	private static final void redirect(Request request, Response response) {
+	private static final Render redirect(Request request) {
 		String q = request.query();
 		if (StringUtils.isNotBlank(q))
 			q = "?" + q;
 		else
 			q = "";
 		request.session().attribute("urlToLoad", request.path() + q);
-		response.renderRedirect("/login.html");
-		throw Halt.now();
+		return Render.redirect("/login.html");
 	}
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié */
-	public static final Filter filterAuthenticated = (request, response) -> {
+	public static final Route filterAuthenticated = (request, response) -> {
 		String login = getLogin(request, response, false);
 		if (login == null)
-			throw Halt.unauthorized();
+			return Render.unauthorized();
+		return null;
 	};
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié en tant qu'administrateur */
-	public static final Filter filterAdministrator = (request, response) -> {
+	public static final Route filterAdministrator = (request, response) -> {
 		String login = getLogin(request, response, false);
 		if (login == null)
-			throw Halt.unauthorized();
+			return Render.unauthorized();
 		User user = User.findByLogin(login);
 		if (user == null || !user.admin)
-			throw Halt.forbidden();
+			return Render.forbidden();
+		return null;
 	};
 
 	/**
@@ -83,7 +86,7 @@ public class Filters extends Controller {
 			}
 			// Demande d'authentification
 			if (login == null)
-				response.header("WWW-Authenticate", "Basic realm=\"Authentication required\"");
+				response.header("WWW-Authenticate", "Basic realm=\"Authentication required\""); // TODO un appel à "Response" hors "Render"
 		}
 		return login;
 	}

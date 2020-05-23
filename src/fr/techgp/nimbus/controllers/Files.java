@@ -12,14 +12,12 @@ import java.net.URLDecoder;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.Part;
 
 import org.apache.commons.io.IOUtils;
 
@@ -28,10 +26,11 @@ import com.google.gson.JsonArray;
 import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
+import fr.techgp.nimbus.server.Upload;
 import fr.techgp.nimbus.utils.ImageUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -54,14 +53,11 @@ public class Files extends Controller {
 		// Configurer le traitement de la requête multi-part (Seuil et dossier pour écriture sur disque)
 		prepareUploadRequest(request, configuration);
 
-		// Extraire la requête
-		Collection<Part> requestParts = request.raw().getParts();
-
 		// Rechercher le dossier parent (où déposer les fichiers) et en vérifier l'accès
 		Long parentId = null;
-		for (Part part : requestParts) {
-			if ("parentId".equals(part.getName())) {
-				try (InputStream is = part.getInputStream()) {
+		for (Upload upload : request.uploads()) {
+			if ("parentId".equals(upload.name())) {
+				try (InputStream is = upload.getInputStream()) {
 					String parentIdString = IOUtils.toString(is, "UTF-8");
 					parentId = (StringUtils.isBlank(parentIdString) || "null".equals(parentIdString)) ? null : Long.valueOf(parentIdString);
 					break;
@@ -70,23 +66,23 @@ public class Files extends Controller {
 		}
 		Item parent = parentId == null ? null : Item.findById(parentId);
 		if (parentId != null && (parent == null || !parent.userLogin.equals(userLogin))) {
-			for (Part part : requestParts) {
-				part.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
+			for (Upload upload : request.uploads()) {
+				upload.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
 			}
-			throw Halt.badRequest();
+			return Render.badRequest();
 		}
 
 		// Récupérer les fichiers uploadés, les éventuels items correspondants et l'espace disque nécessaire
-		List<Part> parts = new ArrayList<>();
+		List<Upload> uploads = new ArrayList<>();
 		List<Item> items = new ArrayList<>();
 		long requiredSpace = 0;
-		for (Part part : request.raw().getParts()) {
-			if (!"files".equals(part.getName()))
+		for (Upload upload : request.uploads()) {
+			if (!"files".equals(upload.name()))
 				continue;
-			Item item = Item.findItemWithName(userLogin, parentId, part.getSubmittedFileName());
-			parts.add(part);
+			Item item = Item.findItemWithName(userLogin, parentId, upload.fileName());
+			uploads.add(upload);
 			items.add(item);
-			requiredSpace += part.getSize();
+			requiredSpace += upload.contentLength();
 			if (item != null && item.content.getLong("length") != null)
 				requiredSpace -= item.content.getLong("length").longValue();
 		}
@@ -94,30 +90,30 @@ public class Files extends Controller {
 		// Vérifier avant de commencer que l'espace disque est suffisant
 		long availableSpace = user.quota == null ? configuration.getStorageFolder().getFreeSpace() : (user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin));
 		if (availableSpace < requiredSpace) {
-			for (Part part : requestParts) {
-				part.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
+			for (Upload upload : request.uploads()) {
+				upload.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
 			}
-			throw Halt.insufficientStorage();
+			return Render.insufficientStorage();
 		}
 
 		// OK, lancer l'intégration
 		JsonArray results = new JsonArray();
 		// Récupérer, si elle est précisée, la date de mise à jour à utiliser pour les fichiers uploadés
 		long generalUpdateDate = SparkUtils.queryParamLong(request, "updateDate", System.currentTimeMillis());
-		for (int i = 0; i < parts.size(); i++) {
-			Part part = parts.get(i);
+		for (int i = 0; i < uploads.size(); i++) {
+			Upload upload = uploads.get(i);
 			Item item = items.get(i);
 			// Ajouter l'élément s'il n'existe pas encore
 			if (item == null)
-				item = Item.add(userLogin, parent, false, part.getSubmittedFileName(), null);
+				item = Item.add(userLogin, parent, false, upload.fileName(), null);
 			// Récupérer, si elle est précisée, la date de mise à jour à utiliser pour ce fichier en particulier
 			Date updateDate = new Date(SparkUtils.queryParamLong(request, "updateDate" + i, generalUpdateDate));
 			// Enregistrement sur disque
-			updateFileFromFilePart(part, item, updateDate);
+			updateFileFromFilePart(upload, item, updateDate);
 			// Renvoyer la liste des ids créés
 			results.add(item.id);
 		}
-		return SparkUtils.renderJSON(response, results);
+		return Render.json(results);
 	};
 
 	/**
@@ -138,27 +134,27 @@ public class Files extends Controller {
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(Long.valueOf(request.pathParameter(":itemId")));
 		if (item == null || !item.userLogin.equals(userLogin))
-			throw Halt.badRequest();
+			return Render.badRequest();
 
 		// Récupérer l'utilisateur pour connaitre son quota
 		User user = User.findByLogin(userLogin);
 		// Récupérer le fichiers uploadés pour connaitre l'espace disque nécessaire
-		Part filePart = request.raw().getPart("file");
+		Upload upload = request.upload("file");
 		if (user.quota != null) {
 			// Vérifier que l'espace libre est suffisamment grand pour la différence avant/après
 			long availableSpace = user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin);
-			long newSize = filePart.getSize();
+			long newSize = upload.contentLength();
 			long oldSize = Optional.ofNullable(item.content.getLong("length")).orElse(0L);
 			if (availableSpace + oldSize - newSize < 0) {
-				filePart.delete(); // Nettoyer le fichier uploadé qui a été stocké sur disque
-				throw Halt.insufficientStorage();
+				upload.delete(); // Nettoyer le fichier uploadé qui a été stocké sur disque
+				return Render.insufficientStorage();
 			}
 		}
 
 		// OK, lancer l'intégration à la date demandée (par défaut, maintenant)
 		long updateDate = SparkUtils.queryParamLong(request, "updateDate", System.currentTimeMillis());
-		updateFileFromFilePart(filePart, item, new Date(updateDate));
-		return "";
+		updateFileFromFilePart(upload, item, new Date(updateDate));
+		return Render.EMPTY;
 	};
 
 	/**
@@ -174,13 +170,13 @@ public class Files extends Controller {
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
-			throw Halt.conflict();
+			return Render.conflict();
 		// Ajouter un fichier vide dans le dossier demandé avec le nom donné
 		Item item = Item.add(userLogin, parentId, false, name, null);
 		if (item == null)
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Retourner son id
-		return item.id.toString();
+		return Render.string(item.id.toString());
 	};
 
 	/**
@@ -194,7 +190,7 @@ public class Files extends Controller {
 		// Extraire la requête
 		String path = request.path().substring("/files/browse/".length());
 		if (StringUtils.isBlank(path))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		try {
 			path = URLDecoder.decode(path, "UTF-8");
 		} catch (Exception ex) {
@@ -206,11 +202,15 @@ public class Files extends Controller {
 		for (String part : path.split("/")) {
 			item = Item.findItemWithName(userLogin, currentId, part);
 			if (item == null)
-				throw Halt.badRequest();
+				return Render.badRequest();
 			currentId = item.id;
 		}
+		// Vérification
+		if (item == null)
+			return Render.badRequest();
 		// Renvoyer le fichier au bout du chemin
-		return returnFile(response, item, false, null, null);
+		String mimeType = configuration.getMimeTypeByFileName(item.name);
+		return Render.file(getFile(item), mimeType, item.name, false, false);
 	};
 
 	/**
@@ -230,10 +230,9 @@ public class Files extends Controller {
 			try {
 				// Le nom de fichier peut contenir des caractères gênants comme %
 				String asciiURL = new URI(null, null, url.toString(), null, null).toASCIIString();
-				response.renderRedirect(asciiURL);
-				return "";
+				return Render.redirect(asciiURL);
 			} catch (URISyntaxException ex) {
-				throw Halt.badRequest();
+				return Render.badRequest();
 			}
 		});
 	};
@@ -249,7 +248,8 @@ public class Files extends Controller {
 			String range = request.header("Range");
 			if (range != null && range.startsWith("bytes="))
 				return returnFileRange(response, item, range.substring("bytes=".length()));
-			return returnFile(response, item, false, null, null);
+			String mimeType = configuration.getMimeTypeByFileName(item.name);
+			return Render.file(getFile(item), mimeType, item.name, false, false);
 		});
 	};
 
@@ -260,7 +260,8 @@ public class Files extends Controller {
 	 */
 	public static final Route download = (request, response) -> {
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
-			return returnFile(response, item, true, null, null);
+			String mimeType = configuration.getMimeTypeByFileName(item.name);
+			return Render.file(getFile(item), mimeType, item.name, true, false);
 		});
 	};
 
@@ -273,7 +274,18 @@ public class Files extends Controller {
 	public static final Route thumbnail = (request, response) -> {
 		int size = SparkUtils.queryParamInteger(request, "size", 32);
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
-			return returnFile(response, item, false, size, size);
+			File file = getFile(item);
+			if (!file.exists())
+				// Fichier absent, pas possible de faire une miniature
+				return Render.notFound();
+			try {
+				String mimeType = configuration.getMimeTypeByFileName(item.name);
+				if (item.name.endsWith(".ico"))
+					return Render.bytes(ImageUtils.getScaleICOImage(file, size, size), mimeType, item.name, false);
+				return Render.bytes(ImageUtils.getScaleImage(file, size, size), mimeType, item.name, false);
+			} catch (IOException | NoSuchElementException ex) { // Erreur de lecture ou format non supporté (comme SVG)
+				return Render.badRequest();
+			}
 		});
 	};
 
@@ -287,22 +299,22 @@ public class Files extends Controller {
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			// Vérifier que l'élément a bien un parent
 			if (item.parentId == null)
-				throw Halt.badRequest();
+				return Render.badRequest();
 			// Récupérer et vérifier le parent de l'élément
 			Item parent = Item.findById(item.parentId);
 			if (! parent.folder)
-				throw Halt.badRequest();
+				return Render.badRequest();
 			// OK, c'est bon
 			parent.content.put("iconURL", "/files/thumbnail/" + item.id + "?size=" + size);
 			parent.content.remove("iconURLCache");
 			parent.updateDate = new Date();
 			Item.update(parent);
-			return "";
+			return Render.EMPTY;
 		});
 	};
 
 	// Configurer le traitement de la requête multi-part (Seuil et dossier pour écriture sur disque)
-	private static final void prepareUploadRequest(Request request, Configuration configuration) {
+	private static final void prepareUploadRequest(Request request, Configuration configuration) { // TODO à déplacer dans Jetty
 		String uploadFolder = configuration.getStorageFolder().getAbsolutePath();
 		long maxFileSize = -1L; // peu importe
 		long maxRequestSize = -1L; // on vérifie plus loin le quota
@@ -311,8 +323,31 @@ public class Files extends Controller {
 	}
 
 	/** Met à jour le fichier à partir du fichier uploadé, recalcule les méta-données et les sauvegarde en base */
-	private static final void updateFileFromFilePart(Part filePart, Item item, Date updateDate) throws IOException {
+	private static final void updateFileFromFilePart(Upload upload, Item item, Date updateDate) throws IOException {
 		File storedFile = getFile(item);
+		if (upload.getFile() != null) {
+			// La limite a été dépassée et le fichier a donc été écrit sur disque.
+			// => on déplace le fichier (= rapide puisque c'est le même volume)
+			java.nio.file.Files.move(upload.getFile().toPath(), storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+		} else if (upload.getBytes() != null) {
+			// La taille est en dessous de la limite et le contenu est donc en mémoire
+			try (OutputStream os = new FileOutputStream(storedFile)) {
+				os.write(upload.getBytes());
+			}
+
+		} else {
+			// Cette méthode n'est pas idéale car on copie inutilement si le fichier uploadé a été stocké sur disque.
+			// => c'est juste une fallback car Jetty fournit des MultiPart (cf ci-dessus).
+			try (InputStream is = upload.getInputStream()) {
+				//too slow : FileUtils.copyInputStreamToFile(is, storedFile);
+				try (OutputStream os = new FileOutputStream(storedFile)) {
+					IOUtils.copyLarge(is, os, new byte[1024*1024*10]);
+				}
+			}
+		}
+		/* TODO à déplacer dans Jetty */
+		/*
 		// NB1 : utiliser "part.getInputStream()" n'est pas efficace quand le fichier
 		//       a été écrit sur disque car on le copie inutilement à sa destination
 		// NB2 : utiliser "part.write(filePath)" fonctionne bien pour les fichiers
@@ -343,44 +378,18 @@ public class Files extends Controller {
 				}
 			}
 		}
+		*/
 		// Mettre à jour les infos du fichier et sauvegarder
 		updateFile(item, updateDate, true);
 	}
 
-	private static final String returnFile(Response response, Item item, boolean download, Integer thumbnailWidth, Integer thumbnailHeight) {
-		String mimetype = configuration.getMimeTypeByFileName(item.name);
-		if (download)
-			response.header("Content-Disposition", "attachment; filename=\"" + item.name + "\"");
-		else
-			response.header("Content-Disposition", "inline; filename=\"" + item.name + "\"");
-		response.type(mimetype);
-		File file = getFile(item);
-		if (!file.exists()) {
-			if (thumbnailWidth == null && thumbnailHeight == null) {
-				// OK, le fichier est considéré comme vide
-				response.header("Content-Length", "0");
-				return "";
-			}
-			// Fichier absent, pas possible de faire une miniature
-			throw Halt.notFound();
-		}
-		try {
-			if (thumbnailWidth == null && thumbnailHeight == null)
-				return SparkUtils.renderFile(response, mimetype, file, null);
-			if (item.name.endsWith(".ico"))
-				return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleICOImage(file, thumbnailWidth, thumbnailHeight));
-			return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleImage(file, thumbnailWidth, thumbnailHeight));
-		} catch (IOException | NoSuchElementException ex) { // Erreur de lecture ou format non supporté (comme SVG)
-			throw Halt.badRequest();
-		}
-	}
-
 	// TODO Gérer l'erreur 416 Range Not Satisfiable
 	// TODO Gérer l'en-tête Range multiple, par exemple "0-10, 20-30, 40-50"
-	private static final String returnFileRange(Response response, Item item, String range) {
+	// TODO EN faire un Render réuntilisable
+	private static final Render returnFileRange(Response response, Item item, String range) {
 		File file = getFile(item);
 		if (!file.exists())
-			throw Halt.notFound();
+			return Render.notFound();
 		// System.out.println("ByteRange=" + range + " pour " + item.name);
 		response.type(configuration.getMimeTypeByFileName(item.name));
 		response.header("Content-Disposition", "inline; filename=\"" + item.name + "\"");
@@ -413,22 +422,21 @@ public class Files extends Controller {
 		// response().setHeader("Expires", SparkUtils.HTTP_RESPONSE_HEADER_DATE_FORMAT.format(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)));
 		// ne pas précisé CONTENT_LENGTH car doublon avec CONTENT_RANGE et ne fonctionne plus en plus
 		// response().setHeader("Content-Length", Long.toString(end - start + 1));
-		try (FileInputStream fis = new FileInputStream(file)) {
-			fis.skip(start);
-			response.status(206); // Partial Content
-			long remaining = end - start + 1;
-			byte[] buffer = new byte[1024 * 1024];
-			try (OutputStream os = response.raw().getOutputStream()) {
-				while (remaining > 0) {
-					int read = fis.read(buffer, 0, (int) Math.min(remaining, buffer.length));
-					os.write(buffer, 0, read);
-					remaining -= read;
+		return (request, r, charset, stream) -> {
+			try (FileInputStream fis = new FileInputStream(file)) {
+				fis.skip(start);
+				response.status(206); // Partial Content*/
+				long remaining = end - start + 1;
+				byte[] buffer = new byte[1024 * 1024];
+				try (OutputStream os = stream.get()) {
+					while (remaining > 0) {
+						int read = fis.read(buffer, 0, (int) Math.min(remaining, buffer.length));
+						os.write(buffer, 0, read);
+						remaining -= read;
+					}
 				}
 			}
-			return "";
-		} catch (IOException ex) {
-			throw Halt.badRequest();
-		}
+		};
 	}
 
 }

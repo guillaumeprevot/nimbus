@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import fr.techgp.nimbus.models.Item;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -32,7 +32,7 @@ public class Shares extends Controller {
 			// Sauvegarder l'élément
 			Item.update(item);
 			// Retourner le mot de passe permettant de générer l'URL de partage
-			return item.sharedPassword;
+			return Render.string(item.sharedPassword);
 		});
 	};
 
@@ -44,7 +44,7 @@ public class Shares extends Controller {
 	public static final Route delete = (request, response) -> {
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			if (StringUtils.isBlank(item.sharedPassword))
-				throw Halt.badRequest();
+				return Render.badRequest();
 			// Supprimer le partage
 			item.sharedPassword = null;
 			item.sharedDate = null;
@@ -53,7 +53,7 @@ public class Shares extends Controller {
 			// item.updateDate = new Date();
 			// Sauvegarder l'élément
 			Item.update(item);
-			return "";
+			return Render.EMPTY;
 		});
 	};
 
@@ -69,27 +69,27 @@ public class Shares extends Controller {
 		Long itemId = Long.valueOf(request.pathParameter(":itemId"));
 		String password = request.queryParameter("password");
 		if (itemId == null || StringUtils.isBlank(password))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(itemId);
 		if (item == null || item.folder || StringUtils.isBlank(item.sharedPassword) || !password.equals(item.sharedPassword))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Vérifier si la durée du partage (facultative) est dépassée
 		if (item.sharedDuration != null) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(item.sharedDate);
 			calendar.add(Calendar.MINUTE, item.sharedDuration);
 			if (calendar.getTime().before(new Date()))
-				throw Halt.badRequest();
+				return Render.badRequest();
 		}
 		// Vérifier si le fichier existe
 		File file = getFile(item);
 		if (! file.exists())
-			throw Halt.notFound();
+			return Render.notFound();
 		// Retourner le résultat
 		String mimeType = configuration.getMimeTypeByFileName(item.name);
 		String fileName = item.name;
-		return SparkUtils.renderFile(response, mimeType, file, fileName);
+		return Render.file(file, mimeType, fileName, true, false);
 	};
 
 }

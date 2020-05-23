@@ -11,7 +11,7 @@ import java.util.Date;
 import com.google.gson.JsonArray;
 
 import fr.techgp.nimbus.models.Item;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
@@ -32,7 +32,8 @@ public class Downloads extends Controller {
 	public static final Route autocomplete = (request, response) -> {
 		// String url = request.queryParams("url");
 		JsonArray results = new JsonArray();
-		return SparkUtils.renderJSON(response, results);
+		// complete "results" later
+		return Render.json(results);
 	};
 
 	/**
@@ -52,15 +53,15 @@ public class Downloads extends Controller {
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
-			throw Halt.conflict();
+			return Render.conflict();
 		// Ajouter l'élément
 		Item item = Item.add(userLogin, parentId, false, name, (i) -> {
 			i.content.append("sourceURL", url);
 		});
 		if (item == null)
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Lancer le téléchargement
-		return execute(item, response);
+		return execute(item);
 	};
 
 	/**
@@ -75,9 +76,9 @@ public class Downloads extends Controller {
 			// Vérifier que le fichier en question a bien une URL à l'origine
 			String url = item.content.getString("sourceURL");
 			if (StringUtils.isBlank(url))
-				throw Halt.badRequest();
+				return Render.badRequest();
 			// Lancer le téléchargement
-			return execute(item, response);
+			return execute(item);
 		});
 	};
 
@@ -95,11 +96,11 @@ public class Downloads extends Controller {
 			item.content.remove("progress");
 			item.updateDate = new Date();
 			Item.update(item);
-			return "";
+			return Render.EMPTY;
 		});
 	};
 
-	private static final String execute(Item item, Response response) {
+	private static final Render execute(Item item) {
 		try {
 			File file = getFile(item);
 			String sourceURL = item.content.getString("sourceURL");
@@ -107,12 +108,12 @@ public class Downloads extends Controller {
 
 			// Vérifier avant de commencer que l'espace disque est suffisant
 			long newLength = connection.getContentLengthLong();
-			if (newLength > file.length())
-				checkQuotaAndHaltIfNecessary(item.userLogin, newLength - file.length());
+			if (newLength > file.length() && !checkQuotaAndHaltIfNecessary(item.userLogin, newLength - file.length()))
+				return Render.insufficientStorage();
 
 			// Utiliser le code de retour de la requête HTTP comme réponse
-			//response.statusMessage(connection.getResponseMessage());
-			response.status(connection.getResponseCode());
+			// String statusMessage = connection.getResponseMessage();
+			int statusCode = connection.getResponseCode();
 
 			// Vider le fichier actuel
 			file.delete();
@@ -126,10 +127,10 @@ public class Downloads extends Controller {
 			new Thread(new DownloadURLRunnable(item, connection)).start();
 
 			// Renvoyer l'id (surtout pour "add" mais pas utile pour "refresh")
-			return item.id.toString();
+			return Render.status(statusCode, item.id.toString());
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			throw Halt.internalServerError();
+			return Render.internalServerError();
 		}
 	}
 

@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Trash extends Controller {
@@ -36,7 +36,7 @@ public class Trash extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Retourner le nombre d'éléments dans la corbeille de l'utilisateur
-		return Integer.toString(Item.trashCount(userLogin));
+		return Render.string(Integer.toString(Item.trashCount(userLogin)));
 	};
 
 	/**
@@ -64,7 +64,7 @@ public class Trash extends Controller {
 			names.put(item.id, item.name);
 		}
 		// Retourner la liste en un document JSON
-		return SparkUtils.renderJSONCollection(response, items, (item) -> {
+		return Render.json(items, (item) -> {
 			JsonObject node = new JsonObject();
 			node.addProperty("id", item.id);
 			node.addProperty("parentId", item.parentId);
@@ -91,8 +91,14 @@ public class Trash extends Controller {
 	public static final Route delete = (request, response) -> {
 		// Extraire la requête
 		String itemIds = request.queryParameter("itemIds");
-		// Parcourir chaque élément pour le supprimer
-		return actionOnMultipleItems(request, itemIds, Item::delete);
+		// Récupérer les éléments
+		List<Item> items = loadMultipleItems(request, itemIds);
+		if (items == null)
+			return Render.badRequest();
+		// Supprimer les éléments demandés
+		items.stream().forEach(Item::delete);
+		// Envoyer une réponse OK vide
+		return Render.EMPTY;
 	};
 
 	/**
@@ -106,8 +112,14 @@ public class Trash extends Controller {
 	public static final Route restore = (request, response) -> {
 		// Extraire la requête
 		String itemIds = request.queryParameter("itemIds");
-		// Parcourir chaque élément pour le restaurer
-		return actionOnMultipleItems(request, itemIds, Item::restore);
+		// Récupérer les éléments
+		List<Item> items = loadMultipleItems(request, itemIds);
+		if (items == null)
+			return Render.badRequest();
+		// Restaurer les éléments demandés
+		items.stream().forEach(Item::restore);
+		// Envoyer une réponse OK vide
+		return Render.EMPTY;
 	};
 
 	/**
@@ -120,9 +132,12 @@ public class Trash extends Controller {
 	public static final Route erase = (request, response) -> {
 		// Extraire la requête
 		String itemIds = request.queryParameter("itemIds");
-		// Parcourir chaque élément
-		return actionOnMultipleItems(request, itemIds, (item) -> {
-			// ... pour l'effacer définitivement
+		// Récupérer les éléments
+		List<Item> items = loadMultipleItems(request, itemIds);
+		if (items == null)
+			return Render.badRequest();
+		// Parcourir les éléments demandés
+		for (Item item : items) {
 			if (item.folder) {
 				// Pour les dossiers, supprimer récursivement
 				// L'important ici est le paramètre "recursive=true" pour récupèrer toute la descendance en une boucle
@@ -138,7 +153,9 @@ public class Trash extends Controller {
 			}
 			// Supprimer définitivement en base
 			Item.erase(item);
-		});
+		}
+		// Envoyer une réponse OK vide
+		return Render.EMPTY;
 	};
 
 }

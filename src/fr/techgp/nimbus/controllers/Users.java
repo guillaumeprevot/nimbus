@@ -3,7 +3,7 @@ package fr.techgp.nimbus.controllers;
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
@@ -32,7 +32,7 @@ public class Users extends Controller {
 	 */
 	public static final Route list = (request, response) -> {
 		// Récupérer les utilisateurs dans la base de données
-		return SparkUtils.renderJSONCollection(response, User.findAll(), Users::toJSON);
+		return Render.json(User.findAll(), Users::toJSON);
 	};
 
 	/**
@@ -47,15 +47,15 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
-			throw Halt.badRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
+			return Render.badRequest();
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user != null)
-			throw Halt.conflict();
+			return Render.conflict();
 		// Récupérer le mot de passe
 		String password = request.queryParameter("password");
 		if (StringUtils.isBlank(password))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Récupérer le formulaire
 		user = new User();
 		user.login = login;
@@ -64,7 +64,7 @@ public class Users extends Controller {
 		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
 		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
 		User.insert(user);
-		return SparkUtils.renderJSON(response, toJSON(user));
+		return Render.json(toJSON(user));
 	};
 
 	/**
@@ -80,11 +80,11 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
-			throw Halt.badRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
+			return Render.badRequest();
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user == null)
-			throw Halt.notFound();
+			return Render.notFound();
 		// Appliquer le formulaire
 		String password = request.queryParameter("password");
 		if (StringUtils.isNotBlank(password))
@@ -93,7 +93,7 @@ public class Users extends Controller {
 		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
 		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
 		User.update(user);
-		return SparkUtils.renderJSON(response, toJSON(user));
+		return Render.json(toJSON(user));
 	};
 
 	/**
@@ -108,14 +108,14 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à supprimer
 		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
-			throw Halt.badRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
+			return Render.badRequest();
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user == null)
-			throw Halt.notFound();
+			return Render.notFound();
 		User.delete(user);
 		// TODO Supprimer le contenu (base+disque) de l'utilisateur dans Users.delete
-		return SparkUtils.renderJSON(response, toJSON(user));
+		return Render.json(toJSON(user));
 	};
 
 	private static final JsonObject toJSON(User u) {

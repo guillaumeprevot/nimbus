@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -17,13 +14,13 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
 import fr.techgp.nimbus.Configuration;
-import fr.techgp.nimbus.FreeMarker;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.Halt;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Router;
+import fr.techgp.nimbus.server.render.RenderFreeMarker;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -36,11 +33,10 @@ public class Controller {
 	public static final Router init(Logger logger, Configuration configuration, boolean dev) {
 		Controller.logger = logger;
 		Controller.configuration = configuration;
-		Router r = Router.getInstance();
+		Router r = new Router();
 
 		r.redirect("/", "/nav");
 
-		// router.before("/*", new StaticFiles(configuration, "public"));
 		r.get("/favicon.ico", StaticFiles.publicFolder);
 		r.get("/favicon.png", StaticFiles.publicFolder);
 		r.get("/nimbus.css", StaticFiles.publicFolder);
@@ -60,8 +56,7 @@ public class Controller {
 			return actionOnSingleItem(request, path[path.length - 1], (item) -> {
 				if (item.folder)
 					return nav(request);
-				response.renderRedirect("/files/stream/" + item.id);
-				return "";
+				return Render.redirect("/files/stream/" + item.id);
 			});
 		});
 
@@ -149,7 +144,7 @@ public class Controller {
 		// Accès à la page de test en mode DEV uniquement
 		r.get("/test.html", (request, response) -> {
 			if (!dev)
-				throw Halt.notFound();
+				return Render.notFound();
 			User.findAll().forEach((u) -> {
 				try {
 					File folder = new File(configuration.getStorageFolder(), u.login);
@@ -169,7 +164,7 @@ public class Controller {
 		return r;
 	}
 
-	private static final String nav(Request request) {
+	private static final Render nav(Request request) {
 		String login = request.session().attribute("userLogin");
 		User user = User.findByLogin(login);
 		return renderTemplate(request, "main.html",
@@ -187,23 +182,17 @@ public class Controller {
 	/**
 	 * Cette méthode génère un template FreeMarker avec les paramètres indiqués
 	 *
+	 * @param request la requête, pour déterminer la langue et le thème
 	 * @param name le nom du template à générer
 	 * @param paramAndValues une suite de paramètres "name1:String, value1, name2:String, value2, ..."
-	 * @return le texte issu de la génération du template
+	 * @return le rendu qui se chargera de générer le template
 	 */
-	protected static final String renderTemplate(Request request, String name, Object... paramAndValues) {
+	protected static final Render renderTemplate(Request request, String name, Object... paramAndValues) {
 		String theme = getUserTheme(request);
-
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.put("lang", SparkUtils.getRequestLang(request));
-		attributes.put("theme", theme);
-		attributes.put("stylesheet", "dark".equals(theme) ? "/libs/bootswatch/darkly.min.css" : "/libs/bootswatch/flatly.min.css");
-
-		for (int i = 0; i < paramAndValues.length; i += 2) {
-			attributes.put((String) paramAndValues[i], paramAndValues[i + 1]);
-		}
-
-		return FreeMarker.render(name, attributes);
+		return new RenderFreeMarker(name, paramAndValues)
+				.with("lang", SparkUtils.getRequestLang(request))
+				.with("theme", theme)
+				.with("stylesheet", "dark".equals(theme) ? "/libs/bootswatch/darkly.min.css" : "/libs/bootswatch/flatly.min.css");
 	}
 
 	/**
@@ -225,27 +214,25 @@ public class Controller {
 	 * @param consumer le traitement à effectuer sur chaque élément
 	 * @return badRequest en cas de problème ou "" si tous les éléments ont été consommés sans erreur
 	 */
-	protected static final String actionOnSingleItem(Request request, String itemIdString, Function<Item, String> consumer) {
+	protected static final Render actionOnSingleItem(Request request, String itemIdString, Function<Item, Render> consumer) {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(Long.valueOf(itemIdString));
 		if (item == null || !item.userLogin.equals(userLogin))
-			throw Halt.badRequest();
+			return Render.badRequest();
 		// Laisser l'appelant "consommer" l'élément
 		return consumer.apply(item);
 	}
 
 	/**
 	 * Cette méthode récupère les éléments demandés "itemIds" de l'utilisateur connecté dans "request".
-	 * Chaque élément est "consommé" de manière personnalisée par "consumer".
 	 *
 	 * @param request la requête pour savoir qui est connecté (via "userLogin")
 	 * @param itemIds les ids des éléments demandés, séparés par ","
-	 * @param consumer le traitement à effectuer sur chaque élément
-	 * @return badRequest en cas de problème ou "" si tous les éléments ont été consommés sans erreur
+	 * @return null en cas de requête incorrecte ou la liste demandée sinon
 	 */
-	protected static final String actionOnMultipleItems(Request request, String itemIds, Consumer<Item> consumer) {
+	protected static final List<Item> loadMultipleItems(Request request, String itemIds) {
 		if (itemIds != null && itemIds.trim().length() > 0) {
 			// Récupérer l'utilisateur connecté
 			String userLogin = request.session().attribute("userLogin");
@@ -255,17 +242,17 @@ public class Controller {
 			List<Item> items = Item.findByIds(ids);
 			// Vérifier la pertinence des ids demandés
 			if (items.size() != ids.size())
-				throw Halt.badRequest();
+				return null;
 			// Parcourir les éléments à traiter
 			for (Item item : items) {
 				// Vérifier les droits d'accès
 				if (! item.userLogin.equals(userLogin))
-					throw Halt.badRequest();
-				// Laisser l'appelant "consommer" l'élément
-				consumer.accept(item);
+					return null;
 			}
+			// Renvoyer la liste si tout est OK
+			return items;
 		}
-		return "";
+		return null;
 	}
 
 	/**
@@ -301,31 +288,27 @@ public class Controller {
 
 	/**
 	 * Cette méthode vérifie si l'espace dispo de l'utilisateur est supérieur ou égal à neededSpace.
-	 * Si l'espace est insuffisant, une exception est lancéé avec Halt.insufficientStorage().
 	 *
 	 * @param userLogin l'utilisateur donc il faudra vérifier le quota et l'espace utilisé
 	 * @param neededSpace l'espace nécessaire pour accomplir l'opération en cours (upload, duplicate, ...)
+	 * @return true si l'espace est suffisant, false sinon
 	 */
-	protected static final void checkQuotaAndHaltIfNecessary(String userLogin, Long neededSpace) {
+	protected static final boolean checkQuotaAndHaltIfNecessary(String userLogin, Long neededSpace) {
 		// Pas de souci si la taille n'augmente pas
 		if (neededSpace == null || neededSpace <= 0)
-			return;
+			return true;
 		// Récupérer le quota de l'utilisateur connecté
 		User user = User.findByLogin(userLogin);
 		// Vérifier pour les utilisateurs sans quota qu'il reste suffisamment d'espace disque
-		if (user.quota == null) {
-			if (neededSpace > configuration.getStorageFolder().getFreeSpace())
-				throw Halt.insufficientStorage();
-			return;
-		}
+		if (user.quota == null)
+			return neededSpace <= configuration.getStorageFolder().getFreeSpace();
 		// Récupérer l'espace occupé
 		long usedSpace = Item.calculateUsedSpace(userLogin);
 		//System.out.println(String.format("Needed space = %7d bytes", neededSpace));
 		//System.out.println(String.format("User quota   = %7d bytes", user.quota * 1024 * 1024));
 		//System.out.println(String.format("Used space   = %7d bytes", usedSpace));
 		//System.out.println(String.format("Free space   = %7d bytes", user.quota * 1024 * 1024 - usedSpace));
-		if (neededSpace > user.quota.longValue() * 1024L * 1024L - usedSpace)
-			throw Halt.insufficientStorage();
+		return neededSpace <= user.quota.longValue() * 1024L * 1024L - usedSpace;
 	}
 
 	/**

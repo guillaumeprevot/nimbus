@@ -2,98 +2,109 @@ package fr.techgp.nimbus.server;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.io.EofException;
+import java.util.function.Supplier;
 
 public class Router {
 
-	private static final Router INSTANCE = new Router();
+	public static final String DEFAULT_CONTENT_TYPE = "text/html; charset=utf-8";
 
-	public static final Router getInstance() {
-		return INSTANCE;
+	private static final class RouteEntry {
+		public Matcher matcher;
+		public Route route;
 	}
 
-	public static final String NOT_FOUND = "<html><body><h2>404 Not found</h2></body></html>";
-	public static final String INTERNAL_SERVER_ERROR = "<html><body><h2>500 Internal Server Error</h2></body></html>";
-
-	private List<BeforeEntry> befores = new ArrayList<>();
+	private List<RouteEntry> befores = new ArrayList<>();
 	private List<RouteEntry> routes = new ArrayList<>();
-	private List<AfterEntry> afters = new ArrayList<>();
+	private List<RouteEntry> afters = new ArrayList<>();
 
-	public void process(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Request req = new Request(request, false);
-		Response res = new Response(response);
+	public void process(Request request, Response response, Supplier<OutputStream> output) throws IOException {
 		try {
-			for (BeforeEntry e : this.befores) {
-				if (e.matcher.matches(req)) {
-					e.filter.handle(req, res);
-				}
-			}
-			for (RouteEntry e : this.routes) {
-				if (e.matcher.matches(req)) {
-					String body = e.route.handle(req, res);
-					if (body != null)
-						res.body(body);
-					if (res.body() != null)
-						break;
-				}
-			}
-			for (AfterEntry e : this.afters) {
-				if (e.matcher.matches(req)) {
-					e.filter.handle(req, res);
-				}
-			}
-
-		} catch (Halt.Exception ex) {
-			if (ex.code() != -1)
-				res.status(ex.code());
-			if (ex.body() != null)
-				res.body(ex.body());
+			// Process ALL before filters
+			process(request, response, this.befores, true);
+			// Process routes if body ios not set yet and stop as soon as a body exists
+			if (response.body() == null)
+				process(request, response, this.routes, false);
+			// Process ALL after filters
+			process(request, response, this.afters, true);
 
 		} catch (Exception ex) {
-			res.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			res.body(INTERNAL_SERVER_ERROR);
+			// Reply 500 for exceptions
+			response.type(DEFAULT_CONTENT_TYPE);
+			response.body(Render.internalServerError());
 		}
 
-		// No match
-		if (res.body() == null) {
-			res.status(HttpServletResponse.SC_NOT_FOUND);
-			res.body(NOT_FOUND);
+		// Reply 404 Not Found if no route matches request
+		if (response.body() == null) {
+			response.type(DEFAULT_CONTENT_TYPE);
+			response.body(Render.notFound());
 		}
 
-		if (!response.isCommitted()) {
-			if (response.getContentType() == null)
-				response.setContentType("text/html; charset=utf-8");
-			// Check if GZIP is wanted/accepted and in that case handle that
-			try (OutputStream os = checkAndWrap(request, response, true)) {
-				res.body().render(os);
-				os.flush();
-			} catch (EofException ex) {
-				// Requête interrompue par le client
+		// Write response to output stream
+		if (response.type() == null)
+			response.type(DEFAULT_CONTENT_TYPE);
+		response.body().render(request, response, StandardCharsets.UTF_8, output);
+	}
+
+	private void process(Request request, Response response, List<RouteEntry> entries, boolean processAll) throws Exception {
+		for (RouteEntry entry : entries) {
+			if (entry.matcher.matches(request)) {
+				Render body = entry.route.handle(request, response);
+				if (body != null)
+					response.body(body);
+				if (response.body() != null && !processAll)
+					break;
 			}
 		}
 	}
 
-	public Router before(String path, Filter filter) {
+	public Router before(String path, Route filter) {
 		return before(Matcher.Path.of(path), filter);
 	}
 
-	public Router before(String method, String path, Filter filter) {
+	public Router before(String method, String path, Route filter) {
 		return before(Matcher.Method.is(method).and(Matcher.Path.of(path)), filter);
 	}
 
-	public Router before(Matcher matcher, Filter filter) {
-		BeforeEntry e = new BeforeEntry();
+	public Router before(Matcher matcher, Route filter) {
+		RouteEntry e = new RouteEntry();
 		e.matcher = matcher;
-		e.filter = filter;
+		e.route = filter;
 		this.befores.add(e);
+		return this;
+	}
+
+	public Router route(String path, Route route) {
+		return route(Matcher.Path.of(path), route);
+	}
+
+	public Router route(String method, String path, Route route) {
+		return after(Matcher.Method.is(method).and(Matcher.Path.of(path)), route);
+	}
+
+	public Router route(Matcher matcher, Route route) {
+		RouteEntry e = new RouteEntry();
+		e.matcher = matcher;
+		e.route = route;
+		this.routes.add(e);
+		return this;
+	}
+
+	public Router after(String path, Route filter) {
+		return after(Matcher.Path.of(path), filter);
+	}
+
+	public Router after(String method, String path, Route filter) {
+		return after(Matcher.Method.is(method).and(Matcher.Path.of(path)), filter);
+	}
+
+	public Router after(Matcher matcher, Route filter) {
+		RouteEntry e = new RouteEntry();
+		e.matcher = matcher;
+		e.route = filter;
+		this.afters.add(e);
 		return this;
 	}
 
@@ -106,37 +117,10 @@ public class Router {
 	}
 
 	public Router redirect(String from, String to) {
-		return route(Matcher.Path.is(from), (req, resp) -> { resp.renderRedirect(to); return ""; });
+		return route(Matcher.Path.is(from), (req, resp) -> Render.redirect(to));
 	}
 
-	public Router route(String path, Route route) {
-		return route(Matcher.Path.of(path), route);
-	}
-
-	public Router route(Matcher matcher, Route route) {
-		RouteEntry e = new RouteEntry();
-		e.matcher = matcher;
-		e.route = route;
-		this.routes.add(e);
-		return this;
-	}
-
-	public Router after(String path, Filter filter) {
-		return after(Matcher.Path.of(path), filter);
-	}
-
-	public Router after(String method, String path, Filter filter) {
-		return after(Matcher.Method.is(method).and(Matcher.Path.of(path)), filter);
-	}
-
-	public Router after(Matcher matcher, Filter filter) {
-		AfterEntry e = new AfterEntry();
-		e.matcher = matcher;
-		e.filter = filter;
-		this.afters.add(e);
-		return this;
-	}
-
+	/** TODO en faire un Render
 	private static OutputStream checkAndWrap(HttpServletRequest req, HttpServletResponse res, boolean requireWantsHeader) throws IOException {
 		OutputStream responseStream = res.getOutputStream();
 		// GZIP Support handled here. First we must ensure that we want to use gzip, and that the client supports gzip
@@ -149,20 +133,6 @@ public class Router {
 		}
 		return responseStream;
 	}
-
-	private static final class BeforeEntry {
-		public Matcher matcher;
-		public Filter filter;
-	}
-
-	private static final class RouteEntry {
-		public Matcher matcher;
-		public Route route;
-	}
-
-	private static final class AfterEntry {
-		public Matcher matcher;
-		public Filter filter;
-	}
+	*/
 
 }
