@@ -17,17 +17,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import javax.servlet.MultipartConfigElement;
-
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonArray;
 
-import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Render;
-import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.server.Upload;
@@ -49,9 +45,6 @@ public class Files extends Controller {
 		// Récupérer l'utilisateur pour connaitre son quota
 		String userLogin = request.session().attribute("userLogin");
 		User user = User.findByLogin(userLogin);
-
-		// Configurer le traitement de la requête multi-part (Seuil et dossier pour écriture sur disque)
-		prepareUploadRequest(request, configuration);
 
 		// Rechercher le dossier parent (où déposer les fichiers) et en vérifier l'accès
 		Long parentId = null;
@@ -127,9 +120,6 @@ public class Files extends Controller {
 	public static final Route update = (request, response) -> {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
-
-		// Configurer le traitement de la requête multi-part (Seuil et dossier pour écriture sur disque)
-		prepareUploadRequest(request, configuration);
 
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(Long.valueOf(request.pathParameter(":itemId")));
@@ -313,15 +303,6 @@ public class Files extends Controller {
 		});
 	};
 
-	// Configurer le traitement de la requête multi-part (Seuil et dossier pour écriture sur disque)
-	private static final void prepareUploadRequest(Request request, Configuration configuration) { // TODO à déplacer dans Jetty
-		String uploadFolder = configuration.getStorageFolder().getAbsolutePath();
-		long maxFileSize = -1L; // peu importe
-		long maxRequestSize = -1L; // on vérifie plus loin le quota
-		int fileSizeThreshold = 100 * 1024 * 1024; // en mémoire jusqu'à 100 Mo
-		request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(uploadFolder, maxFileSize, maxRequestSize, fileSizeThreshold));
-	}
-
 	/** Met à jour le fichier à partir du fichier uploadé, recalcule les méta-données et les sauvegarde en base */
 	private static final void updateFileFromFilePart(Upload upload, Item item, Date updateDate) throws IOException {
 		File storedFile = getFile(item);
@@ -332,13 +313,14 @@ public class Files extends Controller {
 
 		} else if (upload.getBytes() != null) {
 			// La taille est en dessous de la limite et le contenu est donc en mémoire
+			// => on écrit dans le fichier demandé
 			try (OutputStream os = new FileOutputStream(storedFile)) {
 				os.write(upload.getBytes());
 			}
 
 		} else {
-			// Cette méthode n'est pas idéale car on copie inutilement si le fichier uploadé a été stocké sur disque.
-			// => c'est juste une fallback car Jetty fournit des MultiPart (cf ci-dessus).
+			// La méthode par défaut est d'ouvrir le flux pour le copier
+			// => c'est juste une fallback si on n'a détecté ni fichier, ni byte[]
 			try (InputStream is = upload.getInputStream()) {
 				//too slow : FileUtils.copyInputStreamToFile(is, storedFile);
 				try (OutputStream os = new FileOutputStream(storedFile)) {
@@ -346,39 +328,6 @@ public class Files extends Controller {
 				}
 			}
 		}
-		/* TODO à déplacer dans Jetty */
-		/*
-		// NB1 : utiliser "part.getInputStream()" n'est pas efficace quand le fichier
-		//       a été écrit sur disque car on le copie inutilement à sa destination
-		// NB2 : utiliser "part.write(filePath)" fonctionne bien pour les fichiers
-		//       car elle les déplace mais on ne contrôle pas la taille du buffer pour la copie en mémoire
-		// NB3 : caster "part" en "MultiPart" fonctionne et on peut tester si c'est un
-		//       fichier (pour utiliser java.nio.file.Files.move) ou un byte[] (pour écrit dans un FileOutputStream)
-		if (filePart instanceof org.eclipse.jetty.http.MultiPartFormInputStream.MultiPart) {
-			org.eclipse.jetty.http.MultiPartFormInputStream.MultiPart mpart = (org.eclipse.jetty.http.MultiPartFormInputStream.MultiPart) filePart;
-			if (mpart.getFile() != null) {
-				// La limite a été dépassée et le fichier a donc été écrit sur disque.
-				// => on déplace le fichier (= rapide puisque c'est le même volume)
-				java.nio.file.Files.move(mpart.getFile().toPath(), storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			} else {
-				// La taille est en dessous de la limite et le contenu est donc en mémoire
-				try (OutputStream os = new FileOutputStream(storedFile)) {
-					os.write(mpart.getBytes());
-				}
-			}
-		} else {
-			// Cette méthode n'est pas idéale car on copie inutilement si le fichier uploadé a été stocké sur disque.
-			// => c'est juste une fallback car Jetty fournit des MultiPart (cf ci-dessus).
-			if (logger.isWarnEnabled())
-				logger.warn("L'utilisation de \"org.eclipse.jetty.http.MultiPartFormInputStream.MultiPart\" améliorerait les performances.");
-			try (InputStream is = filePart.getInputStream()) {
-				//too slow : FileUtils.copyInputStreamToFile(is, storedFile);
-				try (OutputStream os = new FileOutputStream(storedFile)) {
-					IOUtils.copyLarge(is, os, new byte[1024*1024*10]);
-				}
-			}
-		}
-		*/
 		// Mettre à jour les infos du fichier et sauvegarder
 		updateFile(item, updateDate, true);
 	}

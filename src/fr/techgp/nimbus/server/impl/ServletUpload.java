@@ -11,6 +11,8 @@ import fr.techgp.nimbus.server.Upload;
 public class ServletUpload implements Upload {
 
 	private final Part part;
+	private File file = null;
+	private byte[] bytes = null;
 
 	public ServletUpload(Part part) {
 		this.part = part;
@@ -42,12 +44,20 @@ public class ServletUpload implements Upload {
 
 	@Override
 	public File getFile() {
-		return null;
+		return this.file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
 	}
 
 	@Override
 	public byte[] getBytes() {
-		return null;
+		return this.bytes;
+	}
+
+	public void setBytes(byte[] bytes) {
+		this.bytes = bytes;
 	}
 
 	@Override

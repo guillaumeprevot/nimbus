@@ -52,7 +52,9 @@ public class Application {
 			Router router = Controller.init(logger, configuration, dev);
 
 			// Prepare Jetty
-			Server server = Jetty.init(configuration.getServerPort(), configuration.getServerKeystore(), configuration.getServerKeystorePassword(), router);
+			Server server = Jetty.init(configuration.getServerPort(),
+					configuration.getServerKeystore(), configuration.getServerKeystorePassword(),
+					router, configuration.getStorageFolder().getAbsolutePath());
 
 			// Launch URL
 			/*
