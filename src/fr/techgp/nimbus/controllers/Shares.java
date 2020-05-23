@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -43,7 +44,7 @@ public class Shares extends Controller {
 	public static final Route delete = (request, response) -> {
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			if (StringUtils.isBlank(item.sharedPassword))
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			// Supprimer le partage
 			item.sharedPassword = null;
 			item.sharedDate = null;
@@ -68,23 +69,23 @@ public class Shares extends Controller {
 		Long itemId = Long.valueOf(request.pathParameter(":itemId"));
 		String password = request.queryParameter("password");
 		if (itemId == null || StringUtils.isBlank(password))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(itemId);
 		if (item == null || item.folder || StringUtils.isBlank(item.sharedPassword) || !password.equals(item.sharedPassword))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Vérifier si la durée du partage (facultative) est dépassée
 		if (item.sharedDuration != null) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(item.sharedDate);
 			calendar.add(Calendar.MINUTE, item.sharedDuration);
 			if (calendar.getTime().before(new Date()))
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 		}
 		// Vérifier si le fichier existe
 		File file = getFile(item);
 		if (! file.exists())
-			return SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		// Retourner le résultat
 		String mimeType = configuration.getMimeTypeByFileName(item.name);
 		String fileName = item.name;

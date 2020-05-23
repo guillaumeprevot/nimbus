@@ -14,14 +14,11 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.function.Function;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import fr.techgp.nimbus.server.HaltException;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 
@@ -29,55 +26,6 @@ public final class SparkUtils {
 
 	private SparkUtils() {
 		//
-	}
-
-	public static final void halt() {
-		throw new HaltException(-1, null);
-	}
-
-	public static final void halt(int code, String body) {
-		throw new HaltException(code, body);
-	}
-
-	public static final Object haltNotModified() {
-		halt(HttpServletResponse.SC_NOT_MODIFIED, ""); // 304
-		return null;
-	}
-
-	public static final Object haltBadRequest() {
-		halt(HttpServletResponse.SC_BAD_REQUEST, "Bad Request"); // 400
-		return null;
-	}
-
-	public static final Object haltUnauthorized() {
-		halt(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"); // 401
-		return null;
-	}
-
-	public static final Object haltForbidden() {
-		halt(HttpServletResponse.SC_FORBIDDEN, "Forbidden"); // 403
-		return null;
-	}
-
-	public static final Object haltNotFound() {
-		halt(HttpServletResponse.SC_NOT_FOUND, "Not Found"); // 404
-		return null;
-	}
-
-	public static final Object haltConflict() {
-		halt(HttpServletResponse.SC_CONFLICT, "Conflict"); // 409
-		return null;
-	}
-
-	public static final Object haltInternalServerError() {
-		halt(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error"); // 500
-		return null;
-	}
-
-	public static final Object haltInsufficientStorage() {
-		// Emprunté de WEBDAV : https://tools.ietf.org/html/rfc4918#section-11.5
-		halt(507, "Insufficient Storage"); // 507
-		return null;
 	}
 
 	public static final String renderJSON(Response response, JsonElement object) {
@@ -94,7 +42,7 @@ public final class SparkUtils {
 		return a.toString();
 	}
 
-	public static final Object renderFile(Response response, String mimeType, File file, String fileName) throws IOException {
+	public static final String renderFile(Response response, String mimeType, File file, String fileName) throws IOException {
 		if (fileName != null)
 			response.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
 		response.header("Content-Length", Long.toString(file.length()));
@@ -103,14 +51,14 @@ public final class SparkUtils {
 		}
 	}
 
-	public static final Object renderBytes(Response response, String mimeType, byte[] bytes) throws IOException {
+	public static final String renderBytes(Response response, String mimeType, byte[] bytes) throws IOException {
 		response.header("Content-Length", Integer.toString(bytes.length));
 		try (InputStream stream = new ByteArrayInputStream(bytes)) {
 			return renderStream(response, mimeType, stream);
 		}
 	}
 
-	public static final Object renderStream(Response response, String mimeType, InputStream stream) throws IOException {
+	public static final String renderStream(Response response, String mimeType, InputStream stream) throws IOException {
 		response.type(mimeType);
 		try (OutputStream os = response.raw().getOutputStream()) {
 			IOUtils.copy(stream, os, 1024 * 1024);

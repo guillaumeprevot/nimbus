@@ -21,6 +21,7 @@ import fr.techgp.nimbus.FreeMarker;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Router;
 import fr.techgp.nimbus.utils.CryptoUtils;
@@ -148,7 +149,7 @@ public class Controller {
 		// Accès à la page de test en mode DEV uniquement
 		r.get("/test.html", (request, response) -> {
 			if (!dev)
-				return SparkUtils.haltNotFound();
+				throw Halt.notFound();
 			User.findAll().forEach((u) -> {
 				try {
 					File folder = new File(configuration.getStorageFolder(), u.login);
@@ -168,7 +169,7 @@ public class Controller {
 		return r;
 	}
 
-	private static final Object nav(Request request) {
+	private static final String nav(Request request) {
 		String login = request.session().attribute("userLogin");
 		User user = User.findByLogin(login);
 		return renderTemplate(request, "main.html",
@@ -224,13 +225,13 @@ public class Controller {
 	 * @param consumer le traitement à effectuer sur chaque élément
 	 * @return badRequest en cas de problème ou "" si tous les éléments ont été consommés sans erreur
 	 */
-	protected static final Object actionOnSingleItem(Request request, String itemIdString, Function<Item, Object> consumer) {
+	protected static final String actionOnSingleItem(Request request, String itemIdString, Function<Item, String> consumer) {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(Long.valueOf(itemIdString));
 		if (item == null || !item.userLogin.equals(userLogin))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Laisser l'appelant "consommer" l'élément
 		return consumer.apply(item);
 	}
@@ -244,7 +245,7 @@ public class Controller {
 	 * @param consumer le traitement à effectuer sur chaque élément
 	 * @return badRequest en cas de problème ou "" si tous les éléments ont été consommés sans erreur
 	 */
-	protected static final Object actionOnMultipleItems(Request request, String itemIds, Consumer<Item> consumer) {
+	protected static final String actionOnMultipleItems(Request request, String itemIds, Consumer<Item> consumer) {
 		if (itemIds != null && itemIds.trim().length() > 0) {
 			// Récupérer l'utilisateur connecté
 			String userLogin = request.session().attribute("userLogin");
@@ -254,12 +255,12 @@ public class Controller {
 			List<Item> items = Item.findByIds(ids);
 			// Vérifier la pertinence des ids demandés
 			if (items.size() != ids.size())
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			// Parcourir les éléments à traiter
 			for (Item item : items) {
 				// Vérifier les droits d'accès
 				if (! item.userLogin.equals(userLogin))
-					return SparkUtils.haltBadRequest();
+					throw Halt.badRequest();
 				// Laisser l'appelant "consommer" l'élément
 				consumer.accept(item);
 			}
@@ -300,7 +301,7 @@ public class Controller {
 
 	/**
 	 * Cette méthode vérifie si l'espace dispo de l'utilisateur est supérieur ou égal à neededSpace.
-	 * Si l'espace est insuffisant, la méthode SparkUtils.haltInsufficientStorage() est appelée pour interrompre le traitement.
+	 * Si l'espace est insuffisant, une exception est lancéé avec Halt.insufficientStorage().
 	 *
 	 * @param userLogin l'utilisateur donc il faudra vérifier le quota et l'espace utilisé
 	 * @param neededSpace l'espace nécessaire pour accomplir l'opération en cours (upload, duplicate, ...)
@@ -314,7 +315,7 @@ public class Controller {
 		// Vérifier pour les utilisateurs sans quota qu'il reste suffisamment d'espace disque
 		if (user.quota == null) {
 			if (neededSpace > configuration.getStorageFolder().getFreeSpace())
-				SparkUtils.haltInsufficientStorage();
+				throw Halt.insufficientStorage();
 			return;
 		}
 		// Récupérer l'espace occupé
@@ -324,7 +325,7 @@ public class Controller {
 		//System.out.println(String.format("Used space   = %7d bytes", usedSpace));
 		//System.out.println(String.format("Free space   = %7d bytes", user.quota * 1024 * 1024 - usedSpace));
 		if (neededSpace > user.quota.longValue() * 1024L * 1024L - usedSpace)
-			SparkUtils.haltInsufficientStorage();
+			throw Halt.insufficientStorage();
 	}
 
 	/**

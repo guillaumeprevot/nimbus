@@ -38,15 +38,9 @@ public class Router {
 			}
 			for (RouteEntry e : this.routes) {
 				if (e.matcher.matches(req)) {
-					Object body = e.route.handle(req, res);
-					if (body != null) {
-						if (body instanceof byte[])
-							res.body((byte[]) body);
-						else if (body instanceof String)
-							res.body((String) body);
-						else
-							throw new UnsupportedOperationException("Unsupported body type : " + body.getClass().getName());
-					}
+					String body = e.route.handle(req, res);
+					if (body != null)
+						res.body(body);
 					if (res.body() != null)
 						break;
 				}
@@ -57,7 +51,7 @@ public class Router {
 				}
 			}
 
-		} catch (HaltException ex) {
+		} catch (Halt.Exception ex) {
 			if (ex.code() != -1)
 				res.status(ex.code());
 			if (ex.body() != null)

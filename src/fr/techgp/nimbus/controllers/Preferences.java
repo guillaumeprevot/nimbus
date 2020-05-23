@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.Optional;
 
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Preferences extends Controller {
@@ -54,7 +54,7 @@ public class Preferences extends Controller {
 		String password = StringUtils.withDefault(request.queryParameter("password"), "");
 		String passwordConfirmation = StringUtils.withDefault(request.queryParameter("passwordConfirmation"), "");
 		if (!password.equals(passwordConfirmation))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Récupérer l'utilisateur connecté
 		User user = User.findByLogin(request.session().attribute("userLogin"));
 		// Appliquer le formulaire

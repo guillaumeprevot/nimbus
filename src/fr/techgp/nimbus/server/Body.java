@@ -5,19 +5,19 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 @FunctionalInterface
-public interface Render {
+public interface Body {
 
 	public void render(OutputStream stream) throws IOException;
 
-	public static Render empty() {
+	public static Body empty() {
 		return (os) -> { /* */ };
 	}
 
-	public static Render string(String value) {
+	public static Body string(String value) {
 		return (os) -> os.write(value.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static Render bytes(byte[] value) {
+	public static Body bytes(byte[] value) {
 		return (os) -> os.write(value);
 	}
 

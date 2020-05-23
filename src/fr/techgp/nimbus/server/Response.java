@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 public class Response {
 
 	private final HttpServletResponse response;
-	private Render body;
+	private Body body;
 
 	public Response(HttpServletResponse response) {
 		this.response = response;
@@ -31,20 +31,20 @@ public class Response {
 		this.response.setContentType(contentType);
 	}
 
-	public Render body() {
+	public Body body() {
 		return this.body;
 	}
 
-	public void body(Render body) {
+	public void body(Body body) {
 		this.body = body;
 	}
 
 	public void body(String body) {
-		this.body = Render.string(body);
+		this.body = Body.string(body);
 	}
 
 	public void body(byte[] body) {
-		this.body = Render.bytes(body);
+		this.body = Body.bytes(body);
 	}
 
 	public String header(String name) {
@@ -78,7 +78,7 @@ public class Response {
 	public void renderRedirect(String location) {
 		this.status(HttpServletResponse.SC_FOUND);
 		this.header("Location", this.response.encodeRedirectURL(location));
-		this.body(Render.empty());
+		this.body(Body.empty());
 	}
 
 	public void length(int length) {

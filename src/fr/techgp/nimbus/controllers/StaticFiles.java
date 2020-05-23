@@ -14,11 +14,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
-import fr.techgp.nimbus.utils.SparkUtils;
 
 /** Ce controlleur remplace la gestion des fichiers statiques par Spark afin de gérer la mise en cache par Etag / Last-Modified / If-None-Match / If-Modified-Since */
 public class StaticFiles extends Controller {
@@ -28,10 +28,10 @@ public class StaticFiles extends Controller {
 	public static final Route publicFolder = (request, response) -> {
 		String path = request.path();
 		if (path.contains(".."))
-			return SparkUtils.haltForbidden();
+			throw Halt.forbidden();
 		File file = new File("public", path);
 		if (!file.exists() || !file.isFile())
-			return SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		return sendCacheable(request, response, file);
 	};
 

@@ -3,6 +3,7 @@ package fr.techgp.nimbus.controllers;
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.SparkUtils;
@@ -46,15 +47,15 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
-			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
+			throw Halt.badRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user != null)
-			return SparkUtils.haltConflict();
+			throw Halt.conflict();
 		// Récupérer le mot de passe
 		String password = request.queryParameter("password");
 		if (StringUtils.isBlank(password))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Récupérer le formulaire
 		user = new User();
 		user.login = login;
@@ -79,11 +80,11 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à modifier
 		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
-			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
+			throw Halt.badRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user == null)
-			return SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		// Appliquer le formulaire
 		String password = request.queryParameter("password");
 		if (StringUtils.isNotBlank(password))
@@ -107,11 +108,11 @@ public class Users extends Controller {
 		// Récupérer le login de l'utilisateur à supprimer
 		String login = request.pathParameter(":login");
 		if (StringUtils.isBlank(login))
-			return SparkUtils.haltBadRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
+			throw Halt.badRequest(); // normalement, Spark aura zappé l'URL avec NotFound mais par précaution, on vérifie
 		// Récupérer l'utilisateur
 		User user = User.findByLogin(login);
 		if (user == null)
-			return SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		User.delete(user);
 		// TODO Supprimer le contenu (base+disque) de l'utilisateur dans Users.delete
 		return SparkUtils.renderJSON(response, toJSON(user));

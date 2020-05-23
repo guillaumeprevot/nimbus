@@ -2,6 +2,7 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -10,7 +11,7 @@ import java.util.Date;
 import com.google.gson.JsonArray;
 
 import fr.techgp.nimbus.models.Item;
-import fr.techgp.nimbus.server.HaltException;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
@@ -51,13 +52,13 @@ public class Downloads extends Controller {
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
-			return SparkUtils.haltConflict();
+			throw Halt.conflict();
 		// Ajouter l'élément
 		Item item = Item.add(userLogin, parentId, false, name, (i) -> {
 			i.content.append("sourceURL", url);
 		});
 		if (item == null)
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Lancer le téléchargement
 		return execute(item, response);
 	};
@@ -74,7 +75,7 @@ public class Downloads extends Controller {
 			// Vérifier que le fichier en question a bien une URL à l'origine
 			String url = item.content.getString("sourceURL");
 			if (StringUtils.isBlank(url))
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			// Lancer le téléchargement
 			return execute(item, response);
 		});
@@ -98,7 +99,7 @@ public class Downloads extends Controller {
 		});
 	};
 
-	private static final Object execute(Item item, Response response) {
+	private static final String execute(Item item, Response response) {
 		try {
 			File file = getFile(item);
 			String sourceURL = item.content.getString("sourceURL");
@@ -126,11 +127,9 @@ public class Downloads extends Controller {
 
 			// Renvoyer l'id (surtout pour "add" mais pas utile pour "refresh")
 			return item.id.toString();
-		} catch (HaltException ex) {
-			throw ex;
-		} catch (Exception ex) {
+		} catch (IOException ex) {
 			ex.printStackTrace();
-			return SparkUtils.haltInternalServerError();
+			throw Halt.internalServerError();
 		}
 	}
 

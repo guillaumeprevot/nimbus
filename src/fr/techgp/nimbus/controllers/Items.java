@@ -26,6 +26,7 @@ import com.google.gson.JsonPrimitive;
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -91,7 +92,7 @@ public class Items extends Controller {
 
 		// Vérifier l'accès à l'élément racine
 		if (parentId != null && !Item.hasItem(userLogin, parentId))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 
 		// Récupérer les éléments
 		List<Item> items = Item.findAll(userLogin, parentId, recursive, sortBy, sortAscending, searchBy, searchText, folders, hidden, deleted, extensions);
@@ -120,7 +121,7 @@ public class Items extends Controller {
 		if (parentId != null) {
 			Item parent = Item.findById(parentId);
 			if (parent == null || !parent.userLogin.equals(userLogin))
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 		}
 		// Tester si un élément existe déjà avec l'un des noms demandés
 		boolean result = Item.hasItemsWithNames(userLogin, parentId, filenames);
@@ -189,11 +190,11 @@ public class Items extends Controller {
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
-			return SparkUtils.haltConflict();
+			throw Halt.conflict();
 		// Ajouter un dossier dans le dossier demandé avec le nom donné
 		Item item = Item.add(userLogin, parentId, true, name, null);
 		if (item == null)
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Retourner son id
 		return item.id.toString();
 	};
@@ -215,11 +216,11 @@ public class Items extends Controller {
 		String firstPattern = request.queryParameter("firstPattern");
 		String nextPattern = request.queryParameter("nextPattern");
 		if (StringUtils.isBlank(newName) && (StringUtils.isBlank(firstPattern) || StringUtils.isBlank(nextPattern)))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (source) -> {
 			// Vérifier que le nom proposé pour la copie est correct
 			if (StringUtils.isNotBlank(newName) && Item.hasItemWithName(source.userLogin, source.parentId, newName))
-				return SparkUtils.haltConflict();
+				throw Halt.conflict();
 
 			// Vérification des quotas d'espace disque
 			if (!source.folder)
@@ -260,7 +261,7 @@ public class Items extends Controller {
 			// Vérifier que le nom choisi pour la copie est correct
 			Item existing = Item.findItemWithName(item.userLogin, item.parentId, name);
 			if (existing != null && !existing.id.equals(item.id))
-				return SparkUtils.haltConflict();
+				throw Halt.conflict();
 			// On met à jour l'élément
 			item.name = name;
 			item.tags = StringUtils.isBlank(tags) ? null : Arrays.asList(tags.split(","));
@@ -374,13 +375,13 @@ public class Items extends Controller {
 			String json = request.queryParameter("metadata");
 			JsonElement element = JsonParser.parseString(json);
 			if (!element.isJsonArray())
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			// Via la liste "metadata", les méta-données seront ajustées comme demandées côté client
 			JsonArray array = element.getAsJsonArray();
 			for (int i = 0; i < array.size(); i++) {
 				element = array.get(i);
 				if (!element.isJsonObject())
-					return SparkUtils.haltBadRequest();
+					throw Halt.badRequest();
 				JsonObject object = element.getAsJsonObject();
 				String name = object.get("name").getAsString();
 				String action = object.get("action").getAsString();
@@ -389,7 +390,7 @@ public class Items extends Controller {
 				else {
 					JsonElement valueElement = object.get("value");
 					if (!valueElement.isJsonPrimitive())
-						return SparkUtils.haltBadRequest();
+						throw Halt.badRequest();
 					JsonPrimitive valuePrimitive = valueElement.getAsJsonPrimitive();
 					Object value;
 					String type = object.get("type").getAsString();
@@ -447,7 +448,7 @@ public class Items extends Controller {
 		// Récupérer et vérifier l'accès à la cible
 		Item targetParent = targetParentId == null ? null : Item.findById(targetParentId);
 		if (targetParentId != null && (targetParent == null || !targetParent.userLogin.equals(userLogin)))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Le chemin concaténé jusqu'à la cible
 		String path = targetParent == null ? "" : (targetParent.path + targetParent.id + ",");
 		// Parcourir chaque élément
@@ -469,10 +470,8 @@ public class Items extends Controller {
 		Item existingItem = Item.findItemWithName(item.userLogin, targetParentId, item.name);
 
 		// Les conflits entre fichier et dossier ne sont pas gérés. On stoppe l'opération dans ces cas de figure
-		if (existingItem != null && (existingItem.folder != item.folder)) {
-			SparkUtils.haltConflict();
-			return false; // peu importe car haltConflict lance une exception
-		}
+		if (existingItem != null && (existingItem.folder != item.folder))
+			throw Halt.conflict();
 
 		if (! item.folder) {
 
@@ -514,11 +513,9 @@ public class Items extends Controller {
 				done = false;
 				break;
 			case "abort":
-				SparkUtils.haltConflict();
-				break;
+				throw Halt.conflict();
 			default:
-				SparkUtils.haltBadRequest();
-				break;
+				throw Halt.badRequest();
 			}
 			return done;
 

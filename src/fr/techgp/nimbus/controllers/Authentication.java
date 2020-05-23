@@ -3,9 +3,9 @@ package fr.techgp.nimbus.controllers;
 import java.io.File;
 
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Route;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Authentication extends Controller {
@@ -70,10 +70,10 @@ public class Authentication extends Controller {
 	public static final Route background = (request, response) -> {
 		String background = configuration.getClientLoginBackground();
 		if (StringUtils.isBlank(background))
-			return SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		File file = new File(configuration.getStorageFolder(), background);
 		if (!file.exists())
-			return SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		return StaticFiles.sendCacheable(request, response, file);
 	};
 

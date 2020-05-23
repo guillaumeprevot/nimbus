@@ -4,9 +4,9 @@ import java.util.Base64;
 
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Filter;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Filters extends Controller {
@@ -36,24 +36,24 @@ public class Filters extends Controller {
 			q = "";
 		request.session().attribute("urlToLoad", request.path() + q);
 		response.renderRedirect("/login.html");
-		SparkUtils.halt();
+		throw Halt.now();
 	}
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié */
 	public static final Filter filterAuthenticated = (request, response) -> {
 		String login = getLogin(request, response, false);
 		if (login == null)
-			SparkUtils.haltUnauthorized();
+			throw Halt.unauthorized();
 	};
 
 	/** Ce filtre s'assure que l'utilisateur est authentifié en tant qu'administrateur */
 	public static final Filter filterAdministrator = (request, response) -> {
 		String login = getLogin(request, response, false);
 		if (login == null)
-			SparkUtils.haltUnauthorized();
+			throw Halt.unauthorized();
 		User user = User.findByLogin(login);
 		if (user == null || !user.admin)
-			SparkUtils.haltForbidden();
+			throw Halt.forbidden();
 	};
 
 	/**

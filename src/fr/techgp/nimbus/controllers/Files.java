@@ -28,6 +28,7 @@ import com.google.gson.JsonArray;
 import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.Halt;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
@@ -72,7 +73,7 @@ public class Files extends Controller {
 			for (Part part : requestParts) {
 				part.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
 			}
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		}
 
 		// Récupérer les fichiers uploadés, les éventuels items correspondants et l'espace disque nécessaire
@@ -96,7 +97,7 @@ public class Files extends Controller {
 			for (Part part : requestParts) {
 				part.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
 			}
-			return SparkUtils.haltInsufficientStorage();
+			throw Halt.insufficientStorage();
 		}
 
 		// OK, lancer l'intégration
@@ -137,7 +138,7 @@ public class Files extends Controller {
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(Long.valueOf(request.pathParameter(":itemId")));
 		if (item == null || !item.userLogin.equals(userLogin))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 
 		// Récupérer l'utilisateur pour connaitre son quota
 		User user = User.findByLogin(userLogin);
@@ -150,7 +151,7 @@ public class Files extends Controller {
 			long oldSize = Optional.ofNullable(item.content.getLong("length")).orElse(0L);
 			if (availableSpace + oldSize - newSize < 0) {
 				filePart.delete(); // Nettoyer le fichier uploadé qui a été stocké sur disque
-				return SparkUtils.haltInsufficientStorage();
+				throw Halt.insufficientStorage();
 			}
 		}
 
@@ -173,11 +174,11 @@ public class Files extends Controller {
 		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
-			return SparkUtils.haltConflict();
+			throw Halt.conflict();
 		// Ajouter un fichier vide dans le dossier demandé avec le nom donné
 		Item item = Item.add(userLogin, parentId, false, name, null);
 		if (item == null)
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		// Retourner son id
 		return item.id.toString();
 	};
@@ -193,7 +194,7 @@ public class Files extends Controller {
 		// Extraire la requête
 		String path = request.path().substring("/files/browse/".length());
 		if (StringUtils.isBlank(path))
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		try {
 			path = URLDecoder.decode(path, "UTF-8");
 		} catch (Exception ex) {
@@ -205,7 +206,7 @@ public class Files extends Controller {
 		for (String part : path.split("/")) {
 			item = Item.findItemWithName(userLogin, currentId, part);
 			if (item == null)
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			currentId = item.id;
 		}
 		// Renvoyer le fichier au bout du chemin
@@ -232,7 +233,7 @@ public class Files extends Controller {
 				response.renderRedirect(asciiURL);
 				return "";
 			} catch (URISyntaxException ex) {
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			}
 		});
 	};
@@ -286,11 +287,11 @@ public class Files extends Controller {
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			// Vérifier que l'élément a bien un parent
 			if (item.parentId == null)
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			// Récupérer et vérifier le parent de l'élément
 			Item parent = Item.findById(item.parentId);
 			if (! parent.folder)
-				return SparkUtils.haltBadRequest();
+				throw Halt.badRequest();
 			// OK, c'est bon
 			parent.content.put("iconURL", "/files/thumbnail/" + item.id + "?size=" + size);
 			parent.content.remove("iconURLCache");
@@ -346,7 +347,7 @@ public class Files extends Controller {
 		updateFile(item, updateDate, true);
 	}
 
-	private static final Object returnFile(Response response, Item item, boolean download, Integer thumbnailWidth, Integer thumbnailHeight) {
+	private static final String returnFile(Response response, Item item, boolean download, Integer thumbnailWidth, Integer thumbnailHeight) {
 		String mimetype = configuration.getMimeTypeByFileName(item.name);
 		if (download)
 			response.header("Content-Disposition", "attachment; filename=\"" + item.name + "\"");
@@ -361,7 +362,7 @@ public class Files extends Controller {
 				return "";
 			}
 			// Fichier absent, pas possible de faire une miniature
-			return SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		}
 		try {
 			if (thumbnailWidth == null && thumbnailHeight == null)
@@ -370,16 +371,16 @@ public class Files extends Controller {
 				return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleICOImage(file, thumbnailWidth, thumbnailHeight));
 			return SparkUtils.renderBytes(response, mimetype, ImageUtils.getScaleImage(file, thumbnailWidth, thumbnailHeight));
 		} catch (IOException | NoSuchElementException ex) { // Erreur de lecture ou format non supporté (comme SVG)
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		}
 	}
 
-	// TODO : gérer l'erreur 416 Range Not Satisfiable
-	// TODO : gérer l'en-tête Range multiple, par exemple "0-10, 20-30, 40-50"
-	private static final Object returnFileRange(Response response, Item item, String range) {
+	// TODO Gérer l'erreur 416 Range Not Satisfiable
+	// TODO Gérer l'en-tête Range multiple, par exemple "0-10, 20-30, 40-50"
+	private static final String returnFileRange(Response response, Item item, String range) {
 		File file = getFile(item);
 		if (!file.exists())
-			SparkUtils.haltNotFound();
+			throw Halt.notFound();
 		// System.out.println("ByteRange=" + range + " pour " + item.name);
 		response.type(configuration.getMimeTypeByFileName(item.name));
 		response.header("Content-Disposition", "inline; filename=\"" + item.name + "\"");
@@ -426,7 +427,7 @@ public class Files extends Controller {
 			}
 			return "";
 		} catch (IOException ex) {
-			return SparkUtils.haltBadRequest();
+			throw Halt.badRequest();
 		}
 	}
 

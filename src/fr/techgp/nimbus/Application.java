@@ -28,7 +28,8 @@ public class Application {
 		System.setProperty("org.slf4j.simpleLogger.showLogName", "false");
 		System.setProperty("org.slf4j.simpleLogger.showShortLogName", "true");
 		System.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
-		System.setProperty("org.slf4j.simpleLogger.log.org.mongodb.driver.cluster", "warn");
+		System.setProperty("org.slf4j.simpleLogger.log.org.mongodb.driver", "warn");
+		System.setProperty("org.slf4j.simpleLogger.log.org.eclipse.jetty", "warn");
 		return LoggerFactory.getLogger(Application.class);
 	}
 
