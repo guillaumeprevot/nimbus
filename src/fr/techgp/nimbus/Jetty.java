@@ -1,6 +1,7 @@
 package fr.techgp.nimbus;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,13 +48,20 @@ public class Jetty {
 				throws IOException, ServletException {
 			ServletRequest req = new JettyServletRequest(request, false, this.uploadFolder);
 			ServletResponse res = new ServletResponse(response);
-			this.router.process(req, res, () -> {
-				try {
-					return response.getOutputStream();
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				}
-			});
+			this.router.process(req, res);
+			try {
+				res.body().render(req, res, StandardCharsets.UTF_8, () -> {
+					try {
+						return response.getOutputStream();
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
+					}
+				});
+			} catch (Exception ex) {
+				// The connection may have been closed by client.
+				// Shouldn't it be an EofException ?
+				// System.out.println(ex.getClass().getName() + " on " + req.path());
+			}
 			baseRequest.setHandled(true);
 		}
 

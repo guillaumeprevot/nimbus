@@ -37,6 +37,27 @@ public interface Render {
 
 	public static Render EMPTY = (request, response, charset, stream) -> { /* */ };
 
+	/**
+	 * This class make it possible to throw an Exception anywhere in {@link Route#handle(Request, Response)}
+	 * while still providing a proper {@link Render}.
+	 *
+	 * By default, it is catched in {@link Router#process(Request, Response, Supplier)} to set {@link Response#body(Render)}.
+	 */
+	public static class Exception extends RuntimeException {
+
+		private static final long serialVersionUID = 1L;
+		private final Render render;
+
+		public Exception(Render render) {
+			super();
+			this.render = render;
+		}
+
+		public Render get() {
+			return this.render;
+		}
+	}
+
 	public static Render string(String value) {
 		return new RenderString(value);
 	}

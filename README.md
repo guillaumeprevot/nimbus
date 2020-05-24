@@ -28,7 +28,7 @@ Le développement du projet s'organise selon 4 axes :
 
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
-[Jetty](https://www.eclipse.org/jetty/) | Java | [9.4.28](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Server Web
+[Jetty](https://www.eclipse.org/jetty/) | Java | [9.4.28](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Serveur Web
 [FreeMarker](https://freemarker.apache.org/) | Java | [2.3.30](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | [2.8.6](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.30](http://www.slf4j.org/download.html) | MIT | Gestion des logs

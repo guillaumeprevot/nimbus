@@ -1,11 +1,7 @@
 package fr.techgp.nimbus.server;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class Router {
 
@@ -20,7 +16,7 @@ public class Router {
 	private List<RouteEntry> routes = new ArrayList<>();
 	private List<RouteEntry> afters = new ArrayList<>();
 
-	public void process(Request request, Response response, Supplier<OutputStream> output) throws IOException {
+	public void process(Request request, Response response) {
 		try {
 			// Process ALL before filters
 			process(request, response, this.befores, true);
@@ -45,15 +41,22 @@ public class Router {
 		// Write response to output stream
 		if (response.type() == null)
 			response.type(DEFAULT_CONTENT_TYPE);
-		response.body().render(request, response, StandardCharsets.UTF_8, output);
 	}
 
 	private void process(Request request, Response response, List<RouteEntry> entries, boolean processAll) throws Exception {
 		for (RouteEntry entry : entries) {
 			if (entry.matcher.matches(request)) {
-				Render body = entry.route.handle(request, response);
-				if (body != null)
-					response.body(body);
+				try {
+					// Call the route
+					Render body = entry.route.handle(request, response);
+					// The route may return null or return a Render
+					if (body != null)
+						response.body(body);
+				} catch (Render.Exception ex) {
+					// The route can also throw an exception providing the Render
+					response.body(ex.get());
+				}
+				// Stop when the body is set, if asked to
 				if (response.body() != null && !processAll)
 					break;
 			}
@@ -119,20 +122,5 @@ public class Router {
 	public Router redirect(String from, String to) {
 		return route(Matcher.Path.is(from), (req, resp) -> Render.redirect(to));
 	}
-
-	/** TODO en faire un Render
-	private static OutputStream checkAndWrap(HttpServletRequest req, HttpServletResponse res, boolean requireWantsHeader) throws IOException {
-		OutputStream responseStream = res.getOutputStream();
-		// GZIP Support handled here. First we must ensure that we want to use gzip, and that the client supports gzip
-		boolean acceptsGzip = Collections.list(req.getHeaders("Accept-Encoding")).stream().anyMatch(h -> h != null && h.contains("gzip"));
-		boolean wantGzip = res.getHeaders("Content-Encoding").contains("gzip");
-		if (acceptsGzip && (wantGzip || !requireWantsHeader)) {
-			responseStream = new GZIPOutputStream(responseStream, true);
-			if (!wantGzip)
-				res.setHeader("Content-Encoding", "gzip");
-		}
-		return responseStream;
-	}
-	*/
 
 }

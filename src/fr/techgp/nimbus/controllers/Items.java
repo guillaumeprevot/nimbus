@@ -462,26 +462,26 @@ public class Items extends Controller {
 			if (path.startsWith(item.path + item.id + ","))
 				return Render.badRequest();
 			// Lancer l'opération pour cet élément
-			return move(item, targetParent, conflict, firstConflictPattern, nextConflictPattern); // TODO Vérifier
+			move(item, targetParent, conflict, firstConflictPattern, nextConflictPattern);
 		}
 		return Render.EMPTY;
 	};
 
-	private static final Render move(Item item, Item targetParent, String conflict, String firstConflictPattern, String nextConflictPattern) {
+	private static final boolean move(Item item, Item targetParent, String conflict, String firstConflictPattern, String nextConflictPattern) {
 		// Vérifier la présence d'un élément portant le même nom dans la destination, qui représenterait un conflit
 		Long targetParentId = targetParent == null ? null : targetParent.id;
 		Item existingItem = Item.findItemWithName(item.userLogin, targetParentId, item.name);
 
 		// Les conflits entre fichier et dossier ne sont pas gérés. On stoppe l'opération dans ces cas de figure
 		if (existingItem != null && (existingItem.folder != item.folder))
-			return Render.conflict();
+			throw new Render.Exception(Render.conflict());
 
 		if (! item.folder) {
 
 			// Fichier inexistant dans la destination, il suffit de le déplacer
 			if (existingItem == null) {
 				Item.move(item, targetParent, null);
-				return null;
+				return true;
 			}
 			// Fichier existant dans la destination, il faut résoudre le conflit comme demandé
 			boolean done = true;
@@ -516,11 +516,11 @@ public class Items extends Controller {
 				done = false;
 				break;
 			case "abort":
-				return Render.conflict();
+				throw new Render.Exception(Render.conflict());
 			default:
-				return Render.badRequest();
+				throw new Render.Exception(Render.badRequest());
 			}
-			return null;
+			return done;
 		}
 
 		// Récupérer le contenu du dossier "item"
@@ -528,7 +528,7 @@ public class Items extends Controller {
 		// Pour des dossiers vides n'existant pas dans la destination, il suffit de les déplacer
 		if (existingItem == null && children.isEmpty()) {
 			Item.move(item, targetParent, null);
-			return null;
+			return true;
 		}
 		// Pour les dossiers non vides, on déplacera les sous-éléments un par un dans la destination
 		if (existingItem == null) {
@@ -542,14 +542,14 @@ public class Items extends Controller {
 			});
 		}
 		// Déplacer chaque sous-élément de "item" vers "existingItem"
+		boolean allMoved = true;
 		for (Item child : children) {
-			Render r = move(child, existingItem, conflict, firstConflictPattern, nextConflictPattern);
-			if (r != null)
-				return r;
+			allMoved &= move(child, existingItem, conflict, firstConflictPattern, nextConflictPattern);
 		}
 		// Si tous les éléments ont été déplacés, le dossier source est vide et peut être supprimé
-		Item.erase(item);
-		return null;
+		if (allMoved)
+			Item.erase(item);
+		return allMoved;
 	}
 
 	/**
