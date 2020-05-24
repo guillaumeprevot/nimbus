@@ -6,7 +6,6 @@ import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.CryptoUtils;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Users extends Controller {
@@ -61,8 +60,8 @@ public class Users extends Controller {
 		user.login = login;
 		user.password = CryptoUtils.hashPassword(password);
 		user.name = request.queryParameter("name");
-		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
-		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
+		user.admin = request.queryParameterBoolean("admin", false);
+		user.quota = request.queryParameterInteger("quota", null);
 		User.insert(user);
 		return Render.json(toJSON(user));
 	};
@@ -90,8 +89,8 @@ public class Users extends Controller {
 		if (StringUtils.isNotBlank(password))
 			user.password = CryptoUtils.hashPassword(password);
 		user.name = request.queryParameter("name");
-		user.admin = SparkUtils.queryParamBoolean(request, "admin", false);
-		user.quota = SparkUtils.queryParamInteger(request, "quota", null);
+		user.admin = request.queryParameterBoolean("admin", false);
+		user.quota = request.queryParameterInteger("quota", null);
 		User.update(user);
 		return Render.json(toJSON(user));
 	};

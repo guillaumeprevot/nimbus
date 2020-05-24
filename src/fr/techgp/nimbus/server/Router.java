@@ -20,13 +20,15 @@ public class Router {
 		try {
 			// Process ALL before filters
 			process(request, response, this.befores, true);
-			// Process routes if body ios not set yet and stop as soon as a body exists
+			// Process routes if body is not set yet, and stop as soon as a body is set
 			if (response.body() == null)
 				process(request, response, this.routes, false);
 			// Process ALL after filters
 			process(request, response, this.afters, true);
 
 		} catch (Exception ex) {
+			// TODO intégrer la gestion des exceptions plus proprement
+			ex.printStackTrace();
 			// Reply 500 for exceptions
 			response.type(DEFAULT_CONTENT_TYPE);
 			response.body(Render.internalServerError());

@@ -28,7 +28,6 @@ import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
 
@@ -79,15 +78,15 @@ public class Items extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 
 		// Extraire la requête
-		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
-		boolean recursive = SparkUtils.queryParamBoolean(request, "recursive", false);
+		Long parentId = request.queryParameterLong("parentId", null);
+		boolean recursive = request.queryParameterBoolean("recursive", false);
 		String sortBy = request.queryParameter("sortBy");
-		boolean sortAscending = SparkUtils.queryParamBoolean(request, "sortAscending", false);
+		boolean sortAscending = request.queryParameterBoolean("sortAscending", false);
 		String searchBy = request.queryParameter("searchBy");
-		String searchText = SparkUtils.queryParamString(request, "searchText", "").toLowerCase();
-		Boolean folders = SparkUtils.queryParamBoolean(request, "folders", null); // true/false/null
-		Boolean hidden = SparkUtils.queryParamBoolean(request, "hidden", null); // true/false/null
-		Boolean deleted = SparkUtils.queryParamBoolean(request, "deleted", null); // true/false/null
+		String searchText = request.queryParameter("searchText", "").toLowerCase();
+		Boolean folders = request.queryParameterBoolean("folders", null); // true/false/null
+		Boolean hidden = request.queryParameterBoolean("hidden", null); // true/false/null
+		Boolean deleted = request.queryParameterBoolean("deleted", null); // true/false/null
 		String extensions = request.queryParameter("extensions");
 
 		// Vérifier l'accès à l'élément racine
@@ -115,7 +114,7 @@ public class Items extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
-		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
+		Long parentId = request.queryParameterLong("parentId", null);
 		String[] filenames = request.queryParameterValues("names[]");
 		// Vérifier si la racine demandée est accessible à l'utilisateur
 		if (parentId != null) {
@@ -165,7 +164,7 @@ public class Items extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire de la requête le texte à rechercher dans les tags (NB .toLowerCase())
-		String term = SparkUtils.queryParamString(request, "term", "").toLowerCase();
+		String term = request.queryParameter("term", "").toLowerCase();
 		// Retourner en JSON les tags sous la forme d'objets { label: tag, value: tag }
 		JsonArray results = new JsonArray();
 		Item.forEachTag(userLogin, (tag) -> {
@@ -185,7 +184,7 @@ public class Items extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
 		String name = request.queryParameter("name");
-		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
+		Long parentId = request.queryParameterLong("parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
 			return Render.conflict();
@@ -295,7 +294,7 @@ public class Items extends Controller {
 	public static final Route hide = (request, response) -> {
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Extraire la requête
-			boolean hidden = SparkUtils.queryParamBoolean(request, "hidden", true);
+			boolean hidden = request.queryParameterBoolean("hidden", true);
 			// On met à jour l'élément
 			item.hidden = hidden;
 			// pas de changement de updateDate car le contenu reste le même
@@ -439,10 +438,10 @@ public class Items extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
 		String itemIds = request.queryParameter("itemIds");
-		String conflict = SparkUtils.queryParamString(request, "conflict", "skip");
-		String firstConflictPattern = SparkUtils.queryParamString(request, "firstConflictPattern", "Conflict of {0}");
-		String nextConflictPattern = SparkUtils.queryParamString(request, "nextConflictPattern", "Conflict ({1}) of {0}");
-		Long targetParentId = SparkUtils.queryParamLong(request, "targetParentId", null);
+		String conflict = request.queryParameter("conflict", "skip");
+		String firstConflictPattern = request.queryParameter("firstConflictPattern", "Conflict of {0}");
+		String nextConflictPattern = request.queryParameter("nextConflictPattern", "Conflict ({1}) of {0}");
+		Long targetParentId = request.queryParameterLong("targetParentId", null);
 		// Récupérer et vérifier l'accès à la cible
 		Item targetParent = targetParentId == null ? null : Item.findById(targetParentId);
 		if (targetParentId != null && (targetParent == null || !targetParent.userLogin.equals(userLogin)))

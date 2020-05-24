@@ -1,7 +1,10 @@
 package fr.techgp.nimbus.controllers;
 
+import java.net.URLDecoder;
+
+import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Route;
-import fr.techgp.nimbus.utils.SparkUtils;
+import fr.techgp.nimbus.utils.StringUtils;
 
 public class Extensions extends Controller {
 
@@ -14,9 +17,9 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate(request, "epub.html",
 				"userLogin", request.session().attribute("userLogin"),
-				"url", SparkUtils.queryParamUrl(request, "url", ""),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"url", queryParameterURL(request, "url", ""),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -28,9 +31,9 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate(request, "pdf.html",
 				"userLogin", request.session().attribute("userLogin"),
-				"url", SparkUtils.queryParamUrl(request, "url", ""),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"url", queryParameterURL(request, "url", ""),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -42,9 +45,9 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate(request, "video.html",
 				"userLogin", request.session().attribute("userLogin"),
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -55,8 +58,8 @@ public class Extensions extends Controller {
 	public static final Route audio = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "audio.html",
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -67,11 +70,11 @@ public class Extensions extends Controller {
 	public static final Route diaporama = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "diaporama.html",
-				"ids", SparkUtils.queryParamString(request, "ids", ""),
-				"play", SparkUtils.queryParamBoolean(request, "play", false),
-				"selection", SparkUtils.queryParamString(request, "selection", ""),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"ids", request.queryParameter("ids", ""),
+				"play", request.queryParameterBoolean("play", false),
+				"selection", request.queryParameter("selection", ""),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -82,9 +85,9 @@ public class Extensions extends Controller {
 	public static final Route textEditor = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "text-editor.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -96,11 +99,11 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate(request, "markdown-editor.html",
 				"markdown", true,
-				"highlighter", SparkUtils.queryParamString(request, "highlighter", configuration.getClientCodeHighlighter()),
+				"highlighter", request.queryParameter("highlighter", configuration.getClientCodeHighlighter()),
 				"baseURL", configuration.getServerAbsoluteUrl(),
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -112,9 +115,9 @@ public class Extensions extends Controller {
 		// Générer la page
 		return renderTemplate(request, "note-editor.html",
 				"baseURL", configuration.getServerAbsoluteUrl(),
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -125,9 +128,9 @@ public class Extensions extends Controller {
 	public static final Route codeEditor = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "code-editor.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -138,9 +141,9 @@ public class Extensions extends Controller {
 	public static final Route secretEditor = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "secret-editor.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null),
-				"fromUrl", SparkUtils.queryParamUrl(request, "fromUrl", ""),
-				"fromTitle", SparkUtils.queryParamUrl(request, "fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null),
+				"fromUrl", queryParameterURL(request, "fromUrl", ""),
+				"fromTitle", request.queryParameter("fromTitle", ""));
 	};
 
 	/**
@@ -151,7 +154,7 @@ public class Extensions extends Controller {
 	public static final Route calendar = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "calendar.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**
@@ -162,7 +165,7 @@ public class Extensions extends Controller {
 	public static final Route contacts = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "contacts.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**
@@ -173,7 +176,16 @@ public class Extensions extends Controller {
 	public static final Route bookmarks = (request, response) -> {
 		// Générer la page
 		return renderTemplate(request, "bookmarks.html",
-				"itemId", SparkUtils.queryParamLong(request, "itemId", null));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
+
+	private static final String queryParameterURL(Request request, String name, String defaultValue) {
+		String s = request.queryParameter(name);
+		try {
+			if (StringUtils.isNotBlank(s))
+				return URLDecoder.decode(s, "UTF-8");
+		} catch (Exception ex) { /* */ }
+		return defaultValue;
+	}
 
 }

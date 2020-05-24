@@ -7,7 +7,6 @@ import java.util.Date;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Shares extends Controller {
@@ -20,7 +19,7 @@ public class Shares extends Controller {
 	public static final Route add = (request, response) -> {
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Extraire la requête
-			Integer duration = SparkUtils.queryParamInteger(request, "duration", null);
+			Integer duration = request.queryParameterInteger("duration", null);
 			// Créer un partage avec un mot de passe aléatoire
 			if (StringUtils.isBlank(item.sharedPassword)) {
 				item.sharedDate = new Date();
@@ -61,8 +60,6 @@ public class Shares extends Controller {
 	 * Cette méthode PUBLIQUE retourne le fichier ":itemId", à condition que le mot de passe "password" soit correct
 	 *
 	 * (itemId, password) => stream
-	 *
-	 * @see SparkUtils#renderFile(spark.Response, String, File, String)
 	 */
 	public static final Route get = (request, response) -> {
 		// Extraire et vérifier la requête

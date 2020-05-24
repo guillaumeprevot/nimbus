@@ -1,6 +1,8 @@
 package fr.techgp.nimbus.server;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface Request {
@@ -39,6 +41,28 @@ public interface Request {
 	public String queryParameter(String name, String defaultValue);
 	/** param1 => [value1], param2 => [value21, value22], toto => null */
 	public String[] queryParameterValues(String name);
+
+	default <T> T queryParameterObject(String name, Function<String, T> map, T defaultValue) {
+		return Optional.ofNullable(queryParameter(name)).filter(s -> s.trim().length() > 0).map(map).orElse(defaultValue);
+	}
+	default boolean queryParameterBoolean(String name, boolean defaultValue) {
+		return defaultValue ? !"false".equals(queryParameter(name)) : "true".equals(queryParameter(name));
+	}
+	default Boolean queryParameterBoolean(String name, Boolean defaultValue) {
+		return queryParameterObject(name, Boolean::valueOf, defaultValue);
+	}
+	default long queryParameterLong(String name, long defaultValue) {
+		return Optional.ofNullable(queryParameter(name)).stream().mapToLong(Long::parseLong).findAny().orElse(defaultValue);
+	}
+	default Long queryParameterLong(String name, Long defaultValue) {
+		return queryParameterObject(name, Long::valueOf, defaultValue);
+	}
+	default int queryParameterInteger(String name, int defaultValue) {
+		return Optional.ofNullable(queryParameter(name)).stream().mapToInt(Integer::parseInt).findAny().orElse(defaultValue);
+	}
+	default Integer queryParameterInteger(String name, Integer defaultValue) {
+		return queryParameterObject(name, Integer::valueOf, defaultValue);
+	}
 
 //	public String contentType();
 //	public int contentLength();

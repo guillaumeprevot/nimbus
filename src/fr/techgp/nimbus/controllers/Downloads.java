@@ -14,7 +14,6 @@ import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 import fr.techgp.nimbus.utils.WebUtils;
 
@@ -49,8 +48,8 @@ public class Downloads extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
 		String url = request.queryParameter("url");
-		String name = SparkUtils.queryParamString(request, "name", url.substring(url.lastIndexOf('/') + 1));
-		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
+		String name = request.queryParameter("name", url.substring(url.lastIndexOf('/') + 1));
+		Long parentId = request.queryParameterLong("parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
 			return Render.conflict();

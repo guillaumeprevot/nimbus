@@ -28,7 +28,6 @@ import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.server.Upload;
 import fr.techgp.nimbus.utils.ImageUtils;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Files extends Controller {
@@ -92,7 +91,7 @@ public class Files extends Controller {
 		// OK, lancer l'intégration
 		JsonArray results = new JsonArray();
 		// Récupérer, si elle est précisée, la date de mise à jour à utiliser pour les fichiers uploadés
-		long generalUpdateDate = SparkUtils.queryParamLong(request, "updateDate", System.currentTimeMillis());
+		long generalUpdateDate = request.queryParameterLong("updateDate", System.currentTimeMillis());
 		for (int i = 0; i < uploads.size(); i++) {
 			Upload upload = uploads.get(i);
 			Item item = items.get(i);
@@ -100,7 +99,7 @@ public class Files extends Controller {
 			if (item == null)
 				item = Item.add(userLogin, parent, false, upload.fileName(), null);
 			// Récupérer, si elle est précisée, la date de mise à jour à utiliser pour ce fichier en particulier
-			Date updateDate = new Date(SparkUtils.queryParamLong(request, "updateDate" + i, generalUpdateDate));
+			Date updateDate = new Date(request.queryParameterLong("updateDate" + i, generalUpdateDate));
 			// Enregistrement sur disque
 			updateFileFromFilePart(upload, item, updateDate);
 			// Renvoyer la liste des ids créés
@@ -142,7 +141,7 @@ public class Files extends Controller {
 		}
 
 		// OK, lancer l'intégration à la date demandée (par défaut, maintenant)
-		long updateDate = SparkUtils.queryParamLong(request, "updateDate", System.currentTimeMillis());
+		long updateDate = request.queryParameterLong("updateDate", System.currentTimeMillis());
 		updateFileFromFilePart(upload, item, new Date(updateDate));
 		return Render.EMPTY;
 	};
@@ -157,7 +156,7 @@ public class Files extends Controller {
 		String userLogin = request.session().attribute("userLogin");
 		// Extraire la requête
 		String name = request.queryParameter("name");
-		Long parentId = SparkUtils.queryParamLong(request, "parentId", null);
+		Long parentId = request.queryParameterLong("parentId", null);
 		// Vérifier l'unicité des noms
 		if (Item.hasItemWithName(userLogin, parentId, name))
 			return Render.conflict();
@@ -262,7 +261,7 @@ public class Files extends Controller {
 	 * (itemId) => stream
 	 */
 	public static final Route thumbnail = (request, response) -> {
-		int size = SparkUtils.queryParamInteger(request, "size", 32);
+		int size = request.queryParameterInteger("size", 32);
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			File file = getFile(item);
 			if (!file.exists())
@@ -285,7 +284,7 @@ public class Files extends Controller {
 	 * (itemId[, size]) => ""
 	 */
 	public static final Route useAsFolderIcon = (request, response) -> {
-		int size = SparkUtils.queryParamInteger(request, "size", 32);
+		int size = request.queryParameterInteger("size", 32);
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
 			// Vérifier que l'élément a bien un parent
 			if (item.parentId == null)
@@ -364,13 +363,11 @@ public class Files extends Controller {
 			end = Long.parseLong(range.substring(indexOfDash + 1));
 		}
 		response.header("Accept-Ranges", "bytes");
-		response.header("Last-Modified", SparkUtils.HTTP_RESPONSE_HEADER_DATE_FORMAT.format(new Date(file.lastModified())));
+		response.dateHeader("Last-Modified", file.lastModified());
 		response.header("Content-Range", "bytes " + start + "-" + end + "/" + file.length());
 		response.header("Connection", "keep-alive");
-		// ne rien préciser puisqu'on ne peut pas savoir
-		// response().setHeader("Expires", SparkUtils.HTTP_RESPONSE_HEADER_DATE_FORMAT.format(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)));
-		// ne pas précisé CONTENT_LENGTH car doublon avec CONTENT_RANGE et ne fonctionne plus en plus
-		// response().setHeader("Content-Length", Long.toString(end - start + 1));
+		// ne pas préciser "Content-Length" car doublon avec "Content-Range" et ne fonctionne plus en plus
+		// response.header("Content-Length", Long.toString(end - start + 1));
 		return (request, r, charset, stream) -> {
 			try (FileInputStream fis = new FileInputStream(file)) {
 				fis.skip(start);

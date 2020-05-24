@@ -22,7 +22,6 @@ import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Router;
 import fr.techgp.nimbus.server.render.RenderFreeMarker;
 import fr.techgp.nimbus.utils.CryptoUtils;
-import fr.techgp.nimbus.utils.SparkUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Controller {
@@ -190,19 +189,45 @@ public class Controller {
 	protected static final Render renderTemplate(Request request, String name, Object... paramAndValues) {
 		String theme = getUserTheme(request);
 		return new RenderFreeMarker(name, paramAndValues)
-				.with("lang", SparkUtils.getRequestLang(request))
+				.with("lang", getUserLang(request))
 				.with("theme", theme)
 				.with("stylesheet", "dark".equals(theme) ? "/libs/bootswatch/darkly.min.css" : "/libs/bootswatch/flatly.min.css");
 	}
 
 	/**
-	 * Cette méthode centralise la récupération du thème de l'utilisateur
+	 * Cette méthode centralise la récupération du thème de l'utilisateur.
 	 *
 	 * @param request la requête pour chercher dans la session si l'utilisateur a choisi un thème
 	 * @return le nom du thème choisi par l'utilisateur ou le thème par défaut sinon (cf nimbus.conf)
 	 */
 	protected static final String getUserTheme(Request request) {
-		return StringUtils.coalesce(SparkUtils.queryParamString(request, "theme", null), request.session().attribute("theme"), configuration.getClientDefaultTheme());
+		return StringUtils.coalesce(
+				request.queryParameter("theme", null),
+				request.session().attribute("theme"),
+				configuration.getClientDefaultTheme());
+	}
+
+	/**
+	 * Cette méthode centralise la détection de la langue à utiliser pour l'utilisateur.
+	 *
+	 * @param request la requête indiquant les préférences de langues via l'en-tête "Accept-Language"
+	 * @return la langue supportée, dans l'ordre de préférence, parmi "en" et "fr" avec "en" par défaut.
+	 */
+	protected static final String getUserLang(Request request) {
+		String acceptLanguage = request.header("Accept-Language");
+		if (acceptLanguage != null) {
+			String[] options = acceptLanguage.split(",");
+			for (String option : options) {
+				// en, en-US, en-US;q=0.5 sont possibles
+				// le "matches" fonctionne mais on se contentera de "startsWith", plus rapide
+				// if (option.matches("^en(-.{2})?(;q=\\d+\\.\\d+)?$")) return "en";
+				if (option.startsWith("en"))
+					return "en";
+				if (option.startsWith("fr"))
+					return "fr";
+			}
+		}
+		return "en";
 	}
 
 	/**
