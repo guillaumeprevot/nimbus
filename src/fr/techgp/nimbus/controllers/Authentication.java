@@ -82,7 +82,7 @@ public class Authentication extends Controller {
 	};
 
 	private static final Render renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {
-		return renderTemplate(request, "login.html",
+		return Templates.render(request, "login.html",
 				"background", StringUtils.isNotBlank(configuration.getClientLoginBackground()),
 				"login", StringUtils.withDefault(request.queryParameter("login"), ""),
 				"urlToLoad", StringUtils.withDefault(urlToLoad, "/"),

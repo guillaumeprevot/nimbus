@@ -19,7 +19,6 @@ import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.utils.CryptoUtils;
 
-/** TODO Dépendance vers FastDateFormat et CryptoUtils */
 public class RenderStatic implements Render {
 
 	private static final FastDateFormat CACHE_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);

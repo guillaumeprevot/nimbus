@@ -333,7 +333,7 @@ public class Files extends Controller {
 
 	// TODO Gérer l'erreur 416 Range Not Satisfiable
 	// TODO Gérer l'en-tête Range multiple, par exemple "0-10, 20-30, 40-50"
-	// TODO EN faire un Render réuntilisable
+	// TODO Déplacer dans un Render réutilisable
 	private static final Render returnFileRange(Response response, Item item, String range) {
 		File file = getFile(item);
 		if (!file.exists())

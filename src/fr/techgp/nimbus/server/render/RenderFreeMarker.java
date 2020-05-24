@@ -15,7 +15,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-/** TODO Dépendance vers FreeMarker */
 public class RenderFreeMarker implements Render {
 
 	private static final Configuration defaultConfiguration = new Configuration(Configuration.VERSION_2_3_30);

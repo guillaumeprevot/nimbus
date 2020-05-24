@@ -21,7 +21,7 @@ public class Trash extends Controller {
 	 * () => HTML
 	 */
 	public static final Route page = (request, response) -> {
-		return renderTemplate(request, "trash.html",
+		return Templates.render(request, "trash.html",
 				"fromUrl", request.header("Referer"));
 	};
 

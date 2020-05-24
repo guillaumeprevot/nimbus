@@ -115,6 +115,7 @@ public class ServletResponse implements Response {
 	public Render redirect(String location) {
 		this.status(HttpServletResponse.SC_FOUND);
 		this.header("Location", this.response.encodeRedirectURL(location));
+		this.header("Connection", "close");
 		return Render.EMPTY;
 	}
 

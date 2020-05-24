@@ -17,7 +17,7 @@ public class Users extends Controller {
 	 * () => HTML
 	 */
 	public static final Route page = (request, response) -> {
-		return renderTemplate(request, "users.html",
+		return Templates.render(request, "users.html",
 				"fromUrl", request.header("Referer"));
 	};
 

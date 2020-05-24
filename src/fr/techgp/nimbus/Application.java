@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.techgp.nimbus.controllers.Controller;
+import fr.techgp.nimbus.controllers.Templates;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.server.Router;
+import fr.techgp.nimbus.server.impl.JettyServer;
 
 public class Application {
 
@@ -46,15 +48,17 @@ public class Application {
 			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
 
 			// Prepare FreeMarker
-			FreeMarker.init(dev);
+			Templates.init(dev);
 
 			// Configure routes
 			Router router = Controller.init(logger, configuration, dev);
 
 			// Prepare Jetty
-			Server server = Jetty.init(configuration.getServerPort(),
-					configuration.getServerKeystore(), configuration.getServerKeystorePassword(),
-					router, configuration.getStorageFolder().getAbsolutePath());
+			Server server = JettyServer.init(router,
+					configuration.getServerPort(),
+					configuration.getServerKeystore(),
+					configuration.getServerKeystorePassword(),
+					configuration.getStorageFolder().getAbsolutePath());
 
 			// Launch URL
 			/*

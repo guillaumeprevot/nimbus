@@ -14,7 +14,6 @@ import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
 
-/** TODO Dépendance vers Gson */
 public class RenderJSON implements Render {
 
 	private Supplier<JsonElement> content;

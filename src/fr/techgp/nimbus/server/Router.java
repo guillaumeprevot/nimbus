@@ -27,11 +27,8 @@ public class Router {
 			process(request, response, this.afters, true);
 
 		} catch (Exception ex) {
-			// TODO intégrer la gestion des exceptions plus proprement
-			ex.printStackTrace();
 			// Reply 500 for exceptions
-			response.type(DEFAULT_CONTENT_TYPE);
-			response.body(Render.internalServerError());
+			response.body(Render.throwable(ex));
 		}
 
 		// Reply 404 Not Found if no route matches request

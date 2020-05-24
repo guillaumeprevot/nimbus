@@ -17,11 +17,12 @@ import fr.techgp.nimbus.server.render.RenderBytes;
 import fr.techgp.nimbus.server.render.RenderFile;
 import fr.techgp.nimbus.server.render.RenderJSON;
 import fr.techgp.nimbus.server.render.RenderRedirect;
+import fr.techgp.nimbus.server.render.RenderSamePage;
 import fr.techgp.nimbus.server.render.RenderStatic;
 import fr.techgp.nimbus.server.render.RenderStatus;
 import fr.techgp.nimbus.server.render.RenderString;
+import fr.techgp.nimbus.server.render.RenderThrowable;
 
-/** TODO Dépendance vers Render* et leur dépendances */
 @FunctionalInterface
 public interface Render {
 
@@ -74,6 +75,10 @@ public interface Render {
 		return new RenderRedirect(url);
 	}
 
+	public static Render samePage() {
+		return new RenderSamePage();
+	}
+
 	public static Render staticFile(File file, String mimeType) {
 		return new RenderStatic(file, mimeType);
 	}
@@ -84,6 +89,10 @@ public interface Render {
 
 	public static Render file(File file, String mimeType, String fileName, boolean download, boolean deleteAfter) {
 		return new RenderFile(file, mimeType, fileName, download, deleteAfter);
+	}
+
+	public static Render throwable(java.lang.Throwable throwable) {
+		return new RenderThrowable(throwable);
 	}
 
 	public static Render status(int code, String body) {

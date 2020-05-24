@@ -1,4 +1,4 @@
-package fr.techgp.nimbus;
+package fr.techgp.nimbus.server.impl;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,13 +24,10 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import fr.techgp.nimbus.server.Router;
-import fr.techgp.nimbus.server.impl.ServletRequest;
-import fr.techgp.nimbus.server.impl.ServletResponse;
-import fr.techgp.nimbus.server.impl.ServletUpload;
 
 // https://www.eclipse.org/jetty/documentation/current/
 // https://www.eclipse.org/jetty/documentation/current/embedding-jetty.html
-public class Jetty {
+public class JettyServer {
 
 	/** This {@link Handler} uses a {@link Router} to handle incomming request and associated answers. */
 	public static final class JettyRouterHandler extends SessionHandler {
@@ -97,7 +94,7 @@ public class Jetty {
 	}
 
 	@SuppressWarnings("resource")
-	public static final Server init(int port, String keystore, String keystorePassword, Router router, String uploadFolder) throws Exception {
+	public static final Server init(Router router, int port, String keystore, String keystorePassword, String uploadFolder) throws Exception {
 		// Create server
 		Server server = new Server();
 
@@ -121,7 +118,7 @@ public class Jetty {
 	}
 
 	/** This method configures the request's attribute called "org.eclipse.jetty.multipartConfig" to control upload behaviour */
-	public static final void prepareUploadRequest(ServletRequest request, String uploadFolder) {
+	protected static final void prepareUploadRequest(ServletRequest request, String uploadFolder) {
 		long maxFileSize = -1L; // peu importe
 		long maxRequestSize = -1L; // on vérifie plus loin le quota
 		int fileSizeThreshold = 100 * 1024 * 1024; // en mémoire jusqu'à 100 Mo
@@ -129,7 +126,7 @@ public class Jetty {
 	}
 
 	/** This method creates an HTTPS connector if a keystore is specified, or an HTTP connector otherwise. */
-	private static final ServerConnector createConnector(Server server, String keystore, String keystorePassword) {
+	protected static final ServerConnector createConnector(Server server, String keystore, String keystorePassword) {
 		if (keystore != null) {
 			SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
 			sslContextFactory.setKeyStorePath(keystore);
@@ -141,7 +138,7 @@ public class Jetty {
 	}
 
 	/** This method exposes internal file or bytes from Jetty's {@link MultiPartFormInputStream.MultiPart} implementation to optimize uploads. */
-	private static final boolean configureMultiPartWithJettyInternal(ServletUpload upload, Part part) {
+	protected static final boolean configureMultiPartWithJettyInternal(ServletUpload upload, Part part) {
 		if (part instanceof MultiPartFormInputStream.MultiPart) {
 			MultiPartFormInputStream.MultiPart mpart = (MultiPartFormInputStream.MultiPart) part;
 			upload.setFile(mpart.getFile());
@@ -152,8 +149,8 @@ public class Jetty {
 	}
 
 	/** This method exposes internal file or bytes from Jetty's deprecated MultiPart implementation to optimize uploads. */
-	@SuppressWarnings({ "unused", "deprecation" })
-	private static final boolean configureMultiPartWithJettyDeprecated(ServletUpload upload, Part part) {
+	@SuppressWarnings("deprecation")
+	protected static final boolean configureMultiPartWithJettyDeprecated(ServletUpload upload, Part part) {
 		if (part instanceof org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart) {
 			org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart mpart = (org.eclipse.jetty.util.MultiPartInputStreamParser.MultiPart) part;
 			upload.setFile(mpart.getFile());

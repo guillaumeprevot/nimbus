@@ -20,7 +20,6 @@ import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Router;
-import fr.techgp.nimbus.server.render.RenderFreeMarker;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
@@ -156,7 +155,7 @@ public class Controller {
 			Mongo.reset(true);
 			request.session().removeAttribute("userLogin");
 			request.session().removeAttribute("theme");
-			return renderTemplate(request, "test.html",
+			return Templates.render(request, "test.html",
 					"serverAbsoluteUrl", configuration.getServerAbsoluteUrl());
 		});
 
@@ -166,7 +165,7 @@ public class Controller {
 	private static final Render nav(Request request) {
 		String login = request.session().attribute("userLogin");
 		User user = User.findByLogin(login);
-		return renderTemplate(request, "main.html",
+		return Templates.render(request, "main.html",
 				"plugins", configuration.getClientPlugins(),
 				"name", StringUtils.withDefault(user.name, user.login),
 				"admin", user.admin,
@@ -176,58 +175,6 @@ public class Controller {
 				"showItemDescription", user.showItemDescription,
 				"showItemThumbnail", user.showItemThumbnail,
 				"visibleItemColumns", user.visibleItemColumns == null ? Collections.emptyList() : user.visibleItemColumns);
-	}
-
-	/**
-	 * Cette méthode génère un template FreeMarker avec les paramètres indiqués
-	 *
-	 * @param request la requête, pour déterminer la langue et le thème
-	 * @param name le nom du template à générer
-	 * @param paramAndValues une suite de paramètres "name1:String, value1, name2:String, value2, ..."
-	 * @return le rendu qui se chargera de générer le template
-	 */
-	protected static final Render renderTemplate(Request request, String name, Object... paramAndValues) {
-		String theme = getUserTheme(request);
-		return new RenderFreeMarker(name, paramAndValues)
-				.with("lang", getUserLang(request))
-				.with("theme", theme)
-				.with("stylesheet", "dark".equals(theme) ? "/libs/bootswatch/darkly.min.css" : "/libs/bootswatch/flatly.min.css");
-	}
-
-	/**
-	 * Cette méthode centralise la récupération du thème de l'utilisateur.
-	 *
-	 * @param request la requête pour chercher dans la session si l'utilisateur a choisi un thème
-	 * @return le nom du thème choisi par l'utilisateur ou le thème par défaut sinon (cf nimbus.conf)
-	 */
-	protected static final String getUserTheme(Request request) {
-		return StringUtils.coalesce(
-				request.queryParameter("theme", null),
-				request.session().attribute("theme"),
-				configuration.getClientDefaultTheme());
-	}
-
-	/**
-	 * Cette méthode centralise la détection de la langue à utiliser pour l'utilisateur.
-	 *
-	 * @param request la requête indiquant les préférences de langues via l'en-tête "Accept-Language"
-	 * @return la langue supportée, dans l'ordre de préférence, parmi "en" et "fr" avec "en" par défaut.
-	 */
-	protected static final String getUserLang(Request request) {
-		String acceptLanguage = request.header("Accept-Language");
-		if (acceptLanguage != null) {
-			String[] options = acceptLanguage.split(",");
-			for (String option : options) {
-				// en, en-US, en-US;q=0.5 sont possibles
-				// le "matches" fonctionne mais on se contentera de "startsWith", plus rapide
-				// if (option.matches("^en(-.{2})?(;q=\\d+\\.\\d+)?$")) return "en";
-				if (option.startsWith("en"))
-					return "en";
-				if (option.startsWith("fr"))
-					return "fr";
-			}
-		}
-		return "en";
 	}
 
 	/**

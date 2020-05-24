@@ -19,7 +19,6 @@ import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Upload;
 import fr.techgp.nimbus.utils.StringUtils;
 
-/** TODO Dépendance vers StringUtils */
 public class ServletRequest implements Request {
 
 	/** The wrapped request */

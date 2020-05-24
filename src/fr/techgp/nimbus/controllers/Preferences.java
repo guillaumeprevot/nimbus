@@ -31,7 +31,7 @@ public class Preferences extends Controller {
 		// Récupérer l'utilisateur connecté
 		User user = User.findByLogin(request.session().attribute("userLogin"));
 		// Générer la page
-		return renderTemplate(request, "preferences.html",
+		return Templates.render(request, "preferences.html",
 				"fromUrl", request.header("Referer"),
 				"plugins", configuration.getClientPlugins(),
 				"name", user.name,
