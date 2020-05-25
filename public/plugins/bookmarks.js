@@ -172,7 +172,7 @@
 			icon: 'bookmarks',
 			caption: 'BookmarksOpen',
 			accept: accept,
-			execute: (item) => window.location.assign('/bookmarks.html?itemId=' + item.id)
+			execute: (item) => window.open('/bookmarks.html?itemId=' + item.id)
 		}],
 		langs: {
 			fr: {

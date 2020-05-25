@@ -604,11 +604,7 @@ NIMBUS.navigation = (function() {
 			}).done(function(idString) {
 				var editor = typeSelect.children(':selected').attr('data-touch-editor');
 				if (openCheckbox.prop('checked') && !!editor) {
-					window.location.assign('/' + editor + '?' + $.param({
-						itemId: idString,
-						fromUrl: window.location.href,
-						fromTitle: $('title').text()
-					}));
+					window.location.assign('/' + editor + '?itemId=' + idString);
 				} else {
 					refreshItems(false);
 					dialog.modal('hide');

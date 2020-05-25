@@ -55,7 +55,7 @@ public class RenderFreeMarker implements Render {
 			template.process(this.attributes, writer);
 		} catch (TemplateException | IOException ex) {
 			// En cas d'erreur de template, on renvoie une erreur 500
-			Render.internalServerError().render(request, response, charset, stream);
+			Render.throwable(ex).render(request, response, charset, stream);
 			return;
 		}
 		// Si tout est OK, on génère

@@ -27,11 +27,7 @@
 			caption: 'MarkdownActionEdit',
 			accept: accept,
 			execute: function(item) {
-				window.open('/markdown-editor.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
+				window.open('/markdown-editor.html?itemId=' + item.id);
 			}
 		}],
 		langs: {

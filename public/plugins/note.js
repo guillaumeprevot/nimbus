@@ -27,11 +27,7 @@
 			caption: 'NoteActionEdit',
 			accept: accept,
 			execute: function(item) {
-				window.open('/note-editor.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
+				window.open('/note-editor.html?itemId=' + item.id);
 			}
 		}],
 		langs: {

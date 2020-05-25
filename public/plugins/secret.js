@@ -22,11 +22,7 @@
 			caption: 'SecretActionEdit',
 			accept: accept,
 			execute: function(item) {
-				window.location.assign('/secret-editor.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
+				window.open('/secret-editor.html?itemId=' + item.id);
 			}
 		}],
 		langs: {

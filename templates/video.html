@@ -28,7 +28,7 @@
 <body class="nimbus-hidden">
 	<header>
 		<div class="float-left">
-			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<a href="${backURL}" class="btn btn-link" title="${appName}"><i class="material-icons">arrow_back</i></a>
 		</div>
 
 		<div class="btn-group">
@@ -146,9 +146,6 @@ fullscreenElement.requestFullscreen = fullscreenElement.requestFullscreen || ful
 document.exitFullscreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
 
 function open(src, subtitles) {
-	// En haut à gauche, le bouton "Retour"
-	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
-
 	// Gestion de la lecture
 	var playOptions = $('#play-options');
 	$('.play-toggle').click(function() {
@@ -222,7 +219,7 @@ function open(src, subtitles) {
 	video.onerror = function() {
 		$(video).remove().next().removeClass('nimbus-hidden');
 		$('.nimbus-viewer').removeClass('nimbus-hideable-toolbars').addClass('nimbus-static-toolbars');
-		$('.back').parent().siblings().remove();
+		$('header > :not(.float-left)').parent().siblings().remove();
 		$('footer').empty();
 	};
 	video.onloadedmetadata = function(event) {

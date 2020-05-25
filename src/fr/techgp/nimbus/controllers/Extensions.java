@@ -17,9 +17,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return Templates.render(request, "epub.html",
 				"userLogin", request.session().attribute("userLogin"),
-				"url", queryParameterURL(request, "url", ""),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"url", queryParameterURL(request, "url", ""));
 	};
 
 	/**
@@ -31,9 +29,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return Templates.render(request, "pdf.html",
 				"userLogin", request.session().attribute("userLogin"),
-				"url", queryParameterURL(request, "url", ""),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"url", queryParameterURL(request, "url", ""));
 	};
 
 	/**
@@ -45,9 +41,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return Templates.render(request, "video.html",
 				"userLogin", request.session().attribute("userLogin"),
-				"itemId", request.queryParameterLong("itemId", null),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**
@@ -57,9 +51,7 @@ public class Extensions extends Controller {
 	 */
 	public static final Route audio = (request, response) -> {
 		// Générer la page
-		return Templates.render(request, "audio.html",
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+		return Templates.render(request, "audio.html");
 	};
 
 	/**
@@ -72,9 +64,7 @@ public class Extensions extends Controller {
 		return Templates.render(request, "diaporama.html",
 				"ids", request.queryParameter("ids", ""),
 				"play", request.queryParameterBoolean("play", false),
-				"selection", request.queryParameter("selection", ""),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"selection", request.queryParameter("selection", ""));
 	};
 
 	/**
@@ -85,9 +75,7 @@ public class Extensions extends Controller {
 	public static final Route textEditor = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "text-editor.html",
-				"itemId", request.queryParameterLong("itemId", null),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**
@@ -98,12 +86,9 @@ public class Extensions extends Controller {
 	public static final Route markdownEditor = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "markdown-editor.html",
-				"markdown", true,
 				"highlighter", request.queryParameter("highlighter", configuration.getClientCodeHighlighter()),
 				"baseURL", configuration.getServerAbsoluteUrl(),
-				"itemId", request.queryParameterLong("itemId", null),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**
@@ -115,9 +100,7 @@ public class Extensions extends Controller {
 		// Générer la page
 		return Templates.render(request, "note-editor.html",
 				"baseURL", configuration.getServerAbsoluteUrl(),
-				"itemId", request.queryParameterLong("itemId", null),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**
@@ -128,9 +111,7 @@ public class Extensions extends Controller {
 	public static final Route codeEditor = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "code-editor.html",
-				"itemId", request.queryParameterLong("itemId", null),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**
@@ -141,9 +122,7 @@ public class Extensions extends Controller {
 	public static final Route secretEditor = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "secret-editor.html",
-				"itemId", request.queryParameterLong("itemId", null),
-				"fromUrl", queryParameterURL(request, "fromUrl", ""),
-				"fromTitle", request.queryParameter("fromTitle", ""));
+				"itemId", request.queryParameterLong("itemId", null));
 	};
 
 	/**

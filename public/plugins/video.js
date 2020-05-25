@@ -85,11 +85,7 @@
 			caption: 'VideoPlay',
 			accept: NIMBUS.utils.isBrowserSupportedVideo,
 			execute: function(item) {
-				window.open('/video.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
+				window.open('/video.html?itemId=' + item.id);
 			}
 		}, {
 			name: 'video-convert-to-webvtt',

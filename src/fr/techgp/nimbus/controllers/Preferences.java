@@ -32,7 +32,6 @@ public class Preferences extends Controller {
 		User user = User.findByLogin(request.session().attribute("userLogin"));
 		// Générer la page
 		return Templates.render(request, "preferences.html",
-				"fromUrl", request.header("Referer"),
 				"plugins", configuration.getClientPlugins(),
 				"name", user.name,
 				"showHiddenItems", user.showHiddenItems,

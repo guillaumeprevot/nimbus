@@ -18,9 +18,7 @@
 		window.open('/diaporama.html?' + $.param({
 			ids: $('#items tr.image').get().map((tr) => $(tr).data('item').id).join(','),
 			play: play,
-			selection: item ? item.id : undefined,
-			fromUrl: window.location.href,
-			fromTitle: $('title').text()
+			selection: item ? item.id : undefined
 		}));
 	}
 

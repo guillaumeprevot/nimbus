@@ -21,10 +21,7 @@
 		setTimeout(function() {
 			var stillHere = !!localStorage.getItem('updatePlaylist');
 			if (stillHere)
-				window.open('/audio.html?' + $.param({
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
+				window.open('/audio.html');
 		}, 1000);
 	}
 

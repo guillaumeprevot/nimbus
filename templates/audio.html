@@ -27,7 +27,7 @@ main { padding: 1em; }
 <body class="nimbus-hidden">
 	<header>
 		<div class="float-left">
-			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<a href="${backURL}" class="btn btn-link" title="${appName}"><i class="material-icons">arrow_back</i></a>
 		</div>
 
 		<div class="btn-group">
@@ -364,9 +364,6 @@ function adjustColumns() {
 
 //Initialiser la page
 NIMBUS.init(['audio.js'], function() {
-	// En haut à gauche, le bouton "Retour"
-	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
-
 	// Créer un lecteur
 	var player = new Player();
 

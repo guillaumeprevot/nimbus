@@ -12,7 +12,7 @@
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
-header .float-left { min-width: calc(110px + 1em); height: 100%; text-align: left; }
+header .float-left { min-width: calc(110px + 2em); height: 100%; text-align: left; }
 header .float-right { min-width: 110px; }
 
 #periodLongDescription, #periodShortDescription { text-transform: capitalize; padding-top: 13px; line-height: 1; color: var(--white); }
@@ -66,6 +66,7 @@ header .float-right { min-width: 110px; }
 <body class="nimbus-hidden">
 	<header>
 		<div class="float-left">
+			<a href="${backURL}" class="btn btn-link" title="${appName}"><i class="material-icons">arrow_back</i></a>
 			<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="CalendarSave"><i class="material-icons">save</i></button>
 		</div>
 

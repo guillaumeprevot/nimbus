@@ -21,7 +21,7 @@
 <body class="nimbus-hidden">
 	<header>
 		<div class="float-left">
-			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<a href="${backURL}" class="btn btn-link" title="${appName}"><i class="material-icons">arrow_back</i></a>
 			<button type="button" class="btn btn-link diaporama-rotate-left" data-translate="title" title="DiaporamaRotateLeft"><i class="material-icons">rotate_left</i></button>
 		</div>
 
@@ -258,9 +258,6 @@ NIMBUS.init(['image.js'], function() {
 });
 
 function run(items, play, selection) {
-	// En haut à gauche, le bouton "Retour"
-	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
-
 	// Préparer les éléments à afficher
 	var index = 0;
 	items.forEach(function(item, i) {

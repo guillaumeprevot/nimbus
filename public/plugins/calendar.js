@@ -505,7 +505,7 @@
 			icon: 'event',
 			caption: 'CalendarOpen',
 			accept: accept,
-			execute: (item) => window.location.assign('/calendar.html?itemId=' + item.id)
+			execute: (item) => window.open('/calendar.html?itemId=' + item.id)
 		}],
 		langs: {
 			fr: {

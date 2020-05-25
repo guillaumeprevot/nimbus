@@ -23,9 +23,7 @@
 			accept: accept,
 			execute: function(item) {
 				window.open('/epub.html?' + $.param({
-					url: '/files/stream/' + item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
+					url: '/files/stream/' + item.id
 				}));
 			}
 		}],

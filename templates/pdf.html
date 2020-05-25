@@ -33,7 +33,7 @@ main > div > div { position: absolute; white-space: pre; line-height: 1; directi
 <body class="nimbus-hidden">
 	<header class="nimbus-hidden">
 		<div class="float-left">
-			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<a href="${backURL}" class="btn btn-link" title="${appName}"><i class="material-icons">arrow_back</i></a>
 		</div>
 
 		<div class="btn-group nimbus-hidden large-screen">
@@ -344,8 +344,6 @@ function open(url) {
 
 	// Manipulation par la barre d'outils
 	var header = $('header').removeClass('nimbus-hidden');
-	var backButton = header.find('.back')
-		.toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 
 	// Revenir à la première page
 	var firstPageButton = header.find('.first-page').click(function() {

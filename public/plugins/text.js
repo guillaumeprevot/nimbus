@@ -33,11 +33,7 @@
 			caption: 'TextActionEdit',
 			accept: NIMBUS.utils.isTextFile,
 			execute: function(item) {
-				window.open('/text-editor.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
+				window.open('/text-editor.html?itemId=' + item.id);
 			}
 		}],
 		langs: {

@@ -123,11 +123,7 @@
 			caption: 'CodeActionEdit',
 			accept: accept,
 			execute: function(item) {
-				window.open('/code-editor.html?' + $.param({
-					itemId: item.id,
-					fromUrl: window.location.href,
-					fromTitle: $('title').text()
-				}));
+				window.open('/code-editor.html?itemId=' + item.id);
 			}
 		}],
 		langs: {

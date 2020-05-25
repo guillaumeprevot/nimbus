@@ -46,7 +46,7 @@ body.html textarea { display: none; }
 <body class="nimbus-hidden split">
 	<header>
 		<div class="float-left">
-			<a href="#" class="btn btn-link back" style="display: none;"><i class="material-icons">arrow_back</i></a>
+			<a href="${backURL}" class="btn btn-link" title="${appName}"><i class="material-icons">arrow_back</i></a>
 			<button id="saveButton" type="button" class="btn btn-link nimbus-hidden" data-translate="title" title="TextEditorSave"><i class="material-icons">save</i></button>
 		</div>
 
@@ -165,8 +165,6 @@ function markdownToHtml(text) {
 
 //Initialiser la page
 NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js'</#if>], function() {
-	// En haut à gauche, le bouton "Retour"
-	$('.back').toggle(!!'${fromUrl}').attr('title', '${fromTitle}').attr('href', '${fromUrl}');
 	// L'IHM est prête, on l'affiche
 	var body = $(document.body).removeClass('nimbus-hidden');
 	// Identifiant de l'élément édité

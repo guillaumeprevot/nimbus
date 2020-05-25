@@ -2,6 +2,7 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
@@ -50,6 +51,7 @@ public class Templates extends Controller {
 	public static final Render render(Request request, String name, Object... paramAndValues) {
 		String theme = getUserTheme(request);
 		return new RenderFreeMarker(name, paramAndValues)
+				.with("backURL", Optional.ofNullable(request.header("Referer")).orElse("/"))
 				.with("lang", getUserLang(request))
 				.with("theme", theme)
 				.with("stylesheet", "dark".equals(theme) ? "/libs/bootswatch/darkly.min.css" : "/libs/bootswatch/flatly.min.css");
