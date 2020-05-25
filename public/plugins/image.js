@@ -14,12 +14,12 @@
 		return s + '' + suffix;
 	}
 
-	function execute(play, item) {
-		window.open('/diaporama.html?' + $.param({
+	function buildURL(play, item) {
+		return '/diaporama.html?' + $.param({
 			ids: $('#items tr.image').get().map((tr) => $(tr).data('item').id).join(','),
 			play: play,
 			selection: item ? item.id : undefined
-		}));
+		});
 	}
 
 	NIMBUS.plugins.add({
@@ -52,19 +52,13 @@
 				icon: 'image',
 				caption: 'ImageActionShow',
 				accept: NIMBUS.utils.isBrowserSupportedImage,
-				execute: function(item) {
-					// Lancement du diaporama sans lecture automatique
-					execute(false, item);
-				}
+				url: (item) => buildURL(false, item) // Lancement du diaporama SANS lecture automatique
 			}, {
 				name: 'slideshow',
 				icon: 'slideshow',
 				caption: 'ImageActionSlideshow',
 				accept: NIMBUS.utils.isBrowserSupportedImage,
-				execute: function(item, extension) {
-					// Lancement du diaporama avec lecture automatique
-					execute(true, item);
-				}
+				url: (item) => buildURL(true, item) // Lancement du diaporama AVEC lecture automatique
 			}, {
 				name: 'use-as-folder-icon',
 				icon: 'folder_special',

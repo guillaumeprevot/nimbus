@@ -122,9 +122,7 @@
 			icon: 'code',
 			caption: 'CodeActionEdit',
 			accept: accept,
-			execute: function(item) {
-				window.open('/code-editor.html?itemId=' + item.id);
-			}
+			url: (item) => '/code-editor.html?itemId=' + item.id
 		}],
 		langs: {
 			fr: {

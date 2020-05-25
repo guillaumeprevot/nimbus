@@ -26,9 +26,7 @@
 			accept: function(item, extension) {
 				return !!item.url && ('url' === extension);
 			},
-			execute: function(item) {
-				window.open(item.url);
-			}
+			url: (item) => item.url
 		}],
 		langs: {
 			fr: {

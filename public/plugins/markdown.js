@@ -26,9 +26,7 @@
 			icon: 'list_alt',
 			caption: 'MarkdownActionEdit',
 			accept: accept,
-			execute: function(item) {
-				window.open('/markdown-editor.html?itemId=' + item.id);
-			}
+			url: (item) => '/markdown-editor.html?itemId=' + item.id
 		}],
 		langs: {
 			fr: {

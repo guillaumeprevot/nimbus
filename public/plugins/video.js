@@ -84,9 +84,7 @@
 			icon: 'play_circle_outline',
 			caption: 'VideoPlay',
 			accept: NIMBUS.utils.isBrowserSupportedVideo,
-			execute: function(item) {
-				window.open('/video.html?itemId=' + item.id);
-			}
+			url: (item) => '/video.html?itemId=' + item.id
 		}, {
 			name: 'video-convert-to-webvtt',
 			icon: 'transform',

@@ -21,11 +21,7 @@
 			icon: 'chrome_reader_mode',
 			caption: 'EPUBRead',
 			accept: accept,
-			execute: function(item) {
-				window.open('/epub.html?' + $.param({
-					url: '/files/stream/' + item.id
-				}));
-			}
+			url: (item) => '/epub.html?' + $.param({ url: '/files/stream/' + item.id })
 		}],
 		langs: {
 			fr: {

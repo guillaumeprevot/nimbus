@@ -21,9 +21,7 @@
 			icon: 'lock_open',
 			caption: 'SecretActionEdit',
 			accept: accept,
-			execute: function(item) {
-				window.open('/secret-editor.html?itemId=' + item.id);
-			}
+			url: (item) => '/secret-editor.html?itemId=' + item.id
 		}],
 		langs: {
 			fr: {

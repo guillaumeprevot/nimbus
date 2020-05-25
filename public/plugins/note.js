@@ -26,9 +26,7 @@
 			icon: 'art_track',
 			caption: 'NoteActionEdit',
 			accept: accept,
-			execute: function(item) {
-				window.open('/note-editor.html?itemId=' + item.id);
-			}
+			url: (item) => '/note-editor.html?itemId=' + item.id
 		}],
 		langs: {
 			fr: {

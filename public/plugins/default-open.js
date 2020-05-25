@@ -8,9 +8,7 @@
 			icon: /*icon ||*/ 'open_in_new',
 			caption: 'DefaultOpen',
 			accept: accept,
-			execute: function(item) {
-				window.open('/files/browseTo/' + item.id);
-			}
+			url: (item) => '/files/browseTo/' + item.id
 		});
 	}
 

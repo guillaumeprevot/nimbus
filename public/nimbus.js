@@ -1371,24 +1371,25 @@ NIMBUS.navigation = (function() {
 			// La méthode "accept" peut retourner un booléen ou un "thenable" (Promise, Deferred, ...)
 			var accept = action.accept(item, extension);
 			if (typeof accept === 'boolean')
-				// Si c'est un booléen, l'IHM est réactive car on peut ajuster la visibilité dès maintenant
-				list.children('#action-' + action.name).toggleClass('nimbus-hidden', !accept);
-			else
-				// Si c'est une Promise, elle sera résolue avec un booléen indiquant si l'élément est accepté
-				accept.then(function(accepted) {
-					list.children('#action-' + action.name).toggleClass('nimbus-hidden', !accepted);
-				});
+				accept = Promise.resolve(accept);
+			// On ajuste l'action dès qu'on connait la réponse
+			accept.then(function(accepted) {
+				var a = list.children('#action-' + action.name).toggleClass('nimbus-hidden', !accepted);
+				if (accepted)
+					a.attr('href', action.url ? action.url(item) : '#')
+			});
 		});
 		// Ouvrir la "modal" donnant la liste des actions
-		dialog.modal({keyboard: true}).off('click', 'a.list-group-item').on('click', 'a.list-group-item', function(event) {
-			var id = $(event.target).closest('.list-group-item').attr('id');
+		dialog.modal({keyboard: true}).off('click', 'a.list-group-item[href="#"]').on('click', 'a.list-group-item[href="#"]', function(event) {
+			// Récupérer l'action sélectionnée
+			var action = $(event.target).closest('.list-group-item').data('action');
 			// Ne pas toucher au hash de l'URL
 			event.preventDefault();
 			// Et fermer la fenêtre
 			dialog.modal('hide').one('hidden.bs.modal', function() {
 				// Exécuter l'action demandée après avoir attendu que la fenêtre modale listant les actions ait disparue.
 				// L'action cliquée ("Renommer", "Déplacer", ...) peut ainsi gérer correctement l'apparition des scrollbars.
-				$(event.target).closest('.list-group-item').data('action').execute(item);
+				action.execute(item);
 			})
 		});;
 	}

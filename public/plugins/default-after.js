@@ -49,13 +49,13 @@
 					// La fonction "Localiser" n'est disponible que pendant une recherche récursive
 					return $('#search-option-recursive').is('.active') && !!$('#search-input').val();
 				},
-				execute: function(item) {
+				url: function(item) {
 					// item.path is '' or 'pid,' or 'pid1,pid2,' ...
 					var pathArray = item.path.split(',');
 					// remove last element which is ''
 					pathArray.pop();
 					// open path in new window
-					window.open('/nav/' + pathArray.join('/'));
+					return '/nav/' + pathArray.join('/');
 				}
 			}, {
 				name: 'rename',

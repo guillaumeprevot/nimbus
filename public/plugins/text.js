@@ -32,9 +32,7 @@
 			icon: 'subject',
 			caption: 'TextActionEdit',
 			accept: NIMBUS.utils.isTextFile,
-			execute: function(item) {
-				window.open('/text-editor.html?itemId=' + item.id);
-			}
+			url: (item) => '/text-editor.html?itemId=' + item.id
 		}],
 		langs: {
 			fr: {

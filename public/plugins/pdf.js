@@ -30,11 +30,7 @@
 			icon: 'picture_as_pdf',
 			caption: 'PDFRead',
 			accept: accept,
-			execute: function(item) {
-				window.open('/pdf.html?' + $.param({
-					url: '/files/stream/' + item.id
-				}));
-			}
+			url: (item) => '/pdf.html?' + $.param({ url: '/files/stream/' + item.id })
 		}],
 		langs: {
 			fr: {

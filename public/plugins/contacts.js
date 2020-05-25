@@ -333,7 +333,7 @@
 			icon: 'contacts',
 			caption: 'ContactsOpen',
 			accept: accept,
-			execute: (item) => window.open('/contacts.html?itemId=' + item.id)
+			url: (item) => '/contacts.html?itemId=' + item.id
 		}],
 		langs: {
 			fr: {
