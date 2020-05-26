@@ -395,6 +395,23 @@ NIMBUS.utils = (function() {
 		});
 	}
 
+	function downloadFile(blob, filename) {
+		// Méthode 1 : clignote et permet pas de préciser le nom du fichier
+		// window.open('data:' + mimetype + ';base64,' + encodeBase64(data));
+		// Méthode 2 : de même, sans toutefois nécessiter la fonction "encodeBase64"
+		// window.open(URL.createObjectURL(blob));
+		// Méthode 3 : fonctions pour IE11, navigateur non supporté par Nimbus
+		// if (navigator.msSaveBlob) navigator.msSaveBlob(blob, filename);
+		// if (navigator.msSaveOrOpenBlob) navigator.msSaveOrOpenBlob(blob, filename);
+		// Méthode 4 : ne clignote pas et permet de chosir le nom du fichier
+		var a = document.createElement('a');
+		a.href= URL.createObjectURL(blob);
+		a.download = filename;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	}
+
 	function uploadFile(parentId, blob, filename) {
 		var formData = new FormData();
 		formData.append("parentId", parentId ? parentId.toString() : "");
@@ -444,6 +461,7 @@ NIMBUS.utils = (function() {
 		getFileExtensionFromString: getFileExtensionFromString,
 		getFileNameFromContentDisposition: getFileNameFromContentDisposition,
 		autocompleteInput: autocompleteInput,
+		downloadFile: downloadFile,
 		uploadFile: uploadFile,
 		updateFile: updateFile,
 		updateFileText: updateFileText,

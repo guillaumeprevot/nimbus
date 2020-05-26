@@ -4,19 +4,6 @@
 		return 'contacts' === extension;
 	}
 
-	// https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding#Solution_4_%E2%80%93_escaping_the_string_before_encoding_it
-	function encodeBase64(str) {
-		return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(match, p1) {
-			return String.fromCharCode('0x' + p1);
-		}));
-	}
-
-	function decodeBase64(str) {
-		return decodeURIComponent(atob(str).split('').map(function(c) {
-			return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-		}).join(''));
-	}
-
 	/**
 	 * Cette méthode export un ensemble de carnets d'adresses en un texte au format VCF 2.1.
 	 * Au départ prévu en 3.0 et 4.0, j'ai ensuite remarqué que Thunderbird et Android prennent plutôt du 2.1.
@@ -183,7 +170,9 @@
 			execute: function(item) {
 				$.get('/files/stream/' + item.id).then(function(content) {
 					var vcf = exportVCF(content.contacts, '2.1', true, '');
-					window.open('data:text/vcard;base64,' + encodeBase64(vcf));
+					var blob = new Blob([vcf], { type: 'text/vcard' });
+					var filename = item.name.replace(/\.contacts$/, '.vcf');
+					NIMBUS.utils.downloadFile(blob, filename);
 				});
 			}
 		}, {
