@@ -258,7 +258,6 @@ NIMBUS.lang = {
 	CommonSaveGenericError: "An error occurred while trying to save changes. Please check your network access and try again.",
 
 	ActionNavigate: "Open",
-	ActionNavigateTab: "Open in a new tab",
 	ActionDownloadRefresh: "Download again",
 	ActionDownloadDone: "Done",
 	ActionLocate: "Show location",

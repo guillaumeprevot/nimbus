@@ -258,7 +258,6 @@ NIMBUS.lang = {
 	CommonSaveGenericError: "Une erreur est survenue pendant la sauvegarde. Veuillez vérifier que le serveur est accessible et réessayer.",
 
 	ActionNavigate: "Ouvrir",
-	ActionNavigateTab: "Ouvrir dans un nouvel onglet",
 	ActionDownloadRefresh: "Télécharger à nouveau",
 	ActionDownloadDone: "Marquer comme vu",
 	ActionLocate: "Localiser",

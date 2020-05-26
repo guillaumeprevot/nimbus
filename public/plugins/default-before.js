@@ -43,24 +43,12 @@
 				name: 'navigate',
 				icon: 'folder_open',
 				caption: 'ActionNavigate',
-				accept: function(item, extension) {
-					// La navigation ne se fait que dans des dossiers
-					return item.folder;
-				},
-				execute: function(item) {
-					NIMBUS.navigation.goToFolderAndRefreshItems(item);
-				}
-			}, {
-				name: 'navigate-tab',
-				icon: 'open_in_new',
-				caption: 'ActionNavigateTab',
-				accept: function(item, extension) {
-					// Cette action ouvre un dossier dans un nouvel onglet
-					return item.folder;
-				},
-				execute: function(item) {
-					window.open('/nav/' + item.path.replace(',', '/') + item.id);
-				}
+				// La navigation ne se fait que dans des dossiers
+				accept: (item, extension) => item.folder,
+				// Le support de l'URL vers le dossier pour l'ouverture dans un onglet
+				url: (item) => '/nav/' + item.path.replace(',', '/') + item.id,
+				// Le support de "execute", pour naviguer dans le dossier sans recharger la page
+				execute: (item) => NIMBUS.navigation.goToFolderAndRefreshItems(item)
 			}
 		]
 	});

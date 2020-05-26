@@ -1380,10 +1380,13 @@ NIMBUS.navigation = (function() {
 			});
 		});
 		// Ouvrir la "modal" donnant la liste des actions
-		dialog.modal({keyboard: true}).off('click', 'a.list-group-item[href="#"]').on('click', 'a.list-group-item[href="#"]', function(event) {
+		dialog.modal({keyboard: true}).off('click', 'a.list-group-item').on('click', 'a.list-group-item', function(event) {
 			// Récupérer l'action sélectionnée
 			var action = $(event.target).closest('.list-group-item').data('action');
-			// Ne pas toucher au hash de l'URL
+			// Ne rien faire pour les actions défnissant "url" mais pas "execute" afin de suivre l'URL souhaitée
+			if (action.url && !action.execute)
+				return;
+			// Ne pas suivre l'URL sinon (soit l'action ne supporte pas "url", soit elle propose "execute" en plus de "url")
 			event.preventDefault();
 			// Et fermer la fenêtre
 			dialog.modal('hide').one('hidden.bs.modal', function() {
