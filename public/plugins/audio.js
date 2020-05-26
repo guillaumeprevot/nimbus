@@ -16,7 +16,7 @@
 	function execute(play, items) {
 		localStorage.setItem('updatePlaylist', JSON.stringify({
 			play: play,
-			items:  items
+			items: items
 		}));
 		setTimeout(function() {
 			var stillHere = !!localStorage.getItem('updatePlaylist');

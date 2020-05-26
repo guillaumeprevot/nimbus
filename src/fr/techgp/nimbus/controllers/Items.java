@@ -382,9 +382,9 @@ public class Items extends Controller {
 				JsonObject object = element.getAsJsonObject();
 				String name = object.get("name").getAsString();
 				String action = object.get("action").getAsString();
-				if ("remove".equals(action))
+				if ("remove".equals(action)) {
 					item.content.remove(name);
-				else {
+				} else {
 					JsonElement valueElement = object.get("value");
 					if (!valueElement.isJsonPrimitive())
 						return Render.badRequest();
@@ -396,10 +396,16 @@ public class Items extends Controller {
 						value = Boolean.valueOf(valuePrimitive.getAsBoolean());
 						break;
 					case "integer":
-						value = Integer.valueOf(valuePrimitive.getAsInt());
+						if ("inc".equals(action))
+							value = ((Integer) item.content.getOrDefault(name, 0)) + valuePrimitive.getAsInt();
+						else
+							value = Integer.valueOf(valuePrimitive.getAsInt());
 						break;
 					case "long":
-						value = Long.valueOf(valuePrimitive.getAsLong());
+						if ("inc".equals(action))
+							value = ((Long) item.content.getOrDefault(name, 0L)) + valuePrimitive.getAsLong();
+						else
+							value = Long.valueOf(valuePrimitive.getAsLong());
 						break;
 					case "double":
 						value = Double.valueOf(valuePrimitive.getAsDouble());

@@ -30,7 +30,7 @@
 			execute: function(item) {
 				// Record usage
 				$.post("/items/metadata?itemId=" + item.id + "&metadata=" + JSON.stringify([
-					{ action:"set", name:"runCount", type:"integer", value:(item.runCount || 0)+1 },
+					{ action:"inc", name:"runCount", type:"integer", value:1 },
 					{ action:"set", name:"runLast", type:"long", value:Date.now() }
 				]));
 				// Launch application
