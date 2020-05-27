@@ -28,6 +28,9 @@ public interface Render {
 
 	public void render(Request request, Response response, Charset charset, Supplier<OutputStream> stream) throws IOException;
 
+	/**
+	 * An utility function that {@link Render} implementations can use to write response's body
+	 */
 	default void copy(InputStream is, OutputStream os) throws IOException {
 		int n;
 		byte[] buffer = new byte[1024 * 1024];
@@ -36,13 +39,16 @@ public interface Render {
 		}
 	}
 
+	/**
+	 * A singleton for an empty body {@link Render}
+	 */
 	public static Render EMPTY = (request, response, charset, stream) -> { /* */ };
 
 	/**
 	 * This class make it possible to throw an Exception anywhere in {@link Route#handle(Request, Response)}
 	 * while still providing a proper {@link Render}.
 	 *
-	 * By default, it is catched in {@link Router#process(Request, Response, Supplier)} to set {@link Response#body(Render)}.
+	 * By default, it is catched in {@link Router#process(Request, Response)} to set {@link Response#body(Render)}.
 	 */
 	public static class Exception extends RuntimeException {
 

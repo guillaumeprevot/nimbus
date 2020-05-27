@@ -5,23 +5,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.Locale;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Response;
-import fr.techgp.nimbus.utils.CryptoUtils;
 
 public class RenderStatic implements Render {
-
-	private static final FastDateFormat CACHE_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
 
 	private final File file;
 	private final String mimeType;
@@ -38,24 +35,23 @@ public class RenderStatic implements Render {
 		response.type(this.mimeType != null ? this.mimeType : "application/octet-stream");
 
 		// La date de modification du fichier sert de date pour le cache
-		Date fileDate = new Date(this.file.lastModified());
-		String lastModified = CACHE_DATE_FORMAT.format(fileDate);
-		String etag = CryptoUtils.sha1Hex(lastModified);
+		long lastModified = this.file.lastModified();
+		String etag = etag(this.file);
 
 		// En-têtes correspondantes aux infos calculées du cache
 		response.header("Cache-Control", "no-cache");
 		response.header("Etag", etag);
-		response.header("Last-Modified", lastModified);
+		response.dateHeader("Last-Modified", lastModified);
 
 		//1er type de cache : If-None-Match :""9e3fa9259d22837a4e72fe8b69112968b88e3cca""
 		String ifNoneMatch = request.header("If-None-Match");
 		if (ifNoneMatch == null || !ifNoneMatch.equals(etag)) {
 			//2ème type de cache : If-Modified-Since :"Mon, 16 Mar 2015 07:42:10 GMT"
-			String ifModifiedSince = request.header("If-Modified-Since");
-			if (ifModifiedSince == null || !ifModifiedSince.equals(lastModified)) {
+			long ifModifiedSince = request.dateHeader("If-Modified-Since");
+			if (ifModifiedSince == -1L || ifModifiedSince != lastModified) {
 				// Tant pis, pas de cache
 				response.status(HttpServletResponse.SC_OK);
-				response.header("Date", lastModified);
+				response.dateHeader("Date", lastModified);
 				// Envoyer le fichier demandé
 				response.length(this.file.length());
 				try (InputStream is = new FileInputStream(this.file)) {
@@ -75,4 +71,16 @@ public class RenderStatic implements Render {
 		}
 	}
 
+	/** https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/ETag */
+	private String etag(File file) throws IOException {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-1");
+			String digestValue = file.getAbsolutePath() + "?" + file.lastModified();
+			digest.update(digestValue.getBytes(StandardCharsets.UTF_8));
+			byte[] digestResult = digest.digest();
+			return new BigInteger(1, digestResult).toString(16);
+		} catch (NoSuchAlgorithmException ex) {
+			throw new IOException(ex);
+		}
+	}
 }

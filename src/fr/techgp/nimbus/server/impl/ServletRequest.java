@@ -17,7 +17,6 @@ import javax.servlet.http.Part;
 import fr.techgp.nimbus.server.Cookie;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Upload;
-import fr.techgp.nimbus.utils.StringUtils;
 
 public class ServletRequest implements Request {
 
@@ -245,13 +244,13 @@ public class ServletRequest implements Request {
 	private static final String getMethod(HttpServletRequest request, boolean checkProxy) {
 		if (checkProxy) {
 			String r = request.getHeader("X-HTTP-Method");
-			if (StringUtils.isNotBlank(r))
+			if (r != null)
 				return r;
 			r = request.getHeader("X-HTTP-Method-Override");
-			if (StringUtils.isNotBlank(r))
+			if (r != null)
 				return r;
 			r = request.getHeader("X-METHOD-OVERRIDE");
-			if (StringUtils.isNotBlank(r))
+			if (r != null)
 				return r;
 		}
 		return request.getMethod();
@@ -260,10 +259,10 @@ public class ServletRequest implements Request {
 	private static final String getIP(HttpServletRequest request, boolean checkProxy) {
 		if (checkProxy) {
 			String r = request.getHeader("X-Real-IP");
-			if (StringUtils.isNotBlank(r))
+			if (r != null)
 				return r;
 			r = request.getHeader("X-Forwarded-For");
-			if (StringUtils.isNotBlank(r))
+			if (r != null)
 				return r.split(",")[0].trim();
 		}
 		return request.getRemoteAddr();
@@ -272,7 +271,7 @@ public class ServletRequest implements Request {
 	private static final String getHost(HttpServletRequest request, boolean checkProxy) {
 		if (checkProxy) {
 			String r = request.getHeader("X-Forwarded-Host");
-			if (StringUtils.isNotBlank(r))
+			if (r != null)
 				return r.split(",")[0].trim();
 		}
 		return request.getHeader("Host");
