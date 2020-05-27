@@ -178,6 +178,7 @@
 				accept: function(item, extension) {
 					return true;
 				},
+				url: (item) => item.folder ? ('/items/zip?itemIds=' + item.id) : ('/files/download/' + item.id),
 				execute: function(item) {
 					NIMBUS.navigation.downloadItems([item.id], item.folder);
 				}

@@ -10,9 +10,9 @@
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
 
 <script type="text/javascript">
-var search = window.location.search || '';
+var search = new URLSearchParams(window.location.search);
 var stylesheet = '/libs/bootswatch/flatly.min.css';
-if (search.indexOf('theme=dark') >= 0)
+if (search.get('theme') === 'dark')
 	stylesheet = '/libs/bootswatch/darkly.min.css';
 document.write('<link type="text/css" rel="stylesheet" href="' + stylesheet + '" />');
 </script>
@@ -244,11 +244,11 @@ function buildChunks(app) {
 		themeStylesheet: app.canChangeTheme ? '' : `<link type="text/css" rel="stylesheet" href="/libs/bootswatch/${app.theme === 'light' ? 'flatly' : 'darkly'}.min.css" />`,
 		themeScript: app.canChangeTheme ? `
 			// Chargement du thème par défaut, sauf si un autre est précisé dans l'URL
-			var search = window.location.search || '';
+			var search = new URLSearchParams(window.location.search);
 			var stylesheet = '/libs/bootswatch/${app.theme === 'light' ? 'flatly' : 'darkly'}.min.css';
-			if (search.indexOf('theme=dark') >= 0)
+			if (search.get('theme') === 'dark')
 				stylesheet = '/libs/bootswatch/darkly.min.css';
-			if (search.indexOf('theme=light') >= 0)
+			if (search.get('theme') === 'light')
 				stylesheet = '/libs/bootswatch/flatly.min.css';
 			document.write('<link type="text/css" rel="stylesheet" href="' + stylesheet + '" />');` : '',
 

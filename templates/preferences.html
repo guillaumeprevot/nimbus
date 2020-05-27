@@ -119,7 +119,7 @@ NIMBUS.init([<#list plugins as p>'${p}.js'<#sep>,</#sep></#list>], function() {
 			return;
 		}
 		$.post('/preferences/save', form).then(function() {
-			window.location = '/';
+			window.location = '${backURL}';
 		});
 	});
 });

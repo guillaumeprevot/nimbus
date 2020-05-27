@@ -6,7 +6,7 @@
             "request": "launch",
             "mainClass": "fr.techgp.nimbus.Application",
             "projectName": "nimbus",
-            "vmArgs": "-Dnimbus.log=none -Dnimbus.conf=nimbus-dev.conf",
+            "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf;nimbus-dev.conf",
             "console": "integratedTerminal"
         },
         {
@@ -15,7 +15,7 @@
             "request": "launch",
             "mainClass": "fr.techgp.nimbus.Application",
             "projectName": "nimbus",
-            "vmArgs": "-Dnimbus.log=none -Dnimbus.conf=nimbus-test.conf",
+            "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf;nimbus-test.conf",
             "console": "integratedTerminal"
         }
     ]

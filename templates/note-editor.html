@@ -201,7 +201,8 @@ function promptButton(target, command, promptTitle, defaultValue, transform) {
 }
 
 function sanitize(content) {
-	var safe = (window.location.search || '').indexOf('safe=true') >= 0;
+	var search = new URLSearchParams(window.location.search);
+	var safe = search.get('safe') === 'true';
 	if (safe)
 		return content;
 	return DOMPurify.sanitize(content, {
