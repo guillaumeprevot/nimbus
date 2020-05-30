@@ -2,7 +2,6 @@ package fr.techgp.nimbus;
 
 import java.util.Scanner;
 
-import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +53,10 @@ public class Application {
 			Router router = Controller.init(logger, configuration, dev);
 
 			// Prepare Jetty
-			Server server = JettyServer.init(router,
-					configuration.getServerPort(),
-					configuration.getServerKeystore(),
-					configuration.getServerKeystorePassword(),
-					configuration.getStorageFolder().getAbsolutePath());
+			JettyServer server = new JettyServer(configuration.getServerPort())
+					.https(configuration.getServerKeystore(), configuration.getServerKeystorePassword())
+					.multipart(configuration.getStorageFolder().getAbsolutePath(), -1L, -1L, 100 * 1024 * 1024)
+					.start(router);
 
 			// Launch URL
 			/*

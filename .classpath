@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.65.01.jar"/>
 	<classpathentry kind="lib" path="lib/bson-3.12.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/fontbox-2.0.19.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.30.jar"/>
@@ -41,5 +45,6 @@
 	<classpathentry kind="lib" path="lib/javazoom/tritonus_share.jar"/>
 	<classpathentry kind="lib" path="lib/javazoom/vorbisspi1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/jave/jave-1.0.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/nimbus-java-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

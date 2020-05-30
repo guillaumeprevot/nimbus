@@ -28,6 +28,7 @@ Le développement du projet s'organise selon 4 axes :
 
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
+[Nimbus Java API](https://github.com/guillaumeprevot/nimbus-java-api) | Java | [1.0-SNAPSHOT](https://github.com/guillaumeprevot/nimbus-java-api/releases) | MIT | Routing API
 [Jetty](https://www.eclipse.org/jetty/) | Java | [9.4.29](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Serveur Web
 [FreeMarker](https://freemarker.apache.org/) | Java | [2.3.30](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | [2.8.6](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
@@ -148,6 +149,10 @@ Pour fonctionner, `Nimbus` a besoin de [MongoDB](https://www.mongodb.com/downloa
 Tout d'abord, on récupère le code sur `GitHub` et on compile avec `Maven`
 
 ```bash
+git clone https://github.com/guillaumeprevot/nimbus-java-api.git
+cd nimbus-java-api
+mvn install
+cd ..
 git clone https://github.com/guillaumeprevot/nimbus.git
 cd nimbus
 mvn install
@@ -208,8 +213,13 @@ A vous de jouer !
 Pour mettre à jour, il suffit de quelques commandes
 
 ```bash
-cd /path/to/nimbus
 kill $(ps aux | grep '[n]imbus' | awk '{print $2}');
+
+cd /path/to/nimbus-java-api
+git pull
+mvn install
+
+cd /path/to/nimbus
 rm -rf ./bin/*
 rm ./lib/*.jar
 git pull
