@@ -515,26 +515,31 @@ NIMBUS.navigation = (function() {
 
 	/** Initialiser le comportement pour l'upload de fichier(s) */
 	function prepareFileUpload() {
+		// Retourne le parentId dans lequel l'ajout se fera (le sous-dossier si on droppe sur sa ligne ou le dossier en cours sinon)
+		function getParentIdFromTarget(target) {
+			var tr = $(target).closest('tr.folder');
+			if (tr.length === 1)
+				return tr.data('item').id;
+			return getCurrentPathId();
+		}
 		// Ajout de fichier local en utilisant le plugin jquery gpfileupload
 		$('#add-file-input').hide().gpfileupload({
 			url : '/files/upload',
 			// method: 'POST',
 			// dropSelector: document,
 			// abortOnEscape: true,
-			extraParams: function(files) {
-				var params = { parentId: getCurrentPathId() };
+			extraParams: function(files, target) {
+				var params = { parentId: getParentIdFromTarget(target) };
 				for (var i = 0; i < files.length; i++) {
 					params['updateDate' + i] = files[i].lastModified;
 				}
 				return params;
 			},
-			onstart: function(files) {
+			onstart: function(files, target) {
 				// Mettre de côté l'id de l'élément dans lequel les fichiers seront ajoutés
-				var parentId = getCurrentPathId();
+				var parentId = getParentIdFromTarget(target);
 				// Concaténer les noms de fichiers en une chaine
-				var names = Array.prototype.map.apply(files, [function(file) {
-					return file.name;
-				}]);
+				var names = Array.prototype.map.apply(files, [(file) => file.name]);
 				// On retournera une "promise" qui sera rejettée si des fichiers existent déjà avec ce nom et que l'utilisateur ne souhaite pas les écraser.
 				var defer = $.Deferred();
 				// Demander au serveur si l'un de ces fichiers existe déjà

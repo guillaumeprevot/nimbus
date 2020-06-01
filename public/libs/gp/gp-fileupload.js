@@ -28,7 +28,7 @@
 
 	$.extend(FileUpload.prototype, {
 		internalChange: function(event) {
-			this.start(event.target.files);
+			this.start(event.target.files, event.target);
 		},
 		internalCheckFileDragEvent: function(event) {
 			if (!event.originalEvent || !event.originalEvent.dataTransfer || !event.originalEvent.dataTransfer.types)
@@ -45,7 +45,7 @@
 		internalDrop: function(event) {
 			if (this.internalCheckFileDragEvent(event)) {
 				event.preventDefault();
-				this.start(event.originalEvent.dataTransfer.files);
+				this.start(event.originalEvent.dataTransfer.files, event.target);
 			}
 		},
 		internalKeyPress: function(event) {
@@ -73,9 +73,9 @@
 			this.uploadPercent = null;
 			this.uploadAjax = null;
 		},
-		start: function(files) {
+		start: function(files, target) {
 			var self = this;
-			var defer = this.options.onstart ? this.options.onstart(files) : $.Deferred().resolve();
+			var defer = this.options.onstart ? this.options.onstart(files, target) : $.Deferred().resolve();
 			defer.then(function() {
 				// Send files and extraParams as FormData
 				var formData = new FormData();
@@ -84,7 +84,7 @@
 				if (self.options.extraParams) {
 					var extraParams;
 					if (typeof self.options.extraParams === 'function')
-						extraParams = self.options.extraParams(files);
+						extraParams = self.options.extraParams(files, target);
 					else
 						extraParams = self.options.extraParams;
 					for (var p in extraParams) {
@@ -154,9 +154,9 @@
 		dropSelector: document,
 		/* enable ou disable upload abort on escape keyup */
 		abortOnEscape: true,
-		/* optional object or function(files)->object giving user the ability to add contextual information in uploaded form */
+		/* optional object or function(files, target)->object giving user the ability to add contextual information in uploaded form */
 		extraParams: null,
-		/* optional callback function(files)->Promise called before the upload starts, giving user the ability to (temporary) delay upload (for instance to check if file exists and ask confirmation) */
+		/* optional callback function(files, target)->Promise called before the upload starts, giving user the ability to (temporary) delay upload (for instance to check if file exists and ask confirmation) */
 		onstart: null,
 		/* optional callback function(files, total, duration, bytes, percent) called to follow upload progress */
 		onprogress: null,
