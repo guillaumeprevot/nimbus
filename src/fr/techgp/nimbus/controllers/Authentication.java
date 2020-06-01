@@ -2,9 +2,8 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 
-import org.apache.commons.io.FilenameUtils;
-
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Route;
@@ -75,8 +74,7 @@ public class Authentication extends Controller {
 		if (!file.exists())
 			return Render.notFound();
 		// Indiquer le bon type MIME
-		String extension = FilenameUtils.getExtension(file.getName());
-		String mimetype = configuration.getMimeType(extension);
+		String mimetype = MimeTypes.byName(file.getName());
 		// Renvoyer le fichier tout en gérant le cache
 		return Render.staticFile(file, mimetype);
 	};

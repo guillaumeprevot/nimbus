@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -84,7 +85,7 @@ public class Shares extends Controller {
 		if (! file.exists())
 			return Render.notFound();
 		// Retourner le résultat
-		String mimeType = configuration.getMimeTypeByFileName(item.name);
+		String mimeType = MimeTypes.byName(item.name);
 		String fileName = item.name;
 		return Render.file(file, mimeType, fileName, true, false);
 	};

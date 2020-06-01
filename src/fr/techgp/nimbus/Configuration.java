@@ -5,20 +5,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 
 import fr.techgp.nimbus.models.Item;
-import fr.techgp.nimbus.utils.StringUtils;
+import fr.techgp.nimbus.server.MimeTypes;
+import fr.techgp.nimbus.server.impl.JettyServer;
 
 public class Configuration {
 
@@ -43,7 +41,6 @@ public class Configuration {
 	private final String clientCodeHighlighter;
 	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
-	private final Map<String, String> mimetypes;
 
 	public Configuration(String path) throws IOException {
 		super();
@@ -77,7 +74,7 @@ public class Configuration {
 		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md,markdown,note,html").split(",")).collect(Collectors.toSet());
 		this.facets = getInstances("facet", Facet.class);
 		this.facets.forEach((f) -> f.init(this));
-		this.mimetypes = getPairs("mimetype");
+		this.configureMimeTypes();
 	}
 
 	private final String getString(String property, String defaultValue) {
@@ -89,18 +86,6 @@ public class Configuration {
 
 	private final int getInt(String property, int defaultValue) {
 		return Optional.ofNullable(getString(property, null)).map(Integer::valueOf).orElse(defaultValue).intValue();
-	}
-
-	private final Map<String, String> getPairs(String property) {
-		Map<String, String> pairs = new HashMap<>();
-		Consumer<Properties> part = (properties) -> {
-			properties.stringPropertyNames().stream()
-				.filter(key -> key.startsWith(property + "."))
-				.forEach(key -> pairs.put(key.substring(property.length() + 1), properties.getProperty(key)));
-		};
-		part.accept(this.properties);
-		part.accept(System.getProperties());
-		return pairs;
 	}
 
 	private final <T> List<T> getInstances(String property, Class<T> clazz) {
@@ -119,6 +104,27 @@ public class Configuration {
 			i++;
 		}
 		return instances;
+	}
+
+	public final void configureMimeTypes() throws IOException {
+		// Load default MIME types
+		MimeTypes.loadDefaultMimeTypes();
+		// Enlarge MIME type database with Jetty
+		JettyServer.registerToMimeTypes();
+		// Register some custom MIME types (should move to plugins later)
+		MimeTypes.register(MimeTypes.HTML, "note");
+		MimeTypes.register(MimeTypes.HTML, "application");
+		MimeTypes.register(MimeTypes.JSON, "secret");
+		MimeTypes.register(MimeTypes.JSON, "calendar");
+		MimeTypes.register(MimeTypes.JSON, "contacts");
+		MimeTypes.register(MimeTypes.JSON, "bookmarks");
+		// Register the textFileExtensions as "text/plain" if not specified yet
+		this.textFileExtensions.forEach((extension) -> {
+			if (MimeTypes.byExtension(extension) == null)
+				MimeTypes.register(MimeTypes.TEXT, extension);
+		});
+		// Use "application/octet-stream" as the default MIME type
+		MimeTypes.registerDefault(MimeTypes.BINARY);
 	}
 
 	public String getMongoHost() {
@@ -187,37 +193,6 @@ public class Configuration {
 
 	public List<Facet> getFacets() {
 		return this.facets;
-	}
-
-	/**
-	 * Obtenir le type MIME à partir d'une extension :
-	 * - le type MIME d'une extension peut être configuré dans "nimbus.conf"
-	 * - le type MIME par défaut d'un fichier texte est "plain/text"
-	 * - sinon, le type MIME est "application/octet-stream"
-	 *
-	 * @return le type MIME pour cette extension
-	 */
-	public final String getMimeType(String extension) {
-		if (StringUtils.isNotBlank(extension)) {
-			String result = this.mimetypes.get(extension);
-			if (result != null)
-				return result;
-			if (this.textFileExtensions.contains(extension))
-				return "text/plain";
-		}
-		return "application/octet-stream";
-	}
-
-	/**
-	 * Obtenir le type MIME à partir d'un nom de fichier
-	 * @return le type MIME pour le fichier ou null si le nom de fichier ne contient pas de '.'
-	 */
-	public final String getMimeTypeByFileName(String filename) {
-		int index = filename.lastIndexOf('.');
-		if (index == -1)
-			return getMimeType(null);
-		String extension = filename.substring(index + 1).toLowerCase();
-		return getMimeType(extension);
 	}
 
 	/**

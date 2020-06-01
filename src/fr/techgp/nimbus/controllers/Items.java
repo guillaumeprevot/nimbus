@@ -26,6 +26,7 @@ import com.google.gson.JsonPrimitive;
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.utils.StringUtils;
@@ -269,7 +270,7 @@ public class Items extends Controller {
 				item.content.put("iconURL", iconURL);
 				// Mise en cache des URLs externes pour ne pas "pinger" à chaque affichage
 				if (iconURL.toLowerCase().startsWith("http") && !iconURL.toLowerCase().startsWith(configuration.getServerAbsoluteUrl())) {
-					String defaultMimetype = configuration.getMimeTypeByFileName(item.name);
+					String defaultMimetype = MimeTypes.byName(item.name);
 					String dataURL = WebUtils.downloadURLAsDataUrl(iconURL, defaultMimetype);
 					if (dataURL != null)
 						item.content.put("iconURLCache", dataURL);
@@ -655,7 +656,7 @@ public class Items extends Controller {
 				node.addProperty("iconURLCache", item.content.getString("iconURLCache"));
 			} else {
 				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
-				node.addProperty("mimetype", configuration.getMimeType(extension));
+				node.addProperty("mimetype", MimeTypes.byExtension(extension));
 				node.addProperty("length", item.content.getLong("length"));
 				if (item.content.containsKey("progress"))
 					node.addProperty("progress", item.content.getInteger("progress"));

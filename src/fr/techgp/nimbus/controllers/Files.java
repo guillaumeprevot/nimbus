@@ -23,6 +23,7 @@ import com.google.gson.JsonArray;
 
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
+import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
@@ -198,7 +199,7 @@ public class Files extends Controller {
 		if (item == null)
 			return Render.badRequest();
 		// Renvoyer le fichier au bout du chemin
-		String mimeType = configuration.getMimeTypeByFileName(item.name);
+		String mimeType = MimeTypes.byName(item.name);
 		return Render.file(getFile(item), mimeType, item.name, false, false);
 	};
 
@@ -237,7 +238,7 @@ public class Files extends Controller {
 			String range = request.header("Range");
 			if (range != null && range.startsWith("bytes="))
 				return returnFileRange(response, item, range.substring("bytes=".length()));
-			String mimeType = configuration.getMimeTypeByFileName(item.name);
+			String mimeType = MimeTypes.byName(item.name);
 			return Render.file(getFile(item), mimeType, item.name, false, false);
 		});
 	};
@@ -249,7 +250,7 @@ public class Files extends Controller {
 	 */
 	public static final Route download = (request, response) -> {
 		return actionOnSingleItem(request, request.pathParameter(":itemId"), (item) -> {
-			String mimeType = configuration.getMimeTypeByFileName(item.name);
+			String mimeType = MimeTypes.byName(item.name);
 			return Render.file(getFile(item), mimeType, item.name, true, false);
 		});
 	};
@@ -268,7 +269,7 @@ public class Files extends Controller {
 				// Fichier absent, pas possible de faire une miniature
 				return Render.notFound();
 			try {
-				String mimeType = configuration.getMimeTypeByFileName(item.name);
+				String mimeType = MimeTypes.byName(item.name);
 				if (item.name.endsWith(".ico"))
 					return Render.bytes(ImageUtils.getScaleICOImage(file, size, size), mimeType, item.name, false);
 				return Render.bytes(ImageUtils.getScaleImage(file, size, size), mimeType, item.name, false);
@@ -339,7 +340,7 @@ public class Files extends Controller {
 		if (!file.exists())
 			return Render.notFound();
 		// System.out.println("ByteRange=" + range + " pour " + item.name);
-		response.type(configuration.getMimeTypeByFileName(item.name));
+		response.type(MimeTypes.byName(item.name));
 		response.header("Content-Disposition", "inline; filename=\"" + item.name + "\"");
 
 		// http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
