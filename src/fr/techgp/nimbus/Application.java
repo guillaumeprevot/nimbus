@@ -78,7 +78,7 @@ public class Application {
 
 			// Wait for commands
 			try (Scanner scanner = new Scanner(System.in)) {
-				while (true) {
+				while (scanner.hasNext()) {
 					String command = scanner.next();
 					if (configuration.getServerStopCommand().equals(command)) {
 						logger.info("Arrêt de l'application");

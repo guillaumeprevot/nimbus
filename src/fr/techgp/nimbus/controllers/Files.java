@@ -48,19 +48,18 @@ public class Files extends Controller {
 
 		// Rechercher le dossier parent (où déposer les fichiers) et en vérifier l'accès
 		Long parentId = null;
-		for (Upload upload : request.uploads()) {
-			if ("parentId".equals(upload.name())) {
-				try (InputStream is = upload.getInputStream()) {
-					String parentIdString = IOUtils.toString(is, "UTF-8");
-					parentId = (StringUtils.isBlank(parentIdString) || "null".equals(parentIdString)) ? null : Long.valueOf(parentIdString);
-					break;
-				}
+		Upload parentIdUpload = request.upload("parentId");
+		if (parentIdUpload != null) {
+			try (InputStream is = parentIdUpload.getInputStream()) {
+				String parentIdString = IOUtils.toString(is, "UTF-8");
+				parentId = (StringUtils.isBlank(parentIdString) || "null".equals(parentIdString)) ? null : Long.valueOf(parentIdString);
 			}
 		}
 		Item parent = parentId == null ? null : Item.findById(parentId);
 		if (parentId != null && (parent == null || !parent.userLogin.equals(userLogin))) {
+			// Nettoyer les fichiers uploadés qui ont été stockés sur disque
 			for (Upload upload : request.uploads()) {
-				upload.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
+				upload.delete();
 			}
 			return Render.badRequest();
 		}
@@ -69,9 +68,7 @@ public class Files extends Controller {
 		List<Upload> uploads = new ArrayList<>();
 		List<Item> items = new ArrayList<>();
 		long requiredSpace = 0;
-		for (Upload upload : request.uploads()) {
-			if (!"files".equals(upload.name()))
-				continue;
+		for (Upload upload : request.uploads("files")) {
 			Item item = Item.findItemWithName(userLogin, parentId, upload.fileName());
 			uploads.add(upload);
 			items.add(item);
@@ -83,8 +80,9 @@ public class Files extends Controller {
 		// Vérifier avant de commencer que l'espace disque est suffisant
 		long availableSpace = user.quota == null ? configuration.getStorageFolder().getFreeSpace() : (user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin));
 		if (availableSpace < requiredSpace) {
+			// Nettoyer les fichiers uploadés qui ont été stockés sur disque
 			for (Upload upload : request.uploads()) {
-				upload.delete(); // Nettoyer les fichiers uploadés qui ont été stockés sur disque
+				upload.delete();
 			}
 			return Render.insufficientStorage();
 		}
