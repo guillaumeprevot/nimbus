@@ -3,11 +3,13 @@ package fr.techgp.nimbus.controllers;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
+import fr.techgp.nimbus.utils.RandomUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Shares extends Controller {
@@ -24,7 +26,7 @@ public class Shares extends Controller {
 			// Créer un partage avec un mot de passe aléatoire
 			if (StringUtils.isBlank(item.sharedPassword)) {
 				item.sharedDate = new Date();
-				item.sharedPassword = StringUtils.randomString(30, true, true);
+				item.sharedPassword = RandomUtils.randomAscii(new Random(), 30, false, true, true, null);
 			}
 			item.sharedDuration = duration;
 			// Ne pas marquer l'élément comme modifié, son contenu n'a pas changé

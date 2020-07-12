@@ -314,7 +314,7 @@ public class Controller {
 		User user = User.findByLogin(login);
 		if (user == null)
 			return "utilisateur inconnu";
-		if (!CryptoUtils.validatePassword(password, user.password))
+		if (!CryptoUtils.validatePassword(password, user.password, null))
 			return "mot de passe incorrect";
 		return null;
 	}
