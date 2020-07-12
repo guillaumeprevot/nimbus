@@ -45,7 +45,7 @@ public class Items extends Controller {
 	 */
 	public static final Route quota = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		User user = User.findByLogin(userLogin);
 		// Récupération des quotas de l'utilisateur
 		long usedSpace = Item.calculateUsedSpace(userLogin);
@@ -76,7 +76,7 @@ public class Items extends Controller {
 	 */
 	public static final Route list = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 
 		// Extraire la requête
 		Long parentId = request.queryParameterLong("parentId", null);
@@ -113,7 +113,7 @@ public class Items extends Controller {
 	 */
 	public static final Route exists = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Extraire la requête
 		Long parentId = request.queryParameterLong("parentId", null);
 		String[] filenames = request.queryParameterValues("names[]");
@@ -163,7 +163,7 @@ public class Items extends Controller {
 	 */
 	public static final Route tags = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Extraire de la requête le texte à rechercher dans les tags (NB .toLowerCase())
 		String term = request.queryParameter("term", "").toLowerCase();
 		// Retourner en JSON les tags sous la forme d'objets { label: tag, value: tag }
@@ -182,7 +182,7 @@ public class Items extends Controller {
 	 */
 	public static final Route addFolder = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Extraire la requête
 		String name = request.queryParameter("name");
 		Long parentId = request.queryParameterLong("parentId", null);
@@ -442,7 +442,7 @@ public class Items extends Controller {
 	 */
 	public static final Route move = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Extraire la requête
 		String itemIds = request.queryParameter("itemIds");
 		String conflict = request.queryParameter("conflict", "skip");

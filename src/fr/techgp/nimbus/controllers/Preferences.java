@@ -18,7 +18,7 @@ public class Preferences extends Controller {
 	 * (theme) => ""
 	 */
 	public static final Route theme = (request, response) -> {
-		request.session().attribute("theme", request.queryParameter("theme"));
+		getSession(request, true).attribute("theme", request.queryParameter("theme"));
 		return Render.EMPTY;
 	};
 
@@ -29,7 +29,7 @@ public class Preferences extends Controller {
 	 */
 	public static final Route page = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		User user = User.findByLogin(request.session().attribute("userLogin"));
+		User user = User.findByLogin(getUserLogin(request));
 		// Générer la page
 		return Templates.render(request, "preferences.html",
 				"plugins", configuration.getClientPlugins(),
@@ -55,7 +55,7 @@ public class Preferences extends Controller {
 		if (!password.equals(passwordConfirmation))
 			return Render.badRequest();
 		// Récupérer l'utilisateur connecté
-		User user = User.findByLogin(request.session().attribute("userLogin"));
+		User user = User.findByLogin(getUserLogin(request));
 		// Appliquer le formulaire
 		if (StringUtils.isNotBlank(password))
 			user.password = CryptoUtils.hashPassword(password);

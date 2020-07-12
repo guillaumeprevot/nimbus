@@ -64,10 +64,10 @@ public class Templates extends Controller {
 	 * @return le nom du thème choisi par l'utilisateur ou le thème par défaut sinon (cf nimbus.conf)
 	 */
 	private static final String getUserTheme(Request request) {
-		return StringUtils.coalesce(
-				request.queryParameter("theme", null),
-				request.session().attribute("theme"),
-				configuration.getClientDefaultTheme());
+		String requestTheme = request.queryParameter("theme", null);
+		String sessionTheme = Optional.ofNullable(getSession(request, false)).map(s -> s.<String>attribute("theme")).orElse(null);
+		String defaultTheme = configuration.getClientDefaultTheme();
+		return StringUtils.coalesce(requestTheme, sessionTheme, defaultTheme);
 	}
 
 	/**

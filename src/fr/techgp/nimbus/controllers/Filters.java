@@ -36,7 +36,7 @@ public class Filters extends Controller {
 			q = "?" + q;
 		else
 			q = "";
-		request.session().attribute("urlToLoad", request.path() + q);
+		getSession(request, true).attribute("urlToLoad", request.path() + q);
 		return Render.redirect("/login.html");
 	}
 
@@ -69,7 +69,7 @@ public class Filters extends Controller {
 	 */
 	public static final String getLogin(Request request, Response response, boolean allowBasicAuthentication) {
 		// L'utilisateur est-il déjà connecté ?
-		String login = request.session().attribute("userLogin");
+		String login = getUserLogin(request);
 		if (login == null && allowBasicAuthentication) {
 			// L'utilisateur n'est pas connecté mais envoie-t-il ses identifiants ?
 			String authorization = request.header("Authorization");

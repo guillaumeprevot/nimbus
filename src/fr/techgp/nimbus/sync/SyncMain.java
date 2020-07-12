@@ -33,7 +33,7 @@ import fr.techgp.nimbus.utils.StringUtils;
  * <li>Chargement du fichier de log, si précisé, dans {@link SyncMain#loadLogFile()}
  * <li>Interactions avec l'utilisateur pour obtenir les options manquantes ou incorrectes dans
  *   {@link SyncMain#getPropertyAsString(String, String, Function)} et {@link SyncMain#getPropertyAsPassword(String, String, Function)}
- * <li>Configuration de {@link Sync} puis authentification avec {@link Sync#authenticateAndGetJSESSIONID()}
+ * <li>Configuration de {@link Sync} puis authentification avec {@link Sync#authenticateAndGetSessionCookie()}
  * <li>Synchronisation des dossiers demandés avec {@link Sync#run(String, String)}
  * </ul>
  */
@@ -87,7 +87,7 @@ public class SyncMain {
 				sync.onerror = (s) -> { writer.format(s + "\n"); System.err.println(s); System.exit(3); };
 			}
 			// Authentication
-			sync.jsessionid = sync.authenticateAndGetJSESSIONID();
+			sync.cookie = sync.authenticateAndGetSessionCookie();
 			// Parcours des dossiers demandés
 			for (String index : args) {
 				System.out.println(index);

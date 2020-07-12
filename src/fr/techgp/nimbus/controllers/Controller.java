@@ -20,6 +20,7 @@ import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Router;
+import fr.techgp.nimbus.server.Session;
 import fr.techgp.nimbus.utils.CryptoUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
@@ -153,8 +154,11 @@ public class Controller {
 				}
 			});
 			Mongo.reset(true);
-			request.session().removeAttribute("userLogin");
-			request.session().removeAttribute("theme");
+			Session session = getSession(request, false);
+			if (session != null) {
+				session.removeAttribute("userLogin");
+				session.removeAttribute("theme");
+			}
 			return Templates.render(request, "test.html",
 					"serverAbsoluteUrl", configuration.getServerAbsoluteUrl());
 		});
@@ -163,7 +167,7 @@ public class Controller {
 	}
 
 	private static final Render nav(Request request) {
-		String login = request.session().attribute("userLogin");
+		String login = getUserLogin(request);
 		User user = User.findByLogin(login);
 		return Templates.render(request, "main.html",
 				"plugins", configuration.getClientPlugins(),
@@ -188,7 +192,7 @@ public class Controller {
 	 */
 	protected static final Render actionOnSingleItem(Request request, String itemIdString, Function<Item, Render> consumer) {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(Long.valueOf(itemIdString));
 		if (item == null || !item.userLogin.equals(userLogin))
@@ -207,7 +211,7 @@ public class Controller {
 	protected static final List<Item> loadMultipleItems(Request request, String itemIds) {
 		if (itemIds != null && itemIds.trim().length() > 0) {
 			// Récupérer l'utilisateur connecté
-			String userLogin = request.session().attribute("userLogin");
+			String userLogin = getUserLogin(request);
 			// Récupérer les identifiants des éléments demandés
 			Set<Long> ids = Arrays.stream(itemIds.split(",")).map(Long::valueOf).collect(Collectors.toSet());
 			// Récupérer les éléments demandés
@@ -317,6 +321,15 @@ public class Controller {
 		if (!CryptoUtils.validatePassword(password, user.password, null))
 			return "mot de passe incorrect";
 		return null;
+	}
+
+	protected static Session getSession(Request request, boolean create) {
+		return configuration.getSessionOnClient() ? request.clientSession(create) : request.session(create);
+	}
+
+	protected static String getUserLogin(Request request) {
+		Session session = getSession(request, false);
+		return session == null ? null : session.attribute("userLogin");
 	}
 
 }

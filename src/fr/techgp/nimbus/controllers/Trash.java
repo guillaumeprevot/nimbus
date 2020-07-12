@@ -33,7 +33,7 @@ public class Trash extends Controller {
 	 */
 	public static final Route count = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Retourner le nombre d'éléments dans la corbeille de l'utilisateur
 		return Render.string(Integer.toString(Item.trashCount(userLogin)));
 	};
@@ -47,7 +47,7 @@ public class Trash extends Controller {
 	 */
 	public static final Route items = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Récupérer les éléments
 		List<Item> items = Item.findAll(userLogin, null, true, null, true, null, null, null, null, true, null);
 		// Récupérer la liste des ids des différents 'path', qu'il va falloir transformer en noms pour l'utilisateur

@@ -38,7 +38,7 @@ public class Sync {
 	public String login;
 	public String password;
 	public String direction;
-	public String jsessionid;
+	public String cookie;
 	public File localFolder;
 	public Long serverFolderId;
 	public Set<Long> skipItemIds;
@@ -48,7 +48,7 @@ public class Sync {
 	public Consumer<String> ontrace = System.out::println;
 	public Consumer<String> onerror = System.err::println;
 
-	public final String authenticateAndGetJSESSIONID() throws IOException {
+	public final String authenticateAndGetSessionCookie() throws IOException {
 		String query = "/login.html";
 		byte[] form = ("login=" + URLEncoder.encode(this.login, "UTF-8")
 				+ "&password=" + URLEncoder.encode(this.password, "UTF-8")
@@ -78,22 +78,24 @@ public class Sync {
 			}
 
 			// Si ça fonctionne, le serveur doit aussi nous renvoyer un cookie de session
-			// JSESSIONID=.....;Path=/;Secure;HttpOnly
+			// NOM=VALEUR; Path=/; Secure; HttpOnly
 			String cookieLine = connection.getHeaderField("Set-Cookie");
 			if (cookieLine == null) {
 				this.onerror.accept("Echec : cookie absent");
 				return null;
 			}
 
-			// Extraction de la valeur de JSESSIONID
+			// Vérification du nom du cookie cookie
+			// - nimbus-server-session pour session côté serveur (précédemment JSESSIONID)
+			// - nimbus-client-session pour session côté client
 			String[] cookieEntry = cookieLine.split(";", 2)[0].split("=", 2);
-			if (! "JSESSIONID".equals(cookieEntry[0])) {
+			if (! "nimbus-server-session".equals(cookieEntry[0]) && ! "nimbus-client-session".equals(cookieEntry[0])) {
 				this.onerror.accept("Echec : cookie inattendu " + cookieEntry[0]);
 				return null;
 			}
 
 			// Retourner le cookie
-			return cookieEntry[1];
+			return cookieEntry[0] + "=" + cookieEntry[1];
 		} finally {
 			connection.disconnect();
 		}
@@ -332,7 +334,7 @@ public class Sync {
 			connection.setDoInput(input);
 			connection.setUseCaches(false);
 			connection.setAllowUserInteraction(false);
-			connection.setRequestProperty("Cookie", "JSESSIONID=" + this.jsessionid);
+			connection.setRequestProperty("Cookie", this.cookie);
 			return consumer.consume(connection);
 		} finally {
 			connection.disconnect();

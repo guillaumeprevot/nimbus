@@ -45,7 +45,7 @@ public class Downloads extends Controller {
 	 */
 	public static final Route add = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Extraire la requête
 		String url = request.queryParameter("url");
 		String name = request.queryParameter("name", url.substring(url.lastIndexOf('/') + 1));

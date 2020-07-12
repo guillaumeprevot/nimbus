@@ -7,6 +7,7 @@ import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Route;
+import fr.techgp.nimbus.server.Session;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Authentication extends Controller {
@@ -19,10 +20,15 @@ public class Authentication extends Controller {
 	 * @see login.html
 	 */
 	public static final Route page = (request, response) -> {
-		String urlToLoad = request.session().attribute("urlToLoad");
-		boolean logout = Boolean.TRUE.equals(request.session().attribute("logout"));
-		request.session().removeAttribute("logout");
-		request.session().removeAttribute("urlToLoad");
+		String urlToLoad = null;
+		boolean logout = false;
+		Session session = getSession(request, false);
+		if (session != null) {
+			urlToLoad = session.attribute("urlToLoad");
+			logout = Boolean.TRUE.equals(session.attribute("logout"));
+			session.removeAttribute("logout");
+			session.removeAttribute("urlToLoad");
+		}
 		return renderLoginPage(request, false, logout, urlToLoad);
 	};
 
@@ -46,7 +52,7 @@ public class Authentication extends Controller {
 				logger.warn("Authentification échouée (" + login + " / " + request.ip() + ") : " + error);
 			return renderLoginPage(request, true, false, urlToLoad);
 		}
-		request.session().attribute("userLogin", login);
+		getSession(request, true).attribute("userLogin", login);
 		return Render.redirect(urlToLoad);
 	};
 
@@ -56,8 +62,9 @@ public class Authentication extends Controller {
 	 * () => redirect(page de connexion)
 	 */
 	public static final Route logout = (request, response) -> {
-		request.session().removeAttribute("userLogin");
-		request.session().attribute("logout", Boolean.TRUE);
+		Session session = getSession(request, true);
+		session.removeAttribute("userLogin");
+		session.attribute("logout", Boolean.TRUE);
 		return Render.redirect("/login.html");
 	};
 

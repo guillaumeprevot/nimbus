@@ -16,7 +16,7 @@ public class Extensions extends Controller {
 	public static final Route epub = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "epub.html",
-				"userLogin", request.session().attribute("userLogin"),
+				"userLogin", getUserLogin(request),
 				"url", queryParameterURL(request, "url", ""));
 	};
 
@@ -28,7 +28,7 @@ public class Extensions extends Controller {
 	public static final Route pdf = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "pdf.html",
-				"userLogin", request.session().attribute("userLogin"),
+				"userLogin", getUserLogin(request),
 				"url", queryParameterURL(request, "url", ""));
 	};
 
@@ -40,7 +40,7 @@ public class Extensions extends Controller {
 	public static final Route video = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "video.html",
-				"userLogin", request.session().attribute("userLogin"),
+				"userLogin", getUserLogin(request),
 				"itemId", request.queryParameterLong("itemId", null));
 	};
 

@@ -43,7 +43,7 @@ public class Files extends Controller {
 	 */
 	public static final Route upload = (request, response) -> {
 		// Récupérer l'utilisateur pour connaitre son quota
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		User user = User.findByLogin(userLogin);
 
 		// Rechercher le dossier parent (où déposer les fichiers) et en vérifier l'accès
@@ -117,7 +117,7 @@ public class Files extends Controller {
 	 */
 	public static final Route update = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 
 		// Rechercher l'élément et en vérifier l'accès
 		Item item = Item.findById(Long.valueOf(request.pathParameter(":itemId")));
@@ -152,7 +152,7 @@ public class Files extends Controller {
 	 */
 	public static final Route touch = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Extraire la requête
 		String name = request.queryParameter("name");
 		Long parentId = request.queryParameterLong("parentId", null);
@@ -174,7 +174,7 @@ public class Files extends Controller {
 	 */
 	public static final Route browse = (request, response) -> {
 		// Récupérer l'utilisateur connecté
-		String userLogin = request.session().attribute("userLogin");
+		String userLogin = getUserLogin(request);
 		// Extraire la requête
 		String path = request.path().substring("/files/browse/".length());
 		if (StringUtils.isBlank(path))

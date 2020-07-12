@@ -32,6 +32,9 @@ public class Configuration {
 	private final String serverStopCommand;
 	private final String serverAbsoluteUrl;
 
+	private final boolean sessionOnClient;
+	private final String sessionSecretKey;
+
 	private final File storageFolder;
 	private final String clientDefaultTheme;
 	private final String clientLoginBackground;
@@ -64,6 +67,9 @@ public class Configuration {
 		this.serverStopCommand = getString("server.stop.command", "stop");
 		this.serverAbsoluteUrl = getString("server.absolute.url", (this.serverKeystore != null ? "https" : "http") + "://localhost:" + this.serverPort);
 
+		this.sessionOnClient = getBoolean("session.on.client", false);
+		this.sessionSecretKey = getString("session.secret.key", null);
+
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "light");
 		this.clientLoginBackground = getString("client.login.background", null);
@@ -86,6 +92,10 @@ public class Configuration {
 
 	private final int getInt(String property, int defaultValue) {
 		return Optional.ofNullable(getString(property, null)).map(Integer::valueOf).orElse(defaultValue).intValue();
+	}
+
+	private final boolean getBoolean(String property, boolean defaultValue) {
+		return Optional.ofNullable(getString(property, null)).map(Boolean::valueOf).orElse(Boolean.valueOf(defaultValue)).booleanValue();
 	}
 
 	private final <T> List<T> getInstances(String property, Class<T> clazz) {
@@ -157,6 +167,14 @@ public class Configuration {
 
 	public String getServerAbsoluteUrl() {
 		return this.serverAbsoluteUrl;
+	}
+
+	public boolean getSessionOnClient() {
+		return this.sessionOnClient;
+	}
+
+	public String getSessionSecretKey() {
+		return this.sessionSecretKey;
 	}
 
 	public File getStorageFolder() {
