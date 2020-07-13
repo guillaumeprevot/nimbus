@@ -1,6 +1,5 @@
 package fr.techgp.nimbus;
 
-import java.util.Optional;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -10,7 +9,6 @@ import fr.techgp.nimbus.controllers.Controller;
 import fr.techgp.nimbus.controllers.Templates;
 import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.server.Router;
-import fr.techgp.nimbus.server.impl.JSONClientSession;
 import fr.techgp.nimbus.server.impl.JettyServer;
 
 public class Application {
@@ -54,13 +52,11 @@ public class Application {
 			// Configure routes
 			Router router = Controller.init(logger, configuration, dev);
 
-			// Init secret key for client-session encryption
-			Optional.ofNullable(configuration.getSessionSecretKey()).ifPresent(JSONClientSession::initAES256SecretKey);
-
 			// Prepare Jetty
 			JettyServer server = new JettyServer(configuration.getServerPort())
 					.https(configuration.getServerKeystore(), configuration.getServerKeystorePassword())
 					.multipart(configuration.getStorageFolder().getAbsolutePath(), -1L, -1L, 100 * 1024 * 1024)
+					.session(configuration.getSessionTimeout(), configuration.getSessionCookiePath(), configuration.getSessionCookieDomain(), configuration.getSessionSecretKey())
 					.start(router);
 
 			// Launch URL

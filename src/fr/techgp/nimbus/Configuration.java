@@ -34,6 +34,9 @@ public class Configuration {
 
 	private final boolean sessionOnClient;
 	private final String sessionSecretKey;
+	private final int sessionTimeout;
+	private final String sessionCookiePath;
+	private final String sessionCookieDomain;
 
 	private final File storageFolder;
 	private final String clientDefaultTheme;
@@ -69,6 +72,9 @@ public class Configuration {
 
 		this.sessionOnClient = getBoolean("session.on.client", false);
 		this.sessionSecretKey = getString("session.secret.key", null);
+		this.sessionTimeout = getInt("session.timeout", 3600);
+		this.sessionCookiePath = getString("session.cookie.path", null);
+		this.sessionCookieDomain = getString("session.cookie.domain", null);
 
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "light");
@@ -175,6 +181,18 @@ public class Configuration {
 
 	public String getSessionSecretKey() {
 		return this.sessionSecretKey;
+	}
+
+	public int getSessionTimeout() {
+		return this.sessionTimeout;
+	}
+
+	public String getSessionCookiePath() {
+		return this.sessionCookiePath;
+	}
+
+	public String getSessionCookieDomain() {
+		return this.sessionCookieDomain;
 	}
 
 	public File getStorageFolder() {
