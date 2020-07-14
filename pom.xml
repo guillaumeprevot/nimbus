@@ -13,13 +13,6 @@
 		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>jaudiotagger-repository</id>
-			<url>https://dl.bintray.com/ijabz/maven</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<!--
 			https://github.com/guillaumeprevot/nimbus-java-api
@@ -126,16 +119,6 @@
 			<version>[0.9.1,)</version>
 		</dependency>
 		<!--
-			2.2.5 dans repository ci-dessus
-			http://www.jthink.net/jaudiotagger/index.jsp
-			https://bitbucket.org/ijabz/jaudiotagger/src/master/README.md?fileviewer=file-view-default
-		-->
-		<dependency>
-			<groupId>net.jthink</groupId>
-			<artifactId>jaudiotagger</artifactId>
-			<version>[2.2.5,)</version>
-		</dependency>
-		<!--
 			https://github.com/drewnoakes/metadata-extractor/releases
 			https://www.mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
 		-->
@@ -172,6 +155,13 @@
 			<version>2010</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/javazoom/mp3spi1.9.5.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>fr.techgp.deps</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>2.2.5</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/jaudiotagger/jaudiotagger-2.2.5.jar</systemPath>
 		</dependency>
 
 	</dependencies>

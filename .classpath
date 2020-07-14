@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/fontbox-2.0.20.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.30.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.8.6.jar"/>
-	<classpathentry kind="lib" path="lib/jaudiotagger-2.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-client-9.4.30.v20200611.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-http-9.4.30.v20200611.jar"/>
@@ -38,6 +37,7 @@
 	<classpathentry kind="lib" path="lib/websocket-servlet-9.4.30.v20200611.jar"/>
 	<classpathentry kind="lib" path="lib/xmpcore-6.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/image4j/image4j-0.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jaudiotagger/jaudiotagger-2.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/javazoom/jl1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/javazoom/jogg-0.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/javazoom/jorbis-0.0.15.jar"/>
