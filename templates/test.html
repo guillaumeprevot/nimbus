@@ -537,7 +537,7 @@ function fillTests(add) {
 		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône et la récupération de l'icône en cache", function() {
-		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png" && r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0));
+		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png" && (offline || (r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0))));
 	});
 	add("ICONURL / Tenter de modifier l'icône de 'Dossier5' avec une adresse incorrecte", function() {
 		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/fakeicon.png").then(assertEmpty);
@@ -558,20 +558,25 @@ function fillTests(add) {
 		return $.get("/download/autocomplete", { url: downloadURL }).then((result) => assertArray(result, 0));
 	});
 	add("DOWNLOAD / Télécharger une vidéo", function() {
-		return $.post("/download/add", { url: downloadURL/*, name: downloadName*/ }).then((result) => assertEquals(result, "8"));
+		var q = offline ? $.post('/files/touch', { name: downloadName }) : $.post("/download/add", { url: downloadURL });
+		return q.then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier les informations sur l'élément téléchargé", function() {
 		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4"
-				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465))));
+				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465) || (offline && !r.status && length === 0))));
 	});
 	add("DOWNLOAD / Actualiser un fichier téléchargé", function() {
+		if (offline)
+			return $.Deferred().resolve('OK');
 		return wait(3).then(() => $.post("/download/refresh?itemId=8")).then((result) => assertEquals(result, "8"));
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé n'ont pas changé", function() {
 		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4"
-				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465))));
+				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465) || (offline && !r.status && length === 0))));
 	});
 	add("DOWNLOAD / Marquer le téléchargement comme vu", function() {
+		if (offline)
+			return $.Deferred().resolve('OK');
 		return wait(3).then(() => $.post("/download/done?itemId=8")).then(assertEmpty);
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé ont été nettoyées", function() {
@@ -756,6 +761,17 @@ var success = $('.alert');
 var tbody = $("table > tbody");
 var defer = $.Deferred();
 var chain = defer;
+var offline;
+
+chain = chain.then(() => {
+	return fetch('https://raw.githubusercontent.com/moment/moment/develop/locale/fr.js?ts=' + Date.now()).then(function(r) {
+		console.log('External fetching succeeded, running tests in online mode', r);
+		offline = false;
+	}).catch(function(r) {
+		console.log('External fetching failed, running tests in offline mode', r);
+		offline = true;
+	});
+});
 
 fillTests((name, run) => tests.push({ name, run }));
 
