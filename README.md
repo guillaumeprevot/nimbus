@@ -43,6 +43,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JavaZoom](http://www.javazoom.net/index.shtml) | plugin Java | [2010](./lib/javazoom/) | LGPL | Support des fichiers MP3 et OGG
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | [2.2.5](https://dl.bintray.com/ijabz/maven/net/jthink/jaudiotagger/) | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | [0.9.1](https://github.com/mpatric/mp3agic/releases) | MIT | Support des fichiers MP3
+[JJWT](https://github.com/jwtk/jjwt) | transitive | [0.11.2](https://github.com/jwtk/jjwt/releases) | MIT | Support des JSON Web Token (JWT)
 [Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | [1.66](https://www.bouncycastle.org/latest_releases.html) | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
 [jQuery](http://api.jquery.com/) | JS | [3.5.1](https://jquery.com/download/) | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | [4.5.0](https://github.com/twbs/bootstrap/releases) | MIT | Kit de départ pour l'IHM
