@@ -86,7 +86,6 @@ public class Extensions extends Controller {
 	public static final Route markdownEditor = (request, response) -> {
 		// Générer la page
 		return Templates.render(request, "markdown-editor.html",
-				"highlighter", request.queryParameter("highlighter", configuration.getClientCodeHighlighter()),
 				"baseURL", configuration.getServerAbsoluteUrl(),
 				"itemId", request.queryParameterLong("itemId", null));
 	};

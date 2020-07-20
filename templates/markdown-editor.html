@@ -10,18 +10,19 @@
 <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
 <link type="text/css" rel="stylesheet" href="${stylesheet}" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
-<#if highlighter == "prism"><link type="text/css" rel="stylesheet" href="/libs/prism/prism.min.css" /></#if>
-<#if highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" /></#if>
-<#if highlighter == "codemirror"><link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-dark.css" /></#if>
+<link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" />
+<link type="text/css" rel="stylesheet" href="/libs/codemirror/addon/fold/foldgutter.css" />
+<link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-${theme}.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
 main { display: flex; }
-textarea { flex: 1 1 0; padding: 1em; overflow: auto; border: 0; white-space: pre; font-family: monospace; color: inherit; background-color: transparent; }
-#preview { flex: 1 1 0; padding: 1em; overflow: auto; display: block; }
+.CodeMirror { height: 100%; line-height: 1.3em; overflow: hidden; }
+#editor { flex: 1 1 0; }
+#preview { flex: 1 1 0; padding: 1em; overflow: auto; }
 body.edit #editButton { display: none; }
 body.edit #preview { display: none; }
 body.html #htmlButton { display: none; }
-body.html textarea { display: none; }
+body.html #editor { display: none; }
 @media (min-width: 1024px) {
 	#htmlButton { display: none; }
 	#editButton { display: none; }
@@ -37,8 +38,16 @@ body.html textarea { display: none; }
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="/libs/marked/marked.min.js"></script>
-<#if highlighter == "prism"><script type="text/javascript" src="/libs/prism/prism.min.js" data-manual></script></#if>
-<#if highlighter == "codemirror"><script type="text/javascript" src="/libs/codemirror/addon/runmode/runmode-standalone.js"></script></#if>
+<script type="text/javascript" src="/libs/codemirror/lib/codemirror.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/edit/continuelist.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/edit/trailingspace.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/foldcode.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/foldgutter.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/indent-fold.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/fold/markdown-fold.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/runmode/runmode.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/search/jump-to-line.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/selection/active-line.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
@@ -78,7 +87,7 @@ body.html textarea { display: none; }
 		</div>
 	</header>
 	<main>
-		<textarea class="nimbus-hidden" autofocus data-translate="placeholder" placeholder="TextEditorPlaceholder"></textarea>
+		<div id="editor"></div>
 		<div id="preview"></div>
 	</main>
 	<footer></footer>
@@ -86,11 +95,13 @@ body.html textarea { display: none; }
 "use strict";
 
 var updatePreviewTimeout;
-function updatePreview(textarea) {
+function updatePreview(cm) {
 	if (updatePreviewTimeout)
 		clearTimeout(updatePreviewTimeout);
 	updatePreviewTimeout = setTimeout(function() {
-		$('#preview').html(markdownToHtml(textarea.val())).removeClass('nimbus-hidden');
+		var mardown = cm.getValue('\n');
+		var html = markdownToHtml(mardown);
+		$('#preview').html(html).removeClass('nimbus-hidden');
 	}, 500);
 }
 
@@ -127,31 +138,15 @@ function markdownToHtml(text) {
 		return '<blockquote class="ml-4 pl-2" style="border-left: 3px solid var(--secondary); ">' + text + '</blockquote>';
 	};
 	renderer.code = function(code, language, escaped) {
-		<#if highlighter == "prism">
-		if (typeof Prism === 'undefined' || !language || !Prism.languages[language])
-			return '<pre class="language-none"><code>' + code + '</code></pre>';
-		var c = Prism.highlight(code, Prism.languages[language]);
-		return ''
-			+ '<div class="code-toolbar">'
-			+ '  <pre class="language-' + language + '"><code>' + c + '</code></pre>'
-			+ '  <div class="toolbar"><div class="toolbar-item"><span>' + language + '</span></div></div>'
-			+ '</div>';
-		<#else>
-		var pre = $('<pre style="border-left: 2px solid #eee; background-color: #222; color: #eee; padding: 0.5em 1em; "><code></code></pre>');
-		<#if highlighter == "codemirror">
+		var pre = $('<pre class="ml-4 pl-2 cm-s-nimbus-${theme}" style="border-left: 3px solid var(--secondary); "><code></code></pre>');
 		var support = language && NIMBUS.utils.codeMirrorLoadSupport(language);
-		pre.addClass('cm-s-nimbus-dark');
 		if (support)
 			CodeMirror.runMode(code, support.mime, pre.children('code')[0]);
 		else
 			pre.children('code').text(code);
-		<#else>
-		pre.children('code').text(code);
-		</#if>
 		if (language)
 			pre.prepend($('<span style="float: right; border-bottom: 1px solid #eee; " />').text(language));
 		return pre[0].outerHTML;
-		</#if>
 	};
 	// https://marked.js.org/#/USING_ADVANCED.md#options
 	return marked(text || '', {
@@ -163,8 +158,13 @@ function markdownToHtml(text) {
 	});
 }
 
+function customizeOptions(options) {
+	options.lineWrapping = true;
+	return options;
+}
+
 //Initialiser la page
-NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js'</#if>], function() {
+NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 	// L'IHM est prête, on l'affiche
 	var body = $(document.body).removeClass('nimbus-hidden');
 	// Identifiant de l'élément édité
@@ -176,11 +176,14 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 		dataType: 'text'
 	}).then(function(content, textStatus, jqXHR) {
 		var lineSeparator = NIMBUS.utils.textAPI.getLineSeparator(content),
-			textarea = $('textarea').text(content),
+			editor = $('#editor'),
 			preview = $('#preview'),
 			saveButton = $('#saveButton'),
 			saveMessage = null,
-			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR);
+			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR),
+			support = NIMBUS.utils.codeMirrorLoadSupport('md'),
+			cmOptions = NIMBUS.utils.codeMirrorCreateOptions(support.mime, content, '${theme}'),
+			cm = CodeMirror(editor[0], customizeOptions(cmOptions));
 
 		$('title').text(filename);
 
@@ -190,7 +193,7 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 			body.removeClass('split edit html');
 			// Mettre à jour la vue
 			$('#viewMenu [data-view=html]').addClass('active').siblings().removeClass('active');
-			preview.html(markdownToHtml(textarea.val())).show();
+			preview.html(markdownToHtml(cm.getValue('\n'))).show();
 			// Afficher ensuite
 			body.addClass('html');
 		});
@@ -203,7 +206,7 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 			preview.empty();
 			// Afficher ensuite
 			body.addClass('edit');
-			textarea.focus();
+			cm.focus();
 		});
 		// Sélection de la vue par le menu
 		$('#viewMenu [data-view]').click(function(event) {
@@ -212,16 +215,16 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 			// Mettre à jour la vue
 			var selectedMenuItem = $(event.target).closest('[data-view]').addClass('active');
 			var selectedView = selectedMenuItem.attr('data-view');
-			var currentMenuItem = selectedMenuItem.siblings('.active').removeClass('active');
-			var currentView = currentMenuItem.attr('data-view');
-			if (currentView === 'edit')
-				preview.html(markdownToHtml(textarea.val())).show();
-			if (selectedView === 'edit')
+			if (selectedView === 'html' || selectedView === 'split')
+				preview.html(markdownToHtml(cm.getValue('\n'))).show();
+			else if (selectedView === 'edit')
 				preview.empty();
+			// Désélectionner l'entrée de menu précédente
+			selectedMenuItem.siblings('.active').removeClass('active');
 			// Afficher ensuite
 			body.addClass(selectedView);
 			if (selectedView !== 'html')
-				textarea.focus();
+				cm.focus();
 		});
 
 		// Exporter la note en HTML
@@ -232,17 +235,11 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 				+ '\n\t\t<title>' + filename + '</title>'
 				+ '\n\t\t<meta charset="UTF-8">'
 				+ '\n\t\t<link rel="stylesheet" href="${baseURL}${stylesheet}" />'
-				<#if highlighter == "prism">
-				+ '\n\t\t<link rel="stylesheet" href="${baseURL}/libs/prism/prism.min.css" />'
-				+ '\n\t\t<script type="text/javascript" src="${baseURL}/libs/prism/prism.min.js"><' + '/script>'
-				</#if>
-				<#if highlighter == "codemirror">
 				+ '\n\t\t<link type="text/css" rel="stylesheet" href="${baseURL}/libs/codemirror/lib/codemirror.css" />'
-				+ '\n\t\t<link type="text/css" rel="stylesheet" href="${baseURL}/libs/codemirror/theme/nimbus-dark.css" />'
-				</#if>
+				+ '\n\t\t<link type="text/css" rel="stylesheet" href="${baseURL}/libs/codemirror/theme/nimbus-${theme}.css" />'
 				+ '\n\t</head>'
 				+ '\n\t<body class="m-3">'
-				+ '\n' + markdownToHtml(textarea.val())
+				+ '\n' + markdownToHtml(cm.getValue('\n'))
 				+ '\n\t</body>'
 				+ '\n</html>';
 			//$(this).attr('href', 'data:text/html;charset=UTF-8;base64,' + btoa(html));
@@ -257,14 +254,14 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 			saveButton.removeClass('nimbus-hidden');
 		});
 
-		textarea[0].selectionStart = textarea[0].selectionEnd = 0;
-		textarea.removeClass('nimbus-hidden').on('input', function() {
+		updatePreview(cm);
+		cm.on('change', function() {
 			saveButton.removeClass('nimbus-hidden');
+			updatePreview(cm);
 		});
-		textarea.focus();
 
 		saveButton.on('click', function() {
-			var text = NIMBUS.utils.textAPI.fixLineSeparator(textarea.val(), lineSeparator);
+			var text = cm.getValue(lineSeparator.replace('cr', '\r').replace('lf', '\n'));
 			if (saveMessage !== null) {
 				saveMessage.remove();
 				saveMessage = null;
@@ -292,8 +289,6 @@ NIMBUS.init(['text.js', 'markdown.js'<#if highlighter == "codemirror">, 'code.js
 			if ('right' === swipe.direction || 'left' === swipe.direction)
 				$('#htmlButton,#editButton').filter(':visible').click()
 		});
-		updatePreview(textarea);
-		textarea.on('input', () => updatePreview(textarea));
 	});
 });
 </script>

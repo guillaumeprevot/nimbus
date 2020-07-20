@@ -52,7 +52,6 @@ Dépendance | Type | Version | Utilité | Fichiers
 [ePub.js](https://github.com/futurepress/epub.js) | plugin JS | [0.3.88](https://github.com/futurepress/epub.js/releases) | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | [2.4.456](https://github.com/mozilla/pdf.js/releases) | Apache 2.0 | Support des fichiers PDF
 [Marked.js](https://marked.js.org/#/README.md) | plugin JS | [1.1.0](https://github.com/markedjs/marked/releases) | MIT | Prévisualisation du Markdown
-[Prism.js](https://prismjs.com/) | plugin JS | [1.20.0](https://github.com/PrismJS/prism/releases) | MIT | Coloration syntaxique des blocs de code
 [CodeMirror](https://codemirror.net/) | plugin JS | [5.55.0](https://codemirror.net/) | MIT | Editeur de code avec coloration syntaxique notamment
 [DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | [2.0.12](https://github.com/cure53/DOMPurify/releases) | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
 [Moment.js](https://momentjs.com/docs/) | plugin JS | [2.27.0](https://github.com/moment/moment/releases) | MIT | Manipulation des dates et heures (agenda)
@@ -113,7 +112,7 @@ Il est possible de stocker tout type de fichier dans `Nimbus` et, quand le forma
     - plusieurs propriétés (dimensions, coordonnées GPS, ...) peuvent être extraites de différents formats afin d'être disponibles lors de la navigation
 - Markdown :
     - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked), en utilisant l'action `Ouvrir dans l'éditeur Markdown`
-	- la coloration syntaxique des blocs de code est faite grâce à [Prism.js](https://github.com/PrismJS/prism) ou [CodeMirror](https://codemirror.net/) (cf *client.code.highlighter* dans *nimbus.conf*)
+	- la coloration syntaxique des blocs de code est faite grâce à [CodeMirror](https://codemirror.net/)
 - Fichiers texte :
     - les fichiers texte (cf *text.file.extensions* dans *nimbus.conf*) peuvent être édités dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur de texte`
     - les notes au format HTML (`.html` ou `.note`), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
@@ -188,9 +187,9 @@ Enfin, on lance l'application
 
 ```bash
 # Linux
-java -cp ./bin:./lib/*:./lib/image4j/*:./lib/javazoom/*:./lib/jave/* fr.techgp.nimbus.Application
+java -cp ./bin:./lib/*:./lib/image4j/*:./lib/jaudiotagger/*:./lib/javazoom/*:./lib/jave/* fr.techgp.nimbus.Application
 # Windows
-java -cp .\bin;.\lib\*;.\lib\image4j\*;.\lib\javazoom\*;.\lib\jave\* fr.techgp.nimbus.Application
+java -cp .\bin;.\lib\*;.\lib\image4j\*;.\lib\jaudiotagger\*;.\lib\javazoom\*;.\lib\jave\* fr.techgp.nimbus.Application
 ```
 
 La page d'accueil est alors accessible [par défaut ici](http://localhost:10001).

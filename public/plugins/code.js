@@ -86,7 +86,55 @@
 		return support;
 	}
 
+	function createOptions(mime, content, theme) {
+		// https://codemirror.net/doc/manual.html#config
+		var options = {
+			value: content,
+			mode: mime || '',
+			theme: 'nimbus-' + theme,
+			indentUnit: 4,
+			indentWithTabs: true,
+			// direction: 'ltr' 'rtl',
+			// rtlMoveVisually: true false,
+			// lineWrapping: false,
+			lineNumbers: true,
+			// firstLineNumber: 1,
+			// lineNumberFormatter: fn,
+			gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+			foldGutter: true,
+			// dragDrop: false,
+			cursorScrollMargin: 40, // pour avoir 2 lignes au dessus et en dessous de la sélection lors du scroll
+			viewportMargin: Infinity,
+			autofocus: true,
+
+			styleActiveLine: true,
+			continueComments: true,
+			matchBrackets: true,
+			autoCloseBrackets: true,
+			matchTags: true,
+			autoCloseTags: true,
+			showTrailingSpace: true,
+
+			// Defaults keymap : https://github.com/codemirror/CodeMirror/blob/master/src/input/keymap.js
+			// keyMap: 'default',
+			extraKeys: {
+				'Ctrl-Space': 'autocomplete',
+				'Ctrl-Alt-C': 'toggleComment',
+				'Ctrl-L': 'jumpToLine',
+				'Ctrl-Q': function(cm) { cm.foldCode(cm.getCursor()); }
+			},
+			phrases: {
+				'Jump to line:': NIMBUS.translate('CodeEditorJumpToLinePrompt'),
+				'(Use line:column or scroll% syntax)': NIMBUS.translate('CodeEditorJumpToLineFormat')
+			}
+		};
+		if (mime === 'text/x-markdown')
+			options.extraKeys['Enter'] = 'newlineAndIndentContinueMarkdownList';
+		return options;
+	}
+
 	NIMBUS.utils.codeMirrorLoadSupport = loadSupport;
+	NIMBUS.utils.codeMirrorCreateOptions = createOptions;
 
 	NIMBUS.plugins.add({
 		name: 'code',
