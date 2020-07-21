@@ -37,7 +37,9 @@ body.html #editor { display: none; }
 <script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
-<script type="text/javascript" src="/libs/marked/marked.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-abbr.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-task-lists.min.js"></script>
 <script type="text/javascript" src="/libs/codemirror/lib/codemirror.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/continuelist.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/trailingspace.js"></script>
@@ -117,45 +119,53 @@ function markdownURL(href) {
 	// Résoudre les URLS relatives (./* ou ../*) et conserver les autres
 	return new URL(href, relativeURLRoot).toString();
 }
-function markdownToHtml(text) {
-	// https://marked.js.org/#/USING_PRO.md#renderer
-	var renderer = new marked.Renderer();
-	renderer.link = function(href, title, text) {
-		var t = title ? ' title="' + title + '"' : '';
-		return '<a target="_blank" href="' + markdownURL(href) + '"' + t + '>' + text + '</a>';
-	};
-	renderer.image = function(href, title, alt) {
-		var t = title ? ' title="' + title + '"' : '';
-		var a = alt ? ' alt="' + alt + '"' : '';
-		return '<img class="img-fluid" src="' + markdownURL(href) + '"' + t + a + ' />';
-	};
-	renderer.table = function(header, body) {
-		var h = header ? '<thead>' + header + '</thead>' : '';
-		var b = body ? '<tbody>' + body + '</tbody>' : '';
-		return '<table class="table table-bordered table-hover table-sm" style="width: auto; max-width: 100%; ">' + h + b + '</table>';
-	};
-	renderer.blockquote = function(text) {
-		return '<blockquote class="ml-4 pl-2" style="border-left: 3px solid var(--secondary); ">' + text + '</blockquote>';
-	};
-	renderer.code = function(code, language, escaped) {
-		var pre = $('<pre class="ml-4 pl-2 cm-s-nimbus-${theme}" style="border-left: 3px solid var(--secondary); "><code></code></pre>');
-		var support = language && NIMBUS.utils.codeMirrorLoadSupport(language);
-		if (support)
-			CodeMirror.runMode(code, support.mime, pre.children('code')[0]);
-		else
-			pre.children('code').text(code);
-		if (language)
-			pre.prepend($('<span style="float: right; border-bottom: 1px solid #eee; " />').text(language));
-		return pre[0].outerHTML;
-	};
-	// https://marked.js.org/#/USING_ADVANCED.md#options
-	return marked(text || '', {
-		// baseUrl: null, // null is the default value
-		breaks: true,
-		renderer: renderer,
-		// sanitize: false, // false is the default value
-		xhtml: true
+
+var md;
+function markdownAPILoad() {
+	md = window.markdownit({
+		html: true,
+		xhtmlOut: true, // for <br /> instead of <br>
+		linkify: true, // URL to links
+		highlight: function(code, language) {
+			var pre = $('<pre class="ml-4 pl-2 cm-s-nimbus-${theme}" style="border-left: 3px solid var(--secondary); "><code></code></pre>');
+			var support = language && NIMBUS.utils.codeMirrorLoadSupport(language);
+			if (support)
+				CodeMirror.runMode(code, support.mime, pre.children('code')[0]);
+			else
+				pre.children('code').text(code);
+			if (language)
+				pre.prepend($('<span style="float: right; border-bottom: 1px solid #eee; " />').text(language));
+			return pre[0].outerHTML;
+		}
 	});
+	md.use(markdownitAbbr);
+	md.use(markdownitTaskLists);
+	md.normalizeLink = markdownURL;
+
+	md.renderer.rules.blockquote_open = function(tokens, idx, options, env, self) {
+		return '<blockquote class="ml-4 pl-2" style="border-left: 3px solid var(--secondary); ">';
+	};
+
+	md.renderer.rules.table_open = function (tokens, idx, options, env, self) {
+		return '<table class="table table-bordered table-hover table-sm" style="width: auto; max-width: 100%; ">\n';
+	};
+
+	var defaultImageRule = md.renderer.rules.image;
+	md.renderer.rules.image = function (tokens, idx, options, env, self) {
+		tokens[idx].attrPush(['class', 'img-fluid']);
+		return defaultImageRule(tokens, idx, options, env, self);
+	};
+
+	var defaultLinkOpenRule = md.renderer.rules.link_open || ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options));
+	md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+		tokens[idx].attrPush(['target', '_blank']);
+		return defaultLinkOpenRule(tokens, idx, options, env, self);
+	};
+}
+function markdownToHtml(text) {
+	if (!md)
+		markdownAPILoad();
+	return md.render(text);
 }
 
 function customizeOptions(options) {

@@ -51,7 +51,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Material Icons](https://material.io/icons/) | CSS | [v53](https://fonts.googleapis.com/css?family=Material+Icons) | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js) | plugin JS | [0.3.88](https://github.com/futurepress/epub.js/releases) | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | [2.4.456](https://github.com/mozilla/pdf.js/releases) | Apache 2.0 | Support des fichiers PDF
-[Marked.js](https://marked.js.org/#/README.md) | plugin JS | [1.1.0](https://github.com/markedjs/marked/releases) | MIT | Prévisualisation du Markdown
+[markdown-it](https://github.com/markdown-it/markdown-it) | plugin JS | [11.0.0](https://github.com/markdown-it/markdown-it/releases) | MIT | Prévisualisation du Markdown
 [CodeMirror](https://codemirror.net/) | plugin JS | [5.55.0](https://codemirror.net/) | MIT | Editeur de code avec coloration syntaxique notamment
 [DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | [2.0.12](https://github.com/cure53/DOMPurify/releases) | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
 [Moment.js](https://momentjs.com/docs/) | plugin JS | [2.27.0](https://github.com/moment/moment/releases) | MIT | Manipulation des dates et heures (agenda)
@@ -111,8 +111,9 @@ Il est possible de stocker tout type de fichier dans `Nimbus` et, quand le forma
     - les images (`.jpeg`, `.png`, ...) [supportées par le navigateur](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Img) peuvent être visualisées dans le `Diaporama` de Nimbus
     - plusieurs propriétés (dimensions, coordonnées GPS, ...) peuvent être extraites de différents formats afin d'être disponibles lors de la navigation
 - Markdown :
-    - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées dans Nimbus, grâce à [Marked.js](https://github.com/markedjs/marked), en utilisant l'action `Ouvrir dans l'éditeur Markdown`
-	- la coloration syntaxique des blocs de code est faite grâce à [CodeMirror](https://codemirror.net/)
+    - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur Markdown`
+    - [CodeMirror](https://codemirror.net/) est utilisé pour l'éditeur Markdown ainsi que la coloration syntaxique des blocs de code
+    - [markdown-it](https://github.com/markdown-it/markdown-it) et quelques plugins sont utilisés pour la prévisualisation en HTML
 - Fichiers texte :
     - les fichiers texte (cf *text.file.extensions* dans *nimbus.conf*) peuvent être édités dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur de texte`
     - les notes au format HTML (`.html` ou `.note`), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
