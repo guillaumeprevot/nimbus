@@ -38,6 +38,15 @@
 				MarkdownEditorEditView: "Éditeur Markdown",
 				MarkdownEditorHTMLView: "Visualisation HTML",
 				MarkdownEditorExportHTML: "Exporter en HTML",
+				MarkdownEditorWrapBold: "Gras (Ctrl+B)",
+				MarkdownEditorWrapItalic: "Italique (Ctrl+I)",
+				MarkdownEditorWrapUnderline: "Souligné (Ctrl+U)",
+				MarkdownEditorWrapStrikeThrough: "Barré (Ctrl+-)",
+				MarkdownEditorWrapKeyword: "Mot-clef (Ctrl+,)",
+				MarkdownEditorMakeLink: "Lien (Ctrl+K)",
+				MarkdownEditorLinkPrompt: "URL du lien",
+				MarkdownEditorOutdent: "Diminuer le retrait (Maj+Tab)",
+				MarkdownEditorIndent: "Augmenter le retrait (Tab)",
 			},
 			en: {
 				MarkdownActionEdit: "Open in Markdown editor",
@@ -48,6 +57,15 @@
 				MarkdownEditorEditView: "Markdown editor",
 				MarkdownEditorHTMLView: "HTML preview",
 				MarkdownEditorExportHTML: "Export to HTML",
+				MarkdownEditorWrapBold: "Bold (Ctrl+B)",
+				MarkdownEditorWrapItalic: "Italic (Ctrl+I)",
+				MarkdownEditorWrapUnderline: "Underline (Ctrl+U)",
+				MarkdownEditorWrapStrikeThrough: "Strike through (Ctrl+-)",
+				MarkdownEditorWrapKeyword: "Keyword (Ctrl+,)",
+				MarkdownEditorMakeLink: "Link (Ctrl+K)",
+				MarkdownEditorLinkPrompt: "Target URL",
+				MarkdownEditorOutdent: "Outdent paragraph (Shift+Tab)",
+				MarkdownEditorIndent: "Indent paragraph (Tab)",
 			}
 		}
 	});

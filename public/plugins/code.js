@@ -118,6 +118,8 @@
 			// Defaults keymap : https://github.com/codemirror/CodeMirror/blob/master/src/input/keymap.js
 			// keyMap: 'default',
 			extraKeys: {
+				'Tab': 'indentMore',
+				'Shift-Tab': 'indentLess',
 				'Ctrl-Space': 'autocomplete',
 				'Ctrl-Alt-C': 'toggleComment',
 				'Ctrl-L': 'jumpToLine',

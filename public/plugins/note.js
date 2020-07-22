@@ -46,7 +46,7 @@
 				NoteEditorBackColorAgain: "Couleur de remplissage",
 				NoteEditorBackColorSelect: "Choisir la couleur de remplissage",
 				NoteEditorBold: "Gras (Ctrl+B)",
-				NoteEditorItalic: "Italic (Ctrl+I)",
+				NoteEditorItalic: "Italique (Ctrl+I)",
 				NoteEditorUnderline: "Souligné (Ctrl+U)",
 				NoteEditorStrikeThrough: "Barré (Ctrl+!)",
 				NoteEditorInsertUnorderedList: "Liste à puce (Ctrl+Maj+U)",

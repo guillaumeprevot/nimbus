@@ -62,6 +62,16 @@ body.html #editor { display: none; }
 		</div>
 
 		<div class="btn-group">
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="**" title="MarkdownEditorWrapBold"><i class="material-icons">format_bold</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="_" title="MarkdownEditorWrapItalic"><i class="material-icons">format_italic</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="++" title="MarkdownEditorWrapUnderline"><i class="material-icons">format_underlined</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="~~" title="MarkdownEditorWrapStrikeThrough"><i class="material-icons">format_strikethrough</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="`" title="MarkdownEditorWrapKeyword"><i class="material-icons">label</i></button>
+			<span class="nimbus-toolbar-separator"></span>
+			<button type="button" class="btn btn-link" data-translate="title" id="makeLinkButton" title="MarkdownEditorMakeLink"><i class="material-icons">link</i></button>
+			<span class="nimbus-toolbar-separator"></span>
+			<button type="button" class="btn btn-link" data-translate="title" id="outdentButton" title="MarkdownEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" id="indentButton" title="MarkdownEditorIndent"><i class="material-icons">format_indent_increase</i></button>
 		</div>
 
 		<div class="float-right">
@@ -168,8 +178,36 @@ function markdownToHtml(text) {
 	return md.render(text);
 }
 
+function wrapSelection(cm, startText, endText) {
+	if (typeof endText === 'undefined')
+		endText = startText;
+	var s = cm.getSelection();
+	var c = cm.getCursor();
+	if (!s)
+		return;
+	if (s.startsWith(startText) && s.endsWith(endText))
+		cm.replaceSelection(s.substring(startText.length, s.length - endText.length), 'around');
+	else
+		cm.replaceSelection(startText + s + endText, 'around');
+}
+
+function makeLink(cm) {
+	var s = cm.getSelection();
+	if (!s || s[0] === '[')
+		return;
+	var u = prompt(NIMBUS.translate('MarkdownEditorLinkPrompt'));
+	if (u)
+		cm.replaceSelection('[' + s + '](' + u + ')', 'around');
+}
+
 function customizeOptions(options) {
 	options.lineWrapping = true;
+	options.extraKeys['Ctrl-B'] = (cm) => wrapSelection(cm, '**');
+	options.extraKeys['Ctrl-I'] = (cm) => wrapSelection(cm, '_');
+	options.extraKeys['Ctrl-U'] = (cm) => wrapSelection(cm, '++');
+	options.extraKeys['Ctrl--'] = (cm) => wrapSelection(cm, '~~');
+	options.extraKeys['Ctrl-,'] = (cm) => wrapSelection(cm, '`');
+	options.extraKeys['Ctrl-K'] = (cm) => makeLink(cm);
 	return options;
 }
 
@@ -196,6 +234,25 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			cm = CodeMirror(editor[0], customizeOptions(cmOptions));
 
 		$('title').text(filename);
+
+		// Bouton de formatage
+		$('header [data-wrap]').click(function(event) {
+			var wrap = $(event.target).closest('[data-wrap]').attr('data-wrap');
+			wrapSelection(cm, wrap);
+		});
+
+		// Bouton de création de lien
+		$('#makeLinkButton').click(function(event) {
+			makeLink(cm);
+		});
+
+		// Boutons pour indenter plus ou moins la sélection
+		$('#indentButton').click(function(event) {
+			CodeMirror.commands.indentMore(cm);
+		});
+		$('#outdentButton').click(function(event) {
+			CodeMirror.commands.indentLess(cm);
+		});
 
 		// Passer du mode d'édition à la prévisualisation HTML
 		$('#htmlButton').click(function(event) {
