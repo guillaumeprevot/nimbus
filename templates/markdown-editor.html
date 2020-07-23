@@ -38,7 +38,11 @@ body.html #editor { display: none; }
 <script type="text/javascript" src="/libs/popper/popper.min.js"></script>
 <script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-ins.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-sub.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-sup.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-abbr.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-mark.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-task-lists.min.js"></script>
 <script type="text/javascript" src="/libs/codemirror/lib/codemirror.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/continuelist.js"></script>
@@ -66,7 +70,10 @@ body.html #editor { display: none; }
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="_" title="MarkdownEditorWrapItalic"><i class="material-icons">format_italic</i></button>
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="++" title="MarkdownEditorWrapUnderline"><i class="material-icons">format_underlined</i></button>
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="~~" title="MarkdownEditorWrapStrikeThrough"><i class="material-icons">format_strikethrough</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="==" title="MarkdownEditorWrapMark"><i class="material-icons">edit</i></button>
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="`" title="MarkdownEditorWrapKeyword"><i class="material-icons">label</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="^" title="MarkdownEditorWrapSup"><i class="material-icons">superscript</i></button>
+			<button type="button" class="btn btn-link" data-translate="title" data-wrap="~" title="MarkdownEditorWrapSub"><i class="material-icons">subscript</i></button>
 			<span class="nimbus-toolbar-separator"></span>
 			<button type="button" class="btn btn-link" data-translate="title" id="makeLinkButton" title="MarkdownEditorMakeLink"><i class="material-icons">link</i></button>
 			<span class="nimbus-toolbar-separator"></span>
@@ -148,7 +155,11 @@ function markdownAPILoad() {
 			return pre[0].outerHTML;
 		}
 	});
+	md.use(markdownitIns);
+	md.use(markdownitSub);
+	md.use(markdownitSup);
 	md.use(markdownitAbbr);
+	md.use(markdownitMark);
 	md.use(markdownitTaskLists);
 	md.normalizeLink = markdownURL;
 
@@ -206,6 +217,7 @@ function customizeOptions(options) {
 	options.extraKeys['Ctrl-I'] = (cm) => wrapSelection(cm, '_');
 	options.extraKeys['Ctrl-U'] = (cm) => wrapSelection(cm, '++');
 	options.extraKeys['Ctrl--'] = (cm) => wrapSelection(cm, '~~');
+	options.extraKeys['Ctrl-M'] = (cm) => wrapSelection(cm, '==');
 	options.extraKeys['Ctrl-,'] = (cm) => wrapSelection(cm, '`');
 	options.extraKeys['Ctrl-K'] = (cm) => makeLink(cm);
 	return options;
