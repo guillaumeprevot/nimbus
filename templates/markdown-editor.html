@@ -17,8 +17,8 @@
 <style>
 main { display: flex; }
 .CodeMirror { height: 100%; line-height: 1.3em; overflow: hidden; }
-#editor { flex: 1 1 0; }
-#preview { flex: 1 1 0; padding: 1em; overflow: auto; }
+#editor { flex: 1 1 0; min-width: 50%; }
+#preview { flex: 1 1 0; min-width: 50%; padding: 1em; overflow: auto; }
 body.edit #editButton { display: none; }
 body.edit #preview { display: none; }
 body.html #htmlButton { display: none; }
@@ -44,6 +44,7 @@ body.html #editor { display: none; }
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-abbr.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-mark.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-task-lists.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-emoji-light.min.js"></script>
 <script type="text/javascript" src="/libs/codemirror/lib/codemirror.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/continuelist.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/trailingspace.js"></script>
@@ -75,10 +76,10 @@ body.html #editor { display: none; }
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="^" title="MarkdownEditorWrapSup"><i class="material-icons">superscript</i></button>
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="~" title="MarkdownEditorWrapSub"><i class="material-icons">subscript</i></button>
 			<span class="nimbus-toolbar-separator"></span>
-			<button type="button" class="btn btn-link" data-translate="title" id="makeLinkButton" title="MarkdownEditorMakeLink"><i class="material-icons">link</i></button>
+			<button type="button" class="btn btn-link" id="makeLinkButton" data-translate="title" title="MarkdownEditorMakeLink"><i class="material-icons">link</i></button>
 			<span class="nimbus-toolbar-separator"></span>
-			<button type="button" class="btn btn-link" data-translate="title" id="outdentButton" title="MarkdownEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
-			<button type="button" class="btn btn-link" data-translate="title" id="indentButton" title="MarkdownEditorIndent"><i class="material-icons">format_indent_increase</i></button>
+			<button type="button" class="btn btn-link" id="outdentButton" data-translate="title" title="MarkdownEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
+			<button type="button" class="btn btn-link" id="indentButton" data-translate="title" title="MarkdownEditorIndent"><i class="material-icons">format_indent_increase</i></button>
 		</div>
 
 		<div class="float-right">
@@ -161,6 +162,7 @@ function markdownAPILoad() {
 	md.use(markdownitAbbr);
 	md.use(markdownitMark);
 	md.use(markdownitTaskLists);
+	md.use(markdownitEmoji);
 	md.normalizeLink = markdownURL;
 
 	md.renderer.rules.blockquote_open = function(tokens, idx, options, env, self) {
