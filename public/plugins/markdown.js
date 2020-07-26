@@ -48,6 +48,7 @@
 				MarkdownEditorWrapSub: "Indice",
 				MarkdownEditorMakeLink: "Lien (Ctrl+K)",
 				MarkdownEditorLinkPrompt: "URL du lien",
+				MarkdownEditorEmoji: "Émoticônes",
 				MarkdownEditorOutdent: "Diminuer le retrait (Maj+Tab)",
 				MarkdownEditorIndent: "Augmenter le retrait (Tab)",
 			},
@@ -70,6 +71,7 @@
 				MarkdownEditorWrapSub: "Subscript",
 				MarkdownEditorMakeLink: "Link (Ctrl+K)",
 				MarkdownEditorLinkPrompt: "Target URL",
+				MarkdownEditorEmoji: "Emoji",
 				MarkdownEditorOutdent: "Outdent paragraph (Shift+Tab)",
 				MarkdownEditorIndent: "Indent paragraph (Tab)",
 			}

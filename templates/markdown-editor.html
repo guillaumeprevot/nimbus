@@ -17,6 +17,11 @@
 <style>
 main { display: flex; }
 .CodeMirror { height: 100%; line-height: 1.3em; overflow: hidden; }
+#emojiMenu { width: 450px; }
+#emojiMenu > nav { padding: 0 0.2rem; }
+#emojiMenu > nav > button { padding: 0.5rem; }
+#emojiMenu > div { display: flex; flex-wrap: wrap; max-height: 350px; overflow-y: auto; }
+#emojiMenu > div > button { flex: 1 1 46px; }
 #editor { flex: 1 1 0; min-width: 50%; }
 #preview { flex: 1 1 0; min-width: 50%; padding: 1em; overflow: auto; }
 body.edit #editButton { display: none; }
@@ -45,6 +50,7 @@ body.html #editor { display: none; }
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-mark.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-task-lists.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-emoji-light.min.js"></script>
+<script type="text/javascript" src="/libs/markdown-it/markdown-it-emoji-data.js"></script>
 <script type="text/javascript" src="/libs/codemirror/lib/codemirror.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/continuelist.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/edit/trailingspace.js"></script>
@@ -80,6 +86,25 @@ body.html #editor { display: none; }
 			<span class="nimbus-toolbar-separator"></span>
 			<button type="button" class="btn btn-link" id="outdentButton" data-translate="title" title="MarkdownEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
 			<button type="button" class="btn btn-link" id="indentButton" data-translate="title" title="MarkdownEditorIndent"><i class="material-icons">format_indent_increase</i></button>
+			<span class="nimbus-toolbar-separator"></span>
+			<div class="dropdown">
+				<button id="emojiButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorEmoji" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">insert_emoticon</i></button>
+				<div id="emojiMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="emojiButton">
+					<nav class="nav nav-tabs nav-justified">
+						<button class="nav-item nav-link active"><i class="material-icons">watch_later</i></button>
+						<button class="nav-item nav-link" data-range="grinning-busts_in_silhouette"><i class="material-icons">emoji_emotions</i></button>
+						<button class="nav-item nav-link" data-range="baby-family_man_girl_girl"><i class="material-icons">emoji_people</i></button>
+						<button class="nav-item nav-link" data-range="dog-umbrella"><i class="material-icons">emoji_nature</i></button>
+						<button class="nav-item nav-link" data-range="green_apple-plate_with_cutlery"><i class="material-icons">emoji_food_beverage</i></button>
+						<button class="nav-item nav-link" data-range="soccer-slot_machine"><i class="material-icons">emoji_events</i></button>
+						<button class="nav-item nav-link" data-range="car-foggy"><i class="material-icons">emoji_transportation</i></button>
+						<button class="nav-item nav-link" data-range="womans_clothes-open_umbrella,watch-unlock"><i class="material-icons">emoji_objects</i></button>
+						<button class="nav-item nav-link" data-range="100-1234,heart-clock1230"><i class="material-icons">emoji_symbols</i></button>
+						<button class="nav-item nav-link" data-range="white_flag-zimbabwe"><i class="material-icons">emoji_flags</i></button>
+					</nav>
+					<div></div>
+				</div>
+			</div>
 		</div>
 
 		<div class="float-right">
@@ -162,7 +187,7 @@ function markdownAPILoad() {
 	md.use(markdownitAbbr);
 	md.use(markdownitMark);
 	md.use(markdownitTaskLists);
-	md.use(markdownitEmoji);
+	md.use(markdownitEmoji, { defs: markdownitEmoji.defs });
 	md.normalizeLink = markdownURL;
 
 	md.renderer.rules.blockquote_open = function(tokens, idx, options, env, self) {
@@ -225,6 +250,81 @@ function customizeOptions(options) {
 	return options;
 }
 
+function prepareEmojis(cm) {
+	function buildButton(name) {
+		return $('<button class="btn btn-link" />').attr('title', name).text(emojisMap[name]);
+	}
+	var tabs = $('#emojiMenu > nav');
+	var panel = $('#emojiMenu > div');
+	var emojis = Object.keys(markdownitEmoji.defs);
+	var emojisMap = markdownitEmoji.defs;
+	// Chargement de la catégorie affichant les smileys utilisés récemment
+	var recents = (localStorage.getItem('nimbus-emoji-recents') || 'smiley').split(',');
+	var maxRecents = 18;
+	recents.forEach((name) => buildButton(name).appendTo(panel));
+	// Alimentation du menu avec les emojis récents
+	tabs.on('click', 'button:first-child', function(event) {
+		var item = $(event.target).closest('.nav-item');
+		item.addClass('active').siblings().removeClass('active');
+		panel.empty().append(recents.map((name) => buildButton(name)[0]));
+		return false;
+	});
+	// Alimentation du menu quand on sélectionne une catégorie
+	tabs.on('click', 'button:not(:first-child)', function(event) {
+		// La catégorie sélectionnée
+		var item = $(event.target).closest('.nav-item');
+		// La liste des boutons pour cette catégorie
+		var buttons = [];
+		// Chaque onglet de catégorie défini les smileys à inclure (liste d'intervalle séparés par ",")
+		item.attr('data-range').split(',').forEach((r) => {
+			// Chaque intervalle indique le nom de l'emoji de départ "-" le nom de l'emoji d'arrivée (inclus)
+			var i = r.indexOf('-');
+			var first = emojis.indexOf(r.substring(0, i));
+			var last = emojis.indexOf(r.substring(i + 1));
+			// Pour chaque emoji de l'intervalle, on créé un bouton
+			for (var i = first; i <= last; i++) {
+				buttons.push(buildButton(emojis[i])[0]);
+			}
+		})
+		item.addClass('active').siblings().removeClass('active');
+		panel.empty().append(buttons);
+		return false;
+	});
+	// Ajout de l'emoticon dans le texte quand on clique sur l'un des smileys de la catégorie
+	panel.on('click', 'button', function(event) {
+		var emoji = $(event.target).attr('title');
+		cm.replaceSelection(':' + emoji + ': '/*, 'around'*/);
+		// Enregistrement dans les emojis récents
+		var pos = recents.indexOf(emoji);
+		if (pos === -1) {
+			recents.unshift(emoji);
+			if (recents.length > maxRecents)
+				recents.pop();
+		} else if (pos > 0) {
+			recents.copyWithin(1, 0, pos);
+			recents[0] = emoji;
+		}
+		// Mise à jour si on est sur l'onglet des éléments récents
+		tabs.children('.active:first-child').click();
+		// Enregistrement dans localStorage 
+		localStorage.setItem('nimbus-emoji-recents', recents.join(','));
+		return false;
+	});
+	// Suppression des éléments récents en faisant un clic droit sur un emoji
+	panel.on('contextmenu', 'button', function(event) {
+		var emoji = $(event.target).attr('title');
+		// Retrait des emojis récents
+		var pos = recents.indexOf(emoji);
+		if (pos >= 0)
+			recents.splice(pos, 1);
+		// Mise à jour si on est sur l'onglet des éléments récents
+		tabs.children('.active:first-child').click();
+		// Enregistrement dans localStorage 
+		localStorage.setItem('nimbus-emoji-recents', recents.join(','));
+		return false;
+	});
+}
+
 //Initialiser la page
 NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 	// L'IHM est prête, on l'affiche
@@ -267,6 +367,9 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 		$('#outdentButton').click(function(event) {
 			CodeMirror.commands.indentLess(cm);
 		});
+
+		// Gestion des emoji
+		prepareEmojis(cm);
 
 		// Passer du mode d'édition à la prévisualisation HTML
 		$('#htmlButton').click(function(event) {
