@@ -82,10 +82,13 @@ body.html #editor { display: none; }
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="^" title="MarkdownEditorWrapSup"><i class="material-icons">superscript</i></button>
 			<button type="button" class="btn btn-link" data-translate="title" data-wrap="~" title="MarkdownEditorWrapSub"><i class="material-icons">subscript</i></button>
 			<span class="nimbus-toolbar-separator"></span>
-			<button type="button" class="btn btn-link" id="makeLinkButton" data-translate="title" title="MarkdownEditorMakeLink"><i class="material-icons">link</i></button>
+			<button type="button" class="btn btn-link" id="insertLinkButton" data-translate="title" title="MarkdownEditorInsertLink"><i class="material-icons">link</i></button>
+			<button type="button" class="btn btn-link" id="insertImageButton" data-translate="title" title="MarkdownEditorInsertImage"><i class="material-icons">image</i></button>
+			<button type="button" class="btn btn-link" id="insertCodeButton" data-translate="title" title="MarkdownEditorInsertCode"><i class="material-icons">code</i></button>
 			<span class="nimbus-toolbar-separator"></span>
 			<button type="button" class="btn btn-link" id="outdentButton" data-translate="title" title="MarkdownEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
 			<button type="button" class="btn btn-link" id="indentButton" data-translate="title" title="MarkdownEditorIndent"><i class="material-icons">format_indent_increase</i></button>
+			<button type="button" class="btn btn-link" id="quoteButton" data-translate="title" title="MarkdownEditorQuote"><i class="material-icons">format_quote</i></button>
 			<span class="nimbus-toolbar-separator"></span>
 			<div class="dropdown">
 				<button id="emojiButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorEmoji" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">insert_emoticon</i></button>
@@ -105,6 +108,7 @@ body.html #editor { display: none; }
 					<div></div>
 				</div>
 			</div>
+			<button id="hrButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorHR"><i class="material-icons">vertical_align_center</i></button>
 		</div>
 
 		<div class="float-right">
@@ -119,11 +123,13 @@ body.html #editor { display: none; }
 				</div>
 			</div>
 
-			<a id="exportButton" href="#" class="btn btn-link" data-translate="title" title="MarkdownEditorExportHTML"><i class="material-icons">cloud_download</i></a>
+			<button id="exportButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorExportHTML"><i class="material-icons">cloud_download</i></button>
 
 			<div class="btn-group">
 				<button id="lineSeparatorButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="TextEditorLineSeparator" aria-haspopup="true" aria-expanded="false"><i class="material-icons">wrap_text</i></button>
 				<div id="lineSeparatorMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="lineSeparatorButton">
+					<button id="lineWrappingOption" class="dropdown-item" data-translate="text">TextEditorLineWrapping</button>
+					<div class="dropdown-divider"></div>
 					<button class="dropdown-item" data-separator="crlf" data-translate="text">TextEditorLineSeparatorCRLF</button>
 					<button class="dropdown-item" data-separator="lf" data-translate="text">TextEditorLineSeparatorLF</button>
 					<button class="dropdown-item" data-separator="cr" data-translate="text">TextEditorLineSeparatorCR</button>
@@ -216,38 +222,120 @@ function markdownToHtml(text) {
 	return md.render(text);
 }
 
-function wrapSelection(cm, startText, endText) {
-	if (typeof endText === 'undefined')
-		endText = startText;
-	var s = cm.getSelection();
-	var c = cm.getCursor();
-	if (!s)
-		return;
-	if (s.startsWith(startText) && s.endsWith(endText))
-		cm.replaceSelection(s.substring(startText.length, s.length - endText.length), 'around');
-	else
-		cm.replaceSelection(startText + s + endText, 'around');
-}
-
-function makeLink(cm) {
-	var s = cm.getSelection();
-	if (!s || s[0] === '[')
-		return;
-	var u = prompt(NIMBUS.translate('MarkdownEditorLinkPrompt'));
-	if (u)
-		cm.replaceSelection('[' + s + '](' + u + ')', 'around');
-}
-
 function customizeOptions(options) {
-	options.lineWrapping = true;
+	options.lineWrapping = false;
 	options.extraKeys['Ctrl-B'] = (cm) => wrapSelection(cm, '**');
 	options.extraKeys['Ctrl-I'] = (cm) => wrapSelection(cm, '_');
 	options.extraKeys['Ctrl-U'] = (cm) => wrapSelection(cm, '++');
 	options.extraKeys['Ctrl--'] = (cm) => wrapSelection(cm, '~~');
 	options.extraKeys['Ctrl-M'] = (cm) => wrapSelection(cm, '==');
 	options.extraKeys['Ctrl-,'] = (cm) => wrapSelection(cm, '`');
-	options.extraKeys['Ctrl-K'] = (cm) => makeLink(cm);
+	options.extraKeys['Ctrl-K'] = (cm) => insertLink(cm);
 	return options;
+}
+
+function wrapSelection(cm, startText, endText) {
+	if (typeof endText === 'undefined')
+		endText = startText;
+	var s = cm.getSelection();
+	var c = cm.getCursor();
+	if (!s) {
+		cm.replaceRange(startText + endText, c);
+		c.ch += startText.length;
+		cm.setCursor(c);
+	} else if (s.startsWith(startText) && s.endsWith(endText)) {
+		cm.replaceSelection(s.substring(startText.length, s.length - endText.length), 'around');
+	} else {
+		cm.replaceSelection(startText + s + endText, 'around');
+	}
+	cm.focus();
+}
+
+function promptAndWrapSelection(cm, promptKey, skip, format) {
+	var s = cm.getSelection();
+	if (!s || skip.indexOf(s[0]) === -1) { // pas déjà formatté
+		var p = prompt(NIMBUS.translate(promptKey));
+		var formatWithP = format.replace('%P%', p || '');
+		var t = formatWithP.replace('%S%', s || '');
+		if (s) {
+			// S'il y avait une sélection, on continue d'écrire à la suite de l'insertion
+			cm.replaceSelection(t);
+		} else {
+			// Sinon, on placera le curseur à l'endroit de la sélection dans ce format
+			var cursor = cm.getCursor('anchor');
+			// Insérer le texte (le 'else' gère le cas où il n'y a pas de sélection)
+			cm.replaceRange(t, cursor, cursor, 'nimbus');
+			// Dans le case des blocs de code, %P% est avant %S%, contrairement aux liens ou aux images.
+			// On cherche donc la position de %S% après remplacement de %P% pour déplacer le curseur.
+			var sIndex = formatWithP.indexOf('%S%');
+			for (var i = 0; i < sIndex; i++) {
+				if (formatWithP[i] === '\n') {
+					// Un saut de ligne avant %S% dans le format
+					cursor.line++;
+					cursor.ch = 0;
+				} else {
+					// Un caractère quelconque avant %S% dans le format ('[' ou '!' ou '`')
+					cursor.ch++;
+				}
+			}
+			// Placer le curseur à position calculée en fonction du format et de la valeur de %P%
+			cm.setCursor(cursor.line, cursor.ch);
+		}
+	}
+	cm.focus();
+}
+
+function insertLink(cm) {
+	promptAndWrapSelection(cm, 'MarkdownEditorInsertLinkPrompt', '[', '[%S%](%P%)');
+}
+
+function insertImage(cm) {
+	promptAndWrapSelection(cm, 'MarkdownEditorInsertImagePrompt', '![', '![%S%](%P%)');
+}
+
+function insertCode(cm) {
+	promptAndWrapSelection(cm, 'MarkdownEditorInsertCodePrompt', '`', '```%P%\n%S%\n```\n');
+}
+
+function toggleQuote(cm) {
+	function toggleQuoteOnCursor(c) {
+		var line = cm.getLine(c.line);
+		var lineStart = { line: c.line, ch: 0 };
+		var wasQuote = line.startsWith('> ');
+		if (wasQuote)
+			cm.replaceRange('', lineStart, { line: c.line, ch: 2 });
+		else
+			cm.replaceRange('> ', lineStart);
+		return wasQuote;
+	}
+	var selection = cm.getSelection() || '';
+	if (! selection) {
+		// Activer ou non la citation pour la ligne où se trouve le curseur
+		var c = cm.getCursor();
+		var unquoted = toggleQuoteOnCursor(c);
+		c.ch = unquoted ? (c.ch - 2) : (c.ch + 2);
+		cm.setCursor(c);
+	} else {
+		// Activer ou non la citation pour les lignes sur lesquelles la sélection s'étend
+		var c1 = cm.getCursor('from');
+		var c2 = cm.getCursor('to');
+		var c = { line: c1.line, ch: 0 };
+		var firstUnquoted, lastUnquoted;
+		if (c2.line > c1.line && c2.ch === 0) {
+			// Sélection multi-ligne s'arrêtant sur une ligne vide => ne pas inverser la dernière ligne vide
+			c2.line--;
+		}
+		while (c.line <= c2.line) {
+			lastUnquoted = toggleQuoteOnCursor(c);
+			if (c.line === c1.line)
+				firstUnquoted = lastUnquoted;
+			c.line++;
+		}
+		c1.ch = 0;
+		c2.line++;
+		cm.setSelection(c1, c2);
+	}
+	cm.focus();
 }
 
 function prepareEmojis(cm) {
@@ -294,6 +382,7 @@ function prepareEmojis(cm) {
 	panel.on('click', 'button', function(event) {
 		var emoji = $(event.target).attr('title');
 		cm.replaceSelection(':' + emoji + ': '/*, 'around'*/);
+		cm.focus();
 		// Enregistrement dans les emojis récents
 		var pos = recents.indexOf(emoji);
 		if (pos === -1) {
@@ -306,7 +395,7 @@ function prepareEmojis(cm) {
 		}
 		// Mise à jour si on est sur l'onglet des éléments récents
 		tabs.children('.active:first-child').click();
-		// Enregistrement dans localStorage 
+		// Enregistrement dans localStorage
 		localStorage.setItem('nimbus-emoji-recents', recents.join(','));
 		return false;
 	});
@@ -319,7 +408,7 @@ function prepareEmojis(cm) {
 			recents.splice(pos, 1);
 		// Mise à jour si on est sur l'onglet des éléments récents
 		tabs.children('.active:first-child').click();
-		// Enregistrement dans localStorage 
+		// Enregistrement dans localStorage
 		localStorage.setItem('nimbus-emoji-recents', recents.join(','));
 		return false;
 	});
@@ -350,26 +439,23 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 		$('title').text(filename);
 
 		// Bouton de formatage
-		$('header [data-wrap]').click(function(event) {
-			var wrap = $(event.target).closest('[data-wrap]').attr('data-wrap');
-			wrapSelection(cm, wrap);
-		});
-
+		$('header [data-wrap]').click((event) => wrapSelection(cm, $(event.target).closest('[data-wrap]').attr('data-wrap')));
 		// Bouton de création de lien
-		$('#makeLinkButton').click(function(event) {
-			makeLink(cm);
-		});
-
-		// Boutons pour indenter plus ou moins la sélection
-		$('#indentButton').click(function(event) {
-			CodeMirror.commands.indentMore(cm);
-		});
-		$('#outdentButton').click(function(event) {
-			CodeMirror.commands.indentLess(cm);
-		});
-
+		$('#insertLinkButton').click((event) => insertLink(cm));
+		// Bouton de création d'image
+		$('#insertImageButton').click((event) => insertImage(cm));
+		// Bouton de création d'un bloc de code
+		$('#insertCodeButton').click((event) => insertCode(cm));
+		// Bouton pour indenter un peu plus la sélection
+		$('#indentButton').click((event) => CodeMirror.commands.indentMore(cm));
+		// Bouton pour indenter un peu moins la sélection
+		$('#outdentButton').click((event) => CodeMirror.commands.indentLess(cm));
+		// Bouton pour faire de la sélection une citation avec "> "
+		$('#quoteButton').click((event) => toggleQuote(cm));
 		// Gestion des emoji
 		prepareEmojis(cm);
+		// Insertion d'une ligne horizontale
+		$('#hrButton').click(() => cm.replaceSelection('___\n'));
 
 		// Passer du mode d'édition à la prévisualisation HTML
 		$('#htmlButton').click(function(event) {
@@ -412,7 +498,7 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 		});
 
 		// Exporter la note en HTML
-		$('#exportButton').attr('download', filename.replace('.md', '.html').replace('.markdown', '.html')).click(function() {
+		$('#exportButton').click(function() {
 			var html = '<!DOCTYPE html>'
 				+ '\n<html>'
 				+ '\n\t<head>'
@@ -426,15 +512,22 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 				+ '\n' + markdownToHtml(cm.getValue('\n'))
 				+ '\n\t</body>'
 				+ '\n</html>';
-			//$(this).attr('href', 'data:text/html;charset=UTF-8;base64,' + btoa(html));
-			$(this).attr('href', 'data:text/html;charset=UTF-8,' + encodeURIComponent(html));
+			var blob = new Blob([html], { type: 'text/html' });
+			var name = filename.replace('.md', '.html').replace('.markdown', '.html');
+			NIMBUS.utils.downloadFile(blob, name);
+		});
+
+		$('#lineWrappingOption').click(function(event) {
+			var button = $(event.target).closest('button');
+			button.toggleClass('active');
+			cm.setOption('lineWrapping', button.hasClass('active'));
 		});
 
 		$('#lineSeparatorMenu').find('[data-separator=' + lineSeparator + ']').addClass('active');
 		$('#lineSeparatorMenu').click('button', function(event) {
 			var button = $(event.target).closest('button');
 			lineSeparator = button.attr('data-separator');
-			button.addClass('active').siblings().removeClass('active');
+			button.addClass('active').siblings('[data-separator]').removeClass('active');
 			saveButton.removeClass('nimbus-hidden');
 		});
 
@@ -459,9 +552,15 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 
 		// Manipulation au clavier
 		body.gpkeystrokes({
+			// Sauvegarde
 			'Ctrl-s': () => saveButton.click(),
+			// Changement de vue
 			'Ctrl-p': () => $('#htmlButton,#editButton').filter(':visible').click(),
-			// 'Ctrl-e': () => $('#exportButton').click(), // ne fonctionne pas :-(, peut-être car ça simule un clic sur un lien ?
+			// Support de undo / redo même si CodeMirror n'a pas le focus
+			'Ctrl-z': () => cm.hasFocus() || CodeMirror.commands.undo(cm),
+			'Ctrl-y': () => cm.hasFocus() || CodeMirror.commands.redo(cm),
+			// Export HTML
+			'Ctrl-e': () => $('#exportButton').click(),
 		});
 
 		// Changement de mode "edit"/"preview" par "swipe"
