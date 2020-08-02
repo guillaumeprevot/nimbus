@@ -129,16 +129,16 @@ public class Controller {
 		r.get("/epub.html", Extensions.epub); // URL publique
 		r.get("/pdf.html", Extensions.pdf); // URL publique
 		r.get("/video.html", Extensions.video); // URL publique
-		r.get("/audio.html", Extensions.audio); // URL publique
-		r.get("/diaporama.html", Extensions.diaporama); // URL publique
-		r.get("/text-editor.html", Extensions.textEditor); // URL publique
-		r.get("/markdown-editor.html", Extensions.markdownEditor); // URL publique
-		r.get("/note-editor.html", Extensions.noteEditor); // URL publique
-		r.get("/code-editor.html", Extensions.codeEditor); // URL publique
-		r.get("/secret-editor.html", Extensions.secretEditor); // URL publique
-		r.get("/calendar.html", Extensions.calendar); // URL publique
-		r.get("/contacts.html", Extensions.contacts); // URL publique
-		r.get("/bookmarks.html", Extensions.bookmarks); // URL publique
+		r.get("/audio.html", Extensions.audio);
+		r.get("/diaporama.html", Extensions.diaporama);
+		r.get("/text-editor.html", Extensions.textEditor);
+		r.get("/markdown-editor.html", Extensions.markdownEditor);
+		r.get("/note-editor.html", Extensions.noteEditor);
+		r.get("/code-editor.html", Extensions.codeEditor);
+		r.get("/secret-editor.html", Extensions.secretEditor);
+		r.get("/calendar.html", Extensions.calendar);
+		r.get("/contacts.html", Extensions.contacts);
+		r.get("/bookmarks.html", Extensions.bookmarks);
 
 		// Accès à la page de test en mode DEV uniquement
 		r.get("/test.html", (request, response) -> {

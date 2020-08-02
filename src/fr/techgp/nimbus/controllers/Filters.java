@@ -30,7 +30,7 @@ public class Filters extends Controller {
 		return null;
 	};
 
-	private static final Render redirect(Request request) {
+	public static final Render redirect(Request request) {
 		String q = request.query();
 		if (StringUtils.isNotBlank(q))
 			q = "?" + q;
