@@ -86,6 +86,8 @@ body.html #editor { display: none; }
 			<button type="button" class="btn btn-link" id="insertImageButton" data-translate="title" title="MarkdownEditorInsertImage"><i class="material-icons">image</i></button>
 			<button type="button" class="btn btn-link" id="insertCodeButton" data-translate="title" title="MarkdownEditorInsertCode"><i class="material-icons">code</i></button>
 			<span class="nimbus-toolbar-separator"></span>
+			<button type="button" class="btn btn-link" id="ulButton" data-translate="title" title="MarkdownEditorUnorderedList"><i class="material-icons">format_list_bulleted</i></button>
+			<button type="button" class="btn btn-link" id="olButton" data-translate="title" title="MarkdownEditorOrderedList"><i class="material-icons">format_list_numbered</i></button>
 			<button type="button" class="btn btn-link" id="outdentButton" data-translate="title" title="MarkdownEditorOutdent"><i class="material-icons">format_indent_decrease</i></button>
 			<button type="button" class="btn btn-link" id="indentButton" data-translate="title" title="MarkdownEditorIndent"><i class="material-icons">format_indent_increase</i></button>
 			<button type="button" class="btn btn-link" id="quoteButton" data-translate="title" title="MarkdownEditorQuote"><i class="material-icons">format_quote</i></button>
@@ -297,23 +299,23 @@ function insertCode(cm) {
 	promptAndWrapSelection(cm, 'MarkdownEditorInsertCodePrompt', '`', '```%P%\n%S%\n```\n');
 }
 
-function toggleQuote(cm) {
-	function toggleQuoteOnCursor(c) {
+function toggleParagraph(cm, prefix) {
+	function toggleLineOnCursor(c) {
 		var line = cm.getLine(c.line);
 		var lineStart = { line: c.line, ch: 0 };
-		var wasQuote = line.startsWith('> ');
+		var wasQuote = line.startsWith(prefix);
 		if (wasQuote)
-			cm.replaceRange('', lineStart, { line: c.line, ch: 2 });
+			cm.replaceRange('', lineStart, { line: c.line, ch: prefix.length });
 		else
-			cm.replaceRange('> ', lineStart);
+			cm.replaceRange(prefix, lineStart);
 		return wasQuote;
 	}
 	var selection = cm.getSelection() || '';
 	if (! selection) {
 		// Activer ou non la citation pour la ligne où se trouve le curseur
 		var c = cm.getCursor();
-		var unquoted = toggleQuoteOnCursor(c);
-		c.ch = unquoted ? (c.ch - 2) : (c.ch + 2);
+		var unquoted = toggleLineOnCursor(c);
+		c.ch = unquoted ? (c.ch - prefix.length) : (c.ch + prefix.length);
 		cm.setCursor(c);
 	} else {
 		// Activer ou non la citation pour les lignes sur lesquelles la sélection s'étend
@@ -326,7 +328,7 @@ function toggleQuote(cm) {
 			c2.line--;
 		}
 		while (c.line <= c2.line) {
-			lastUnquoted = toggleQuoteOnCursor(c);
+			lastUnquoted = toggleLineOnCursor(c);
 			if (c.line === c1.line)
 				firstUnquoted = lastUnquoted;
 			c.line++;
@@ -414,6 +416,21 @@ function prepareEmojis(cm) {
 	});
 }
 
+function switchView(body) {
+	// plus rapide mais doublonne la valeur 1024 : var isLargeScreen = window.innerWidth >= 1024;
+	var isLargeScreen = $('#viewButton').filter(':visible').length > 0;
+	if (isLargeScreen) {
+		if (body.hasClass('split'))
+			$('#viewMenu [data-view="edit"]').click();
+		else if (body.hasClass('edit'))
+			$('#viewMenu [data-view="html"]').click();
+		else
+			$('#viewMenu [data-view="split"]').click();
+	} else {
+		$('#htmlButton,#editButton').filter(':visible').click();
+	}
+}
+
 //Initialiser la page
 NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 	// L'IHM est prête, on l'affiche
@@ -450,8 +467,12 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 		$('#indentButton').click((event) => CodeMirror.commands.indentMore(cm));
 		// Bouton pour indenter un peu moins la sélection
 		$('#outdentButton').click((event) => CodeMirror.commands.indentLess(cm));
+		// Bouton pour faire de la sélection une liste non ordonnée avec "- "
+		$('#ulButton').click((event) => toggleParagraph(cm, '- '));
+		// Bouton pour faire de la sélection une liste ordonnée avec "1. "
+		$('#olButton').click((event) => toggleParagraph(cm, '1. '));
 		// Bouton pour faire de la sélection une citation avec "> "
-		$('#quoteButton').click((event) => toggleQuote(cm));
+		$('#quoteButton').click((event) => toggleParagraph(cm, '> '));
 		// Gestion des emoji
 		prepareEmojis(cm);
 		// Insertion d'une ligne horizontale
@@ -555,12 +576,15 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			// Sauvegarde
 			'Ctrl-s': () => saveButton.click(),
 			// Changement de vue
-			'Ctrl-p': () => $('#htmlButton,#editButton').filter(':visible').click(),
+			'Ctrl-p': () => switchView(body),
 			// Support de undo / redo même si CodeMirror n'a pas le focus
 			'Ctrl-z': () => cm.hasFocus() || CodeMirror.commands.undo(cm),
 			'Ctrl-y': () => cm.hasFocus() || CodeMirror.commands.redo(cm),
 			// Export HTML
 			'Ctrl-e': () => $('#exportButton').click(),
+			// Listes à puce
+			'Shift-Ctrl-O': () => $('#olButton').click(),
+			'Shift-Ctrl-U': () => $('#ulButton').click(),
 		});
 
 		// Changement de mode "edit"/"preview" par "swipe"
@@ -570,7 +594,7 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			if (swipe.duration > 200)
 				return;
 			if ('right' === swipe.direction || 'left' === swipe.direction)
-				$('#htmlButton,#editButton').filter(':visible').click()
+				$('#htmlButton,#editButton').filter(':visible').click();
 		});
 	});
 });
