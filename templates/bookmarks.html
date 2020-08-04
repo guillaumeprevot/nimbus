@@ -282,6 +282,8 @@ function updateSearch(updateNavigation, updateBookmarks) {
 	// Récupérer les paramètres de recherche
 	var searchAllFields = $('#searchAllFieldsButton').hasClass('selected');
 	var searchAllBookmarks = $('#searchAllBookmarksButton').hasClass('selected');
+	// Récupérer les infos sur le premier dossier dont le contenu correspond à la recherche
+	var selectedSource, selectedFolder, selectedItem;
 	// Ajuster la navigation à gauche
 	if (updateNavigation) {
 		var navigationItems = $('#navigation > *');
@@ -294,13 +296,29 @@ function updateSearch(updateNavigation, updateBookmarks) {
 				var folderVisible = folder.bookmarks.some(function(bookmark) {
 					return api.matchBookmark(bookmark, searchTextLC, searchAllFields, searchAllBookmarks);
 				});
-				navigationItems.eq(sourceIndex + 1 + folderIndex).toggle(folderVisible);
+				var folderItem = navigationItems.eq(sourceIndex + 1 + folderIndex).toggle(folderVisible);
 				sourceVisible = sourceVisible || folderVisible;
+				// 1er dossier qui matche
+				if (folderVisible && !selectedItem) {
+					selectedItem = folderItem;
+					selectedFolder = folder;
+					selectedSource = source;
+				}
 			});
 			sourceItem.toggle(sourceVisible);
 			sourceIndex += 1 + source.folders.length;
 		}
 	}
+
+	// Sélectionner automatiquement le premier dossier dont le contenu correspond à la recherche
+	if (selectedItem && updateBookmarks) {
+		// Utiliser un marqueur visuel
+		selectedItem.addClass('bookmark-folder-selected');
+		// Afficher le contenu du dossier
+		updateSelection(selectedSource, selectedFolder);
+		return;
+	}
+
 	// Ajuster les bookmarks à droite
 	if (updateBookmarks) {
 		$('#bookmarks > *').each(function() {
