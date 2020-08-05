@@ -50,8 +50,9 @@ public class Templates extends Controller {
 	 */
 	public static final Render render(Request request, String name, Object... paramAndValues) {
 		String theme = getUserTheme(request);
+		String backURL = Optional.ofNullable(request.header("Referer")).map(s -> s.replace("/login.html", "/")).orElse("/");
 		return new RenderFreeMarker(name, paramAndValues)
-				.with("backURL", Optional.ofNullable(request.header("Referer")).orElse("/"))
+				.with("backURL", backURL)
 				.with("lang", getUserLang(request))
 				.with("theme", theme)
 				.with("stylesheet", "dark".equals(theme) ? "/libs/bootswatch/darkly.min.css" : "/libs/bootswatch/flatly.min.css");
