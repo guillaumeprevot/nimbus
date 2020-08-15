@@ -102,7 +102,7 @@
 		this.suffix = data.suffix;
 		// Surnom
 		this.nickname = data.nickname;
-		// Infos professionnelles (soiété, fonction et service)
+		// Infos professionnelles (société, fonction et service)
 		this.companyName = data.companyName;
 		this.companyFunction = data.companyFunction;
 		this.companyUnit = data.companyUnit;
@@ -273,6 +273,110 @@
 		return phone;
 	}
 
+	function generateContactsFromThunderbirdExport(csv) {
+		var supportedFields = [];
+		var supportedField = function(name, consumer) { supportedFields.push({ name: name, consumer: consumer }); };
+		var currentAddress = {}, birthday = { type: 'birthday' };
+		supportedField('Prénom', (c, t) => c.firstName = t);
+		supportedField('Nom de famille', (c, t) => c.lastName = t);
+		supportedField('Nom à afficher', (c, t) => c.displayName = t);
+		supportedField('Surnom', (c, t) => c.nickname = t);
+		supportedField('Adresse électronique principale', (c, t) => c.emails.push(new ContactEmail({ email: t, type: 'home' })));
+		supportedField('Adresse électronique secondaire', (c, t) => c.emails.push(new ContactEmail({ email: t, type: 'other' })));
+		supportedField('Nom de l’écran', (c, t) => c.fields.push(new ContactField({ value: t, label: 'Pseudo IM' })));
+		supportedField('Tél. professionnel', (c, t) => c.phones.push(new ContactPhone({ phone: t, type: 'work' })));
+		supportedField('Tél. personnel', (c, t) => c.phones.push(new ContactPhone({ phone: t, type: 'home' })));
+		supportedField('Fax', (c, t) => c.phones.push(new ContactPhone({ phone: t, type: 'fax' })));
+		supportedField('Pager', (c, t) => c.phones.push(new ContactPhone({ phone: t, type: 'pager' })));
+		supportedField('Portable', (c, t) => c.phones.push(new ContactPhone({ phone: t, type: 'mobile' })));
+		supportedField('Adresse privée', (c, t) => currentAddress.address = t);
+		supportedField('Adresse privée 2', (c, t) => currentAddress.address2 = t);
+		supportedField('Pays/Région (domicile)', (c, t) => currentAddress.country = t);
+		supportedField('Adresse professionnelle', (c, t) => currentAddress.address = t);
+		supportedField('Adresse professionnelle 2', (c, t) => currentAddress.address2 = t);
+		supportedField('Pays/Région (bureau)', (c, t) => currentAddress.country = t);
+		supportedField('Ville', (c, t) => currentAddress.city = t);
+		supportedField('Pays/État', (c, t) => currentAddress.state = t);
+		supportedField('Code postal', (c, t) => currentAddress.zipCode = t);
+		supportedField('Profession', (c, t) => c.companyFunction = t);
+		supportedField('Service', (c, t) => c.companyUnit = t);
+		supportedField('Société', (c, t) => c.companyName = t);
+		supportedField('Site web 1', (c, t) => c.urls.push(new ContactURL({ url: t, type: 'website' })));
+		supportedField('Site web 2', (c, t) => c.urls.push(new ContactURL({ url: t, type: 'website' })));
+		supportedField('Année de naissance', (c, t) => birthday.year = parseInt(t));
+		supportedField('Mois', (c, t) => birthday.month = parseInt(t));
+		supportedField('Jour', (c, t) => birthday.date = parseInt(t));
+		supportedField('Divers 1', (c, t) => c.fields.push(new ContactField({ value: t, label: 'Divers 1' })));
+		supportedField('Divers 2', (c, t) => c.fields.push(new ContactField({ value: t, label: 'Divers 2' })));
+		supportedField('Divers 3', (c, t) => c.fields.push(new ContactField({ value: t, label: 'Divers 3' })));
+		supportedField('Divers 4', (c, t) => c.fields.push(new ContactField({ value: t, label: 'Divers 4' })));
+		supportedField('Notes', (c, t) => c.note = t);
+
+		var index = csv.indexOf('\n');
+		var fields = csv.substring(0, index).split(',').map(function(h) {
+			var f = supportedFields.find(field => field.name === h);
+			if (!f)
+				throw new Error('Champ inconnu : ' + h);
+			return f;
+		});
+		// console.log(fields);
+
+		index++;
+		function next() {
+			var endIndex, result;
+			if (csv[index] === '"') {
+				endIndex = csv.indexOf('"', index + 1);
+				while (csv[endIndex + 1] === '"') {
+					// Take care of "....""quoted text""..."
+					endIndex = csv.indexOf('""', endIndex + 2);
+					endIndex = csv.indexOf('"', endIndex + 2);
+				}
+				result = csv.substring(index + 1, endIndex).replace(/""/g, '"');
+				index = endIndex + 2;
+			} else {
+				endIndex = index;
+				while (csv[endIndex] !== ',' && csv[endIndex] !== '\n') {
+					endIndex++;
+				}
+				result = csv.substring(index, endIndex);
+				index = endIndex + 1;
+			}
+			return result ? result : undefined;
+		}
+
+		var contacts = [];
+		while (index < csv.length) {
+			var contact = new Contact({});
+			contact.addresses = [];
+			contact.emails = [];
+			contact.phones = [];
+			contact.urls = [];
+			contact.dates = [];
+			contact.fields = [];
+			contacts.push(contact);
+
+			fields.forEach(function(f) {
+				var t = next();
+				if (t)
+					f.consumer(contact, t);
+				if (f.name === 'Jour' && (birthday.year || birthday.month || birthday.date)) {
+					contact.dates.push(new ContactDate(birthday));
+					birthday = { type: 'birthday' };
+				} else if (f.name === 'Pays/Région (domicile)' && formatAddress(currentAddress)) {
+					currentAddress.type = 'home';
+					contact.addresses.push(new ContactAddress(currentAddress));
+					currentAddress = {};
+				} else if (f.name === 'Pays/Région (bureau)' && formatAddress(currentAddress)) {
+					currentAddress.type = 'work';
+					contact.addresses.push(new ContactAddress(currentAddress));
+					currentAddress = {};
+				}
+			});
+		}
+		// console.log(contacts);
+		return contacts;
+	}
+
 	NIMBUS.utils.contactAPI = {
 		ContactAddress: ContactAddress,
 		ContactEmail: ContactEmail,
@@ -288,6 +392,7 @@
 		formatContactLastFirst: formatContactLastFirst,
 		formatAddress: formatAddress,
 		formatPhone: formatPhone,
+		generateContactsFromThunderbirdExport: generateContactsFromThunderbirdExport,
 		createMappyURL: (text) => 'https://fr.mappy.com/#/1/M2/TSearch/S' + encodeURI(text),
 		createGoogleMapsURL: (text) => 'https://www.google.com/maps/place/' + encodeURI(text),
 		createOpenStreetMapURL: (text) => 'https://www.openstreetmap.org/search?query=' + encodeURI(text),
@@ -362,6 +467,7 @@
 				ContactsRename: "Renommer le carnet d'adresses actif",
 				ContactsRenameTitle: "Renommer en ",
 				ContactAddButton: "Ajouter un contact au carnet d'adresses actif",
+				ContactImportButton: "Importer un carnet d'adresses Thunderbird",
 				ContactEditButton: "Modifier ce contact",
 				ContactMarkAsFavoriteButton: "Marquer comme favori",
 				ContactUnmarkAsFavoriteButton: "Ne plus marquer comme favori",
@@ -516,6 +622,7 @@
 				ContactsRename: "Rename the selected address book",
 				ContactsRenameTitle: "Rename to ",
 				ContactAddButton: "Add a new contact to the selected address book",
+				ContactImportButton: "Import address book from Thunderbird",
 				ContactEditButton: "Edit this contact",
 				ContactMarkAsFavoriteButton: "Mark as favorite",
 				ContactUnmarkAsFavoriteButton: "Remove favorite indicator",

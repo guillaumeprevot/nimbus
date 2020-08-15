@@ -109,6 +109,8 @@ table.table-sm td:first-child img { max-height: 32px; }
 			</div>
 		</div>
 		<button id="addContactButton" type="button" class="btn btn-link" data-translate="title" title="ContactAddButton"><i class="material-icons">add</i></button>
+		<button id="importButton" type="button" class="btn btn-link" data-translate="title" title="ContactImportButton"><i class="material-icons">import_contacts</i></button>
+		<input id="importInput" type="file" accept="text/csv" style="display: none; " />
 		<button id="renameButton" type="button" class="btn btn-link" data-translate="title" title="ContactsRename"><i class="material-icons">edit</i></button>
 	</header>
 	<main>
@@ -719,6 +721,30 @@ NIMBUS.init(['contacts.js'], function() {
 				// Raffraichir la page
 				updateTable(selectedSource);
 			});
+		});
+
+		// Clic sur le bouton d'import de contact
+		$('#importButton').click(function() {
+			$('#importInput').click();
+		});
+		$('#importInput').change(function(event) {
+			var url = URL.createObjectURL(this.files[0]);
+			fetch(url)
+				.then(response => response.arrayBuffer())
+				.then(buffer => new TextDecoder("cp1252").decode(buffer))
+				.then(csv => csv.replace(/\r\n/g, '\n').replace(/\r/, '\n'))
+				.then(NIMBUS.utils.contactAPI.generateContactsFromThunderbirdExport)
+				.then(function(contacts) {
+					// Importer les contacts
+					selectedSource.contacts = contacts;
+					// Gérer la sauvegarde
+					data.trigger('contactsourcechange', selectedSource);
+					// Raffraichir la page
+					updateTable(selectedSource);
+				})
+				.finally(function() {
+					URL.revokeObjectURL(url);
+				});
 		});
 
 		// Sélection de l'entrée de menu pour éditer un contact existant
