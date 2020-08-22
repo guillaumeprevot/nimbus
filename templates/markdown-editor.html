@@ -58,9 +58,12 @@ body.html #editor { display: none; }
 <script type="text/javascript" src="/libs/codemirror/addon/fold/foldgutter.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/fold/indent-fold.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/fold/markdown-fold.js"></script>
+<script type="text/javascript" src="/libs/codemirror/addon/mode/overlay.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/runmode/runmode.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/search/jump-to-line.js"></script>
 <script type="text/javascript" src="/libs/codemirror/addon/selection/active-line.js"></script>
+<script type="text/javascript" src="/libs/codemirror/mode/markdown/markdown.js"></script>
+<script type="text/javascript" src="/libs/codemirror/mode/gfm/gfm.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
@@ -130,8 +133,8 @@ body.html #editor { display: none; }
 			<div class="btn-group">
 				<button id="lineSeparatorButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="TextEditorLineSeparator" aria-haspopup="true" aria-expanded="false"><i class="material-icons">wrap_text</i></button>
 				<div id="lineSeparatorMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="lineSeparatorButton">
-					<button id="autoWrapLongLinesOption" class="dropdown-item" data-translate="text">TextEditorAutoWrapLongLines</button>
-					<button id="keepWrappedLinesOption" class="dropdown-item" data-translate="text">MarkdownEditorKeepWrappedLines</button>
+					<button id="autoWrapLongLinesOption" class="dropdown-item active" data-translate="text">TextEditorAutoWrapLongLines</button>
+					<button id="keepWrappedLinesOption" class="dropdown-item active" data-translate="text">MarkdownEditorKeepWrappedLines</button>
 					<div class="dropdown-divider"></div>
 					<button class="dropdown-item" data-separator="crlf" data-translate="text">TextEditorLineSeparatorCRLF</button>
 					<button class="dropdown-item" data-separator="lf" data-translate="text">TextEditorLineSeparatorLF</button>
@@ -226,15 +229,46 @@ function markdownToHtml(text) {
 	return md.render(text);
 }
 
-function customizeOptions(options) {
-	options.lineWrapping = false;
-	options.extraKeys['Ctrl-B'] = (cm) => wrapSelection(cm, '**');
-	options.extraKeys['Ctrl-I'] = (cm) => wrapSelection(cm, '_');
-	options.extraKeys['Ctrl-U'] = (cm) => wrapSelection(cm, '++');
-	options.extraKeys['Ctrl--'] = (cm) => wrapSelection(cm, '~~');
-	options.extraKeys['Ctrl-M'] = (cm) => wrapSelection(cm, '==');
-	options.extraKeys['Ctrl-,'] = (cm) => wrapSelection(cm, '`');
-	options.extraKeys['Ctrl-K'] = (cm) => insertLink(cm);
+function createOptions(content) {
+	// https://codemirror.net/mode/gfm/index.html
+	var gfmMode = {
+		name: 'gfm',
+		gitHubSpice: false,
+		taskLists: true,
+		emoji: true,
+		strikethrough: true 
+	};
+	// https://github.com/codemirror/CodeMirror/blob/master/src/input/keymap.js
+	var extraKeys = {
+		'Tab': 'indentMore',
+		'Shift-Tab': 'indentLess',
+		'Enter': 'newlineAndIndentContinueMarkdownList',
+		'Ctrl-B': (cm) => wrapSelection(cm, '**'),
+		'Ctrl-I': (cm) => wrapSelection(cm, '_'),
+		'Ctrl-U': (cm) => wrapSelection(cm, '++'),
+		'Ctrl--': (cm) => wrapSelection(cm, '~~'),
+		'Ctrl-M': (cm) => wrapSelection(cm, '=='),
+		'Ctrl-,': (cm) => wrapSelection(cm, '`'),
+		'Ctrl-K': (cm) => insertLink(cm),
+	};
+	// https://codemirror.net/doc/manual.html#config
+	var options = {
+		value: content,
+		mode: gfmMode,
+		theme: 'nimbus-${theme}',
+		indentUnit: 4,
+		indentWithTabs: true,
+		lineWrapping: true,
+		lineNumbers: true,
+		gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+		foldGutter: true,
+		cursorScrollMargin: 40, // pour avoir 2 lignes au dessus et en dessous de la sélection lors du scroll
+		viewportMargin: Infinity,
+		autofocus: true,
+		styleActiveLine: true,
+		showTrailingSpace: false,
+		extraKeys: extraKeys,
+	};
 	return options;
 }
 
@@ -451,9 +485,7 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			saveButton = $('#saveButton'),
 			saveMessage = null,
 			filename = NIMBUS.utils.getFileNameFromContentDisposition(jqXHR),
-			support = NIMBUS.utils.codeMirrorLoadSupport('md'),
-			cmOptions = NIMBUS.utils.codeMirrorCreateOptions(support.mime, content, '${theme}'),
-			cm = CodeMirror(editor[0], customizeOptions(cmOptions));
+			cm = CodeMirror(editor[0], createOptions(content));
 
 		$('title').text(filename);
 
