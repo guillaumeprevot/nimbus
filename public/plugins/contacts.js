@@ -93,6 +93,8 @@
 		this.favorite = data.favorite;
 		// Nom utilisé pour afficher le contact dans l'IHM
 		this.displayName = data.displayName;
+		// Description, par exemple "Femme de ..." ou "Copain de ..."
+		this.description = data.description;
 		// Dénomination complète (Mr Professor John Smart Doe Senior)
 		this.gender = data.gender;
 		this.prefix = data.prefix;
@@ -182,6 +184,7 @@
 				return {
 					favorite: c.favorite || undefined,
 					displayName: c.displayName || undefined,
+					description: c.description || undefined,
 					gender: c.gender || undefined,
 					prefix: c.prefix || undefined,
 					firstName: c.firstName || undefined,
@@ -228,7 +231,8 @@
 		function matchList(list, property) {
 			return !!list && list.some((e) => (e.label && e.label.toLowerCase().includes(searchTextLC)) || (e[property] && e[property].toLowerCase().includes(searchTextLC)));
 		}
-		return matchValue(contact.firstName) || matchValue(contact.lastName)
+		return matchValue(contact.description)
+			|| matchValue(contact.firstName) || matchValue(contact.lastName)
 			|| matchValue(contact.nickname) || matchValue(contact.companyName)
 			|| matchValue(contact.keywords) || matchValue(contact.note)
 			|| matchList(contact.emails, 'email') || matchList(contact.phones, 'phone')
@@ -479,6 +483,8 @@
 				ContactModalPictureLabel: "Image",
 				ContactModalPicturePlaceholder: "(numéro)",
 				ContactModalFavoriteLabel: "Marquer ce contact comme favori",
+				ContactModalDescriptionLabel: "Description",
+				ContactModalDescriptionPlaceholder: "(courte description pour situer ce contact)",
 				ContactModalNamesLegend: "Identité",
 				ContactModalFirstNamePlaceholder: "Prénom",
 				ContactModalLastNamePlaceholder: "Nom",
@@ -502,6 +508,7 @@
 				Contact: "Contact",
 				ContactFavorite: "Favori",
 				ContactDisplayName: "Nom affiché",
+				ContactDescription: "Description",
 				ContactPrefix: "Préfixe",
 				ContactFirstName: "Prénom",
 				ContactMiddleName: "2ème prénom",
@@ -634,6 +641,8 @@
 				ContactModalPictureLabel: "Picture",
 				ContactModalPicturePlaceholder: "(number)",
 				ContactModalFavoriteLabel: "Mark this contact as favorite",
+				ContactModalDescriptionLabel: "Description",
+				ContactModalDescriptionPlaceholder: "(used as a short rememberance)",
 				ContactModalNamesLegend: "Identity",
 				ContactModalFirstNamePlaceholder: "Firstname",
 				ContactModalLastNamePlaceholder: "Lastname",
@@ -657,6 +666,7 @@
 				Contact: "Contact",
 				ContactFavorite: "Favorite",
 				ContactDisplayName: "Display name",
+				ContactDescription: "Description",
 				ContactPrefix: "Prefix",
 				ContactFirstName: "First name",
 				ContactMiddleName: "Middle name",
