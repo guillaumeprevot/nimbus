@@ -572,6 +572,8 @@ NIMBUS.init(['contacts.js'], function() {
 		var sources = items.map((item) => new api.ContactSource(item));
 		// Chargement des sources
 		return Promise.all(sources.map((s) => s.load())).then((results) => {
+			// Tri des sources par libellé
+			sources.sort((s1, s2) => s1.getNameOrDefault().localeCompare(s2.getNameOrDefault()));
 			// console.log(sources);
 			return sources;
 		});
