@@ -373,7 +373,11 @@ function updateSearch() {
 	var searchTextLC = $('#searchInput').val().toLowerCase();
 	if (! searchTextLC) {
 		var trs = $('#table > tbody > tr').show();
-		$('#navigation').find('.badge').show().filter('.active > .badge').text(trs.length.toString());
+		$('#navigation').find('.badge').show().each(function() {
+			var badge = $(this);
+			var source = badge.closest('.nav-item').data('source');
+			badge.text(source.contacts.length.toString());
+		});
 		return;
 	}
 	// Récupérer l'API
@@ -624,15 +628,15 @@ NIMBUS.init(['contacts.js'], function() {
 				.children('.badge').text('' + source.contacts.length).end();
 			return $('<li class="nav-item" />')
 				.append(a)
+				.data('source', source)
 				.get(0);
 		}));
 		// Chargement du fichier quand on clique sur son onglet
 		navigation.on('click', '.nav-item', function() {
 			var item = $(event.target).closest('.nav-item');
-			var index = item.index();
 			item.children().addClass('active');
 			item.siblings().children().removeClass('active')
-			selectedSource = sources[index];
+			selectedSource = item.data('source');
 			storage.setSelectedItemId(selectedSource.item.id);
 			updateTable(selectedSource);
 			return false;
