@@ -57,7 +57,36 @@
 	};
 
 	/*
-	 * C'est un plugin jQuery qui écoute la manipulation au doigt et envoie des évènements "swipe", "", "" et ""
+	 * C'est un plugin jQuery qui ajuste la hauteur d'une textarea automatiquement
+	 */
+	$.fn.autoExpandTextarea = function(collapseHeight) {
+		return this.each(function() {
+			var self = $(this);
+
+			function autoExpand() {
+				// Comme "scrollHeight" ne diminue pas quand on réduit le texte, le seul moyen d'avoir
+				// un scrollHeight correct est de réduire la textarea pour la réajuster ensuite
+				if (collapseHeight)
+					self.innerHeight(collapseHeight);
+				// scrollHeight (standard) donne la hauteur du contenu avec padding et ni margin, ni border
+				// innerHeight (jquery) change la hauteur en incluant padding mais ni margin, ni border
+				self.innerHeight(self[0].scrollHeight);
+			}
+
+			function waitForInsert() {
+				if (self.parents('body').length)
+					autoExpand();
+				else
+					setTimeout(waitForInsert, 100);
+			}
+
+			self.css('overflow-y', 'hidden').on('input', autoExpand);
+			waitForInsert();
+		});
+	};
+
+	/*
+	 * C'est un plugin jQuery qui écoute la manipulation au doigt et envoie des évènements "swipe" en indiquant la direction et la durée du mouvement.
 	 */
 	$.fn.gpswipe = function() {
 		return this.addClass('gp-swipe').on('touchstart', function(startEvent) {

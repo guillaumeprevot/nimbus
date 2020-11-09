@@ -21,22 +21,22 @@
 		<dependency>
 			<groupId>fr.techgp.nimbus</groupId>
 			<artifactId>nimbus-java-api</artifactId>
-			<version>[1.2,)</version>
+			<version>[1.3,)</version>
 		</dependency>
 
 		<!--
 			https://www.eclipse.org/jetty/
-			https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server
+			https://search.maven.org/artifact/org.eclipse.jetty/jetty-server
 		-->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>[9.4.31.v20200723,10.0.0-alpha0)</version>
+			<version>[9.4.34.v20201102,10.0.0-alpha0)</version>
 		</dependency>
 
 		<!--
 			https://freemarker.apache.org/
-			https://mvnrepository.com/artifact/org.freemarker/freemarker
+			https://search.maven.org/artifact/org.freemarker/freemarker
 		-->
 		<dependency>
 			<groupId>org.freemarker</groupId>
@@ -46,7 +46,7 @@
 
 		<!--
 			https://github.com/google/gson
-			https://www.mvnrepository.com/artifact/com.google.code.gson/gson
+			https://search.maven.org/artifact/com.google.code.gson/gson
 		-->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -56,8 +56,8 @@
 
 		<!--
 			http://www.slf4j.org/api/org/slf4j/impl/SimpleLogger.html
-			https://www.mvnrepository.com/artifact/org.slf4j/slf4j-simple
-			https://www.mvnrepository.com/artifact/org.slf4j/slf4j-api
+			https://search.maven.org/artifact/org.slf4j/slf4j-simple
+			https://search.maven.org/artifact/org.slf4j/slf4j-api
 		-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -72,7 +72,7 @@
 
 		<!--
 			https://mongodb.github.io/mongo-java-driver/
-			https://www.mvnrepository.com/artifact/org.mongodb/mongodb-driver
+			https://search.maven.org/artifact/org.mongodb/mongodb-driver
 		-->
 		<dependency>
 			<groupId>org.mongodb</groupId>
@@ -82,36 +82,35 @@
 
 		<!--
 			https://commons.apache.org/proper/commons-io/
-			https://www.mvnrepository.com/artifact/commons-io/commons-io
+			https://search.maven.org/artifact/commons-io/commons-io
 		-->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>[2.7,)</version>
+			<version>[2.8.0,)</version>
 		</dependency>
 
 		<!--
 			https://pdfbox.apache.org/
-			https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox
-			https://search.maven.org/search?q=g:%22org.apache.pdfbox%22%20a:%22pdfbox%22
+			https://search.maven.org/artifact/org.apache.pdfbox/pdfbox
 		-->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>[2.0.20,)</version>
+			<version>[2.0.21,)</version>
 		</dependency>
 		<!--
 			https://www.bouncycastle.org/latest_releases.html
-			https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+			https://search.maven.org/artifact/org.bouncycastle/bcprov-jdk15on
 		-->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-			<version>[1.66,)</version>
+			<version>[1.67,)</version>
 		</dependency>
 		<!--
 			https://github.com/mpatric/mp3agic
-			https://mvnrepository.com/artifact/com.mpatric/mp3agic
+			https://search.maven.org/artifact/com.mpatric/mp3agic
 		-->
 		<dependency>
 			<groupId>com.mpatric</groupId>
@@ -120,14 +119,16 @@
 		</dependency>
 		<!--
 			https://github.com/drewnoakes/metadata-extractor/releases
-			https://www.mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
+			https://search.maven.org/artifact/com.drewnoakes/metadata-extractor
 		-->
 		<dependency>
 			<groupId>com.drewnoakes</groupId>
 			<artifactId>metadata-extractor</artifactId>
-			<version>[2.14.0,)</version>
+			<version>[2.15.0,)</version>
 		</dependency>
 		<!--
+			http://image4j.sourceforge.net/
+			https://search.maven.org/artifact/org.jclarion/image4j
 		<dependency>
 			<groupId>org.jclarion</groupId>
 			<artifactId>image4j</artifactId>

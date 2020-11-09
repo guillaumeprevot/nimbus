@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonArray;
 
+import fr.techgp.nimbus.facets.Image4jFacet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.MimeTypes;
@@ -28,7 +29,7 @@ import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.server.Upload;
-import fr.techgp.nimbus.utils.ImageUtils;
+import fr.techgp.nimbus.utils.GraphicsUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Files extends Controller {
@@ -269,8 +270,8 @@ public class Files extends Controller {
 			try {
 				String mimeType = MimeTypes.byName(item.name);
 				if (item.name.endsWith(".ico"))
-					return Render.bytes(ImageUtils.getScaleICOImage(file, size, size), mimeType, item.name, false);
-				return Render.bytes(ImageUtils.getScaleImage(file, size, size), mimeType, item.name, false);
+					return Render.bytes(Image4jFacet.getScaleICOImage(file, size, size), mimeType, item.name, false);
+				return Render.bytes(GraphicsUtils.scaleImageWithMaxDimensions(file, size, size), mimeType, item.name, false);
 			} catch (IOException | NoSuchElementException ex) { // Erreur de lecture ou format non supporté (comme SVG)
 				return Render.badRequest();
 			}
