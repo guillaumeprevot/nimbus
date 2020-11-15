@@ -45,17 +45,17 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JJWT](https://github.com/jwtk/jjwt) | transitive | [0.11.2](https://github.com/jwtk/jjwt/releases) | MIT | Support des JSON Web Token (JWT)
 [Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | [1.67](https://www.bouncycastle.org/latest_releases.html) | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
 [jQuery](http://api.jquery.com/) | JS | [3.5.1](https://jquery.com/download/) | ~MIT | Kit de départ pour le JS
-[Bootstrap](https://getbootstrap.com/) | CSS/JS | [4.5.2](https://github.com/twbs/bootstrap/releases) | MIT | Kit de départ pour l'IHM
-[Bootswatch](https://bootswatch.com/) | CSS | [4.5.2](https://github.com/thomaspark/bootswatch/releases) | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
-[Material Icons](https://material.io/icons/) | CSS | [v54](https://fonts.googleapis.com/css?family=Material+Icons) | Apache 2.0 | Icônes sous forme de WebFont
+[Bootstrap](https://getbootstrap.com/) | CSS/JS | [4.5.3](https://github.com/twbs/bootstrap/releases) | MIT | Kit de départ pour l'IHM
+[Bootswatch](https://bootswatch.com/) | CSS | [4.5.3](https://github.com/thomaspark/bootswatch/releases) | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
+[Material Icons](https://material.io/icons/) | CSS | [v67](https://fonts.googleapis.com/css?family=Material+Icons) | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js) | plugin JS | [0.3.88](https://github.com/futurepress/epub.js/releases) | Free BSD | Support des fichiers ePub
-[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | [2.4.456](https://github.com/mozilla/pdf.js/releases) | Apache 2.0 | Support des fichiers PDF
-[markdown-it](https://github.com/markdown-it/markdown-it) | plugin JS | [11.0.0](https://github.com/markdown-it/markdown-it/releases) | MIT | Prévisualisation du Markdown
-[CodeMirror](https://codemirror.net/) | plugin JS | [5.56.0](https://codemirror.net/) | MIT | Editeur de code avec coloration syntaxique notamment
-[DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | [2.0.12](https://github.com/cure53/DOMPurify/releases) | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
-[Moment.js](https://momentjs.com/docs/) | plugin JS | [2.27.0](https://github.com/moment/moment/releases) | MIT | Manipulation des dates et heures (agenda)
+[PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | [2.5.207](https://github.com/mozilla/pdf.js/releases) | Apache 2.0 | Support des fichiers PDF
+[markdown-it](https://github.com/markdown-it/markdown-it) | plugin JS | [12.0.2](https://github.com/markdown-it/markdown-it/releases) | MIT | Prévisualisation du Markdown
+[CodeMirror](https://codemirror.net/) | plugin JS | [5.58.2](https://codemirror.net/) | MIT | Editeur de code avec coloration syntaxique notamment
+[DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | [2.2.2](https://github.com/cure53/DOMPurify/releases) | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
+[Moment.js](https://momentjs.com/docs/) | plugin JS | [2.29.1](https://github.com/moment/moment/releases) | MIT | Manipulation des dates et heures (agenda)
 [Popper.js](https://popper.js.org/) | transitive | [1.16.1 (umd)](https://github.com/popperjs/popper-core/releases) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
-[Lato](https://fonts.google.com/specimen/Lato) | transitive | [v16](https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap) | OFL | WebFont pour les thèmes Flatly et Darkly
+[Lato](https://fonts.google.com/specimen/Lato) | transitive | [v17](https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap) | OFL | WebFont pour les thèmes Flatly et Darkly
 [JSZip](https://github.com/Stuk/jszip) | transitive | [3.5.0](https://github.com/Stuk/jszip/releases) | MIT or GPLv3 | Dépendances de ePub.js
 
 ## Fonctionnalités

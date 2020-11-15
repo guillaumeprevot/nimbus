@@ -445,6 +445,9 @@ function open(url) {
 		});
 	});
 
+	// Indication du chemin pour éviter un warning dans la console (Deprecated API usage: No "GlobalWorkerOptions.workerSrc" specified.)
+	window.pdfjsLib.GlobalWorkerOptions.workerSrc = '/libs/pdfjs/pdf.worker.min.js';
+
 	// Affichage de la première page
 	window.pdfjsLib.getDocument(url).promise.then(function(pdfDoc) {
 		pdf = pdfDoc;
