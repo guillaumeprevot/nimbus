@@ -120,7 +120,7 @@
 			return bookmark.extensions.some((e) => match(e.name) || (searchAllFields && match(e.url)));
 		}
 		function matchOtherFields() {
-			return match(bookmark.url) || match(bookmark.iconURL) || match(bookmark.description) || match(bookmark.keywords);
+			return match(bookmark.url) /*|| match(bookmark.iconURL)*/ || match(bookmark.description) || match(bookmark.keywords);
 		}
 		return match(bookmark.name) || (searchAllFields && matchOtherFields()) || (searchExtensions && matchExtensions());
 	}
