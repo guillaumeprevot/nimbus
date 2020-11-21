@@ -7,7 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link type="image/png" rel="icon" href="/favicon.png" />
 
 <script type="text/javascript">
 var search = new URLSearchParams(window.location.search);
@@ -312,7 +312,7 @@ function buildHTML(app) {
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+		<link type="image/png" rel="icon" href="/favicon.png" />
 		${chunks.themeStylesheet}${chunks.themeScript ? buildScript('', chunks.themeScript + '\n\t\t') : ''}
 		<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 		<link type="text/css" rel="stylesheet" href="/nimbus.css" />
