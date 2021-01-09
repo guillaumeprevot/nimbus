@@ -29,13 +29,13 @@ Le développement du projet s'organise selon 4 axes :
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
 [Nimbus Java API](https://github.com/guillaumeprevot/nimbus-java-api) | Java | [1.3](https://github.com/guillaumeprevot/nimbus-java-api/releases) | MIT | Routing API
-[Jetty](https://www.eclipse.org/jetty/) | Java | [9.4.34](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Serveur Web
+[Jetty](https://www.eclipse.org/jetty/) | Java | [9.4.35](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Serveur Web
 [FreeMarker](https://freemarker.apache.org/) | Java | [2.3.30](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | [2.8.6](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.30](http://www.slf4j.org/download.html) | MIT | Gestion des logs
 [MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.7](https://www.mvnrepository.com/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.8.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
-[PDFBox](https://pdfbox.apache.org/) | plugin Java | [2.0.21](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
+[PDFBox](https://pdfbox.apache.org/) | plugin Java | [2.0.22](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/) | plugin Java | [2.15.0](https://github.com/drewnoakes/metadata-extractor/releases) | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
 [Image4j](http://image4j.sourceforge.net/) | plugin Java | [0.7.1](./lib/image4j/) | LGPL | Support des fichiers ICO et BMP
 [Jave](http://www.sauronsoftware.it/projects/jave/download.php) | plugin Java | [1.0.2](./lib/jave/) | GPL | Support audio et vidéo grâce à FFmpeg
@@ -43,16 +43,16 @@ Dépendance | Type | Version | Utilité | Fichiers
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | [2.2.5](https://dl.bintray.com/ijabz/maven/net/jthink/jaudiotagger/) | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | [0.9.1](https://github.com/mpatric/mp3agic/releases) | MIT | Support des fichiers MP3
 [JJWT](https://github.com/jwtk/jjwt) | transitive | [0.11.2](https://github.com/jwtk/jjwt/releases) | MIT | Support des JSON Web Token (JWT)
-[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | [1.67](https://www.bouncycastle.org/latest_releases.html) | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
+[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | [1.68](https://www.bouncycastle.org/latest_releases.html) | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
 [jQuery](http://api.jquery.com/) | JS | [3.5.1](https://jquery.com/download/) | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | [4.5.3](https://github.com/twbs/bootstrap/releases) | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | [4.5.3](https://github.com/thomaspark/bootswatch/releases) | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
-[Material Icons](https://material.io/icons/) | CSS | [v67](https://fonts.googleapis.com/css?family=Material+Icons) | Apache 2.0 | Icônes sous forme de WebFont
+[Material Icons](https://material.io/icons/) | CSS | [v70](https://fonts.googleapis.com/css?family=Material+Icons) | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js) | plugin JS | [0.3.88](https://github.com/futurepress/epub.js/releases) | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | [2.5.207](https://github.com/mozilla/pdf.js/releases) | Apache 2.0 | Support des fichiers PDF
-[markdown-it](https://github.com/markdown-it/markdown-it) | plugin JS | [12.0.2](https://github.com/markdown-it/markdown-it/releases) | MIT | Prévisualisation du Markdown
-[CodeMirror](https://codemirror.net/) | plugin JS | [5.58.2](https://codemirror.net/) | MIT | Editeur de code avec coloration syntaxique notamment
-[DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | [2.2.2](https://github.com/cure53/DOMPurify/releases) | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
+[markdown-it](https://github.com/markdown-it/markdown-it) | plugin JS | [12.0.4](https://github.com/markdown-it/markdown-it/releases) | MIT | Prévisualisation du Markdown
+[CodeMirror](https://codemirror.net/) | plugin JS | [5.59.1](https://codemirror.net/) | MIT | Editeur de code avec coloration syntaxique notamment
+[DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | [2.2.6](https://github.com/cure53/DOMPurify/releases) | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
 [Moment.js](https://momentjs.com/docs/) | plugin JS | [2.29.1](https://github.com/moment/moment/releases) | MIT | Manipulation des dates et heures (agenda)
 [Popper.js](https://popper.js.org/) | transitive | [1.16.1 (umd)](https://github.com/popperjs/popper-core/releases) | MIT | Dépendance de Bootstrap pour tooltip, popover, dropdown, ...
 [Lato](https://fonts.google.com/specimen/Lato) | transitive | [v17](https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap) | OFL | WebFont pour les thèmes Flatly et Darkly
