@@ -268,7 +268,7 @@
 				<fieldset>
 					<div class="form-group">
 						<label for="add-url-input" data-translate="text">MainAddURLInputLabel</label>
-						<input id="add-url-input" class="form-control" data-translate="placeholder" autofocus="autofocus" name="input" type="text" maxlength="128" required="required" placeholder="MainAddURLInputPlaceholder" />
+						<input id="add-url-input" class="form-control" data-translate="placeholder" autofocus="autofocus" name="input" type="text" required="required" placeholder="MainAddURLInputPlaceholder" />
 						<div class="invalid-feedback" data-translate="text">MainAddURLInsufficientStorage</div>
 					</div>
 					<div class="form-group">
@@ -336,6 +336,7 @@
 							<option value="44640" data-translate="text">MainShareDuration1Month</option>
 							<option value="" data-translate="text">MainShareDurationNoLimit</option>
 						</select>
+						<small id="share-expiration-date" class="form-text text-muted"></small>
 					</div>
 					<div class="form-group">
 						<label for="share-password" data-translate="text">MainSharePasswordLabel</label>
@@ -343,7 +344,14 @@
 					</div>
 					<div class="form-group">
 						<label for="share-url" data-translate="text">MainShareURLLabel</label>
-						<input id="share-url" class="form-control" data-translate="placeholder" name="url" type="text" readonly="readonly" placeholder="MainShareURLPlaceholder" />
+						<div class="input-group">
+							<input id="share-url" class="form-control" data-translate="placeholder" name="url" type="text" readonly="readonly" placeholder="MainShareURLPlaceholder" />
+							<div class="input-group-append">
+								<button id="share-url-copy-button" class="btn btn-outline-secondary" type="button" data-translate="title" title="MainShareURLCopyButton">
+									<i class="material-icons material-icons-16">content_paste</i>
+								</button>
+							</div>
+						</div>
 					</div>
 				</fieldset>
 			</div>

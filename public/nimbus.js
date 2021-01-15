@@ -733,22 +733,46 @@ NIMBUS.navigation = (function() {
 		// Récupérer les composants concernés
 		var dialog = $('#share-dialog');
 		var durationSelect = $('#share-duration');
+		var expirationText = $('#share-expiration-date');
 		var passwordInput = $('#share-password');
 		var urlInput = $('#share-url');
+		var urlCopyButton = $('#share-url-copy-button');
 		var removeButton = $('#share-remove-button');
 		var validateButton = $('#share-validate-button');
+		// Ajuster la date d'expiration quand on change la durée du partage
+		durationSelect.on('change', function() {
+			var item = dialog.data('item');
+			if (!this.value) {
+				expirationText.text('');
+				return;
+			}
+			var nowMS = Date.now();
+			var sharedMS = item.sharedDate ? item.sharedDate : nowMS;
+			var expirationMS = sharedMS + parseInt(this.value) * 60000;
+			if (expirationMS > nowMS)
+				expirationText.text(NIMBUS.translate('MainShareExpireOnDate', NIMBUS.formatDatetime(expirationMS)));
+			else
+				expirationText.text(NIMBUS.translate('MainShareExpiredSinceDate', NIMBUS.formatDatetime(expirationMS)));
+		});
+		// Copier l'adresse dans le press-papier
+		urlCopyButton.on('click', function() {
+			urlInput.select();
+			document.execCommand("copy");
+			urlCopyButton.focus();
+		});
 		// Initialiser le statut de la fenêtre à l'ouverture
 		dialog.on('show.bs.modal', function() {
 			var item = dialog.data('item');
 			if (!!item.sharedPassword) {
-				durationSelect.val(item.sharedDuration);
+				durationSelect.val(item.sharedDuration).change();
 				passwordInput.val(item.sharedPassword).parent().show();
 				urlInput.val(window.location.origin + '/share/get/' + item.id + '?password=' + item.sharedPassword).parent().show();
 				removeButton.show();
 			} else {
 				durationSelect.val('');
-				passwordInput.val('').parent().hide();
-				urlInput.val('').parent().hide();
+				expirationText.text('');
+				passwordInput.val('').closest('.form-group').hide();
+				urlInput.val('').closest('.form-group').hide();
 				removeButton.hide();
 			}
 		});
@@ -783,8 +807,10 @@ NIMBUS.navigation = (function() {
 					dialog.modal('hide');
 				} else {
 					// Create share and keep dialog opened to show URL
-					passwordInput.val(item.sharedPassword).parent().show();
-					urlInput.val(window.location.origin + '/share/get/' + item.id + '?password=' + item.sharedPassword).parent().show();
+					passwordInput.val(item.sharedPassword)
+						.closest('.form-group').show();
+					urlInput.val(window.location.origin + '/share/get/' + item.id + '?password=' + item.sharedPassword)
+						.closest('.form-group').show();
 					removeButton.show();
 				}
 			});
