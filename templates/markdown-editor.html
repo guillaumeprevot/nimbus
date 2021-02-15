@@ -311,7 +311,12 @@ function wrapSelection(cm, startText, endText) {
 function promptAndWrapSelection(cm, promptKey, skip, format) {
 	var s = cm.getSelection();
 	if (!s || skip.indexOf(s[0]) === -1) { // pas déjà formatté
-		var p = prompt(NIMBUS.translate(promptKey));
+		var p = prompt(NIMBUS.translate(promptKey), '');
+		if (p == null) {
+			// Si l'utilisateur a annulé, on ne fait rien et on revient sur l'éditeur 
+			cm.focus();
+			return;
+		}
 		var formatWithP = format.replace('%P%', p || '');
 		var t = formatWithP.replace('%S%', s || '');
 		if (s) {
