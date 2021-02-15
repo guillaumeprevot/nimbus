@@ -68,7 +68,7 @@ body.html #editor { display: none; }
 <script type="text/javascript" src="/nimbus.js"></script>
 <script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
-<body class="nimbus-hidden split">
+<body class="nimbus-hidden">
 	<header>
 		<div class="float-left">
 			<a href="${backURL}" class="btn btn-link" title="${appName}"><i class="material-icons">arrow_back</i></a>
@@ -122,7 +122,7 @@ body.html #editor { display: none; }
 				<button id="editButton" type="button" class="btn btn-link" data-translate="title" title="MarkdownEditorEditMarkdown"><i class="material-icons">edit</i></button>
 				<button id="viewButton" type="button" class="btn btn-link" data-toggle="dropdown" data-translate="title" title="MarkdownEditorView" aria-haspopup="true" aria-expanded="false"><i class="material-icons">chrome_reader_mode</i></button>
 				<div id="viewMenu" class="dropdown-menu dropdown-menu-right" aria-labelledby="viewButton">
-					<button class="dropdown-item active" data-view="split" data-translate="text">MarkdownEditorSplitView</button>
+					<button class="dropdown-item" data-view="split" data-translate="text">MarkdownEditorSplitView</button>
 					<button class="dropdown-item" data-view="edit" data-translate="text">MarkdownEditorEditView</button>
 					<button class="dropdown-item" data-view="html" data-translate="text">MarkdownEditorHTMLView</button>
 				</div>
@@ -150,6 +150,25 @@ body.html #editor { display: none; }
 	<footer></footer>
 <script>
 "use strict";
+
+//L'objet chargé de la sauvegarde des préférences, via localStorage
+var storage = {
+	autoWrapLongLinesKey: 'nimbus-markdown-auto-wrap-long-lines',
+	getAutoWrapLongLines: () => localStorage.getItem(storage.autoWrapLongLinesKey) !== 'false',
+	setAutoWrapLongLines: (active) => localStorage.setItem(storage.autoWrapLongLinesKey, active.toString()),
+
+	keepWrappedLinesKey: 'nimbus-markdown-keep-wrapped-lines',
+	getKeepWrappedLines: () => localStorage.getItem(storage.keepWrappedLinesKey) !== 'false',
+	setKeepWrappedLines: (active) => localStorage.setItem(storage.keepWrappedLinesKey, active.toString()),
+
+	layoutKey: 'nimbus-markdown-layout',
+	getLayout: () => localStorage.getItem(storage.layoutKey) || 'split',
+	setLayout: (layout) => localStorage.setItem(storage.layoutKey, layout),
+
+	recentEmojisKey: 'nimbus-markdown-recent-emojis',
+	getRecentEmojis: () => (localStorage.getItem(storage.recentEmojisKey) || 'smiley').split(','),
+	setRecentEmojis: (list) => localStorage.setItem(storage.recentEmojisKey, list.join(',')),
+};
 
 var updatePreviewTimeout;
 function updatePreview(cm) {
@@ -181,7 +200,7 @@ function markdownAPILoad() {
 		html: true,
 		xhtmlOut: true, // for <br /> instead of <br>
 		linkify: true, // URL to links
-		breaks: $('#keepWrappedLinesOption').hasClass('active'),
+		breaks: storage.getKeepWrappedLines(),
 		highlight: function(code, language) {
 			var pre = $('<pre class="ml-4 pl-2 cm-s-nimbus-${theme}" style="border-left: 3px solid var(--secondary); "><code></code></pre>');
 			var support = language && NIMBUS.utils.codeMirrorLoadSupport(language);
@@ -258,7 +277,7 @@ function createOptions(content) {
 		theme: 'nimbus-${theme}',
 		indentUnit: 4,
 		indentWithTabs: true,
-		lineWrapping: true,
+		lineWrapping: storage.getAutoWrapLongLines(),
 		lineNumbers: true,
 		gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
 		foldGutter: true,
@@ -385,7 +404,7 @@ function prepareEmojis(cm) {
 	var emojis = Object.keys(markdownitEmoji.defs);
 	var emojisMap = markdownitEmoji.defs;
 	// Chargement de la catégorie affichant les smileys utilisés récemment
-	var recents = (localStorage.getItem('nimbus-emoji-recents') || 'smiley').split(',');
+	var recents = storage.getRecentEmojis();
 	var maxRecents = 18;
 	recents.forEach((name) => buildButton(name).appendTo(panel));
 	// Alimentation du menu avec les emojis récents
@@ -434,7 +453,7 @@ function prepareEmojis(cm) {
 		// Mise à jour si on est sur l'onglet des éléments récents
 		tabs.children('.active:first-child').click();
 		// Enregistrement dans localStorage
-		localStorage.setItem('nimbus-emoji-recents', recents.join(','));
+		storage.setRecentEmojis(recents);
 		return false;
 	});
 	// Suppression des éléments récents en faisant un clic droit sur un emoji
@@ -447,7 +466,7 @@ function prepareEmojis(cm) {
 		// Mise à jour si on est sur l'onglet des éléments récents
 		tabs.children('.active:first-child').click();
 		// Enregistrement dans localStorage
-		localStorage.setItem('nimbus-emoji-recents', recents.join(','));
+		storage.setRecentEmojis(recents);
 		return false;
 	});
 }
@@ -521,6 +540,8 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			preview.html(markdownToHtml(cm.getValue('\n'))).show();
 			// Afficher ensuite
 			body.addClass('html');
+			// Sauvegarder la préférence
+			storage.setLayout('html');
 		});
 		// Passer de la prévisualisation HTML au mode d'édition
 		$('#editButton').click(function(event) {
@@ -532,6 +553,8 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			// Afficher ensuite
 			body.addClass('edit');
 			cm.focus();
+			// Sauvegarder la préférence
+			storage.setLayout('edit');
 		});
 		// Sélection de la vue par le menu
 		$('#viewMenu [data-view]').click(function(event) {
@@ -550,7 +573,11 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			body.addClass(selectedView);
 			if (selectedView !== 'html')
 				cm.focus();
+			// Sauvegarder la préférence
+			storage.setLayout(selectedView);
 		});
+		// Activer le mode souhaité
+		$('#viewMenu [data-view="' + storage.getLayout() + '"]').click();
 
 		// Exporter la note en HTML
 		$('#exportButton').click(function() {
@@ -572,15 +599,19 @@ NIMBUS.init(['text.js', 'markdown.js', 'code.js'], function() {
 			NIMBUS.utils.downloadFile(blob, name);
 		});
 
-		$('#autoWrapLongLinesOption').click(function(event) {
+		$('#autoWrapLongLinesOption').toggleClass('active', storage.getAutoWrapLongLines()).click(function(event) {
 			var button = $(event.target).closest('button');
-			button.toggleClass('active');
-			cm.setOption('lineWrapping', button.hasClass('active'));
+			var active = ! button.hasClass('active');
+			storage.setAutoWrapLongLines(active);
+			button.toggleClass('active', active);
+			cm.setOption('lineWrapping', active);
 		});
 
-		$('#keepWrappedLinesOption').click(function(event) {
+		$('#keepWrappedLinesOption').toggleClass('active', storage.getKeepWrappedLines()).click(function(event) {
 			var button = $(event.target).closest('button');
-			button.toggleClass('active');
+			var active = ! button.hasClass('active');
+			storage.setKeepWrappedLines(active);
+			button.toggleClass('active', active);
 			markdownAPILoad();
 			if (preview.is(':visible'))
 				preview.html(markdownToHtml(cm.getValue('\n')));
