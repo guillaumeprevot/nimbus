@@ -58,6 +58,7 @@
 				MarkdownEditorHR: "Insérer une ligne horizontale",
 				MarkdownEditorUnorderedList: "Liste à puce (Ctrl+Maj+U)",
 				MarkdownEditorOrderedList: "Liste numérotée (Ctrl+Maj+O)",
+				MarkdownEditorTaskList: "Liste de tâches (Ctrl+Maj+T)",
 				MarkdownEditorOutdent: "Diminuer le retrait (Maj+Tab)",
 				MarkdownEditorIndent: "Augmenter le retrait (Tab)",
 			},
@@ -90,6 +91,7 @@
 				MarkdownEditorHR: "Insert an horizontal line",
 				MarkdownEditorUnorderedList: "Unordered list (Ctrl+Shift+U)",
 				MarkdownEditorOrderedList: "Ordered list (Ctrl+Shift+O)",
+				MarkdownEditorTaskList: "Task list (Ctrl+Shift+T)",
 				MarkdownEditorOutdent: "Outdent paragraph (Shift+Tab)",
 				MarkdownEditorIndent: "Indent paragraph (Tab)",
 			}
