@@ -79,6 +79,7 @@
 				NoteEditorIncreaseFontSize: "Augmenter la taille du texte",
 				NoteEditorEnablePasteAsHTML: "Activer le collage en HTML",
 				NoteEditorEnableObjectResizing: "Activer le redimensionnement",
+				NoteEditorEnableTableEditing: "Activer l'édition des tableaux",
 				NoteEditorPrint: "Imprimer",
 				NoteEditorSource: "Voir le source",
 			},
@@ -132,6 +133,7 @@
 				NoteEditorIncreaseFontSize: "Increase font size",
 				NoteEditorEnablePasteAsHTML: "Enable paste as formatted HTML",
 				NoteEditorEnableObjectResizing: "Enable object resizing anchors",
+				NoteEditorEnableTableEditing: "Enable inline table editing",
 				NoteEditorPrint: "Print",
 				NoteEditorSource: "Show source",
 			}

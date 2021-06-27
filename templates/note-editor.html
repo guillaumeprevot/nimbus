@@ -73,6 +73,7 @@ blockquote.blockquote { margin: 15px 30px; border-left: 3px solid var(--secondar
 					<div class="dropdown-divider"></div>
 					<button type="button" class="dropdown-item" id="enablePasteAsHTMLButton"><i class="material-icons">warning</i> <span data-translate="text">NoteEditorEnablePasteAsHTML</span></button>
 					<button type="button" class="dropdown-item" id="enableObjectResizingButton"><i class="material-icons">format_shapes</i> <span data-translate="text">NoteEditorEnableObjectResizing</span></button>
+					<button type="button" class="dropdown-item" id="enableTableEditingButton"><i class="material-icons">border_inner</i> <span data-translate="text">NoteEditorEnableTableEditing</span></button>
 					<div class="dropdown-divider"></div>
 					<button type="button" class="dropdown-item" id="printButton"><i class="material-icons">print</i> <span data-translate="text">NoteEditorPrint</span></button>
 					<button type="button" class="dropdown-item" id="sourceButton"><i class="material-icons">code</i> <span data-translate="text">NoteEditorSource</span></button>
@@ -250,9 +251,9 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 
 		// s'assurer que "styleWithCSS" est bien à faux. Sinon, le choix de la taille de police ne fonctionne pas sous Chrome
 		document.execCommand('styleWithCSS', null, false);
-		// les flèches pour ajouter et la croix pour supprimer des lignes et des colonnes dans les tableaux
-		document.execCommand('enableInlineTableEditing', null, true);
-		// les carrés pour changer les dimensions des éléments, comme des tableaux ou des images
+		// les flèches pour ajouter et la croix pour supprimer des lignes et des colonnes dans les tableaux (désactivés par défaut)
+		document.execCommand('enableInlineTableEditing', null, false);
+		// les carrés pour changer les dimensions des éléments, comme des tableaux ou des images (désactivés par défaut)
 		document.execCommand('enableObjectResizing', null, false);
 		// s'assurer de découper les blocs en deux plutôt que d'ajouter des <br /> partout
 		document.execCommand('insertBrOnReturn', null, false);
@@ -393,6 +394,12 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 		$('#enableObjectResizingButton').click(function(event) {
 			var button = $(event.target).closest('button').toggleClass('active');
 			document.execCommand('enableObjectResizing', null, button.hasClass('active'));
+		});
+
+		// Bouton pour activer l'édition des tableaux (ajout / suppression de lignes / colonnes)
+		$('#enableTableEditingButton').click(function(event) {
+			var button = $(event.target).closest('button').toggleClass('active');
+			document.execCommand('enableInlineTableEditing', null, button.hasClass('active'));
 		});
 
 		// Bouton d'impression
