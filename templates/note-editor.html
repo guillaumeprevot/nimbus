@@ -159,6 +159,7 @@ blockquote.blockquote { margin: 15px 30px; border-left: 3px solid var(--secondar
 
 var defaultFontSize = 12;
 var defaultFontFamily = 'Lato';
+var defaultSelectionFontFamily = 'Courier New';
 var defaultForeColor = '#FF0000';
 var defaultBackColor = '#FFFF00';
 
@@ -269,7 +270,7 @@ NIMBUS.init(['text.js', 'note.js'], function() {
 		// Police de caractères
 		editor.css('font-family', defaultFontFamily);
 		var fontFamily = $('#fontFamily').toggle(!!document.queryCommandSupported('fontName'));
-		var fontFamilyButton = fontFamily.children(':first-child').text(defaultFontFamily).click(function() {
+		var fontFamilyButton = fontFamily.children(':first-child').text(defaultSelectionFontFamily).click(function() {
 			document.execCommand('fontName', null, fontFamilyButton.text());
 		});
 		var fontFamilyMenu = fontFamily.children('.dropdown-menu').append(fontFamilyOptions().map(function(f) {
