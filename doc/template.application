@@ -17,6 +17,7 @@ if (search.get('theme') === 'dark')
 document.write('<link type="text/css" rel="stylesheet" href="' + stylesheet + '" />');
 </script>
 
+<link type="font/woff2" rel="preload" href="/libs/material-icons/material-icons.woff2" as="font" />
 <link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 <link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
@@ -314,6 +315,7 @@ function buildHTML(app) {
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link type="image/png" rel="icon" href="/favicon.png" />
 		${chunks.themeStylesheet}${chunks.themeScript ? buildScript('', chunks.themeScript + '\n\t\t') : ''}
+		<link type="font/woff2" rel="preload" href="/libs/material-icons/material-icons.woff2" as="font" />
 		<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 		<link type="text/css" rel="stylesheet" href="/nimbus.css" />
 		${buildScript('/libs/jquery/jquery.min.js')}
