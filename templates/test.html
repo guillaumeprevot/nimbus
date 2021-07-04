@@ -1,15 +1,10 @@
+<#import "common.ftl" as common>
 <!DOCTYPE html>
 <html>
 <head>
-<title>${appName} - TEST</title>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="robots" content="noindex, nofollow" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link type="image/png" rel="icon" href="/favicon.png" />
-<link type="text/css" rel="stylesheet" href="${stylesheet}" />
-<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
+	<@common.head title="${appName} - TEST" translated=false />
+	<link type="text/css" rel="stylesheet" href="${stylesheet}" />
+	<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 </head>
 <body>
 <div style="text-align: center"><a href="/test.html" class="btn btn-default">Relancer</a></div>

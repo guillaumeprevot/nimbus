@@ -1,17 +1,9 @@
+<#import "common.ftl" as common>
 <!DOCTYPE html>
 <html class="nimbus-viewer nimbus-static-toolbars">
 <head>
-<title data-translate="text">CalendarTitle</title>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="robots" content="noindex, nofollow" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link type="image/png" rel="icon" href="/favicon.png" />
-<link type="font/woff2" rel="preload" href="/libs/material-icons/material-icons.woff2" as="font" />
-<link type="text/css" rel="stylesheet" href="${stylesheet}" />
-<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
-<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<@common.head title="CalendarTitle" translated=true />
+<@common.styles />
 <style>
 header .float-left { min-width: calc(110px + 2em); height: 100%; text-align: left; }
 header .float-right { min-width: 110px; }
@@ -55,14 +47,10 @@ header .float-right { min-width: 110px; }
 	.day-header > .month-name { display: inline; }
 }
 </style>
-<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
-<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<@common.scripts />
 <script type="text/javascript" src="/libs/moment/moment.min.js"></script>
 <#if lang == "fr"><script type="text/javascript" src="/libs/moment/fr.js"></script></#if>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
-<script type="text/javascript" src="/nimbus.js"></script>
-<script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
 <body class="nimbus-hidden">
 	<header>

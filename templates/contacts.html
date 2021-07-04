@@ -1,17 +1,9 @@
+<#import "common.ftl" as common>
 <!DOCTYPE html>
 <html class="nimbus-viewer nimbus-static-toolbars">
 <head>
-<title data-translate="text">ContactsTitle</title>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="robots" content="noindex, nofollow" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link type="image/png" rel="icon" href="/favicon.png" />
-<link type="font/woff2" rel="preload" href="/libs/material-icons/material-icons.woff2" as="font" />
-<link type="text/css" rel="stylesheet" href="${stylesheet}" />
-<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
-<link type="text/css" rel="stylesheet" href="/nimbus.css" />
+<@common.head title="ContactsTitle" translated=true />
+<@common.styles />
 <style>
 header { display: flex; flex-direction: row; }
 header > .btn, header > .dropdown { flex: none; }
@@ -44,15 +36,11 @@ table.table-sm td:first-child img { max-height: 32px; }
 #contactModal .input-group:last-of-type .input-group-append .input-group-text { border-bottom-right-radius: 0.25rem; }
 #contactModal .gp-valuelist > button { float: right; clear: right; }
 </style>
-<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
-<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<@common.scripts />
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
 <script type="text/javascript" src="/libs/gp/gp-autocomplete.js"></script>
 <script type="text/javascript" src="/libs/gp/gp-tagsinput.js"></script>
 <script type="text/javascript" src="/libs/gp/gp-valuelist.js"></script>
-<script type="text/javascript" src="/nimbus.js"></script>
-<script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
 <body class="nimbus-hidden">
 	<header>

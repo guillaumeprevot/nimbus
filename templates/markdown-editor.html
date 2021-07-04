@@ -1,20 +1,12 @@
+<#import "common.ftl" as common>
 <!DOCTYPE html>
 <html class="nimbus-viewer nimbus-static-toolbars">
 <head>
-<title data-translate="text">TextEditorTitle</title>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="robots" content="noindex, nofollow" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link type="image/png" rel="icon" href="/favicon.png" />
-<link type="font/woff2" rel="preload" href="/libs/material-icons/material-icons.woff2" as="font" />
-<link type="text/css" rel="stylesheet" href="${stylesheet}" />
-<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
+<@common.head title="TextEditorTitle" translated=true />
+<@common.styles />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/lib/codemirror.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/addon/fold/foldgutter.css" />
 <link type="text/css" rel="stylesheet" href="/libs/codemirror/theme/nimbus-${theme}.css" />
-<link type="text/css" rel="stylesheet" href="/nimbus.css" />
 <style>
 main { display: flex; }
 .CodeMirror { height: 100%; line-height: 1.3em; overflow: hidden; }
@@ -40,9 +32,7 @@ body.html #editor { display: none; }
 	body.split #editButton { display: none; }
 }
 </style>
-<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="/libs/popper/popper.min.js"></script>
-<script type="text/javascript" src="/libs/bootstrap/bootstrap.min.js"></script>
+<@common.scripts />
 <script type="text/javascript" src="/libs/markdown-it/markdown-it.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-ins.min.js"></script>
 <script type="text/javascript" src="/libs/markdown-it/markdown-it-sub.min.js"></script>
@@ -66,8 +56,6 @@ body.html #editor { display: none; }
 <script type="text/javascript" src="/libs/codemirror/mode/markdown/markdown.js"></script>
 <script type="text/javascript" src="/libs/codemirror/mode/gfm/gfm.js"></script>
 <script type="text/javascript" src="/libs/gp/gp.js"></script>
-<script type="text/javascript" src="/nimbus.js"></script>
-<script type="text/javascript" src="/langs/${lang}.js"></script>
 </head>
 <body class="nimbus-hidden">
 	<header>
