@@ -1,14 +1,5 @@
 @charset "UTF-8";
 
-@font-face {
-	font-family: 'Material Icons';
-	font-style: normal;
-	font-weight: 400;
-	src: url(material-icons.woff2) format('woff2'),
-		 url(material-icons.woff) format('woff'),
-		 url(material-icons.ttf) format('truetype');
-}
-
 .material-icons {
 	font-family: 'Material Icons';
 	font-weight: normal;

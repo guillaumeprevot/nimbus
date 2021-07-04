@@ -13,6 +13,16 @@
 </#macro>
 
 <#macro styles>
+	<style>
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/libs/material-icons/material-icons.woff2) format('woff2'),
+		 url(/libs/material-icons/material-icons.woff) format('woff'),
+		 url(/libs/material-icons/material-icons.ttf) format('truetype');
+}
+	</style>
 	<link type="text/css" rel="stylesheet" href="${stylesheet}" />
 	<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
 	<link type="text/css" rel="stylesheet" href="/nimbus.css" />
