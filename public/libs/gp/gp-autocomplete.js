@@ -33,17 +33,33 @@
 		update: function() {
 			var self = this;
 			var term = self.target.val();
-			self.menu.empty();
+			var call = {};
+			self.call = call;
 			if ((term !== self.options.wildcard) && self.options.min > 0 && term.length < self.options.min) {
 				self.toggleMenu(false);
 				return;
 			}
+			var searchingTimeout;
+			if (self.options.searching) {
+				searchingTimeout = setTimeout(function() {
+					if (self.call === call) { // make sure no other search has started since the call was made
+						self.toggleMenu(true);
+						self.menu.empty().append($('<span class="dropdown-item"></span>').text(self.options.searching));
+					}
+				}, 500);
+			}
 			self.options.query((term === self.options.wildcard) ? '' : term, function(results) {
+				if (self.call !== call)
+					return; // make sure no other search has started since the call was made
+				if (searchingTimeout)
+					clearTimeout(searchingTimeout);
 				if (results.length === 0) {
-					self.toggleMenu(false);
+					if (self.options.noResult)
+						self.menu.empty().append($('<span class="dropdown-item"></span>').text(self.options.noResult));
+					self.toggleMenu(!!self.options.noResult);
 				} else {
 					var expr = (term === self.options.wildcard) ? null : new RegExp(term, 'gi');
-					self.menu.append(results.map(function(result) {
+					self.menu.empty().append(results.map(function(result) {
 						var a = $('<a class="dropdown-item" href="#"></a>').data('result', result);
 						var label = result.label;
 						if (term === self.options.wildcard || !self.options.bold)
@@ -109,7 +125,11 @@
 		// Que faire de l'input une fois qu'on sélectionne une proposition ? (clear / preserve / update)
 		input: 'update',
 		// Que faire du menu une fois qu'on sélectionne une proposition ? (close / remove / reload)
-		menu: 'close'
+		menu: 'close',
+		// Un texte optionnel qui sera affiché quand la recherche démarre
+		searching: '...',
+		// Un texte optionnel qui sera affiché quand la recherche le remonte aucun résultat
+		noResult: '',
 	};
 
 	AutoComplete.test = function() {
@@ -124,6 +144,8 @@
 			// wildcard: '?',
 			input: 'preserve',
 			menu: 'reload',
+			searching: 'Recherche en cours...',
+			noResult: 'Aucun résultat',
 			query: function(term, callback) {
 				var t = term.toLowerCase();
 				callback(options.filter(function(o) { return selection.indexOf(o.label) === -1 && o.label.toLowerCase().indexOf(t) >= 0; }));
