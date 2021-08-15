@@ -7,8 +7,8 @@ REM ######################
 set CONF=nimbus.conf
 set FOLDER=%cd%
 set OPTIONS=-Djdk.tls.ephemeralDHKeySize=2048 -Djdk.tls.rejectClientInitiatedRenegotiation=true
-set PATH=%PATH%;%cd:~0,1%:\apps\openjdk-12\bin
-set PATH=%PATH%;%cd:~0,1%:\apps\apache-maven-3.6.2\bin
+set PATH=%PATH%;%cd:~0,1%:\apps\openjdk-11\bin
+set PATH=%PATH%;%cd:~0,1%:\apps\apache-maven-3.8.1\bin
 set PATH=%PATH%;%cd:~0,1%:\apps\mongodb\bin
 set PATH=%PATH%;C:\Program Files\7-Zip
 
