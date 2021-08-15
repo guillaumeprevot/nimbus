@@ -5,11 +5,10 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.bson.Document;
-
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.Facet;
+import fr.techgp.nimbus.models.Metadatas;
 
 public class StandardImageFacet implements Facet {
 
@@ -21,19 +20,19 @@ public class StandardImageFacet implements Facet {
 	}
 
 	@Override
-	public void loadMetadata(Document bson, JsonObject node) {
-		node.addProperty("width", bson.getInteger("width"));
-		node.addProperty("height", bson.getInteger("height"));
-		node.addProperty("depth", bson.getInteger("depth"));
+	public void loadMetadata(Metadatas metadatas, JsonObject node) {
+		node.addProperty("width", metadatas.getInteger("width"));
+		node.addProperty("height", metadatas.getInteger("height"));
+		node.addProperty("depth", metadatas.getInteger("depth"));
 	}
 
 	@Override
-	public void updateMetadata(File file, String extension, Document bson) throws Exception {
+	public void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		BufferedImage image = ImageIO.read(file);
 		if (image != null) {
-			bson.put("width", image.getWidth());
-			bson.put("height", image.getHeight());
-			bson.put("depth", image.getColorModel().getPixelSize());
+			metadatas.put("width", image.getWidth());
+			metadatas.put("height", image.getHeight());
+			metadatas.put("depth", image.getColorModel().getPixelSize());
 		}
 	}
 

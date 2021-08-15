@@ -55,7 +55,7 @@ public class Downloads extends Controller {
 			return Render.conflict();
 		// Ajouter l'élément
 		Item item = Item.add(userLogin, parentId, false, name, (i) -> {
-			i.content.append("sourceURL", url);
+			i.metadatas.put("sourceURL", url);
 		});
 		if (item == null)
 			return Render.badRequest();
@@ -73,7 +73,7 @@ public class Downloads extends Controller {
 	public static final Route refresh = (request, response) -> {
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
 			// Vérifier que le fichier en question a bien une URL à l'origine
-			String url = item.content.getString("sourceURL");
+			String url = item.metadatas.getString("sourceURL");
 			if (StringUtils.isBlank(url))
 				return Render.badRequest();
 			// Lancer le téléchargement
@@ -91,8 +91,8 @@ public class Downloads extends Controller {
 	 */
 	public static final Route done = (request, response) -> {
 		return actionOnSingleItem(request, request.queryParameter("itemId"), (item) -> {
-			item.content.remove("status");
-			item.content.remove("progress");
+			item.metadatas.remove("status");
+			item.metadatas.remove("progress");
 			item.updateDate = new Date();
 			Item.update(item);
 			return Render.EMPTY;
@@ -102,7 +102,7 @@ public class Downloads extends Controller {
 	private static final Render execute(Item item) {
 		try {
 			File file = getFile(item);
-			String sourceURL = item.content.getString("sourceURL");
+			String sourceURL = item.metadatas.getString("sourceURL");
 			HttpURLConnection connection = WebUtils.openURL(sourceURL);
 
 			// Vérifier avant de commencer que l'espace disque est suffisant
@@ -116,9 +116,9 @@ public class Downloads extends Controller {
 
 			// Vider le fichier actuel
 			file.delete();
-			item.content.append("status", "download");
-			item.content.append("length", 0L);
-			item.content.append("progress", 0);
+			item.metadatas.put("status", "download");
+			item.metadatas.put("length", 0L);
+			item.metadatas.put("progress", 0);
 			item.updateDate = new Date();
 			Item.update(item);
 
@@ -147,7 +147,7 @@ public class Downloads extends Controller {
 		@Override
 		public void run() {
 			File file = getFile(this.item);
-			String sourceURL = this.item.content.getString("sourceURL");
+			String sourceURL = this.item.metadatas.getString("sourceURL");
 			try {
 				// Taille de la réponse totale
 				long totalLength = this.connection.getContentLengthLong();
@@ -172,8 +172,8 @@ public class Downloads extends Controller {
 						// Enregistrement en base
 						if (nextProgress > progress) {
 							progress = nextProgress;
-							this.item.content.replace("length", currentLength);
-							this.item.content.replace("progress", progress);
+							this.item.metadatas.put("length", currentLength);
+							this.item.metadatas.put("progress", progress);
 							this.item.updateDate = new Date();
 							Item.update(this.item);
 						}
@@ -185,15 +185,15 @@ public class Downloads extends Controller {
 				// Extraire les méta-données du fichier, y compris "length"
 				updateFile(this.item, null, false);
 				// Mark item as success
-				this.item.content.put("status", "success");
+				this.item.metadatas.put("status", "success");
 			} catch (Exception ex) {
 				// Pas de méta-données du fichier, uniquement "length"
-				this.item.content.clear();
-				this.item.content.put("length", file.length());
+				this.item.metadatas.clear();
+				this.item.metadatas.put("length", file.length());
 				// Mark item as error
-				this.item.content.put("status", "error");
+				this.item.metadatas.put("status", "error");
 			}
-			this.item.content.put("sourceURL", sourceURL);
+			this.item.metadatas.put("sourceURL", sourceURL);
 			this.item.updateDate = new Date();
 			Item.update(this.item);
 		}

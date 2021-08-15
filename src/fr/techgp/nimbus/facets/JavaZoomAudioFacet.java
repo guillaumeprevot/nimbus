@@ -8,12 +8,11 @@ import java.util.Optional;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 
-import org.bson.Document;
-
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.Configuration;
 import fr.techgp.nimbus.Facet;
+import fr.techgp.nimbus.models.Metadatas;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 
 public class JavaZoomAudioFacet implements Facet {
@@ -41,45 +40,45 @@ public class JavaZoomAudioFacet implements Facet {
 	}
 
 	@Override
-	public void loadMetadata(Document bson, JsonObject node) {
-		node.addProperty("duration", bson.getLong("duration"));
-		node.addProperty("artist", bson.getString("artist"));
-		node.addProperty("year", bson.getString("year"));
-		node.addProperty("album", bson.getString("album"));
-		node.addProperty("title", bson.getString("title"));
-		node.addProperty("track", bson.getString("track"));
-		node.addProperty("genre", bson.getString("genre"));
-		node.addProperty("audioChannels", bson.getInteger("audioChannels"));
-		node.addProperty("audioCodec", bson.getString("audioCodec"));
-		node.addProperty("audioBitRate", bson.getInteger("audioBitRate"));
-		node.addProperty("audioSamplingRate", bson.getInteger("audioSamplingRate"));
+	public void loadMetadata(Metadatas metadatas, JsonObject node) {
+		node.addProperty("duration", metadatas.getLong("duration"));
+		node.addProperty("artist", metadatas.getString("artist"));
+		node.addProperty("year", metadatas.getString("year"));
+		node.addProperty("album", metadatas.getString("album"));
+		node.addProperty("title", metadatas.getString("title"));
+		node.addProperty("track", metadatas.getString("track"));
+		node.addProperty("genre", metadatas.getString("genre"));
+		node.addProperty("audioChannels", metadatas.getInteger("audioChannels"));
+		node.addProperty("audioCodec", metadatas.getString("audioCodec"));
+		node.addProperty("audioBitRate", metadatas.getInteger("audioBitRate"));
+		node.addProperty("audioSamplingRate", metadatas.getInteger("audioSamplingRate"));
 	}
 
 	@Override
-	public void updateMetadata(File file, String extension, Document bson) throws Exception {
+	public void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(file);
 		Map<String, Object> properties = baseFileFormat.properties();
-		bson.put("duration", Optional.ofNullable((Long) properties.get("duration")).map((d) -> d.longValue() / 1000).orElse(null)); // microsecond => ms
-		bson.put("artist", properties.get("author")); // texte
-		bson.put("year", properties.get("date")); // texte
-		bson.put("album", properties.get("album")); // texte
-		bson.put("title", properties.get("title")); // texte
+		metadatas.put("duration", Optional.ofNullable((Long) properties.get("duration")).map((d) -> d.longValue() / 1000).orElse(null)); // microsecond => ms
+		metadatas.put("artist", (String) properties.get("author"));
+		metadatas.put("year", (String) properties.get("date"));
+		metadatas.put("album", (String) properties.get("album"));
+		metadatas.put("title", (String) properties.get("title"));
 		if ("mp3".equals(extension)) {
 			// http://www.javazoom.net/mp3spi/documents.html
-			bson.put("track", properties.get("mp3.id3tag.track")); // texte
-			bson.put("genre", mp3Genre((String) properties.get("mp3.id3tag.genre"))); // texte
-			bson.put("audioChannels", properties.get("mp3.channels")); // 1 (mono), 2 (stereo)
-			bson.put("audioCodec", "MPEG Layer " + properties.get("mp3.version.layer")); // MPEG Layer 3
-			bson.put("audioBitRate", (Integer) properties.get("mp3.bitrate.nominal.bps") / 1000); // 64 (Kbps)
-			bson.put("audioSamplingRate", properties.get("mp3.frequency.hz")); // 44100 (Hz)
+			metadatas.put("track", (String) properties.get("mp3.id3tag.track"));
+			metadatas.put("genre", mp3Genre((String) properties.get("mp3.id3tag.genre")));
+			metadatas.put("audioChannels", (Integer) properties.get("mp3.channels")); // 1 (mono), 2 (stereo)
+			metadatas.put("audioCodec", "MPEG Layer " + properties.get("mp3.version.layer")); // MPEG Layer 3
+			metadatas.put("audioBitRate", (Integer) properties.get("mp3.bitrate.nominal.bps") / 1000); // 64 (Kbps)
+			metadatas.put("audioSamplingRate", (Integer) properties.get("mp3.frequency.hz")); // 44100 (Hz)
 		} else {
 			// http://www.javazoom.net/vorbisspi/documents.html
-			bson.put("track", properties.get("ogg.comment.track")); // texte
-			bson.put("genre", properties.get("ogg.comment.genre")); // texte
-			bson.put("audioChannels", properties.get("ogg.channels")); // 1 (mono), 2 (stereo)
-			bson.put("audioCodec", "Ogg Vorbis " + properties.get("ogg.version")); // Ogg Vorbis 0
-			bson.put("audioBitRate", (Integer) properties.get("ogg.bitrate.nominal.bps") / 1000); // 64 (Kbps)
-			bson.put("audioSamplingRate", properties.get("ogg.frequency.hz")); // 44100 (Hz)
+			metadatas.put("track", (String) properties.get("ogg.comment.track"));
+			metadatas.put("genre", (String) properties.get("ogg.comment.genre"));
+			metadatas.put("audioChannels", (Integer) properties.get("ogg.channels")); // 1 (mono), 2 (stereo)
+			metadatas.put("audioCodec", "Ogg Vorbis " + properties.get("ogg.version")); // Ogg Vorbis 0
+			metadatas.put("audioBitRate", (Integer) properties.get("ogg.bitrate.nominal.bps") / 1000); // 64 (Kbps)
+			metadatas.put("audioSamplingRate", (Integer) properties.get("ogg.frequency.hz")); // 44100 (Hz)
 		}
 	}
 

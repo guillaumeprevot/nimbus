@@ -255,13 +255,13 @@ public class Configuration {
 		File storedFile = getStoredFile(item);
 		String extension = FilenameUtils.getExtension(item.name).toLowerCase();
 		// Mise à jour des méta-données
-		item.content.clear();
-		item.content.append("length", storedFile.length());
+		item.metadatas.clear();
+		item.metadatas.put("length", storedFile.length());
 		// Mettre à jour les propriétés spécifiques aux Facet
 		for (Facet facet : this.facets) {
 			try {
 				if (facet.supports(extension))
-					facet.updateMetadata(storedFile, extension, item.content);
+					facet.updateMetadata(storedFile, extension, item.metadatas);
 			} catch (Throwable ex) {
 				if (errorConsumer != null)
 					errorConsumer.accept(facet, ex);

@@ -70,7 +70,7 @@ public class Trash extends Controller {
 			node.addProperty("name", item.name);
 			node.addProperty("createDate", item.createDate.getTime());
 			node.addProperty("deleteDate", item.deleteDate.getTime());
-			node.addProperty("length", item.content.getLong("length"));
+			node.addProperty("length", item.metadatas.getLong("length"));
 			if (StringUtils.isNotBlank(item.path)) {
 				String[] path = item.path.substring(0, item.path.length() - 1).split(",");
 				node.addProperty("path", Arrays.stream(path).map(Long::valueOf).map(names::get).collect(Collectors.joining("/")));

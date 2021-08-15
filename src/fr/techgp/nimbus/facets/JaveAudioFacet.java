@@ -2,11 +2,10 @@ package fr.techgp.nimbus.facets;
 
 import java.io.File;
 
-import org.bson.Document;
-
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.Facet;
+import fr.techgp.nimbus.models.Metadatas;
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.MultimediaInfo;
 
@@ -18,24 +17,24 @@ public class JaveAudioFacet implements Facet {
 	}
 
 	@Override
-	public void loadMetadata(Document bson, JsonObject node) {
-		node.addProperty("duration", bson.getLong("duration"));
-		node.addProperty("audioChannels", bson.getInteger("audioChannels"));
-		node.addProperty("audioCodec", bson.getString("audioCodec"));
-		node.addProperty("audioBitRate", bson.getInteger("audioBitRate"));
-		node.addProperty("audioSamplingRate", bson.getInteger("audioSamplingRate"));
+	public void loadMetadata(Metadatas metadatas, JsonObject node) {
+		node.addProperty("duration", metadatas.getLong("duration"));
+		node.addProperty("audioChannels", metadatas.getInteger("audioChannels"));
+		node.addProperty("audioCodec", metadatas.getString("audioCodec"));
+		node.addProperty("audioBitRate", metadatas.getInteger("audioBitRate"));
+		node.addProperty("audioSamplingRate", metadatas.getInteger("audioSamplingRate"));
 	}
 
 	@Override
-	public void updateMetadata(File file, String extension, Document bson) throws Exception {
+	public void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		Encoder encoder = new Encoder();
 		MultimediaInfo info = encoder.getInfo(file);
-		bson.put("duration", info.getDuration()); // 12500 (ms)
+		metadatas.put("duration", info.getDuration()); // 12500 (ms)
 		if (info.getAudio() != null) {
-			bson.put("audioChannels", info.getAudio().getChannels()); // 2 (stereo)
-			bson.put("audioCodec", info.getAudio().getDecoder()); // "vorbis" ou "mp3"
-			bson.put("audioBitRate", info.getAudio().getBitRate()); // 64 (Kbps)
-			bson.put("audioSamplingRate", info.getAudio().getSamplingRate()); // 44100 (Hz)
+			metadatas.put("audioChannels", info.getAudio().getChannels()); // 2 (stereo)
+			metadatas.put("audioCodec", info.getAudio().getDecoder()); // "vorbis" ou "mp3"
+			metadatas.put("audioBitRate", info.getAudio().getBitRate()); // 64 (Kbps)
+			metadatas.put("audioSamplingRate", info.getAudio().getSamplingRate()); // 44100 (Hz)
 		}
 	}
 

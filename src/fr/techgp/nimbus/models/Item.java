@@ -54,7 +54,7 @@ public class Item {
 	/** La durée en minutes du partage ou null pour un partage illimité */
 	public Integer sharedDuration;
 	/** Contenu de l'élément spécifique à la facet (largeur et hauteur d'une image par exemple) */
-	public Document content;
+	public final Metadatas metadatas = new Metadatas();
 
 	public Item() {
 		super();
@@ -122,11 +122,10 @@ public class Item {
 		child.sharedDate = null;
 		child.sharedPassword = null;
 		child.sharedDuration = null;
-		child.content = new Document();
 		if (child.folder)
-			child.content.append("itemCount", 0);
+			child.metadatas.put("itemCount", 0);
 		else
-			child.content.append("length", 0L);
+			child.metadatas.put("length", 0L);
 		if (init != null)
 			init.accept(child);
 		Item.insert(child);
@@ -151,9 +150,9 @@ public class Item {
 		duplicate.sharedDate = null;
 		duplicate.sharedPassword = null;
 		duplicate.sharedDuration = null;
-		duplicate.content = Document.parse(item.content.toJson()); // ensure deep metadatas copy
+		duplicate.metadatas.copy(item.metadatas);
 		if (duplicate.folder)
-			duplicate.content.append("itemCount", 0); // no recursive duplicate
+			duplicate.metadatas.put("itemCount", 0); // no recursive duplicate
 		Item.insert(duplicate);
 		if (duplicate.parentId != null)
 			Item.notifyFolderContentChanged(duplicate.parentId, 1);
@@ -356,7 +355,7 @@ public class Item {
 		item.createDate = document.getDate("createDate");
 		item.updateDate = document.getDate("updateDate");
 		item.deleteDate = document.getDate("deleteDate");
-		item.content = (Document) document.get("content");
+		item.metadatas.copy((Document) document.get("content"));
 		check(item);
 		return item;
 	}
@@ -374,7 +373,7 @@ public class Item {
 			.append("tags", item.tags == null ? new ArrayList<>() : item.tags)
 			.append("createDate", item.createDate)
 			.append("updateDate", item.updateDate)
-			.append("content", item.content);
+			.append("content", item.metadatas.asDocument());
 
 		if (item.sharedDate != null)
 			d.append("sharedDate", item.sharedDate);

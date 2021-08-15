@@ -1,9 +1,6 @@
 package fr.techgp.nimbus.facets;
 
 import java.io.File;
-import java.util.Date;
-
-import org.bson.Document;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.lang.GeoLocation;
@@ -13,6 +10,7 @@ import com.drew.metadata.exif.GpsDirectory;
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.Facet;
+import fr.techgp.nimbus.models.Metadatas;
 
 public class MetadataExtractorImageFacet implements Facet {
 
@@ -22,23 +20,21 @@ public class MetadataExtractorImageFacet implements Facet {
 	}
 
 	@Override
-	public void loadMetadata(Document bson, JsonObject node) {
-		node.addProperty("latitude", bson.getDouble("latitude"));
-		node.addProperty("longitude", bson.getDouble("longitude"));
-		Date date = bson.getDate("date");
-		if (date != null)
-			node.addProperty("date", date.getTime());
+	public void loadMetadata(Metadatas metadatas, JsonObject node) {
+		node.addProperty("latitude", metadatas.getDouble("latitude"));
+		node.addProperty("longitude", metadatas.getDouble("longitude"));
+		node.addProperty("date", metadatas.getLong("date"));
 	}
 
 
 	@Override
-	public void updateMetadata(File file, String extension, Document bson) throws Exception {
+	public void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		Metadata metadata = ImageMetadataReader.readMetadata(file);
 		// Get metadatas from EXIF
 		// http://www.awaresystems.be/imaging/tiff/tifftags/privateifd/exif.html
 		ExifSubIFDDirectory exif = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-		if (exif != null) {
-			bson.put("date", exif.getDateOriginal());
+		if (exif != null && exif.getDateOriginal() != null) {
+			metadatas.put("date", exif.getDateOriginal().getTime());
 		}
 		// Get metadatas from GPS
 		// http://www.awaresystems.be/imaging/tiff/tifftags/privateifd/gps.html
@@ -46,9 +42,10 @@ public class MetadataExtractorImageFacet implements Facet {
 		if (gps != null) {
 			GeoLocation location = gps.getGeoLocation();
 			if (location != null) {
-				bson.put("latitude", location.getLatitude());
-				bson.put("longitude", location.getLongitude());
-				bson.putIfAbsent("date", gps.getGpsDate());
+				metadatas.put("latitude", location.getLatitude());
+				metadatas.put("longitude", location.getLongitude());
+				if (!metadatas.has("date") && gps.getGpsDate() != null)
+					metadatas.put("date", gps.getGpsDate().getTime());
 			}
 		}
 	}

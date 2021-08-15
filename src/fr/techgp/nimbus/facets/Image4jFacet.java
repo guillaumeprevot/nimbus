@@ -9,11 +9,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bson.Document;
-
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.Facet;
+import fr.techgp.nimbus.models.Metadatas;
 import fr.techgp.nimbus.utils.GraphicsUtils;
 import net.sf.image4j.codec.ico.ICODecoder;
 import net.sf.image4j.codec.ico.ICOEncoder;
@@ -26,18 +25,18 @@ public class Image4jFacet implements Facet {
 	}
 
 	@Override
-	public void loadMetadata(Document bson, JsonObject node) {
-		node.addProperty("width", bson.getInteger("width"));
-		node.addProperty("height", bson.getInteger("height"));
-		node.addProperty("depth", bson.getInteger("depth"));
+	public void loadMetadata(Metadatas metadatas, JsonObject node) {
+		node.addProperty("width", metadatas.getInteger("width"));
+		node.addProperty("height", metadatas.getInteger("height"));
+		node.addProperty("depth", metadatas.getInteger("depth"));
 	}
 
 	@Override
-	public void updateMetadata(File file, String extension, Document bson) throws Exception {
+	public void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		ICODecoder.readExt(file).stream().reduce((i1, i2) -> i1.getWidth() > i2.getWidth() ? i1 : i2).ifPresent((i) -> {
-			bson.put("width", i.getWidth());
-			bson.put("height", i.getHeight());
-			bson.put("depth", i.getColourDepth());
+			metadatas.put("width", i.getWidth());
+			metadatas.put("height", i.getHeight());
+			metadatas.put("depth", i.getColourDepth());
 		});
 	}
 

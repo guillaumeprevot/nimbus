@@ -2,9 +2,9 @@ package fr.techgp.nimbus;
 
 import java.io.File;
 
-import org.bson.Document;
-
 import com.google.gson.JsonObject;
+
+import fr.techgp.nimbus.models.Metadatas;
 
 public interface Facet {
 
@@ -31,10 +31,10 @@ public interface Facet {
 	 * Cette méthode est appelé lors du remplissage de la liste des éléments en page principale afin de remonter les
 	 * informations utiles uniquement.
 	 *
-	 * @param bson le document BSON dans lequel on a précédemment stocké des méta-données
+	 * @param metadatas les méta-données précédemment extraitres du fichier et stockées en base
 	 * @param node le noeud JSON à remplir
 	 */
-	default void loadMetadata(Document bson, JsonObject node) {
+	default void loadMetadata(Metadatas metadatas, JsonObject node) {
 		//
 	}
 
@@ -43,10 +43,10 @@ public interface Facet {
 	 *
 	 * @param file le fichier qui a été modifié
 	 * @param extension l'extension du fichier, pour aider si besoin
-	 * @param bson le document BSON à mettre à jour qui sera conservé avec l'élément en base
+	 * @param metadatas les méta-données à mettre à jour afin de les stocker avec l'élément en base
 	 * @throws Exception en cas d'erreur quelconque pendant la mise à jour des méta-données
 	 */
-	default void updateMetadata(File file, String extension, Document bson) throws Exception {
+	default void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		//
 	}
 

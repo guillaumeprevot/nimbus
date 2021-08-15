@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,7 +220,7 @@ public class Items extends Controller {
 				return Render.conflict();
 
 			// Vérification des quotas d'espace disque
-			if (!source.folder && !checkQuotaAndHaltIfNecessary(source.userLogin, source.content.getLong("length")))
+			if (!source.folder && !checkQuotaAndHaltIfNecessary(source.userLogin, source.metadatas.getLong("length")))
 				return Render.insufficientStorage();
 
 			// Trouver un nom unique pour la copie, si le nom n'est pas fourni
@@ -263,17 +262,17 @@ public class Items extends Controller {
 			// On met à jour l'élément
 			item.name = name;
 			item.tags = StringUtils.isBlank(tags) ? null : Arrays.asList(tags.split(","));
-			item.content.remove("iconURLCache");
+			item.metadatas.remove("iconURLCache");
 			if (StringUtils.isBlank(iconURL)) {
-				item.content.remove("iconURL");
+				item.metadatas.remove("iconURL");
 			} else {
-				item.content.put("iconURL", iconURL);
+				item.metadatas.put("iconURL", iconURL);
 				// Mise en cache des URLs externes pour ne pas "pinger" à chaque affichage
 				if (iconURL.toLowerCase().startsWith("http") && !iconURL.toLowerCase().startsWith(configuration.getServerAbsoluteUrl())) {
 					String defaultMimetype = MimeTypes.byName(item.name);
 					String dataURL = WebUtils.downloadURLAsDataUrl(iconURL, defaultMimetype);
 					if (dataURL != null)
-						item.content.put("iconURLCache", dataURL);
+						item.metadatas.put("iconURLCache", dataURL);
 				}
 			}
 			// pas de changement de updateDate car le contenu reste le même
@@ -339,13 +338,13 @@ public class Items extends Controller {
 					if (child.folder) {
 						// On sauvegarde le nombre d'éléments dans chaque sous-dossier
 						Integer itemCount = itemCountByFolderId.getOrDefault(child.id, 0);
-						child.content.put("itemCount", itemCount);
+						child.metadatas.put("itemCount", itemCount);
 						Item.update(item);
 					}
 				}
 				// Enfin, on sauvegarde le nombre d'éléments dans le dossier de départ
 				Integer itemCount = itemCountByFolderId.getOrDefault(item.id, 0);
-				item.content.put("itemCount", itemCount);
+				item.metadatas.put("itemCount", itemCount);
 				Item.update(item);
 			}
 
@@ -384,42 +383,38 @@ public class Items extends Controller {
 				String name = object.get("name").getAsString();
 				String action = object.get("action").getAsString();
 				if ("remove".equals(action)) {
-					item.content.remove(name);
+					item.metadatas.remove(name);
 				} else {
 					JsonElement valueElement = object.get("value");
 					if (!valueElement.isJsonPrimitive())
 						return Render.badRequest();
 					JsonPrimitive valuePrimitive = valueElement.getAsJsonPrimitive();
-					Object value;
 					String type = object.get("type").getAsString();
 					switch (type) {
+					case "string":
+						item.metadatas.put(name, valuePrimitive.getAsString());
+						break;
 					case "boolean":
-						value = Boolean.valueOf(valuePrimitive.getAsBoolean());
+						item.metadatas.put(name, valuePrimitive.getAsBoolean());
 						break;
 					case "integer":
-						if ("inc".equals(action))
-							value = ((Integer) item.content.getOrDefault(name, 0)) + valuePrimitive.getAsInt();
-						else
-							value = Integer.valueOf(valuePrimitive.getAsInt());
+						int intValue = valuePrimitive.getAsInt();
+						if ("inc".equals(action) && item.metadatas.has(name))
+							intValue += item.metadatas.getInteger(name).intValue();
+						item.metadatas.put(name, intValue);
 						break;
 					case "long":
-						if ("inc".equals(action))
-							value = ((Long) item.content.getOrDefault(name, 0L)) + valuePrimitive.getAsLong();
-						else
-							value = Long.valueOf(valuePrimitive.getAsLong());
+						long longValue = valuePrimitive.getAsLong();
+						if ("inc".equals(action) && item.metadatas.has(name))
+							longValue += item.metadatas.getLong(name).longValue();
+						item.metadatas.put(name, longValue);
 						break;
 					case "double":
-						value = Double.valueOf(valuePrimitive.getAsDouble());
+						item.metadatas.put(name, valuePrimitive.getAsDouble());
 						break;
-					case "datetime":
-						value = new Date(valuePrimitive.getAsLong());
-						break;
-					case "string":
 					default:
-						value = valuePrimitive.getAsString();
-						break;
+						return Render.badRequest();
 					}
-					item.content.put(name, value);
 				}
 			}
 
@@ -543,8 +538,8 @@ public class Items extends Controller {
 					i.tags = new ArrayList<>();
 					i.tags.addAll(item.tags);
 				}
-				i.content.append("iconURL", item.content.getString("iconURL"));
-				i.content.append("iconURLCache", item.content.getString("iconURLCache"));
+				i.metadatas.put("iconURL", item.metadatas.getString("iconURL"));
+				i.metadatas.put("iconURLCache", item.metadatas.getString("iconURLCache"));
 			});
 		}
 		// Déplacer chaque sous-élément de "item" vers "existingItem"
@@ -651,22 +646,22 @@ public class Items extends Controller {
 			node.addProperty("tags", String.join(",", item.tags));
 		try {
 			if (item.folder) {
-				node.addProperty("itemCount", item.content.getInteger("itemCount"));
-				node.addProperty("iconURL", item.content.getString("iconURL"));
-				node.addProperty("iconURLCache", item.content.getString("iconURLCache"));
+				node.addProperty("itemCount", item.metadatas.getInteger("itemCount"));
+				node.addProperty("iconURL", item.metadatas.getString("iconURL"));
+				node.addProperty("iconURLCache", item.metadatas.getString("iconURLCache"));
 			} else {
 				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
 				node.addProperty("mimetype", MimeTypes.byExtension(extension));
-				node.addProperty("length", item.content.getLong("length"));
-				if (item.content.containsKey("progress"))
-					node.addProperty("progress", item.content.getInteger("progress"));
-				if (item.content.containsKey("status"))
-					node.addProperty("status", item.content.getString("status"));
-				if (item.content.containsKey("sourceURL"))
-					node.addProperty("sourceURL", item.content.getString("sourceURL"));
+				node.addProperty("length", item.metadatas.getLong("length"));
+				if (item.metadatas.has("progress"))
+					node.addProperty("progress", item.metadatas.getInteger("progress"));
+				if (item.metadatas.has("status"))
+					node.addProperty("status", item.metadatas.getString("status"));
+				if (item.metadatas.has("sourceURL"))
+					node.addProperty("sourceURL", item.metadatas.getString("sourceURL"));
 				for (Facet facet : configuration.getFacets()) {
 					if (facet.supports(extension)) {
-						facet.loadMetadata(item.content, node);
+						facet.loadMetadata(item.metadatas, node);
 					}
 				}
 			}

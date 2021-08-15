@@ -74,8 +74,8 @@ public class Files extends Controller {
 			uploads.add(upload);
 			items.add(item);
 			requiredSpace += upload.contentLength();
-			if (item != null && item.content.getLong("length") != null)
-				requiredSpace -= item.content.getLong("length").longValue();
+			if (item != null && item.metadatas.getLong("length") != null)
+				requiredSpace -= item.metadatas.getLong("length").longValue();
 		}
 
 		// Vérifier avant de commencer que l'espace disque est suffisant
@@ -133,7 +133,7 @@ public class Files extends Controller {
 			// Vérifier que l'espace libre est suffisamment grand pour la différence avant/après
 			long availableSpace = user.quota.longValue() * 1024L * 1024L - Item.calculateUsedSpace(userLogin);
 			long newSize = upload.contentLength();
-			long oldSize = Optional.ofNullable(item.content.getLong("length")).orElse(0L);
+			long oldSize = Optional.ofNullable(item.metadatas.getLong("length")).orElse(0L);
 			if (availableSpace + oldSize - newSize < 0) {
 				upload.delete(); // Nettoyer le fichier uploadé qui a été stocké sur disque
 				return Render.insufficientStorage();
@@ -294,8 +294,8 @@ public class Files extends Controller {
 			if (! parent.folder)
 				return Render.badRequest();
 			// OK, c'est bon
-			parent.content.put("iconURL", "/files/thumbnail/" + item.id + "?size=" + size);
-			parent.content.remove("iconURLCache");
+			parent.metadatas.put("iconURL", "/files/thumbnail/" + item.id + "?size=" + size);
+			parent.metadatas.remove("iconURLCache");
 			parent.updateDate = new Date();
 			Item.update(parent);
 			return Render.EMPTY;

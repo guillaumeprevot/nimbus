@@ -578,7 +578,7 @@ function fillTests(add) {
 		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4" && !r.status));
 	});
 
-	var metadataDatetime = Date.now();
+	var metadataLong = Date.now();
 	add("METADATA / Créer un fichier de test pour les méta-données", function() {
 		return $.post("/files/touch?name=fichier.test").then((result) => assertEquals(result, "9"));
 	});
@@ -603,16 +603,16 @@ function fillTests(add) {
 	add("METADATA / Vérifier l'apparition des 3 méta-données", function() {
 		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && r.testinteger === 123 && r.testlong === 456 && !r.testdouble));
 	});
-	add("METADATA / En supprimer 1 et en ajouter les 3 autres méta-données", function() {
+	add("METADATA / Supprimer testinteger, modifier testlong et ajouter testdouble et teststring", function() {
 		return $.post("/items/metadata?itemId=9&metadata=" + JSON.stringify([
 			{ action:"set", name:"testdouble", type:"double", value:123456.789 },
 			{ action:"remove", name:"testinteger" },
-			{ action:"set", name:"testdatetime", type:"datetime", value:metadataDatetime },
+			{ action:"set", name:"testlong", type:"long", value:metadataLong },
 			{ action:"set", name:"teststring", type:"string", value:"Nimbus" }
 		])).then(assertEmpty);
 	});
 	add("METADATA / Vérifier les modifications apportées aux méta-données", function() {
-		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && !r.testinteger && r.testdouble === 123456.789 && r.testdatetime === metadataDatetime && r.teststring === "Nimbus"));
+		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && !r.testinteger && r.testdouble === 123456.789 && r.testlong === metadataLong && r.teststring === "Nimbus"));
 	});
 
 	add("PREFERENCES / Vérifier les préférences par défaut", function() {

@@ -4,11 +4,11 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
-import org.bson.Document;
 
 import com.google.gson.JsonObject;
 
 import fr.techgp.nimbus.Facet;
+import fr.techgp.nimbus.models.Metadatas;
 
 public class WindowsShortcutFacet implements Facet {
 
@@ -18,14 +18,14 @@ public class WindowsShortcutFacet implements Facet {
 	}
 
 	@Override
-	public void loadMetadata(Document bson, JsonObject node) {
-		node.addProperty("url", bson.getString("url"));
-		node.addProperty("iconURL", bson.getString("iconURL"));
-		node.addProperty("iconIndex", bson.getInteger("iconIndex"));
+	public void loadMetadata(Metadatas metadatas, JsonObject node) {
+		node.addProperty("url", metadatas.getString("url"));
+		node.addProperty("iconURL", metadatas.getString("iconURL"));
+		node.addProperty("iconIndex", metadatas.getInteger("iconIndex"));
 	}
 
 	@Override
-	public void updateMetadata(File file, String extension, Document bson) throws Exception {
+	public void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		try (LineIterator li = FileUtils.lineIterator(file);) {
 			boolean isInternetShortcut = false;
 			while (li.hasNext()) {
@@ -33,11 +33,11 @@ public class WindowsShortcutFacet implements Facet {
 				if ("[InternetShortcut]".equals(line))
 					isInternetShortcut = true; // on entre dans la section
 				else if (isInternetShortcut && line.startsWith("URL="))
-					bson.put("url", line.substring(4)); // on trouve l'URL
+					metadatas.put("url", line.substring(4)); // on trouve l'URL
 				else if (isInternetShortcut && line.startsWith("IconFile="))
-					bson.put("iconURL", line.substring(9)); // on trouve une image
+					metadatas.put("iconURL", line.substring(9)); // on trouve une image
 				else if (isInternetShortcut && line.startsWith("IconIndex="))
-					bson.put("iconIndex", Integer.valueOf(line.substring(10))); // on trouve l'image à utiliser dans les .ico contenant plusieurs images
+					metadatas.put("iconIndex", Integer.valueOf(line.substring(10))); // on trouve l'image à utiliser dans les .ico contenant plusieurs images
 				else if (line.startsWith("["))
 					isInternetShortcut = false; // on sort de la section
 			}
