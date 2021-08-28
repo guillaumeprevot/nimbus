@@ -24,6 +24,7 @@ public interface Database {
 	public void deleteItem(Item item);
 	public void restoreItem(Item item);
 	public void eraseItem(Item item);
+	public void eraseAllItems(String userLogin);
 	public void notifyFolderContentChanged(Long folderId, int itemCountIncrement);
 
 	public Item findItemById(Long id);

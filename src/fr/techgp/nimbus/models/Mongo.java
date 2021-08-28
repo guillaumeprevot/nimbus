@@ -171,6 +171,11 @@ public class Mongo implements Database {
 	}
 
 	@Override
+	public void eraseAllItems(String userLogin) {
+		getWriteCollection("items").deleteMany(Filters.eq("userLogin", userLogin));
+	}
+
+	@Override
 	public void notifyFolderContentChanged(Long folderId, int itemCountIncrement) {
 		Document modifications = new Document()
 				.append("$inc", new Document("content.itemCount", itemCountIncrement))

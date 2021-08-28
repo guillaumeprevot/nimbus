@@ -144,15 +144,12 @@ public class Controller {
 		r.get("/test.html", (request, response) -> {
 			if (!dev)
 				return Render.notFound();
-			User.findAll().forEach((u) -> {
-				try {
-					File folder = new File(configuration.getStorageFolder(), u.login);
-					if (folder.exists())
-						FileUtils.cleanDirectory(folder);
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-			});
+			try {
+				User.findAll().forEach((u) -> Controller.eraseAllUserItemFiles(u.login));
+			} catch (Exception ex) {
+				if (Controller.logger.isWarnEnabled())
+					Controller.logger.warn("Erreur pendant la remise à 0 des fichiers pour test", ex);
+			}
 			Database.get().reset();
 			Session session = getSession(request, false);
 			if (session != null) {
@@ -285,6 +282,24 @@ public class Controller {
 		//System.out.println(String.format("Used space   = %7d bytes", usedSpace));
 		//System.out.println(String.format("Free space   = %7d bytes", user.quota * 1024 * 1024 - usedSpace));
 		return neededSpace <= user.quota.longValue() * 1024L * 1024L - usedSpace;
+	}
+
+	/**
+	 * Cette méthode supprime tous les fichiers de l'utilisateur précisé.
+	 *
+	 * @param userLogin l'utilisateur dont on souhaite supprimer les fichiers
+	 * @return true si la suppression s'est bien passée ou false si une erreur a eu lieu pendant la suppression
+	 */
+	protected static final boolean eraseAllUserItemFiles(String userLogin) {
+		try {
+			File folder = new File(configuration.getStorageFolder(), userLogin);
+			if (folder.exists())
+				FileUtils.cleanDirectory(folder);
+			return true;
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return false;
+		}
 	}
 
 	/**

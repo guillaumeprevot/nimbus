@@ -82,6 +82,11 @@ public class Item {
 			Item.notifyFolderContentChanged(item.parentId, -1);
 	}
 
+	public static final void eraseAll(String userLogin) {
+		// Supprimer définitivement les éléments
+		getDatabase().eraseAllItems(userLogin);
+	}
+
 	public static final Item add(String userLogin, Long parentId, boolean folder, String name, Consumer<Item> init) {
 		Item parent = null;
 		if (parentId != null) {

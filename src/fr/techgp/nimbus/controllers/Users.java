@@ -2,6 +2,7 @@ package fr.techgp.nimbus.controllers;
 
 import com.google.gson.JsonObject;
 
+import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Route;
@@ -112,7 +113,8 @@ public class Users extends Controller {
 		if (user == null)
 			return Render.notFound();
 		User.delete(user);
-		// TODO Supprimer le contenu (base+disque) de l'utilisateur dans Users.delete
+		Item.eraseAll(user.login);
+		Controller.eraseAllUserItemFiles(user.login);
 		return Render.json(toJSON(user));
 	};
 
