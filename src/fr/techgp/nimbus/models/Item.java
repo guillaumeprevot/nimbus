@@ -1,27 +1,13 @@
 package fr.techgp.nimbus.models;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
-
-import org.bson.BsonInt32;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-
-import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Sorts;
-
-import fr.techgp.nimbus.utils.StringUtils;
 
 public class Item {
 
@@ -61,19 +47,18 @@ public class Item {
 	}
 
 	public static final void insert(Item item) {
-		getWriteCollection().insertOne(write(item, null));
+		getDatabase().insertItem(item);
 	}
 
 	public static final void update(Item item) {
-		Document unset = new Document();
-		Document set = write(item, unset);
-		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$set", set).append("$unset", unset));
+		getDatabase().updateItem(item);
 	}
 
 	public static final void delete(Item item) {
 		// Marquer comme supprimé
 		item.deleteDate = new Date();
-		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$set", new Document("deleteDate", item.deleteDate)));
+		// Envoyer en base
+		getDatabase().deleteItem(item);
 		// Décrémenter le nombre d'éléments du parent
 		if (item.parentId != null)
 			Item.notifyFolderContentChanged(item.parentId, -1);
@@ -82,15 +67,16 @@ public class Item {
 	public static final void restore(Item item) {
 		// Retirer l'indicateur de suppression
 		item.deleteDate = null;
-		getWriteCollection().updateOne(Filters.eq("_id", item.id), new Document("$unset", new Document("deleteDate", "")));
-		//Incrémenter le nombre d'éléments du parent
+		// Restaurer en base
+		getDatabase().restoreItem(item);
+		// Incrémenter le nombre d'éléments du parent
 		if (item.parentId != null)
 			Item.notifyFolderContentChanged(item.parentId, 1);
 	}
 
 	public static final void erase(Item item) {
 		// Supprimer définitivement l'élément
-		getWriteCollection().deleteOne(Filters.eq("_id", item.id));
+		getDatabase().eraseItem(item);
 		// Décrémenter le nombre d'éléments du parent si "item" n'était pas encore supprimé
 		if (item.deleteDate == null && item.parentId != null)
 			Item.notifyFolderContentChanged(item.parentId, -1);
@@ -108,7 +94,6 @@ public class Item {
 
 	public static final Item add(String userLogin, Item checkedParent, boolean folder, String name, Consumer<Item> init) {
 		Item child = new Item();
-		child.id = Mongo.getNextSequence("items");
 		child.parentId = checkedParent == null ? null : checkedParent.id;
 		child.path = checkedParent == null ? "" : (checkedParent.path + checkedParent.id + ',');
 		child.userLogin = userLogin;
@@ -128,15 +113,14 @@ public class Item {
 			child.metadatas.put("length", 0L);
 		if (init != null)
 			init.accept(child);
-		Item.insert(child);
+		getDatabase().insertItem(child);
 		if (child.parentId != null)
-			notifyFolderContentChanged(child.parentId, 1);
+			Item.notifyFolderContentChanged(child.parentId, 1);
 		return child;
 	}
 
 	public static final Item duplicate(Item item, String name) {
 		Item duplicate = new Item();
-		duplicate.id = Mongo.getNextSequence("items");
 		duplicate.parentId = item.parentId;
 		duplicate.path = item.path;
 		duplicate.userLogin = item.userLogin;
@@ -153,7 +137,7 @@ public class Item {
 		duplicate.metadatas.copy(item.metadatas);
 		if (duplicate.folder)
 			duplicate.metadatas.put("itemCount", 0); // no recursive duplicate
-		Item.insert(duplicate);
+		getDatabase().insertItem(duplicate);
 		if (duplicate.parentId != null)
 			Item.notifyFolderContentChanged(duplicate.parentId, 1);
 		return duplicate;
@@ -163,7 +147,7 @@ public class Item {
 		// Renommage l'élément en fonction des patterns donnés
 		String newName = firstPattern.replace("{0}", item.name).replace("{1}", Integer.toString(1));
 		int i = 1;
-		while (Item.hasItemWithName(item.userLogin, item.parentId, newName)) {
+		while (getDatabase().hasItemWithName(item.userLogin, item.parentId, newName)) {
 			i++;
 			newName = nextPattern.replace("{0}", item.name).replace("{1}", Integer.toString(i));
 		}
@@ -175,7 +159,7 @@ public class Item {
 		item.name = newName;
 		// pas de changement de updateDate car le contenu reste le même
 		//item.updateDate = new Date();
-		Item.update(item);
+		getDatabase().updateItem(item);
 		// Ajuster la date de modification du dossier parent
 		if (item.parentId != null)
 			Item.notifyFolderContentChanged(item.parentId, 0);
@@ -192,25 +176,22 @@ public class Item {
 			item.name = newName.get();
 		// pas de changement de updateDate car le contenu reste le même
 		// item.updateDate = new Date();
-		Item.update(item);
+		getDatabase().updateItem(item);
 		// Ajouter l'élément dans son nouveau parent
 		if (item.parentId != null)
 			Item.notifyFolderContentChanged(item.parentId, 1);
 	}
 
-	public static final boolean notifyFolderContentChanged(Long folderId, int itemCountIncrement) {
-		Document modifications = new Document()
-				.append("$inc", new Document("content.itemCount", itemCountIncrement))
-				.append("$set", new Document("updateDate", new Date()));
-		return 1 == getWriteCollection().updateOne(Filters.eq("_id", folderId), modifications).getModifiedCount();
+	public static final void notifyFolderContentChanged(Long folderId, int itemCountIncrement) {
+		getDatabase().notifyFolderContentChanged(folderId, itemCountIncrement);
 	}
 
 	public static final Item findById(Long id) {
-		return getCollection().find().filter(Filters.eq("_id", id)).map(Item::read).first();
+		return getDatabase().findItemById(id);
 	}
 
 	public static final List<Item> findByIds(Collection<Long> ids) {
-		return findAll(Filters.in("_id", ids));
+		return getDatabase().findItemsByIds(ids);
 	}
 
 	/**
@@ -231,173 +212,46 @@ public class Item {
 	 */
 	public static final List<Item> findAll(String userLogin, Long parentId, boolean recursive, String sortBy,
 			boolean sortAscending, String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions) {
-		// Filtres de la recherche
-		List<Bson> filters = new ArrayList<>(3);
-		filters.add(Filters.eq("userLogin", userLogin));
-
-		// Récursivité
-		if (! recursive) {
-			filters.add(Filters.eq("parentId", parentId));
-		} else if (parentId != null) {
-			Item item = Item.findById(parentId);
-			filters.add(Filters.regex("path", "^" + item.path + item.id + ',', "i"));
-		}
-
-		// Texte recherché
-		if (StringUtils.isNotBlank(searchText) && !"*".equals(searchText)) {
-			if (StringUtils.isBlank(searchBy)) {
-				// Par défaut, chercher dans le nom et les tags
-				filters.add(Filters.or(
-						Filters.elemMatch("tags", new Document("$regex", searchText).append("$options", "i")),
-						Filters.regex("name", ".*" + Pattern.quote(searchText) + ".*", "i")));
-			} else {
-				// Sinon, chercher dans la propriété demandée
-				filters.add(Filters.regex(searchBy, ".*" + Pattern.quote(searchText) + ".*", "i"));
-			}
-		}
-
-		// Dossiers, Fichiers ou tout
-		if (folders != null)
-			filters.add(Filters.eq("folder", folders.booleanValue()));
-
-		// Masqués, non masqués ou tout
-		if (Boolean.TRUE.equals(hidden))
-			filters.add(Filters.eq("hidden", true)); // hidden=true
-		else if (Boolean.FALSE.equals(hidden))
-			filters.add(Filters.ne("hidden", true)); // hidden=false ou hidden=absent
-
-		// Eléments supprimés, non supprimés ou tout
-		if (deleted != null)
-			filters.add(Filters.exists("deleteDate", deleted.booleanValue()));
-
-		// Extensions recherchées
-		if (StringUtils.isNotBlank(extensions))
-			filters.add(Filters.or(Filters.eq("folder", true), Filters.regex("name", ".*\\.(" + extensions.replace(",", "|") + ")$", "i")));
-
-		// Tri de la recherche
-		Bson sort;
-		if (StringUtils.isBlank(sortBy))
-			sort = Sorts.orderBy(Sorts.descending("folder"), Sorts.ascending("name"));
-		else if (sortAscending)
-			sort = Sorts.ascending(sortBy);
-		else
-			sort = Sorts.descending(sortBy);
-
-		// Transformer en une liste d'items
-		return getCollection().find().filter(Filters.and(filters)).sort(sort).map(Item::read).into(new ArrayList<>());
-	}
-
-	public static final List<Item> findAll(Bson filter) {
-		return getCollection().find().filter(filter).map(Item::read).into(new ArrayList<>());
+		return getDatabase().findItems(userLogin, parentId, recursive, sortBy, sortAscending, searchBy, searchText, folders, hidden, deleted, extensions);
 	}
 
 	public static final int count(String userLogin, Long parentId) {
-		return (int) getCollection().countDocuments(new Document("userLogin", userLogin).append("parentId", parentId));
+		return getDatabase().countItems(userLogin, parentId);
 	}
 
 	public static final int trashCount(String userLogin) {
-		return (int) getCollection().countDocuments(Filters.and(Filters.eq("userLogin", userLogin), Filters.exists("deleteDate")));
+		return getDatabase().trashItemCount(userLogin);
 	}
 
 	public static final boolean hasItem(String userLogin, Long itemId) {
-		return getCollection().countDocuments(new Document("userLogin", userLogin).append("_id", itemId)) == 1;
+		return getDatabase().hasItem(userLogin, itemId);
 	}
 
 	public static final boolean hasItemWithName(String userLogin, Long parentId, String name) {
-		return getCollection().countDocuments(new Document("userLogin", userLogin).append("parentId", parentId).append("name", name)) > 0;
+		return getDatabase().hasItemWithName(userLogin, parentId, name);
 	}
 
 	public static final boolean hasItemsWithNames(String userLogin, Long parentId, String... names) {
-		return getCollection().countDocuments(new Document("userLogin", userLogin).append("parentId", parentId).append("name", new Document("$in", Arrays.asList(names)))) > 0;
+		return getDatabase().hasItemsWithNames(userLogin, parentId, names);
 	}
 
 	public static final Item findItemWithName(String userLogin, Long parentId, String name) {
-		return getCollection().find(new Document("userLogin", userLogin).append("parentId", parentId).append("name", name)).map(Item::read).first();
+		return getDatabase().findItemWithName(userLogin, parentId, name);
 	}
 
 	public static final void forEachTag(String userLogin, Consumer<String> consumer) {
-		getCollection().distinct("tags", String.class).filter(Filters.eq("userLogin", userLogin))
-			.into(new ArrayList<String>()).stream().sorted().forEach(consumer);
+		getDatabase().forEachItemTag(userLogin, consumer);
 	}
 
 	public static final void forEachTagWithCount(String userLogin, boolean orderByCount, BiConsumer<String, Integer> consumer) {
-		Document unwind = new Document("$unwind", "$tags");
-		Document match = new Document("$match", new Document("userLogin", userLogin));
-		Document group = new Document("$group", new Document("_id", "$tags").append("count", new Document("$sum", 1)));
-		Document sort = new Document("$sort", (orderByCount ? new Document("count", new BsonInt32(-1)) : new Document()).append("_id", new BsonInt32(1)));
-		Consumer<Document> documentConsumer = (document) -> consumer.accept(document.getString("_id"), document.getInteger("count"));
-		getCollection().aggregate(Arrays.asList(unwind, match, group, sort)).forEach(documentConsumer);
+		getDatabase().forEachItemTagWithCount(userLogin, orderByCount, consumer);
 	}
 
 	public static final long calculateUsedSpace(String userLogin) {
-		Document match = new Document("$match", new Document("userLogin", userLogin));
-		Document group = new Document("$group", new Document("_id", null).append("total", new Document("$sum", "$content.length")));
-		Document result = getCollection().aggregate(Arrays.asList(match, group)).first();
-		return Optional.ofNullable(result).map(r -> ((Number) r.get("total")).longValue()).orElse(0L);
+		return getDatabase().calculateUsedSpace(userLogin);
 	}
 
-	@SuppressWarnings("unchecked")
-	private static final Item read(Document document) {
-		if (document == null)
-			return null;
-		Item item = new Item();
-		item.id = document.getLong("_id");
-		item.parentId = document.getLong("parentId");
-		item.path = document.getString("path");
-		item.userLogin = document.getString("userLogin");
-		item.folder = document.getBoolean("folder").booleanValue();
-		item.hidden = document.getBoolean("hidden", false);
-		item.name = document.getString("name");
-		item.tags = (List<String>) document.get("tags");
-		item.sharedDate = document.getDate("sharedDate");
-		item.sharedPassword = document.getString("sharedPassword");
-		item.sharedDuration = document.getInteger("sharedDuration");
-		item.createDate = document.getDate("createDate");
-		item.updateDate = document.getDate("updateDate");
-		item.deleteDate = document.getDate("deleteDate");
-		item.metadatas.copy((Document) document.get("content"));
-		check(item);
-		return item;
-	}
-
-	private static final Document write(Item item, Document unset) {
-		check(item);
-		Document d = new Document()
-			.append("_id", item.id)
-			.append("parentId", item.parentId)
-			.append("path", item.path)
-			.append("userLogin", item.userLogin)
-			.append("folder", item.folder)
-			.append("hidden", item.hidden)
-			.append("name", item.name)
-			.append("tags", item.tags == null ? new ArrayList<>() : item.tags)
-			.append("createDate", item.createDate)
-			.append("updateDate", item.updateDate)
-			.append("content", item.metadatas.asDocument());
-
-		if (item.sharedDate != null)
-			d.append("sharedDate", item.sharedDate);
-		else if (unset != null)
-			unset.append("sharedDate", "");
-
-		if (item.sharedDuration != null)
-			d.append("sharedDuration", item.sharedDuration);
-		else if (unset != null)
-			unset.append("sharedDuration", "");
-
-		if (item.sharedPassword != null)
-			d.append("sharedPassword", item.sharedPassword);
-		else if (unset != null)
-			unset.append("sharedPassword", "");
-
-		if (item.deleteDate != null)
-			d.append("deleteDate", item.deleteDate);
-		else if (unset != null)
-			unset.append("deleteDate", "");
-		return d;
-	}
-
-	private static final void check(Item item) {
+	public static final void check(Item item) {
 		BiConsumer<Boolean, String> checker = (test, message) -> {
 			try {
 				if (!Boolean.TRUE.equals(test))
@@ -412,16 +266,11 @@ public class Item {
 		checker.accept(item.path.isEmpty() || item.path.endsWith(","), "path doit finir par une virgule ou être vide");
 		checker.accept(item.parentId != null || item.path.isEmpty(), "path doit être vide pour les éléments à la racine");
 		checker.accept(item.parentId == null || item.path.endsWith(item.parentId + ","), "path doit correspondre au parent des sous-éléments");
-		checker.accept(StringUtils.isNotBlank(item.userLogin), "userLogin ne doit pas être vide");
-		checker.accept(StringUtils.isNotBlank(item.name), "name ne doit pas être vide");
+		checker.accept(item.userLogin != null && !item.userLogin.isBlank(), "userLogin ne doit pas être vide");
+		checker.accept(item.name != null && !item.name.isBlank(), "name ne doit pas être vide");
 	}
 
-	private static final MongoCollection<Document> getCollection() {
-		return Mongo.getCollection("items");
+	public static final Database getDatabase() {
+		return Database.get();
 	}
-
-	private static final MongoCollection<Document> getWriteCollection() {
-		return Mongo.getCollection("items", WriteConcern.JOURNALED);
-	}
-
 }

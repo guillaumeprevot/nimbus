@@ -1,13 +1,6 @@
 package fr.techgp.nimbus.models;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.bson.Document;
-
-import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 
 public class User {
 
@@ -37,67 +30,31 @@ public class User {
 	}
 
 	public static final User findByLogin(String login) {
-		return read(getCollection().find().filter(Filters.eq("login", login)).first());
+		return getDatabase().findUserByLogin(login);
 	}
 
-	public static final long count() {
-		return getCollection().countDocuments();
+	public static final int count() {
+		return getDatabase().countUsers();
 	}
 
 	public static final List<User> findAll() {
-		return getCollection().find().map(User::read).into(new ArrayList<>());
+		return getDatabase().findAllUsers();
 	}
 
 	public static final void insert(User user) {
-		getWriteCollection().insertOne(write(user));
+		getDatabase().insertUser(user);
 	}
 
 	public static final void update(User user) {
-		getWriteCollection().updateOne(Filters.eq("login", user.login), new Document("$set", write(user)));
+		getDatabase().updateUser(user);
 	}
 
 	public static final void delete(User user) {
-		getWriteCollection().deleteOne(Filters.eq("login", user.login));
+		getDatabase().deleteUser(user);
 	}
 
-	@SuppressWarnings("unchecked")
-	private static final User read(Document document) {
-		if (document == null)
-			return null;
-		User user = new User();
-		user.login = document.getString("login");
-		user.password = document.getString("password");
-		user.name = document.getString("name");
-		user.admin = document.getBoolean("admin", true);
-		user.quota = document.getInteger("quota");
-		user.showHiddenItems = document.getBoolean("showHiddenItems", false);
-		user.showItemTags = document.getBoolean("showItemTags", true);
-		user.showItemDescription = document.getBoolean("showItemDescription", true);
-		user.showItemThumbnail = document.getBoolean("showItemThumbnail", true);
-		user.visibleItemColumns = (List<String>) document.get("visibleItemColumns");
-		return user;
-	}
-
-	private static final Document write(User user) {
-		return new Document()
-			.append("login", user.login)
-			.append("password", user.password)
-			.append("name", user.name)
-			.append("admin", user.admin)
-			.append("quota", user.quota)
-			.append("showHiddenItems", user.showHiddenItems)
-			.append("showItemTags", user.showItemTags)
-			.append("showItemDescription", user.showItemDescription)
-			.append("showItemThumbnail", user.showItemThumbnail)
-			.append("visibleItemColumns", user.visibleItemColumns == null ? new ArrayList<>() : user.visibleItemColumns);
-	}
-
-	private static final MongoCollection<Document> getCollection() {
-		return Mongo.getCollection("users");
-	}
-
-	private static final MongoCollection<Document> getWriteCollection() {
-		return Mongo.getCollection("users", WriteConcern.JOURNALED);
+	public static final Database getDatabase() {
+		return Database.get();
 	}
 
 }

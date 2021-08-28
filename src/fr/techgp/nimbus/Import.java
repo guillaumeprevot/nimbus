@@ -18,8 +18,8 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.techgp.nimbus.models.Database;
 import fr.techgp.nimbus.models.Item;
-import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.utils.StringUtils;
 
@@ -57,8 +57,8 @@ public class Import {
 			// Load configuration from System properties
 			Configuration configuration = new Configuration(confPath);
 
-			// Prepare MongoDB
-			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
+			// Prepare database
+			Database.init(configuration);
 
 			// Vérifier l'appel :
 			// - soit "java fr.techgp.nimbus.Import <login> <folderPath> <parentId>" pour importer dans un dossier spécifique

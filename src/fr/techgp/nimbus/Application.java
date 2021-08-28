@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.techgp.nimbus.controllers.Controller;
 import fr.techgp.nimbus.controllers.Templates;
-import fr.techgp.nimbus.models.Mongo;
+import fr.techgp.nimbus.models.Database;
 import fr.techgp.nimbus.server.Router;
 import fr.techgp.nimbus.server.impl.JettyServer;
 
@@ -43,8 +43,8 @@ public class Application {
 			// Load configuration from System properties
 			Configuration configuration = new Configuration(confPath);
 
-			// Prepare MongoDB
-			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
+			// Prepare database
+			Database.init(configuration);
 
 			// Prepare FreeMarker
 			Templates.init(dev);

@@ -14,8 +14,8 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
 import fr.techgp.nimbus.Configuration;
+import fr.techgp.nimbus.models.Database;
 import fr.techgp.nimbus.models.Item;
-import fr.techgp.nimbus.models.Mongo;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
@@ -153,7 +153,7 @@ public class Controller {
 					ex.printStackTrace();
 				}
 			});
-			Mongo.reset(true);
+			Database.get().reset();
 			Session session = getSession(request, false);
 			if (session != null) {
 				session.removeAttribute("userLogin");

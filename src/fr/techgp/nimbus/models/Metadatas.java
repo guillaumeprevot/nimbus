@@ -1,10 +1,7 @@
 package fr.techgp.nimbus.models;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bson.Document;
 
 public final class Metadatas {
 
@@ -70,32 +67,10 @@ public final class Metadatas {
 			this.values = new HashMap<>(source.values);
 	}
 
-	public void copy(Document document) {
-		this.clear();
-		for (Map.Entry<String, Object> entry : document.entrySet()) {
-			if (entry.getValue() instanceof String)
-				this.put(entry.getKey(), (String) entry.getValue());
-			else if (entry.getValue() instanceof Boolean)
-				this.put(entry.getKey(), (Boolean) entry.getValue());
-			else if (entry.getValue() instanceof Integer)
-				this.put(entry.getKey(), (Integer) entry.getValue());
-			else if (entry.getValue() instanceof Long)
-				this.put(entry.getKey(), (Long) entry.getValue());
-			else if (entry.getValue() instanceof Double)
-				this.put(entry.getKey(), (Double) entry.getValue());
-			else if (entry.getValue() instanceof Date)
-				this.put(entry.getKey(), ((Date) entry.getValue()).getTime());
-			else if (entry.getValue() != null)
-				throw new UnsupportedOperationException("Unsupported BSON value " + entry.getValue().getClass().getName());
-		}
-	}
-
-	public Document asDocument() {
-		Document result = new Document();
+	public void copyTo(Map<String, Object> target) {
+		target.clear();
 		if (this.values != null)
-			// this.values maps to String, Boolean, Integer, Long and Double, all supported by Document
-			result.putAll(this.values);
-		return result;
+			target.putAll(this.values);
 	}
 
 	private Object get(String name) {
