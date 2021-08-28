@@ -353,7 +353,7 @@ public class Mongo implements Database {
 	private static final Document writeItem(Item item, Document unset) {
 		Item.check(item);
 		Document content = new Document();
-		item.metadatas.copyTo(content); // item.metadatas maps to String, Boolean, Integer, Long and Double, all supported by Document
+		item.metadatas.visit(content::append, content::append, content::append, content::append, content::append);
 		Document d = new Document()
 			.append("_id", item.id)
 			.append("parentId", item.parentId)

@@ -2,6 +2,7 @@ package fr.techgp.nimbus.models;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public final class Metadatas {
 
@@ -67,10 +68,28 @@ public final class Metadatas {
 			this.values = new HashMap<>(source.values);
 	}
 
-	public void copyTo(Map<String, Object> target) {
-		target.clear();
-		if (this.values != null)
-			target.putAll(this.values);
+	public void visit(
+			BiConsumer<String, String> strings,
+			BiConsumer<String, Boolean> booleans,
+			BiConsumer<String, Integer> integers,
+			BiConsumer<String, Long> longs,
+			BiConsumer<String, Double> doubles) {
+		if (this.values == null)
+			return;
+		for (Map.Entry<String, Object> entry : this.values.entrySet()) {
+			if (entry.getValue() instanceof String)
+				strings.accept(entry.getKey(), (String) entry.getValue());
+			else if (entry.getValue() instanceof Boolean)
+				booleans.accept(entry.getKey(), (Boolean) entry.getValue());
+			else if (entry.getValue() instanceof Integer)
+				integers.accept(entry.getKey(), (Integer) entry.getValue());
+			else if (entry.getValue() instanceof Long)
+				longs.accept(entry.getKey(), (Long) entry.getValue());
+			else if (entry.getValue() instanceof Double)
+				doubles.accept(entry.getKey(), (Double) entry.getValue());
+			else
+				throw new IllegalStateException("Type non supporté ");
+		}
 	}
 
 	private Object get(String name) {
