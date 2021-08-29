@@ -82,6 +82,7 @@ public class Items extends Controller {
 		boolean recursive = request.queryParameterBoolean("recursive", false);
 		String sortBy = request.queryParameter("sortBy");
 		boolean sortAscending = request.queryParameterBoolean("sortAscending", false);
+		boolean sortFoldersFirst = request.queryParameterBoolean("sortFoldersFirst", true);
 		String searchBy = request.queryParameter("searchBy");
 		String searchText = request.queryParameter("searchText", "").toLowerCase();
 		Boolean folders = request.queryParameterBoolean("folders", null); // true/false/null
@@ -94,7 +95,8 @@ public class Items extends Controller {
 			return Render.badRequest();
 
 		// Récupérer les éléments
-		List<Item> items = Item.findAll(userLogin, parentId, recursive, sortBy, sortAscending, searchBy, searchText, folders, hidden, deleted, extensions);
+		List<Item> items = Item.findAll(userLogin, parentId, recursive, sortBy, sortAscending, sortFoldersFirst,
+				searchBy, searchText, folders, hidden, deleted, extensions);
 		List<Item> folderItems = items.stream().filter((i) -> i.folder).collect(Collectors.toList());
 		List<Item> fileItems = items.stream().filter((i) -> !i.folder).collect(Collectors.toList());
 		items = new ArrayList<>();
@@ -320,7 +322,7 @@ public class Items extends Controller {
 				updateFile(item, null, true);
 			} else {
 				// On récupère le contenu du dossier RECURSIVEMENT
-				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, null, null, null, null, false, null);
+				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, true, null, null, null, null, false, null);
 				// On prépare une map des dossiers, pour compter les éléments que chacun contient
 				Map<Long, Integer> itemCountByFolderId = new HashMap<>();
 				// Premier parcours = MAJ des fichiers + comptage des éléments dans chaque dossier
@@ -525,7 +527,7 @@ public class Items extends Controller {
 		}
 
 		// Récupérer le contenu du dossier "item"
-		List<Item> children = Item.findAll(item.userLogin, item.id, false, null, false, null, null, null, null, null, null);
+		List<Item> children = Item.findAll(item.userLogin, item.id, false, null, true, true, null, null, null, null, null, null);
 		// Pour des dossiers vides n'existant pas dans la destination, il suffit de les déplacer
 		if (existingItem == null && children.isEmpty()) {
 			Item.move(item, targetParent, null);
@@ -597,7 +599,7 @@ public class Items extends Controller {
 		String itemPath = path == null ? item.name : (path + "/" + item.name);
 		if (item.folder) {
 			// Ajouter récursivement les éléments à l'archive
-			List<Item> children = Item.findAll(item.userLogin, item.id, false, null, true, null, null, null, null, false, null);
+			List<Item> children = Item.findAll(item.userLogin, item.id, false, null, true, true, null, null, null, null, false, null);
 			for (Item child : children) {
 				zipItem(child, itemPath, zos);
 			}

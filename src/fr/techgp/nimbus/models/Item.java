@@ -207,6 +207,7 @@ public class Item {
 	 * @param recursive true pour aller chercher dans les sous-dossier
 	 * @param sortBy nom de la propriété selon laquelle on tri les résultats
 	 * @param sortAscending true pour trier dans l'ordre ascendant, false sinon
+	 * @param sortFoldersFirst true pour grouper les dossiers d'abord, false sinon
 	 * @param searchBy nom de la propriété dans laquelle chercher (par exemple content.artist), on null pour le comportement par défaut (name + tags)
 	 * @param searchText le texte recherché, ou vide par défaut
 	 * @param folders true/false/null pour chercher un dossier, un fichier ou peu importe
@@ -215,9 +216,10 @@ public class Item {
 	 * @param extensions liste des extensions, séparées par "," ou null pour ne pas limiter la recherche
 	 * @return la liste des éléments correspondant à la rechercher
 	 */
-	public static final List<Item> findAll(String userLogin, Long parentId, boolean recursive, String sortBy,
-			boolean sortAscending, String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions) {
-		return getDatabase().findItems(userLogin, parentId, recursive, sortBy, sortAscending, searchBy, searchText, folders, hidden, deleted, extensions);
+	public static final List<Item> findAll(String userLogin, Long parentId, boolean recursive,
+			String sortBy, boolean sortAscending, boolean sortFoldersFirst,
+			String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions) {
+		return getDatabase().findItems(userLogin, parentId, recursive, sortBy, sortAscending, sortFoldersFirst, searchBy, searchText, folders, hidden, deleted, extensions);
 	}
 
 	public static final int count(String userLogin, Long parentId) {

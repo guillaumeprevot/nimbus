@@ -194,8 +194,9 @@ public class Mongo implements Database {
 	}
 
 	@Override
-	public List<Item> findItems(String userLogin, Long parentId, boolean recursive, String sortBy,
-			boolean sortAscending, String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions) {
+	public List<Item> findItems(String userLogin, Long parentId, boolean recursive,
+			String sortBy, boolean sortAscending, boolean sortFoldersFirst,
+			String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions) {
 		// Filtres de la recherche
 		List<Bson> filters = new ArrayList<>(3);
 		filters.add(Filters.eq("userLogin", userLogin));
@@ -235,18 +236,30 @@ public class Mongo implements Database {
 		if (deleted != null)
 			filters.add(Filters.exists("deleteDate", deleted.booleanValue()));
 
-		// Extensions recherchées
+		// Restriction par extensions pour les fichiers (exemple : rechercher 'Toto' dans les dossiers ou les fichiers '.mp3')
 		if (StringUtils.isNotBlank(extensions))
 			filters.add(Filters.or(Filters.eq("folder", true), Filters.regex("name", ".*\\.(" + extensions.replace(",", "|") + ")$", "i")));
 
 		// Tri de la recherche
-		Bson sort;
-		if (StringUtils.isBlank(sortBy))
-			sort = Sorts.orderBy(Sorts.descending("folder"), Sorts.ascending("name"));
-		else if (sortAscending)
-			sort = Sorts.ascending(sortBy);
-		else
-			sort = Sorts.descending(sortBy);
+		List<Bson> sorts = new ArrayList<>();
+		// Renvoyer les dossiers en premier, sauf si on trie selon ce champ justement
+		if (sortFoldersFirst && !"folder".equals(sortBy))
+			sorts.add(Sorts.descending("folder"));
+		// Puis trier selon la propriété demandée
+		if (StringUtils.isNotBlank(sortBy)) {
+			String mongoSortBy = "id".equals(sortBy) ? "_id" : sortBy;
+			if (sortAscending)
+				sorts.add(Sorts.ascending(mongoSortBy));
+			else
+				sorts.add(Sorts.descending(mongoSortBy));
+		}
+		// Puis trier alphabétiquement
+		if (!"name".equals(sortBy))
+			sorts.add(Sorts.ascending("name"));
+		// Puis trier par id pour que le tri soit consistant
+		if (!"id".equals(sortBy))
+			sorts.add(Sorts.ascending("id"));
+		Bson sort = Sorts.orderBy(sorts);
 
 		// Transformer en une liste d'items
 		return getCollection("items").find().filter(Filters.and(filters)).sort(sort).map(Mongo::readItem).into(new ArrayList<>());

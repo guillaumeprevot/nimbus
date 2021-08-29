@@ -49,7 +49,7 @@ public class Trash extends Controller {
 		// Récupérer l'utilisateur connecté
 		String userLogin = getUserLogin(request);
 		// Récupérer les éléments
-		List<Item> items = Item.findAll(userLogin, null, true, null, true, null, null, null, null, true, null);
+		List<Item> items = Item.findAll(userLogin, null, true, null, true, true, null, null, null, null, true, null);
 		// Récupérer la liste des ids des différents 'path', qu'il va falloir transformer en noms pour l'utilisateur
 		HashSet<Long> pathIds = new HashSet<>();
 		for (Item item : items) {
@@ -140,7 +140,7 @@ public class Trash extends Controller {
 			if (item.folder) {
 				// Pour les dossiers, supprimer récursivement
 				// L'important ici est le paramètre "recursive=true" pour récupèrer toute la descendance en une boucle
-				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, null, null, null, null, null, null);
+				List<Item> children = Item.findAll(item.userLogin, item.id, true, null, true, true, null, null, null, null, null, null);
 				for (Item child : children) {
 					if (! child.folder)
 						Controller.getFile(child).delete();

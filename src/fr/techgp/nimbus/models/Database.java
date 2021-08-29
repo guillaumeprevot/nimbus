@@ -29,7 +29,7 @@ public interface Database {
 
 	public Item findItemById(Long id);
 	public List<Item> findItemsByIds(Collection<Long> ids);
-	public List<Item> findItems(String userLogin, Long parentId, boolean recursive, String sortBy, boolean sortAscending, String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions);
+	public List<Item> findItems(String userLogin, Long parentId, boolean recursive, String sortBy, boolean sortAscending, boolean sortFoldersFirst, String searchBy, String searchText, Boolean folders, Boolean hidden, Boolean deleted, String extensions);
 	public int countItems(String userLogin, Long parentId);
 	public int trashItemCount(String userLogin);
 	public boolean hasItem(String userLogin, Long itemId);

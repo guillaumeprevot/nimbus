@@ -88,7 +88,7 @@ public final class Metadatas {
 			else if (entry.getValue() instanceof Double)
 				doubles.accept(entry.getKey(), (Double) entry.getValue());
 			else
-				throw new IllegalStateException("Type non supporté ");
+				throw new IllegalStateException("Type non supportÃ©");
 		}
 	}
 
