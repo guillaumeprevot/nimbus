@@ -233,47 +233,47 @@ function fillTests(add) {
 		return shoudBeAnError($.post("/user/update/uuu"), 404);
 	});
 
-	add("Créer un fichier 'fichier.txt' vide avec id 0 à la racine", function() {
-		return $.post("/files/touch?name=fichier.txt").then((result) => assertEquals(result, "0"));
+	add("Créer un fichier 'fichier.txt' vide avec id 1 à la racine", function() {
+		return $.post("/files/touch?name=fichier.txt").then((result) => assertEquals(result, "1"));
 	});
 	add("Streamer le fichier 'fichier.txt' de longueur 0", function() {
-		return $.get("/files/stream/0").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
+		return $.get("/files/stream/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
 	});
 	add("Télécharger le fichier 'fichier.txt' de longueur 0", function() {
-		return $.get("/files/download/0").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
+		return $.get("/files/download/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
 	});
 	add("Naviguer vers le fichier 'fichier.txt' de longueur 0", function() {
 		return $.get("/files/browse/fichier.txt").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "fichier.txt", 0));
 	});
 	add("Vérifier les méta-données d'un fichier texte vide", function() {
-		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && r.name === "fichier.txt" && r.length === 0 && r.mimetype === "text/plain"));
+		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.name === "fichier.txt" && r.length === 0 && r.mimetype === "text/plain"));
 	});
 
 	var totoTxtContent = "Un fichier\ntexte";
-	add("Uploader un fichier texte à la racine qui aura pour id 1", function() {
-		return new TestUpload().addFile(totoTxtContent, "text/plain", "toto.txt").send().shouldSucceedWithIds([1]);
+	add("Uploader un fichier texte à la racine qui aura pour id 2", function() {
+		return new TestUpload().addFile(totoTxtContent, "text/plain", "toto.txt").send().shouldSucceedWithIds([2]);
 	});
 	add("Streamer le fichier 'toto.txt' de longueur définie", function() {
-		return $.get("/files/browseTo/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+		return $.get("/files/browseTo/2").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
 	});
 	add("Télécharger le fichier 'toto.txt' de longueur définie", function() {
-		return $.get("/files/download/1").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+		return $.get("/files/download/2").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
 	});
 	add("Naviguer vers le fichier 'toto.txt' de longueur définie", function() {
 		return $.get("/files/browse/toto.txt").then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
 	});
 	add("Vérifier les méta-données d'un fichier texte non vide", function() {
-		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.name === "toto.txt" && r.length === totoTxtContent.length && r.mimetype === "text/plain" && r.lines === 2));
+		return $.get("/items/info/2").then((result) => assertObject(result, (r) => r.id === 2 && r.name === "toto.txt" && r.length === totoTxtContent.length && r.mimetype === "text/plain" && r.lines === 2));
 	});
 	totoTxtContent = "Bonjour\nle Monde !";
-	add("Mettre à jour le contenu d'un fichier d'id 1", function() {
+	add("Mettre à jour le contenu d'un fichier d'id 2", function() {
 		var blob = new Blob([totoTxtContent], { type: "text/plain" });
 		var formData = new FormData();
 		formData.append("updateDate", 0);
 		formData.append("file", blob, "unused.txt");
 		return $.ajax({
 			method: "POST",
-			url: "/files/update/1",
+			url: "/files/update/2",
 			data: formData,
 			dataType: "text",
 			contentType: false,
@@ -283,38 +283,38 @@ function fillTests(add) {
 		}).then(assertEmpty);
 	});
 	add("Vérifier le contenu de 'toto.txt'", function() {
-		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.updateDate === 0 && r.lines === 2));
+		return $.get("/items/info/2").then((result) => assertObject(result, (r) => r.id === 2 && r.updateDate === 0 && r.lines === 2));
 	});
 
 	var sharePassword;
 	add("PARTAGE / Vérifier que l'accès est interdit sans partage", function() {
-		return shoudBeAnError($.get("/share/get/1?password=ABABABABABABABABABABABABABABAB"), 400);
+		return shoudBeAnError($.get("/share/get/2?password=ABABABABABABABABABABABABABABAB"), 400);
 	});
 	add("PARTAGE / Vérifier que l'on peut partager un fichier", function() {
-		return $.post("/share/add?itemId=1").then((result) => { sharePassword = result; return assertStringWithLength(result, 30); });
+		return $.post("/share/add?itemId=2").then((result) => { sharePassword = result; return assertStringWithLength(result, 30); });
 	});
 	add("PARTAGE / Vérifier que l'accès est toujours interdit sans le mot de passe", function() {
-		return shoudBeAnError($.get("/share/get/1"), 400);
+		return shoudBeAnError($.get("/share/get/2"), 400);
 	});
 	add("PARTAGE / Vérifier que l'accès est toujours interdit avec un mot de passe incorrect", function() {
-		return shoudBeAnError($.get("/share/get/1?password=ABABABABABABABABABABABABABABAB"), 400);
+		return shoudBeAnError($.get("/share/get/2?password=ABABABABABABABABABABABABABABAB"), 400);
 	});
 	add("PARTAGE / Vérifier que l'accès est par contre autorisé avec le bon mot de passe", function() {
-		return $.get("/share/get/1?password=" + sharePassword).then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
+		return $.get("/share/get/2?password=" + sharePassword).then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length));
 	});
 	add("PARTAGE / Vérifier que l'accès est aussi possible déconnecté avec le bon mot de passe", function() {
 		return $.get("/logout").then(assertLoginPage)
-			.then(() => $.get("/share/get/1?password=" + sharePassword).then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length)))
+			.then(() => $.get("/share/get/2?password=" + sharePassword).then((content, status, jqHR) => assertStream(content, status, jqHR, "text/plain", "toto.txt", totoTxtContent.length)))
 			.then(() => $.post("/login.html?login=adm&password=adm").then(assertMainPage));
 	});
 	add("PARTAGE / Vérifier que l'on peut supprimer un partage", function() {
-		return $.post("/share/delete?itemId=1").then(assertEmpty);
+		return $.post("/share/delete?itemId=2").then(assertEmpty);
 	});
 	add("PARTAGE / Vérifier que l'accès est ensuite bloqué, même avec le mot de passe", function() {
-		return shoudBeAnError($.get("/share/get/1?password=" + sharePassword), 400);
+		return shoudBeAnError($.get("/share/get/2?password=" + sharePassword), 400);
 	});
 
-	add("Uploader une image qui aura pour id 2", function() {
+	add("Uploader une image qui aura pour id 3", function() {
 		// Found here : https://stackoverflow.com/questions/23150333/html5-javascript-dataurl-to-blob-blob-to-dataurl
 		var base64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABP0lEQVQ4jd3SP07DMBTH8UcS23ET+U/rurKjplaGXoAF5R7deoaeoUdhYOsEZ+jCwMYNkCohBEIcgB8TlWCAZmDhSZ/xffWGR/Sv5oxzvpZS7qSUByHEIc/zHRGtiejs12Wl1NZ7jxgjYozw3kNrDSEEiGj7Y8Rau26aBikldF2HruuQUkLTNLDWoixLcM63nPPLoihesyy7JKKLYyCldN22LRaLxRdt2yKEgPF4DOfcg3MOxhhIKVGW5dUxEGN8/Dz9uxACZrMZvPfvIQR476GUAmPs7RgIITxNp1OcwjkHpRTm8/kNERHVdb2aTCYvxhicQmsNpdRzVVX3RLSiuq73o9EIp5JSQgiBoijAGNuT1vqWc44hGGPI8xxVVd1S3/cba+1dlmUYwhhz1/f9hgBYAEsA5wMtAdhBv/4n8wHh/sScXBuiFwAAAABJRU5ErkJggg==";
 		var bstr = atob(base64);
@@ -323,142 +323,142 @@ function fillTests(add) {
 		while (n--) {
 			content[n] = bstr.charCodeAt(n);
 		}
-		return new TestUpload().addFile(content, "image/png", "favicon.png").send().shouldSucceedWithIds([2]);
+		return new TestUpload().addFile(content, "image/png", "favicon.png").send().shouldSucceedWithIds([3]);
 	});
 	add("Vérifier que l'image 'favicon.png' a la bonne taille", function() {
-		return $.get("/files/stream/2").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
+		return $.get("/files/stream/3").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
 	});
 	add("Récupérer une miniature en 32x32 de 'favicon.png'", function() {
-		return $.get("/files/thumbnail/2").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
+		return $.get("/files/thumbnail/3").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
 	});
 	add("Récupérer une miniature en 64x64 de 'favicon.png'", function() {
-		return $.get("/files/thumbnail/2?size=64").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
+		return $.get("/files/thumbnail/3?size=64").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
 	});
 	add("Naviguer vers l'image 'favicon.png'", function() {
 		return $.get("/files/browse/favicon.png").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
 	});
 	add("Vérifier les méta-données d'une image", function() {
-		return $.get("/items/info/2").then((result) => assertObject(result, (r) => r.id === 2 && r.name === "favicon.png" && r.length === 376 && r.mimetype === "image/png" && r.width === 16 && r.height === 16 && r.depth === 32));
+		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.id === 3 && r.name === "favicon.png" && r.length === 376 && r.mimetype === "image/png" && r.width === 16 && r.height === 16 && r.depth === 32));
 	});
 
 	add("BYTE RANGE / Vérifier le streaming avec Range 3", function() {
-		return assertRange("/files/stream/1", "3", totoTxtContent.substr(0,4));
+		return assertRange("/files/stream/2", "3", totoTxtContent.substr(0,4));
 	});
 	add("BYTE RANGE / Vérifier le streaming avec Range -3", function() {
-		return assertRange("/files/stream/1", "-3", totoTxtContent.substr(-3));
+		return assertRange("/files/stream/2", "-3", totoTxtContent.substr(-3));
 	});
 	add("BYTE RANGE / Vérifier le streaming avec Range 3-", function() {
-		return assertRange("/files/stream/1", "3-", totoTxtContent.substring(3));
+		return assertRange("/files/stream/2", "3-", totoTxtContent.substring(3));
 	});
 	add("BYTE RANGE / Vérifier le streaming avec Range 3-6", function() {
-		return assertRange("/files/stream/1", "3-6", totoTxtContent.substring(3,7));
+		return assertRange("/files/stream/2", "3-6", totoTxtContent.substring(3,7));
 	});
 
 	add("TRASH / Vérifier que la corbeille est vide", function() {
 		return $.get("/trash/count").then((result) => assertEquals(result, "0"));
 	});
 	add("TRASH / Supprimer (corbeille) le fichier 'fichier.txt'", function() {
-		return $.post("/trash/delete?itemIds=0").then(assertEmpty);
+		return $.post("/trash/delete?itemIds=1").then(assertEmpty);
 	});
 	add("TRASH / Vérifier que la corbeille contient 1 élément", function() {
 		return $.get("/trash/count").then((result) => assertEquals(result, "1"));
 	});
 	add("TRASH / Supprimer (corbeille) les fichiers 'toto.txt' et 'favicon.png'", function() {
-		return $.post("/trash/delete?itemIds=1,2").then(assertEmpty);
+		return $.post("/trash/delete?itemIds=2,3").then(assertEmpty);
 	});
 	add("TRASH / Vérifier que la corbeille contient 3 éléments", function() {
 		return $.get("/trash/count").then((result) => assertEquals(result, "3"));
 	});
-	add("TRASH / Restaurer le fichier 'fichier.txt'", function() {
-		return $.post("/trash/restore?itemIds=0,2").then(assertEmpty);
+	add("TRASH / Restaurer les fichiers 'fichier.txt' et 'favicon.png'", function() {
+		return $.post("/trash/restore?itemIds=1,3").then(assertEmpty);
 	});
 	add("TRASH / Vérifier le contenu de la corbeille", function() {
-		return $.get("/trash/items").then((result) => assertArray(result, 1, (first) => first.id === 1 && first.name === "toto.txt"));
+		return $.get("/trash/items").then((result) => assertArray(result, 1, (first) => first.id === 2 && first.name === "toto.txt"));
 	});
 	add("TRASH / Vérifier qu'une requête incorrecte est rejetée", function() {
-		return shoudBeAnError($.post("/trash/erase?itemIds=10,1"), 400);
+		return shoudBeAnError($.post("/trash/erase?itemIds=10,2"), 400);
 	});
 	add("TRASH / Supprimer (définitivement) le contenu de la corbeille", function() {
-		return $.post("/trash/erase?itemIds=1").then(assertEmpty);
+		return $.post("/trash/erase?itemIds=2").then(assertEmpty);
 	});
 	add("TRASH / Vérifier que la corbeille est à nouveau vide", function() {
 		return $.get("/trash/count").then((result) => assertEquals(result, "0"));
 	});
 
-	add("ADD FOLDER / Créer un dossier 'Dossier3' avec id 3", function() {
-		return $.post("/items/add/folder?name=Dossier3").then((result) => assertEquals(result, "3"));
-	});
 	add("ADD FOLDER / Créer un dossier 'Dossier4' avec id 4", function() {
 		return $.post("/items/add/folder?name=Dossier4").then((result) => assertEquals(result, "4"));
 	});
-	add("ADD FOLDER / Créer un sous-dossier 'Dossier3/Dossier5' avec id 5", function() {
-		return $.post("/items/add/folder?name=Dossier5&parentId=3").then((result) => assertEquals(result, "5"));
+	add("ADD FOLDER / Créer un dossier 'Dossier5' avec id 5", function() {
+		return $.post("/items/add/folder?name=Dossier5").then((result) => assertEquals(result, "5"));
 	});
-	add("ADD FOLDER / Vérifier que le sous-dossier 'Dossier3/Dossier5' n'est pas visible à la racine", function() {
-		return $.post("/items/exists", { names: ["Dossier5"] }).then((result) => assertEquals(result, "false"));
+	add("ADD FOLDER / Créer un sous-dossier 'Dossier4/Dossier6' avec id 6", function() {
+		return $.post("/items/add/folder?name=Dossier6&parentId=4").then((result) => assertEquals(result, "6"));
 	});
-	add("ADD FOLDER / Vérifier que le sous-dossier 'Dossier3/Dossier5' est visible par son parent", function() {
-		return $.post("/items/exists", { names: ["Dossier5"], parentId: 3 }).then((result) => assertEquals(result, "true"));
+	add("ADD FOLDER / Vérifier que le sous-dossier 'Dossier4/Dossier6' n'est pas visible à la racine", function() {
+		return $.post("/items/exists", { names: ["Dossier6"] }).then((result) => assertEquals(result, "false"));
 	});
-	add("ADD FOLDER / Récupérer les infos du dossier 'Dossier3'", function() {
-		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.name === "Dossier3" && r.id === 3 ));
+	add("ADD FOLDER / Vérifier que le sous-dossier 'Dossier4/Dossier6' est visible par son parent", function() {
+		return $.post("/items/exists", { names: ["Dossier6"], parentId: 4 }).then((result) => assertEquals(result, "true"));
 	});
-	add("ADD FOLDER / Récupérer les infos du dossier 'Dossier5' avec chemin '3,'", function() {
-		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.name === "Dossier5" && r.path === "3," ));
+	add("ADD FOLDER / Récupérer les infos du dossier 'Dossier4'", function() {
+		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.name === "Dossier4" && r.id === 4 ));
+	});
+	add("ADD FOLDER / Récupérer les infos du dossier 'Dossier6' avec chemin '4,'", function() {
+		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.name === "Dossier6" && r.path === "4," ));
 	});
 
-	add("Déplacer l'image dans 'Dossier5'", function() {
-		return $.post("/items/move?itemIds=2&targetParentId=5").then(assertEmpty);
+	add("Déplacer l'image dans 'Dossier6'", function() {
+		return $.post("/items/move?itemIds=3&targetParentId=6").then(assertEmpty);
 	});
 	add("Accéder à l'image 'favicon.png' par l'URL '/items/browse/<chemin>'", function() {
-		return $.get("/files/browse/Dossier3/Dossier5/favicon.png").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
+		return $.get("/files/browse/Dossier4/Dossier6/favicon.png").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
 	});
-	add("Vérifier que la racine contient 'Dossier3', 'Dossier4' et 'fichier.txt'", function() {
-		return $.get("/items/list?sortBy=name&sortAscending=true").then((result) => assertArray(result, 3, (first) => first.name === "Dossier3"));
+	add("Vérifier que la racine contient 'Dossier4', 'Dossier5' et 'fichier.txt'", function() {
+		return $.get("/items/list?sortBy=name&sortAscending=true").then((result) => assertArray(result, 3, (first) => first.name === "Dossier4"));
 	});
-	add("Vérifier que récursivement, on trouve aussi 'Dossier5'", function() {
-		return $.get("/items/list?sortBy=name&sortAscending=true&recursive=true").then((result) => assertArray(result, 5, (first) => result[2].name === "Dossier5"));
+	add("Vérifier que récursivement, on trouve aussi 'Dossier6'", function() {
+		return $.get("/items/list?sortBy=name&sortAscending=true&recursive=true").then((result) => assertArray(result, 5, (first) => result[2].name === "Dossier6"));
 	});
 	add("Récupérer les infos de plusieurs éléments en une fois", function() {
-		return $.get("/items/infos?itemIds=0,5,4").then((result) => assertArray(result, 3, (first) => first.id === 0 && first.name === "fichier.txt"));
+		return $.get("/items/infos?itemIds=1,6,5").then((result) => assertArray(result, 3, (first) => first.id === 1 && first.name === "fichier.txt"));
 	});
 	add("Obtenir une erreur si on veut dupliquer un élément qui n'existe pas (ou plus)", function() {
-		return shoudBeAnError($.post("/items/duplicate?itemId=6"), 400);
+		return shoudBeAnError($.post("/items/duplicate?itemId=7"), 400);
 	});
 	add("Vérifier que le nom ou les patterns sont obligatoires pour 'duplicate'", function() {
-		return shoudBeAnError($.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}"), 400);
+		return shoudBeAnError($.post("/items/duplicate?itemId=6&firstPattern=Copie%20de%20{0}"), 400);
 	});
-	add("Réussir par contre à copier le sous-dossier 'Dossier5' avec id 6", function() {
-		return $.post("/items/duplicate?itemId=5&firstPattern=Copie%20de%20{0}&nextPattern=Copie%20{1}%20de%20{0}").then((result) => assertEquals(result, "6"));
+	add("Réussir par contre à copier le sous-dossier 'Dossier6' avec id 7", function() {
+		return $.post("/items/duplicate?itemId=6&firstPattern=Copie%20de%20{0}&nextPattern=Copie%20{1}%20de%20{0}").then((result) => assertEquals(result, "7"));
 	});
 
 	add("HIDDEN / Vérifier que 'fichier.txt' n'est pas masqué pour le moment", function() {
-		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && !r.hidden));
+		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && !r.hidden));
 	});
 	add("HIDDEN / Masquer l'élément", function() {
-		return $.post("/items/hide?itemId=0").then(assertEmpty);
+		return $.post("/items/hide?itemId=1").then(assertEmpty);
 	});
 	add("HIDDEN / Vérifier que 'fichier.txt' est maintenant masqué", function() {
-		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && r.hidden));
+		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.hidden));
 	});
 	add("HIDDEN / Ne plus masquer l'élément", function() {
-		return $.post("/items/hide?itemId=0&hidden=false").then(assertEmpty);
+		return $.post("/items/hide?itemId=1&hidden=false").then(assertEmpty);
 	});
 	add("HIDDEN / Vérifier que 'fichier.txt' n'est plus masqué", function() {
-		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && !r.hidden));
+		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && !r.hidden));
 	});
-	add("HIDDEN / Masquer le dossier 'Dossier3'", function() {
-		return $.post("/items/hide?itemId=3").then(assertEmpty);
+	add("HIDDEN / Masquer le dossier 'Dossier4'", function() {
+		return $.post("/items/hide?itemId=4").then(assertEmpty);
 	});
-	add("HIDDEN / Vérifier que 'Dossier3' est masqué", function() {
-		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.id === 3 && r.folder && r.hidden));
+	add("HIDDEN / Vérifier que 'Dossier4' est masqué", function() {
+		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.id === 4 && r.folder && r.hidden));
 	});
 
-	add("TAGS / Renommer la copie 'Dossier5' en 'Dossier6' avec ajout de tags 'tag1' et 'tag2'", function() {
-		return $.post("/items/rename?itemId=6&name=Dossier6&tags=tag1,tag2").then(assertEmpty);
+	add("TAGS / Renommer la copie 'Dossier6' en 'Dossier7' avec ajout de tags 'tag1' et 'tag2'", function() {
+		return $.post("/items/rename?itemId=7&name=Dossier7&tags=tag1,tag2").then(assertEmpty);
 	});
 	add("TAGS / Renommer le fichier 'fichier.txt' en 'file.txt' avec ajout de tags 'tag2' et 'tag3'", function() {
-		return $.post("/items/rename?itemId=0&name=file.txt&tags=tag2,tag3").then(assertEmpty);
+		return $.post("/items/rename?itemId=1&name=file.txt&tags=tag2,tag3").then(assertEmpty);
 	});
 	add("TAGS / Rechercher tous les tags utilisés (tag1, tag2 et tag3)", function() {
 		return $.get("/items/tags?term=").then((result) => assertArray(result, 3, (t) => t === "tag1"));
@@ -468,32 +468,32 @@ function fillTests(add) {
 	});
 
 	add("Télécharger 'file.txt' via un zip appelé 'cloud.zip'", function() {
-		return $.get("/items/zip?itemIds=0").then((content, status, jqHR) => assertStream(content, status, jqHR, "application/zip", "cloud.zip"));
+		return $.get("/items/zip?itemIds=1").then((content, status, jqHR) => assertStream(content, status, jqHR, "application/zip", "cloud.zip"));
 	});
-	add("Déplacer 'Dossier6' et 'file.txt' dans 'Dossier5'", function() {
-		return $.post("/items/move?itemIds=6,0&targetParentId=5").then(assertEmpty);
+	add("Déplacer 'Dossier7' et 'file.txt' dans 'Dossier6'", function() {
+		return $.post("/items/move?itemIds=7,1&targetParentId=6").then(assertEmpty);
 	});
-	add("Vérifier que 'Dossier3' contient 4 éléments récursivement dont 'Dossier6'", function() {
-		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=3")
-			.then((result) => assertArray(result, 4, (e) => e.id === 6 && e.name === "Dossier6" && e.path === "3,5,"));
+	add("Vérifier que 'Dossier4' contient 4 éléments récursivement dont 'Dossier7'", function() {
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=4")
+			.then((result) => assertArray(result, 4, (e) => e.id === 7 && e.name === "Dossier7" && e.path === "4,6,"));
 	});
-	add("et que le deuxième élément est le sous-dossier 'Dossier5'", function() {
-		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=3")
-			.then((result) => assertObject(result[1], (e) => e.name === "Dossier5" && e.path === "3,"));
+	add("et que le deuxième élément est le sous-dossier 'Dossier6'", function() {
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=4")
+			.then((result) => assertObject(result[1], (e) => e.id === 6 && e.name === "Dossier6" && e.path === "4,"));
 	});
 	add("et que le suivant est le sous-fichier 'favicon.png'", function() {
-		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=3")
-			.then((result) => assertObject(result[2], (e) => e.name === "favicon.png" && e.path === "3,5,"));
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=4")
+			.then((result) => assertObject(result[2], (e) => e.id === 3 && e.name === "favicon.png" && e.path === "4,6,"));
 	});
 	add("et que le dernier élément est le sous-fichier 'file.txt'", function() {
-		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=3")
-			.then((result) => assertObject(result[3], (e) => e.name === "file.txt" && e.path === "3,5,"));
+		return $.get("/items/list?recursive=true&sortBy=id&sortAscending=false&sortFoldersFirst=true&parentId=4")
+			.then((result) => assertObject(result[3], (e) => e.id === 1 && e.name === "file.txt" && e.path === "4,6,"));
 	});
-	add("Déplacer cette fois 'Dossier6' et 'file.txt' vers la racine", function() {
-		return $.post("/items/move?itemIds=6,0").then(assertEmpty);
+	add("Déplacer cette fois 'Dossier7' et 'file.txt' vers la racine", function() {
+		return $.post("/items/move?itemIds=7,1").then(assertEmpty);
 	});
-	add("Vérifier que 'Dossier3' ne contient plus que 'Dossier5'", function() {
-		return $.get("/items/list?recursive=false&sortBy=id&sortAscending=false&parentId=3").then((result) => assertArray(result, 1, (e) => e.id === 5));
+	add("Vérifier que 'Dossier4' ne contient plus que 'Dossier6'", function() {
+		return $.get("/items/list?recursive=false&sortBy=id&sortAscending=false&parentId=4").then((result) => assertArray(result, 1, (e) => e.id === 6));
 	});
 
 	var stringOf520KB = "0123456789".repeat(52).repeat(1024);
@@ -501,54 +501,54 @@ function fillTests(add) {
 	add("QUOTA / Descendre le quota disque à 1Mo", function() {
 		return $.post("/user/update/adm?name=&admin=true&quota=1").then((result) => assertObject(result, (o) => o.quota === 1));
 	});
-	add("QUOTA / Vérifier que le quota autorise de dupliquer 'file.txt' en 'fichier7.txt'", function() {
-		return $.post("/items/duplicate?itemId=0&name=fichier7.txt").then((result) => assertEquals(result, "7"));
+	add("QUOTA / Vérifier que le quota autorise de dupliquer 'file.txt' en 'fichier8.txt'", function() {
+		return $.post("/items/duplicate?itemId=1&name=fichier8.txt").then((result) => assertEquals(result, "8"));
 	});
 	add("QUOTA / Vérifier que le quota autorise d'uploader 510KB dans 'file.txt'", function() {
-		return new TestUpload(null, uploadDate).addFile(stringOf520KB, "text/plain", "file.txt").send().shouldSucceedWithIds([0]);
+		return new TestUpload(null, uploadDate).addFile(stringOf520KB, "text/plain", "file.txt").send().shouldSucceedWithIds([1]);
 	});
 	add("QUOTA / Vérifier la date de modification de 'file.txt'", function() {
-		return $.get("/items/info/0").then((result) => assertObject(result, (r) => r.id === 0 && r.updateDate === uploadDate.getTime()));
+		return $.get("/items/info/1").then((result) => assertObject(result, (r) => r.id === 1 && r.updateDate === uploadDate.getTime()));
 	});
 	add("QUOTA / Vérifier que le quota empêche de dupliquer à nouveau 'file.txt'", function() {
-		return shoudBeAnError($.post("/items/duplicate?itemId=0&name=fichier8.txt"), 507);
+		return shoudBeAnError($.post("/items/duplicate?itemId=1&name=fichier9.txt"), 507);
 	});
-	add("QUOTA / Vérifier que le quota empêche d'uploader à nouveau 510KB dans 'fichier7.txt'", function() {
-		return new TestUpload().addFile(stringOf520KB, "text/plain", "fichier7.txt").send().shouldFailWithErrorCode(507);
+	add("QUOTA / Vérifier que le quota empêche d'uploader à nouveau 510KB dans 'fichier8.txt'", function() {
+		return new TestUpload().addFile(stringOf520KB, "text/plain", "fichier8.txt").send().shouldFailWithErrorCode(507);
 	});
 	add("QUOTA / Repasser le quota disque à 100Mo", function() {
 		return $.post("/user/update/adm?name=&admin=true&quota=100").then((result) => assertObject(result, (o) => o.quota === 100));
 	});
 
-	add("ICONURL / Modifier l'icône de 'Dossier3' avec une adresse locale complète", function() {
-		return $.post("/items/rename?itemId=3&name=Dossier3&iconURL=${serverAbsoluteUrl}/favicon.png").then(assertEmpty);
+	add("ICONURL / Modifier l'icône de 'Dossier4' avec une adresse locale complète", function() {
+		return $.post("/items/rename?itemId=4&name=Dossier4&iconURL=${serverAbsoluteUrl}/favicon.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône et l'absence de cache", function() {
-		return $.get("/items/info/3").then((result) => assertObject(result, (r) => r.id === 3 && r.iconURL === "${serverAbsoluteUrl}/favicon.png" && !r.iconURLCache));
+		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.id === 4 && r.iconURL === "${serverAbsoluteUrl}/favicon.png" && !r.iconURLCache));
 	});
-	add("ICONURL / Modifier l'icône de 'Dossier4' avec une adresse locale relative", function() {
-		return $.post("/items/rename?itemId=4&name=Dossier4&iconURL=/favicon.ico").then(assertEmpty);
+	add("ICONURL / Modifier l'icône de 'Dossier5' avec une adresse locale relative", function() {
+		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=/favicon.ico").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône et l'absence de cache", function() {
-		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.id === 4 && r.iconURL === "/favicon.ico" && !r.iconURLCache));
+		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "/favicon.ico" && !r.iconURLCache));
 	});
-	add("ICONURL / Modifier l'icône de 'Dossier6' avec une adresse distante", function() {
-		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png").then(assertEmpty);
+	add("ICONURL / Modifier l'icône de 'Dossier7' avec une adresse distante", function() {
+		return $.post("/items/rename?itemId=7&name=Dossier7&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône et la récupération de l'icône en cache", function() {
-		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png" && (offline || (r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0))));
+		return $.get("/items/info/7").then((result) => assertObject(result, (r) => r.id === 7 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png" && (offline || (r.iconURLCache && r.iconURLCache.indexOf("data:image/png;base64,") === 0))));
 	});
-	add("ICONURL / Tenter de modifier l'icône de 'Dossier5' avec une adresse incorrecte", function() {
-		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/fakeicon.png").then(assertEmpty);
+	add("ICONURL / Tenter de modifier l'icône de 'Dossier6' avec une adresse incorrecte", function() {
+		return $.post("/items/rename?itemId=6&name=Dossier6&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/fakeicon.png").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône mais l'abscence de l'icône en cache", function() {
-		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/fakeicon.png" && !r.iconURLCache));
+		return $.get("/items/info/6").then((result) => assertObject(result, (r) => r.id === 6 && r.iconURL === "https://github.com/guillaumeprevot/nimbus/raw/master/public/fakeicon.png" && !r.iconURLCache));
 	});
-	add("ICONURL / Utiliser l'image 2 comme miniature du dossier parent 'Dossier5'", function() {
-		return $.post("/files/useAsFolderIcon/2").then(assertEmpty);
+	add("ICONURL / Utiliser l'image 3 comme miniature du dossier parent 'Dossier6'", function() {
+		return $.post("/files/useAsFolderIcon/3").then(assertEmpty);
 	});
-	add("ICONURL / Vérifier que la miniature de 'Dossier5' est bien l'image 2", function() {
-		return $.get("/items/info/5").then((result) => assertObject(result, (o) => o.iconURL === '/files/thumbnail/2?size=32'));
+	add("ICONURL / Vérifier que la miniature de 'Dossier6' est bien l'image 3", function() {
+		return $.get("/items/info/6").then((result) => assertObject(result, (o) => o.iconURL === '/files/thumbnail/3?size=32'));
 	});
 
 	var downloadURL = "https://www.w3schools.com/tags/movie.mp4";
@@ -558,57 +558,57 @@ function fillTests(add) {
 	});
 	add("DOWNLOAD / Télécharger une vidéo", function() {
 		var q = offline ? $.post('/files/touch', { name: downloadName }) : $.post("/download/add", { url: downloadURL });
-		return q.then((result) => assertEquals(result, "8"));
+		return q.then((result) => assertEquals(result, "9"));
 	});
 	add("DOWNLOAD / Vérifier les informations sur l'élément téléchargé", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4"
+		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === downloadName && r.mimetype === "video/mp4"
 				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465) || (offline && !r.status && length === 0))));
 	});
 	add("DOWNLOAD / Actualiser un fichier téléchargé", function() {
 		if (offline)
 			return $.Deferred().resolve('OK');
-		return wait(3).then(() => $.post("/download/refresh?itemId=8")).then((result) => assertEquals(result, "8"));
+		return wait(3).then(() => $.post("/download/refresh?itemId=9")).then((result) => assertEquals(result, "9"));
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé n'ont pas changé", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4"
+		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === downloadName && r.mimetype === "video/mp4"
 				&& ((r.status === "download" && typeof r.progress === "number") || (r.status === "success" && r.length === 318465) || (offline && !r.status && length === 0))));
 	});
 	add("DOWNLOAD / Marquer le téléchargement comme vu", function() {
 		if (offline)
 			return $.Deferred().resolve('OK');
-		return wait(3).then(() => $.post("/download/done?itemId=8")).then(assertEmpty);
+		return wait(3).then(() => $.post("/download/done?itemId=9")).then(assertEmpty);
 	});
 	add("DOWNLOAD / Vérifier que les informations sur l'élément téléchargé ont été nettoyées", function() {
-		return $.get("/items/info/8").then((result) => assertObject(result, (r) => r.id === 8 && r.name === downloadName && r.mimetype === "video/mp4" && !r.status));
+		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === downloadName && r.mimetype === "video/mp4" && !r.status));
 	});
 
 	var metadataLong = Date.now();
 	add("METADATA / Créer un fichier de test pour les méta-données", function() {
-		return $.post("/files/touch?name=fichier.test").then((result) => assertEquals(result, "9"));
+		return $.post("/files/touch?name=fichier.test").then((result) => assertEquals(result, "10"));
 	});
 	add("METADATA / Vérifier que les méta-données sont pour le moment vide", function() {
-		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && !r.testserver && !r.testinteger));
+		return $.get("/items/info/10").then((result) => assertObject(result, (r) => r.id === 10 && r.name === "fichier.test" && !r.testserver && !r.testinteger));
 	});
 	add("METADATA / Recalculer les méta-données gérées côté serveur", function() {
-		return $.post("/items/refresh?itemId=9").then(assertEmpty);
+		return $.post("/items/refresh?itemId=10").then(assertEmpty);
 	});
 	add("METADATA / Vérifier l'apparition d'une méta-donnée", function() {
-		return $.get("/items/info/9")
-			.then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && !r.testinteger))
+		return $.get("/items/info/10")
+			.then((result) => assertObject(result, (r) => r.id === 10 && r.name === "fichier.test" && r.testserver === 42 && !r.testinteger))
 			.then(undefined, (error) => $.Deferred().reject("Résultat inattendu. Pensez à activer la TestFacet pour l'exécution des tests"));
 	});
 	add("METADATA / Demander à conserver 3 méta-données", function() {
-		return $.post("/items/metadata?itemId=9&metadata=" + JSON.stringify([
+		return $.post("/items/metadata?itemId=10&metadata=" + JSON.stringify([
 			{ action:"set", name:"testboolean", type:"boolean", value:true },
 			{ action:"set", name:"testinteger", type:"integer", value:123 },
 			{ action:"set", name:"testlong", type:"long", value:456 }
 		])).then(assertEmpty);
 	});
 	add("METADATA / Vérifier l'apparition des 3 méta-données", function() {
-		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && r.testinteger === 123 && r.testlong === 456 && !r.testdouble));
+		return $.get("/items/info/10").then((result) => assertObject(result, (r) => r.id === 10 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && r.testinteger === 123 && r.testlong === 456 && !r.testdouble));
 	});
 	add("METADATA / Supprimer testinteger, modifier testlong et ajouter testdouble et teststring", function() {
-		return $.post("/items/metadata?itemId=9&metadata=" + JSON.stringify([
+		return $.post("/items/metadata?itemId=10&metadata=" + JSON.stringify([
 			{ action:"set", name:"testdouble", type:"double", value:123456.789 },
 			{ action:"remove", name:"testinteger" },
 			{ action:"set", name:"testlong", type:"long", value:metadataLong },
@@ -616,7 +616,7 @@ function fillTests(add) {
 		])).then(assertEmpty);
 	});
 	add("METADATA / Vérifier les modifications apportées aux méta-données", function() {
-		return $.get("/items/info/9").then((result) => assertObject(result, (r) => r.id === 9 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && !r.testinteger && r.testdouble === 123456.789 && r.testlong === metadataLong && r.teststring === "Nimbus"));
+		return $.get("/items/info/10").then((result) => assertObject(result, (r) => r.id === 10 && r.name === "fichier.test" && r.testserver === 42 && r.testboolean === true && !r.testinteger && r.testdouble === 123456.789 && r.testlong === metadataLong && r.teststring === "Nimbus"));
 	});
 
 	add("PREFERENCES / Vérifier les préférences par défaut", function() {
@@ -665,7 +665,7 @@ function fillTests(add) {
 	});
 
 	add("MOVE / Résolution des conflits lors d'un déplacement", function() {
-		return new TestUpload(4)
+		return new TestUpload(5)
 			.addFile("aaa", "text/plain", "aaa.txt")
 			.addFile("bbb", "text/plain", "bbb.txt")
 			.addFile("ccc", "text/plain", "ccc.txt")
@@ -674,9 +674,9 @@ function fillTests(add) {
 			.addFile("fff", "text/plain", "fff.txt")
 			.addFile("ggg", "text/plain", "ggg.txt")
 			.send()
-			.shouldSucceedWithIds([10, 11, 12, 13, 14, 15, 16])
+			.shouldSucceedWithIds([11, 12, 13, 14, 15, 16, 17])
 			.then(function() {
-				return new TestUpload(6)
+				return new TestUpload(7)
 					.addFile("aa", "text/plain", "aaa.txt")
 					.addFile("bb", "text/plain", "bbb.txt")
 					.addFile("cc", "text/plain", "ccc.txt")
@@ -685,62 +685,62 @@ function fillTests(add) {
 					.addFile("ff", "text/plain", "fff.txt")
 					.addFile("gg", "text/plain", "ggg.txt")
 					.send()
-					.shouldSucceedWithIds([17, 18, 19, 20, 21, 22, 23])
+					.shouldSucceedWithIds([18, 19, 20, 21, 22, 23, 24])
 			});
 	});
 	add("MOVE / Résolution des conflits 'keepsource'", function() {
-		return $.post("/items/move?itemIds=10&targetParentId=6&conflict=keepsource&firstConflictPattern=[C]{0}")
+		return $.post("/items/move?itemIds=11&targetParentId=7&conflict=keepsource&firstConflictPattern=[C]{0}")
 			.then(assertEmpty)
-			.then(() => shoudBeAnError($.get("/items/info/17")))
-			.then(() => $.get("/items/info/10"))
-			.then((result) => assertObject(result, (r) => r.id === 10 && r.parentId === 6 && r.name === "aaa.txt"));
+			.then(() => shoudBeAnError($.get("/items/info/18")))
+			.then(() => $.get("/items/info/11"))
+			.then((result) => assertObject(result, (r) => r.id === 11 && r.parentId === 7 && r.name === "aaa.txt"));
 	});
 	add("MOVE / Résolution des conflits 'keeptarget'", function() {
-		return $.post("/items/move?itemIds=11&targetParentId=6&conflict=keeptarget&firstConflictPattern=[C]{0}")
+		return $.post("/items/move?itemIds=12&targetParentId=7&conflict=keeptarget&firstConflictPattern=[C]{0}")
 			.then(assertEmpty)
-			.then(() => shoudBeAnError($.get("/items/info/11")))
-			.then(() => $.get("/items/info/18"))
-			.then((result) => assertObject(result, (r) => r.id === 18 && r.parentId === 6 && r.name === "bbb.txt"));
+			.then(() => shoudBeAnError($.get("/items/info/12")))
+			.then(() => $.get("/items/info/19"))
+			.then((result) => assertObject(result, (r) => r.id === 19 && r.parentId === 7 && r.name === "bbb.txt"));
 	});
 	add("MOVE / Résolution des conflits 'renamesource'", function() {
-		return $.post("/items/move?itemIds=12&targetParentId=6&conflict=renamesource&firstConflictPattern=[C]{0}")
-			.then(assertEmpty)
-			.then(() => $.get("/items/info/12"))
-			.then((result) => assertObject(result, (r) => r.id === 12 && r.parentId === 6 && r.name === "[C]ccc.txt"))
-			.then(() => $.get("/items/info/19"))
-			.then((result) => assertObject(result, (r) => r.id === 19 && r.parentId === 6 && r.name === "ccc.txt"));
-	});
-	add("MOVE / Résolution des conflits 'renametarget'", function() {
-		return $.post("/items/move?itemIds=13&targetParentId=6&conflict=renametarget&firstConflictPattern=[C]{0}")
+		return $.post("/items/move?itemIds=13&targetParentId=7&conflict=renamesource&firstConflictPattern=[C]{0}")
 			.then(assertEmpty)
 			.then(() => $.get("/items/info/13"))
-			.then((result) => assertObject(result, (r) => r.id === 13 && r.parentId === 6 && r.name === "ddd.txt"))
+			.then((result) => assertObject(result, (r) => r.id === 13 && r.parentId === 7 && r.name === "[C]ccc.txt"))
 			.then(() => $.get("/items/info/20"))
-			.then((result) => assertObject(result, (r) => r.id === 20 && r.parentId === 6 && r.name === "[C]ddd.txt"));
+			.then((result) => assertObject(result, (r) => r.id === 20 && r.parentId === 7 && r.name === "ccc.txt"));
+	});
+	add("MOVE / Résolution des conflits 'renametarget'", function() {
+		return $.post("/items/move?itemIds=14&targetParentId=7&conflict=renametarget&firstConflictPattern=[C]{0}")
+			.then(assertEmpty)
+			.then(() => $.get("/items/info/14"))
+			.then((result) => assertObject(result, (r) => r.id === 14 && r.parentId === 7 && r.name === "ddd.txt"))
+			.then(() => $.get("/items/info/21"))
+			.then((result) => assertObject(result, (r) => r.id === 21 && r.parentId === 7 && r.name === "[C]ddd.txt"));
 	});
 	add("MOVE / Résolution des conflits 'keepnewest'", function() {
-		return $.post("/items/move?itemIds=14&targetParentId=6&conflict=keepnewest&firstConflictPattern=[C]{0}")
+		return $.post("/items/move?itemIds=15&targetParentId=7&conflict=keepnewest&firstConflictPattern=[C]{0}")
 			.then(assertEmpty)
-			.then(() => shoudBeAnError($.get("/items/info/14")))
-			.then(() => $.get("/items/info/21"))
-			.then((result) => assertObject(result, (r) => r.id === 21 && r.parentId === 6 && r.name === "eee.txt"));
+			.then(() => shoudBeAnError($.get("/items/info/15")))
+			.then(() => $.get("/items/info/22"))
+			.then((result) => assertObject(result, (r) => r.id === 22 && r.parentId === 7 && r.name === "eee.txt"));
 	});
 	add("MOVE / Résolution des conflits 'skip'", function() {
-		return $.post("/items/move?itemIds=15&targetParentId=6&conflict=skip&firstConflictPattern=[C]{0}")
+		return $.post("/items/move?itemIds=16&targetParentId=7&conflict=skip&firstConflictPattern=[C]{0}")
 			.then(assertEmpty)
-			.then(() => $.get("/items/info/15"))
-			.then((result) => assertObject(result, (r) => r.id === 15 && r.parentId === 4 && r.name === "fff.txt"))
-			.then(() => $.get("/items/info/22"))
-			.then((result) => assertObject(result, (r) => r.id === 22 && r.parentId === 6 && r.name === "fff.txt"));
+			.then(() => $.get("/items/info/16"))
+			.then((result) => assertObject(result, (r) => r.id === 16 && r.parentId === 5 && r.name === "fff.txt"))
+			.then(() => $.get("/items/info/23"))
+			.then((result) => assertObject(result, (r) => r.id === 23 && r.parentId === 7 && r.name === "fff.txt"));
 	});
 	add("MOVE / Résolution des conflits 'abort'", function() {
-		return shoudBeAnError($.post("/items/move?itemIds=16,15&targetParentId=6&conflict=abort&firstConflictPattern=[C]{0}"), 409)
+		return shoudBeAnError($.post("/items/move?itemIds=17,16&targetParentId=7&conflict=abort&firstConflictPattern=[C]{0}"), 409)
+			.then(() => $.get("/items/info/17"))
+			.then((result) => assertObject(result, (r) => r.id === 17 && r.parentId === 5 && r.name === "ggg.txt"))
 			.then(() => $.get("/items/info/16"))
-			.then((result) => assertObject(result, (r) => r.id === 16 && r.parentId === 4 && r.name === "ggg.txt"))
-			.then(() => $.get("/items/info/15"))
-			.then((result) => assertObject(result, (r) => r.id === 15 && r.parentId === 4 && r.name === "fff.txt"))
-			.then(() => $.get("/items/info/23"))
-			.then((result) => assertObject(result, (r) => r.id === 23 && r.parentId === 6 && r.name === "ggg.txt"));
+			.then((result) => assertObject(result, (r) => r.id === 16 && r.parentId === 5 && r.name === "fff.txt"))
+			.then(() => $.get("/items/info/24"))
+			.then((result) => assertObject(result, (r) => r.id === 24 && r.parentId === 7 && r.name === "ggg.txt"));
 	});
 
 	add("Déconnecter ramène sur la page de connexion", function() {

@@ -61,7 +61,7 @@ public class Mongo implements Database {
 		Bson filter = Filters.eq("_id", sequence);
 		Document d = collection.find().filter(filter).first();
 		if (d == null)
-			collection.insertOne(new Document().append("_id", sequence).append("value", 0L));
+			collection.insertOne(new Document().append("_id", sequence).append("value", 1L));
 	}
 
 	private final Long getNextSequence(String sequence) {
