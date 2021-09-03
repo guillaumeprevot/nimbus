@@ -25,6 +25,9 @@ public class Configuration {
 	private final String mongoHost;
 	private final int mongoPort;
 	private final String mongoDatabase;
+	private final String postgresqlURL;
+	private final String postgresqlUsername;
+	private final String postgresqlPassword;
 
 	private final int serverPort;
 	private final String serverKeystore;
@@ -62,6 +65,9 @@ public class Configuration {
 		this.mongoHost = getString("mongo.host", "localhost");
 		this.mongoPort = getInt("mongo.port", 27017);
 		this.mongoDatabase = getString("mongo.database", "nimbus");
+		this.postgresqlURL = getString("postgresql.url", null);
+		this.postgresqlUsername = getString("postgresql.username", "postgres");
+		this.postgresqlPassword = getString("postgresql.password", "postgres");
 
 		this.serverPort = getInt("server.port", 10001);
 		this.serverKeystore = getString("server.keystore", null);
@@ -151,6 +157,18 @@ public class Configuration {
 
 	public String getMongoDatabase() {
 		return this.mongoDatabase;
+	}
+
+	public String getPostgresqlURL() {
+		return this.postgresqlURL;
+	}
+
+	public String getPostgresqlUsername() {
+		return this.postgresqlUsername;
+	}
+
+	public String getPostgresqlPassword() {
+		return this.postgresqlPassword;
 	}
 
 	public int getServerPort() {

@@ -34,6 +34,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Gson](https://github.com/google/gson) | Java | [2.8.7](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.32](http://www.slf4j.org/download.html) | MIT | Gestion des logs
 [MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.10](https://search.maven.org/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
+[PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.2.23](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.11.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
 [PDFBox](https://pdfbox.apache.org/) | plugin Java | [2.0.24](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/) | plugin Java | [2.16.0](https://github.com/drewnoakes/metadata-extractor/releases) | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
@@ -142,7 +143,7 @@ Enfin, certaines extensions sont interprétées comme fichiers contenant les don
 
 **Pré-requis**
 
-Pour fonctionner, `Nimbus` a besoin de [MongoDB](https://www.mongodb.com/download-center/community), [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html), [Git](https://git-scm.com/) et [Maven](https://maven.apache.org/download.cgi).
+Pour fonctionner, `Nimbus` a besoin de [MongoDB](https://www.mongodb.com/download-center/community) ou [PostgreSQL](https://www.postgresql.org/), de [Java](https://adoptium.net/), de [Git](https://git-scm.com/) et de [Maven](https://maven.apache.org/download.cgi).
 
 **Installation**
 
@@ -174,6 +175,8 @@ Par défaut :
     - les propriétés `server.*` permettent d'ajuster cette partie
 - le serveur accède à MongoDB en local, sur le port 27017 et crée la base "nimbus"
     - les propriétés `mongo.*` permettent d'ajuster cette partie
+- le serveur utilisera PostgreSQL au lieu de MongoDB si les paramètres sont spécifiés
+    - les propriétés `postgresql.*` permettent d'ajuster cette partie
 - les fichiers sont stockés dans le sous-dossier "storage"
     - la propriété `storage.path` vous permet d'indiquer un autre chemin (relatif ou absolu)
 - tous les plugins sont activés côté client (javascript)
@@ -244,7 +247,7 @@ Options :
 - `-Dorg.slf4j.simpleLogger.log.fr.techgp.nimbus.Import=debug` réduira les traces en n'affichant que les dossiers parcourus
 
 Comportement
-- la configuration est en partie extraite de "nimbus.conf" (accès MongoDB, facets, dossier de stockage)
+- la configuration est en partie extraite de "nimbus.conf" (accès MongoDB/PostgreSQL, facets, dossier de stockage)
 - l'import demande confirmation en indiquant la taille et le nombre d'éléments en entrée
 - l'import crée ou complète l'arborescence sous "parentId" pour correspondre à l'arborescence de "folderPath"
 - les fichiers sont copiés sauf s'ils existent déjà avec la même taille (voir options ci-dessus pour personnaliser)

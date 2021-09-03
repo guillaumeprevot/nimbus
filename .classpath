@@ -8,6 +8,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.69.jar"/>
 	<classpathentry kind="lib" path="lib/bson-3.12.10.jar"/>
+	<classpathentry kind="lib" path="lib/checker-qual-3.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.11.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/fontbox-2.0.24.jar"/>
@@ -32,6 +33,7 @@
 	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.12.10.jar"/>
 	<classpathentry kind="lib" path="lib/mp3agic-0.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/pdfbox-2.0.24.jar"/>
+	<classpathentry kind="lib" path="lib/postgresql-42.2.23.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.32.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.32.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-api-9.4.43.v20210629.jar"/>

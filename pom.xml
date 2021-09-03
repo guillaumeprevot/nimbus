@@ -79,6 +79,15 @@
 			<artifactId>mongodb-driver</artifactId>
 			<version>[3.12.10,)</version>
 		</dependency>
+		<!--
+			https://jdbc.postgresql.org/download.html
+			https://search.maven.org/artifact/org.postgresql/postgresql
+		-->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.23</version>
+		</dependency>
 
 		<!--
 			https://commons.apache.org/proper/commons-io/

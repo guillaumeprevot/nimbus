@@ -10,6 +10,7 @@ import fr.techgp.nimbus.controllers.Templates;
 import fr.techgp.nimbus.models.Database;
 import fr.techgp.nimbus.server.Router;
 import fr.techgp.nimbus.server.impl.JettyServer;
+import fr.techgp.nimbus.utils.StringUtils;
 
 public class Application {
 
@@ -73,7 +74,10 @@ public class Application {
 			if (logger.isInfoEnabled()) {
 				logger.info("Application démarrée");
 				logger.info("Stockage dans : {}", configuration.getStorageFolder().getAbsolutePath());
-				logger.info("Connexion MongoDB : {}:{}/{}", configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
+				if (StringUtils.isNotBlank(configuration.getPostgresqlURL()))
+					logger.info("PostgreSQL {} : {}", configuration.getPostgresqlUsername(), configuration.getPostgresqlURL());
+				else
+					logger.info("MongoDB : {}:{}/{}", configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
 				logger.info("Serveur en attente : {}", configuration.getServerAbsoluteUrl());
 			}
 

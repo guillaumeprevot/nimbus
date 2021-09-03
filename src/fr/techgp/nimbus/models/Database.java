@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import fr.techgp.nimbus.Configuration;
+import fr.techgp.nimbus.utils.StringUtils;
 
 public interface Database {
 
@@ -41,10 +42,15 @@ public interface Database {
 	public long calculateUsedSpace(String userLogin);
 
 	public static void init(Configuration configuration) {
-		Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
+		if (StringUtils.isNotBlank(configuration.getPostgresqlURL()))
+			PostgreSQL.init(configuration.getPostgresqlURL(), configuration.getPostgresqlUsername(), configuration.getPostgresqlPassword());
+		else
+			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
 	}
 
 	public static Database get() {
+		if (PostgreSQL.get() != null)
+			return PostgreSQL.get();
 		if (Mongo.get() != null)
 			return Mongo.get();
 		throw new IllegalStateException("Database not initialized");
