@@ -9,8 +9,10 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.69.jar"/>
 	<classpathentry kind="lib" path="lib/bson-3.12.10.jar"/>
 	<classpathentry kind="lib" path="lib/checker-qual-3.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-dbcp2-2.9.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.11.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool2-2.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/fontbox-2.0.24.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.31.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.8.8.jar"/>

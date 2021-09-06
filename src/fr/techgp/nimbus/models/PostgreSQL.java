@@ -1,7 +1,6 @@
 package fr.techgp.nimbus.models;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,6 +21,9 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.postgresql.util.PGobject;
 
 import com.google.gson.JsonElement;
@@ -45,34 +47,30 @@ public class PostgreSQL implements Database {
 
 	// Connexion à PostgreSQL
 	private final String username;
-	private final Connection connection;
+	private final DataSource dataSource;
 	private final Map<String, String> propertyToFieldMap;
 	private final Pattern metadatasExpressionPattern;
 
 	private PostgreSQL(String url, String username, String password) {
-		try {
-			this.username = username;
-			this.connection = DriverManager.getConnection(url, username, password);
-			this.propertyToFieldMap = new HashMap<>();
-			this.propertyToFieldMap.put("id", "id");
-			this.propertyToFieldMap.put("parentId", "parent_id");
-			this.propertyToFieldMap.put("path", "path");
-			this.propertyToFieldMap.put("userLogin", "user_login");
-			this.propertyToFieldMap.put("folder", "folder");
-			this.propertyToFieldMap.put("hidden", "hidden");
-			this.propertyToFieldMap.put("name", "name");
-			this.propertyToFieldMap.put("createDate", "create_date");
-			this.propertyToFieldMap.put("updateDate", "update_date");
-			this.propertyToFieldMap.put("deleteDate", "delete_date");
-			this.propertyToFieldMap.put("tags", "tags");
-			this.propertyToFieldMap.put("sharedPassword", "shared_password");
-			this.propertyToFieldMap.put("sharedDate", "shared_date");
-			this.propertyToFieldMap.put("sharedDuration", "shared_duration");
-			this.metadatasExpressionPattern = Pattern.compile("^content\\.[a-zA-Z0-9]+$");
-			createIfNotExists();
-		} catch (SQLException ex) {
-			throw new RuntimeException("PostgreSQL initialization failed", ex);
-		}
+		this.username = username;
+		this.dataSource = createDataSource(url, username, password);
+		this.propertyToFieldMap = new HashMap<>();
+		this.propertyToFieldMap.put("id", "id");
+		this.propertyToFieldMap.put("parentId", "parent_id");
+		this.propertyToFieldMap.put("path", "path");
+		this.propertyToFieldMap.put("userLogin", "user_login");
+		this.propertyToFieldMap.put("folder", "folder");
+		this.propertyToFieldMap.put("hidden", "hidden");
+		this.propertyToFieldMap.put("name", "name");
+		this.propertyToFieldMap.put("createDate", "create_date");
+		this.propertyToFieldMap.put("updateDate", "update_date");
+		this.propertyToFieldMap.put("deleteDate", "delete_date");
+		this.propertyToFieldMap.put("tags", "tags");
+		this.propertyToFieldMap.put("sharedPassword", "shared_password");
+		this.propertyToFieldMap.put("sharedDate", "shared_date");
+		this.propertyToFieldMap.put("sharedDuration", "shared_duration");
+		this.metadatasExpressionPattern = Pattern.compile("^content\\.[a-zA-Z0-9]+$");
+		createIfNotExists();
 	}
 
 	@Override
@@ -177,7 +175,8 @@ public class PostgreSQL implements Database {
 	@Override
 	public void insertItem(Item item) {
 		String sql = "INSERT INTO items (parent_id, path, user_login, folder, hidden, name, create_date, update_date, tags, metadatas) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		try (PreparedStatement ps = this.connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+		try (Connection connection = this.dataSource.getConnection();
+				PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			int index = 1;
 			ps.setObject(index++, item.parentId, Types.BIGINT);
 			ps.setString(index++, item.path);
@@ -583,7 +582,8 @@ public class PostgreSQL implements Database {
 	}
 
 	private <T> T selectOne(String sql, SQLFunction<ResultSet, T> load) {
-		try (Statement s = this.connection.createStatement()) {
+		try (Connection connection = this.dataSource.getConnection();
+				Statement s = connection.createStatement()) {
 			try (ResultSet rs = s.executeQuery(sql)) {
 				if (rs.next())
 					return load.apply(rs);
@@ -595,7 +595,8 @@ public class PostgreSQL implements Database {
 	}
 
 	private <T> T selectOne(String sql, SQLConsumer<PreparedStatement> prepare, SQLFunction<ResultSet, T> load) {
-		try (PreparedStatement ps = this.connection.prepareStatement(sql)) {
+		try (Connection connection = this.dataSource.getConnection();
+				PreparedStatement ps = connection.prepareStatement(sql)) {
 			prepare.accept(ps);
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next())
@@ -608,7 +609,8 @@ public class PostgreSQL implements Database {
 	}
 
 	private <T> List<T> selectAll(String sql, SQLFunction<ResultSet, T> load) {
-		try (Statement s = this.connection.createStatement()) {
+		try (Connection connection = this.dataSource.getConnection();
+				Statement s = connection.createStatement()) {
 			try (ResultSet rs = s.executeQuery(sql)) {
 				List<T> l = new ArrayList<>();
 				while (rs.next()) {
@@ -622,7 +624,8 @@ public class PostgreSQL implements Database {
 	}
 
 	private <T> List<T> selectAll(String sql, SQLConsumer<PreparedStatement> prepare, SQLFunction<ResultSet, T> load) {
-		try (PreparedStatement ps = this.connection.prepareStatement(sql)) {
+		try (Connection connection = this.dataSource.getConnection();
+				PreparedStatement ps = connection.prepareStatement(sql)) {
 			prepare.accept(ps);
 			try (ResultSet rs = ps.executeQuery()) {
 				List<T> l = new ArrayList<>();
@@ -637,7 +640,8 @@ public class PostgreSQL implements Database {
 	}
 
 	private int execute(String sql) {
-		try (Statement s = this.connection.createStatement()) {
+		try (Connection connection = this.dataSource.getConnection();
+				Statement s = connection.createStatement()) {
 			return s.executeUpdate(sql);
 		} catch (SQLException ex) {
 			throw new RuntimeException("SQLException on query " + sql, ex);
@@ -645,12 +649,23 @@ public class PostgreSQL implements Database {
 	}
 
 	private int execute(String sql, SQLConsumer<PreparedStatement> executor) {
-		try (PreparedStatement ps = this.connection.prepareStatement(sql)) {
+		try (Connection connection = this.dataSource.getConnection();
+				PreparedStatement ps = connection.prepareStatement(sql)) {
 			executor.accept(ps);
 			return ps.executeUpdate();
 		} catch (SQLException ex) {
 			throw new RuntimeException("SQLException on query " + sql, ex);
 		}
+	}
+
+	private final DataSource createDataSource(String url, String username, String password) {
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setUrl(url);
+		dataSource.setUsername(username);
+		dataSource.setPassword(password);
+		dataSource.setDriverClassName("org.postgresql.Driver");
+		dataSource.setValidationQuery("SELECT version()");
+		return dataSource;
 	}
 
 	private static final Date toDate(ResultSet rs, String column) throws SQLException {

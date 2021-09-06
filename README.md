@@ -35,6 +35,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.32](http://www.slf4j.org/download.html) | MIT | Gestion des logs
 [MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.10](https://search.maven.org/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
 [PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.2.23](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
+[Commons DBCP](https://commons.apache.org/proper/commons-dbcp/) | Java | [2.9.0](https://commons.apache.org/proper/commons-dbcp/download_dbcp.cgi) | Apache 2.0 | Pool pour PostgreSQL
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.11.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
 [PDFBox](https://pdfbox.apache.org/) | plugin Java | [2.0.24](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/) | plugin Java | [2.16.0](https://github.com/drewnoakes/metadata-extractor/releases) | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
