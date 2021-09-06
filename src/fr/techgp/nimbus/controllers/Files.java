@@ -2,14 +2,12 @@ package fr.techgp.nimbus.controllers;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -100,8 +98,10 @@ public class Files extends Controller {
 				item = Item.add(userLogin, parent, false, upload.fileName(), null);
 			// Récupérer, si elle est précisée, la date de mise à jour à utiliser pour ce fichier en particulier
 			Date updateDate = new Date(request.queryParameterLong("updateDate" + i, generalUpdateDate));
-			// Enregistrement sur disque
-			updateFileFromFilePart(upload, item, updateDate);
+			// Enregistrer le fichier dans le dossier de stockage
+			upload.saveTo(getFile(item));
+			// Mettre à jour les infos du fichier et sauvegarder
+			updateFile(item, updateDate, true);
 			// Renvoyer la liste des ids créés
 			results.add(item.id);
 		}
@@ -142,7 +142,10 @@ public class Files extends Controller {
 
 		// OK, lancer l'intégration à la date demandée (par défaut, maintenant)
 		long updateDate = request.queryParameterLong("updateDate", System.currentTimeMillis());
-		updateFileFromFilePart(upload, item, new Date(updateDate));
+		// Enregistrer le fichier dans le dossier de stockage
+		upload.saveTo(getFile(item));
+		// Mettre à jour les infos du fichier et sauvegarder
+		updateFile(item, new Date(updateDate), true);
 		return Render.EMPTY;
 	};
 
@@ -301,35 +304,6 @@ public class Files extends Controller {
 			return Render.EMPTY;
 		});
 	};
-
-	/** Met à jour le fichier à partir du fichier uploadé, recalcule les méta-données et les sauvegarde en base */
-	private static final void updateFileFromFilePart(Upload upload, Item item, Date updateDate) throws IOException {
-		File storedFile = getFile(item);
-		if (upload.getFile() != null) {
-			// La limite a été dépassée et le fichier a donc été écrit sur disque.
-			// => on déplace le fichier (= rapide puisque c'est le même volume)
-			java.nio.file.Files.move(upload.getFile().toPath(), storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-		} else if (upload.getBytes() != null) {
-			// La taille est en dessous de la limite et le contenu est donc en mémoire
-			// => on écrit dans le fichier demandé
-			try (OutputStream os = new FileOutputStream(storedFile)) {
-				os.write(upload.getBytes());
-			}
-
-		} else {
-			// La méthode par défaut est d'ouvrir le flux pour le copier
-			// => c'est juste une fallback si on n'a détecté ni fichier, ni byte[]
-			try (InputStream is = upload.getInputStream()) {
-				//too slow : FileUtils.copyInputStreamToFile(is, storedFile);
-				try (OutputStream os = new FileOutputStream(storedFile)) {
-					IOUtils.copyLarge(is, os, new byte[1024*1024*10]);
-				}
-			}
-		}
-		// Mettre à jour les infos du fichier et sauvegarder
-		updateFile(item, updateDate, true);
-	}
 
 	// TODO Gérer l'erreur 416 Range Not Satisfiable
 	// TODO Gérer l'en-tête Range multiple, par exemple "0-10, 20-30, 40-50"
