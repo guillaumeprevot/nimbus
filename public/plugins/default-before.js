@@ -24,9 +24,7 @@
 		facets: [
 			{
 				name: 'folder',
-				accept: function(item, extension) {
-					return item.folder;
-				},
+				accept: (item, _extension) => item.folder,
 				icon: 'folder',
 				thumbnail: function(item) { return item.iconURL ? (item.iconURLCache || item.iconURL) : null; },
 				describe: function(item) {
@@ -44,11 +42,29 @@
 				icon: 'folder_open',
 				caption: 'ActionNavigate',
 				// La navigation ne se fait que dans des dossiers
-				accept: (item, extension) => item.folder,
+				accept: (item, _extension) => item.folder,
 				// Le support de l'URL vers le dossier pour l'ouverture dans un onglet
 				url: (item) => '/nav/' + item.path.replace(',', '/') + item.id,
 				// Le support de "execute", pour naviguer dans le dossier sans recharger la page
 				execute: (item) => NIMBUS.navigation.goToFolderAndRefreshItems(item)
+			}, {
+				name: 'usage',
+				icon: 'functions',
+				caption: 'ActionCalculateStatistics',
+				// Cette action mesure l'occupation d'un dossier
+				accept: (item, _extension) => item.folder,
+				// Le support de "execute" pour donner les infos à l'utilisateur
+				execute: (item) => {
+					$.get('/items/folder/statistics?recursive=false&parentId=' + item.id).done(function(data1) {
+						$.get('/items/folder/statistics?recursive=true&parentId=' + item.id).done(function(data2) {
+							var size1 = NIMBUS.formatLength(data1.size);
+							var part1 = NIMBUS.translate('CommonFolderStatisticsMessagePart', data1.folders, data1.files, size1);
+							var size2 = NIMBUS.formatLength(data2.size);
+							var part2 = NIMBUS.translate('CommonFolderStatisticsMessagePart', data2.folders, data2.files, size2);
+							NIMBUS.message(NIMBUS.translate('CommonFolderStatisticsMessageContent', part1, part2), false/*error=false*/, true/*html=true*/);
+						});
+					});
+				}
 			}
 		]
 	});

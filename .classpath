@@ -53,6 +53,6 @@
 	<classpathentry kind="lib" path="lib/javazoom/tritonus_share.jar"/>
 	<classpathentry kind="lib" path="lib/javazoom/vorbisspi1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/jave/jave-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/nimbus-java-api-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/nimbus-java-api-1.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

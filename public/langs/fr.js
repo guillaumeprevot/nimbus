@@ -227,6 +227,8 @@ NIMBUS.lang = {
 	CommonFolderDescriptionEmpty: "vide",
 	CommonFolderDescriptionOneChild: "contient 1 élément",
 	CommonFolderDescriptionMultipleChildren: "contient {0} éléments",
+	CommonFolderStatisticsMessagePart: "{0} dossier(s), {1} fichier(s) occupant {2}",
+	CommonFolderStatisticsMessageContent: "<dl><dt>Contenu direct</dt><dd>{0}</dd><dt>Contenu récursif</dt><dd>{1}</dd></dl>",
 	CommonDuplicateFirst: "Copie de {0}",
 	CommonDuplicateNext: "Copie ({1}) de {0}",
 	CommonDuplicateInsufficientStorage: "Opération impossible en raison du votre quota d'espace disque",
@@ -261,6 +263,7 @@ NIMBUS.lang = {
 	CommonSaveGenericError: "Une erreur est survenue pendant la sauvegarde. Veuillez vérifier que le serveur est accessible et réessayer.",
 
 	ActionNavigate: "Ouvrir",
+	ActionCalculateStatistics: "Calculer les statistiques",
 	ActionDownloadRefresh: "Télécharger à nouveau",
 	ActionDownloadDone: "Marquer comme vu",
 	ActionLocate: "Localiser",

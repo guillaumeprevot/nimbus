@@ -123,17 +123,21 @@ var NIMBUS = (function() {
 		return defer;
 	};
 
-	NIMBUS.message = function(text, isError) {
+	NIMBUS.message = function(text, isError, isHTML) {
 		var container = $('#alert-container');
 		if (container.length === 0)
 			container = $('<div id="alert-container" />').appendTo(document.body);
 		// https://getbootstrap.com/docs/4.2/components/alerts/
-		return $('<div class="alert" />')
+		var alert = $('<div class="alert" />')
 			.addClass(isError ? 'alert-danger' : 'alert-primary')
 			.attr('role', isError ? 'alert' : 'status')
 			.attr('aria-live', isError ? 'assertive' : 'polite')
-			.text(text)
 			.appendTo(container);
+		if (isHTML)
+			alert.html(text);
+		else
+			alert.text(text);
+		return alert;
 	};
 
 	// (key) ou (key, p1, p2, ...) ou (key, [p1, p2, ...])

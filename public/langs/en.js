@@ -227,6 +227,8 @@ NIMBUS.lang = {
 	CommonFolderDescriptionEmpty: "empty",
 	CommonFolderDescriptionOneChild: "contains a single element",
 	CommonFolderDescriptionMultipleChildren: "contains {0} elements",
+	CommonFolderStatisticsMessagePart: "{0} folder(s), {1} file(s) using {2}",
+	CommonFolderStatisticsMessageContent: "<dl><dt>Direct content</dt><dd>{0}</dd><dt>Recursive content</dt><dd>{1}</dd></dl>",
 	CommonDuplicateFirst: "Copy of {0}",
 	CommonDuplicateNext: "Copy ({1}) of {0}",
 	CommonDuplicateInsufficientStorage: "Operation failed due to disk quota",
@@ -261,6 +263,7 @@ NIMBUS.lang = {
 	CommonSaveGenericError: "An error occurred while trying to save changes. Please check your network access and try again.",
 
 	ActionNavigate: "Open",
+	ActionCalculateStatistics: "Calculate statistics",
 	ActionDownloadRefresh: "Download again",
 	ActionDownloadDone: "Done",
 	ActionLocate: "Show location",

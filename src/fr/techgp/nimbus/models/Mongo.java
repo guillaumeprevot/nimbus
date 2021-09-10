@@ -323,6 +323,30 @@ public class Mongo implements Database {
 		return Optional.ofNullable(result).map(r -> ((Number) r.get("total")).longValue()).orElse(0L);
 	}
 
+	@Override
+	public void calculateStatistics(String userLogin, Long parentId, boolean recursive, BiConsumer<String, Long> consumer) {
+		List<Bson> filters = new ArrayList<>(3);
+		filters.add(Filters.eq("userLogin", userLogin));
+		// Récursivité
+		if (! recursive) {
+			filters.add(Filters.eq("parentId", parentId));
+		} else if (parentId != null) {
+			Item item = Item.findById(parentId);
+			filters.add(Filters.regex("path", "^" + item.path + item.id + ',', "i"));
+		}
+		Document match = new Document("$match", Filters.and(filters));
+		Document group = new Document("$group", new Document("_id", null)
+				.append("folders", new Document("$sum", new Document("$cond", Arrays.asList("$folder", 1, 0))))
+				.append("files", new Document("$sum", new Document("$cond", Arrays.asList("$folder", 0, 1))))
+				.append("size", new Document("$sum", "$content.length")));
+		Document result = getCollection("items").aggregate(Arrays.asList(match, group)).first();
+		if (result != null) {
+			for (String usage : List.of("folders", "files", "size")) {
+				consumer.accept(usage, Optional.ofNullable(result.get(usage)).map(c -> ((Number) c).longValue()).orElse(0L));
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private static final Item readItem(Document document) {
 		if (document == null)

@@ -455,6 +455,33 @@ public class PostgreSQL implements Database {
 				(rs) -> rs.getLong(1));
 	}
 
+	@Override
+	public void calculateStatistics(String userLogin, Long parentId, boolean recursive, BiConsumer<String, Long> consumer) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ");
+		sql.append(" SUM(case when folder then 1 else 0 end) AS folders,");
+		sql.append(" SUM(case when folder then 0 else 1 end) AS files,");
+		sql.append(" SUM(case when folder then 0 else CAST(metadatas -> 'length' ->> 'value' AS INTEGER) end) AS size");
+		sql.append(" FROM items WHERE user_login = ?");
+		if (!recursive) {
+			sql.append(parentId == null ? " AND parent_id IS NULL" : " AND parent_id = ?");
+		} else if (parentId != null) {
+			sql.append(" AND path LIKE (select path || id || '%' from items where id = ?)");
+		}
+		selectOne(sql.toString(),
+				(ps) -> {
+					ps.setString(1, userLogin);
+					if (parentId != null)
+						ps.setObject(2, parentId, Types.BIGINT);
+				},
+				(rs) -> {
+					for (String usage : List.of("folders", "files", "size")) {
+						consumer.accept(usage, rs.getLong(usage));
+					}
+					return null;
+				});
+	}
+
 	private User readUser(ResultSet rs) throws SQLException {
 		User user = new User();
 		user.login = rs.getString("login");

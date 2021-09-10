@@ -40,6 +40,7 @@ public interface Database {
 	public void forEachItemTag(String userLogin, Consumer<String> consumer);
 	public void forEachItemTagWithCount(String userLogin, boolean orderByCount, BiConsumer<String, Integer> consumer);
 	public long calculateUsedSpace(String userLogin);
+	public void calculateStatistics(String userLogin, Long parentId, boolean recursive, BiConsumer<String, Long> consumer);
 
 	public static void init(Configuration configuration) {
 		if (StringUtils.isNotBlank(configuration.getPostgresqlURL()))

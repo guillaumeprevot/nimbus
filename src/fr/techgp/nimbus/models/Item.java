@@ -258,6 +258,10 @@ public class Item {
 		return getDatabase().calculateUsedSpace(userLogin);
 	}
 
+	public static final void calculateStatistics(String userLogin, Long parentId, boolean recursive, BiConsumer<String, Long> consumer) {
+		getDatabase().calculateStatistics(userLogin, parentId, recursive, consumer);
+	}
+
 	public static final void check(Item item) {
 		BiConsumer<Boolean, String> checker = (test, message) -> {
 			try {

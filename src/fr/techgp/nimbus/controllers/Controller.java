@@ -91,6 +91,7 @@ public class Controller {
 		r.get("/items/infos", Items.infos);
 		r.get("/items/tags", Items.tags);
 		r.post("/items/add/folder", Items.addFolder);
+		r.get("/items/folder/statistics", Items.folderStatistics);
 		r.post("/items/duplicate", Items.duplicate);
 		r.post("/items/rename", Items.rename);
 		r.post("/items/hide", Items.hide);

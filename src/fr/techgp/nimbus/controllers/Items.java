@@ -199,6 +199,24 @@ public class Items extends Controller {
 	};
 
 	/**
+	 * Compte le nombre de dossiers, de fichiers et la taille totale du dossier
+	 * "parentId" (obligatoire), récursivement ou non (selon "recursive")
+	 *
+	 * (parentId, recursive) => { folders: long, files: long, size: long }
+	 */
+	public static final Route folderStatistics = (request, response) -> {
+		// Récupérer l'utilisateur connecté
+		String userLogin = getUserLogin(request);
+		// Extraire la requête
+		Long parentId = request.queryParameterLong("parentId", null);
+		boolean recursive = request.queryParameterBoolean("recursive", false);
+		// Préparer la réponse
+		JsonObject result = new JsonObject();
+		Item.calculateStatistics(userLogin, parentId, recursive, (name, value) -> result.addProperty(name, value));
+		return Render.json(result);
+	};
+
+	/**
 	 * Ajoute un nouvel élément en dupliquant l'élément "itemId".
 	 * - dans le cas d'un fichier, duplique le fichier
 	 * - dans le cas d'un dossier, les sous-éléments NE sont PAS dupliqués
