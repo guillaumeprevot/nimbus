@@ -63,7 +63,7 @@ header .float-right { min-width: 110px; }
 			<button id="prevButton" type="button" class="btn btn-link btn-sm" data-translate="title" title="CalendarPreviousPeriod"><i class="material-icons">chevron_left</i></button>
 			<div class="btn btn-link" data-translate="title" title="CalendarSelectDate">
 				<i class="material-icons">event</i>
-				<input id="selectInput" type="date" style="opacity: 0; position: absolute; left: 0; width: 100%; top: 0; height: 100%; "/>
+				<input id="selectInput" required="required" type="date" style="opacity: 0; position: absolute; left: 0; width: 100%; top: 0; height: 100%; "/>
 			</div>
 			<span id="periodShortDescription"></span>
 			<span id="periodLongDescription"></span>
@@ -264,7 +264,7 @@ function connectNavigation(calendar) {
 	$('#nextButton').on('click', () => calendar.showNext());
 	// Ajuster l'IHM quand la date du calendrier change
 	$(calendar).on('calendarupdate', function(event, data) {
-		$('#selectInput').val(data.currentMoment.format(inputDateFormat))
+		$('#selectInput').val(data.currentMoment.format(inputDateFormat));
 		$('#periodShortDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, false));
 		$('#periodLongDescription').text(data.view.formatPeriod(data.startMoment, data.endMoment, true));
 	});
