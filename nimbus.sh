@@ -1,75 +1,42 @@
 #!/bin/bash
 
-######################
-#### CUSTOMIZABLE ####
-######################
+# Folder containing "nimbus" and "nimbus-java-api" subfolders
+export GIT_FOLDER=/path/to/git/folder
 
-export CONF=nimbus.conf
-export FOLDER=`pwd`
-export OPTIONS=-Djdk.tls.ephemeralDHKeySize=2048 -Djdk.tls.rejectClientInitiatedRenegotiation=true
+# Default options and optional "nimbus.conf" and "nimbus.log" configuration
+OPTIONS="-Djdk.tls.ephemeralDHKeySize=2048 -Djdk.tls.rejectClientInitiatedRenegotiation=true"
+#OPTIONS="$OPTIONS -Dnimbus.conf=/path/to/custom/nimbus.conf"
+#OPTIONS="$OPTIONS -Dnimbus.log=/path/to/custom/nimbus.log"
+
+# Update PATH if needed
 # export PATH=/path/to/openjdk-12/bin:$PATH
 # export PATH=/path/to/maven/bin:$PATH
-# export PATH=/path/to/mongodb/bin:$PATH
 
-######################################
-#### EXTRACTED FROM CONFIGURATION ####
-######################################
-
-function prop {
-	grep "${1}" $CONF | cut -d "=" -f2
-}
-export MONGO_HOST=$(prop 'mongo.host')
-export MONGO_HOST=${MONGO_HOST:-localhost}
-export MONGO_PORT=$(prop 'mongo.port')
-export MONGO_PORT=${MONGO_PORT:-27017}
-export MONGO_DATABASE=$(prop 'mongo.database')
-export MONGO_DATABASE=${MONGO_DATABASE:-nimbus}
-export STORAGE=$(prop 'storage.path')
-export STORAGE=${STORAGE:-storage}
-
-###########################
-#### COMMAND SELECTION ####
-###########################
-
-echo "Command ? [start, stop, update, backup, compile, test]"
+# Command selection
+echo "Command ? [start, stop, update]"
 read cmd
 
 case $cmd in
     start )
-        cd $FOLDER
-        export CLASSPATH=./bin:./lib/*:./lib/image4j/*:./lib/javazoom/*:./lib/jave/*
+        cd $GIT_FOLDER/nimbus
+        export CLASSPATH=./bin:./lib/*:./lib/image4j/*:./lib/jaudiotagger/*:./lib/javazoom/*:./lib/jave/*
         java $OPTIONS fr.techgp.nimbus.Application &
         ;;
     stop )
         kill $(ps aux | grep '[n]imbus' | awk '{print $2}');
         ;;
     update )
-        cd $FOLDER
-        rm -rf ./bin/*
+        cd $GIT_FOLDER/nimbus-java-api
+        git pull
+        mvn install
+        cd $GIT_FOLDER/nimbus
+        if [ -d "./bin" ];then
+            rm -rf ./bin/*
+        else
+            mkdir ./bin
+        fi
         rm ./lib/*.jar
         git pull
         mvn install
-        ;;
-    backup )
-        cd $FOLDER
-        d=$(date +'%Y-%m-%d')
-        mkdir $d-nimbus
-        mongoexport --host $MONGO_HOST:$MONGO_PORT --db $MONGO_DATABASE --collection users --out $d-nimbus/users.json
-        mongoexport --host $MONGO_HOST:$MONGO_PORT --db $MONGO_DATABASE --collection items --out $d-nimbus/items.json
-        mongoexport --host $MONGO_HOST:$MONGO_PORT --db $MONGO_DATABASE --collection counters --out $d-nimbus/counters.json
-        mongodump --host $MONGO_HOST:$MONGO_PORT --db $MONGO_DATABASE --out $d-nimbus
-        tar -czf $d-nimbus/files.gz $STORAGE
-        ;;
-    compile )
-        mvn compile
-        ;;
-    test )
-        echo conf=$CONF
-        echo folder=$FOLDER
-        echo options=$OPTIONS
-        echo host=$MONGO_HOST
-        echo port=$MONGO_PORT
-        echo database=$MONGO_DATABASE
-        echo storage=$STORAGE
         ;;
 esac
