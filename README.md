@@ -34,7 +34,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Gson](https://github.com/google/gson) | Java | [2.8.8](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.32](http://www.slf4j.org/download.html) | MIT | Gestion des logs
 [MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.10](https://search.maven.org/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
-[PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.2.23](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
+[PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.2.24](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
 [Commons DBCP](https://commons.apache.org/proper/commons-dbcp/) | Java | [2.9.0](https://commons.apache.org/proper/commons-dbcp/download_dbcp.cgi) | Apache 2.0 | Pool pour PostgreSQL
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.11.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
 [PDFBox](https://pdfbox.apache.org/) | plugin Java | [2.0.24](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
@@ -162,7 +162,7 @@ mvn install
 
 **Configuration**
 
-Ensuite, on configure l'application en éditant `nimbus.conf`
+Ensuite, on configure l'application en éditant `nimbus.conf`, qui décrit [les différentes options disponibles](./nimbus.conf)
 
 ```bash
 # Linux
@@ -174,16 +174,16 @@ notepad nimbus.conf
 Par défaut :
 - le serveur tourne en HTTP sur le port 10001
     - les propriétés `server.*` permettent d'ajuster cette partie
+- le serveur utilise des sessions conservées côté serveur
+    - les propriétés `session.*` permettent de les configurer ou d'activer JWT
 - le serveur accède à MongoDB en local, sur le port 27017 et crée la base "nimbus"
-    - les propriétés `mongo.*` permettent d'ajuster cette partie
-- le serveur utilisera PostgreSQL au lieu de MongoDB si les paramètres sont spécifiés
-    - les propriétés `postgresql.*` permettent d'ajuster cette partie
+    - les propriétés `mongo.*` et `postgresql.*` permettent de choisir et d'ajuster le moteur
 - les fichiers sont stockés dans le sous-dossier "storage"
     - la propriété `storage.path` vous permet d'indiquer un autre chemin (relatif ou absolu)
-- tous les plugins sont activés côté client (javascript)
-    - la propriété `client.plugins` vous permet de limiter les plugins chargés
-- seuls les plugins serveur (java) n'utilisant *que* la JRE sont activés
-    - les propriétés `facet.*` vous permettent d'activer d'autres plugins sur le serveur
+- tous les plugins client (javascript) sont activés
+    - la propriété `client.plugins` vous permet de sélectionner les plugins à activer
+- seuls les plugins serveur (java) sans dépendances externes sont activés
+    - les propriétés `facet.*` vous permettent de sélectionner les plugins à activer
 
 **Exécution**
 
