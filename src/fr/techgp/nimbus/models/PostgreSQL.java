@@ -101,7 +101,7 @@ public class PostgreSQL implements Database {
 				+ "user_login character varying(32) NOT NULL,"
 				+ "folder boolean NOT NULL,"
 				+ "hidden boolean NOT NULL,"
-				+ "name character varying(128) NOT NULL,"
+				+ "name character varying(256) NOT NULL,"
 				+ "create_date timestamp without time zone NOT NULL,"
 				+ "update_date timestamp without time zone NOT NULL,"
 				+ "delete_date timestamp without time zone,"
@@ -450,7 +450,7 @@ public class PostgreSQL implements Database {
 
 	@Override
 	public long calculateUsedSpace(String userLogin) {
-		return selectOne("SELECT SUM(CAST(metadatas -> 'length' ->> 'value' AS INTEGER)) AS l FROM items WHERE folder = false AND user_login = ?",
+		return selectOne("SELECT SUM(CAST(metadatas -> 'length' ->> 'value' AS BIGINT)) AS l FROM items WHERE folder = false AND user_login = ?",
 				(ps) -> ps.setString(1, userLogin),
 				(rs) -> rs.getLong(1));
 	}
@@ -461,7 +461,7 @@ public class PostgreSQL implements Database {
 		sql.append("SELECT ");
 		sql.append(" SUM(case when folder then 1 else 0 end) AS folders,");
 		sql.append(" SUM(case when folder then 0 else 1 end) AS files,");
-		sql.append(" SUM(case when folder then 0 else CAST(metadatas -> 'length' ->> 'value' AS INTEGER) end) AS size");
+		sql.append(" SUM(case when folder then 0 else CAST(metadatas -> 'length' ->> 'value' AS BIGINT) end) AS size");
 		sql.append(" FROM items WHERE user_login = ?");
 		if (!recursive) {
 			sql.append(parentId == null ? " AND parent_id IS NULL" : " AND parent_id = ?");
