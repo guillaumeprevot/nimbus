@@ -250,8 +250,8 @@ public class Item {
 		getDatabase().forEachItemTag(userLogin, consumer);
 	}
 
-	public static final void forEachTagWithCount(String userLogin, boolean orderByCount, BiConsumer<String, Integer> consumer) {
-		getDatabase().forEachItemTagWithCount(userLogin, orderByCount, consumer);
+	public static final void forEachTagWithCount(String userLogin, BiConsumer<String, Integer> consumer) {
+		getDatabase().forEachItemTagWithCount(userLogin, consumer);
 	}
 
 	public static final long calculateUsedSpace(String userLogin) {

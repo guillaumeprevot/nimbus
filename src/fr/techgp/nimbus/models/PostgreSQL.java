@@ -128,8 +128,7 @@ public class PostgreSQL implements Database {
 					ps.setBoolean(7, user.showItemTags);
 					ps.setBoolean(8, user.showItemDescription);
 					ps.setBoolean(9, user.showItemThumbnail);
-					ps.setString(10,
-							user.visibleItemColumns != null ? String.join(",", user.visibleItemColumns) : null);
+					ps.setString(10, user.visibleItemColumns != null ? String.join(",", user.visibleItemColumns) : null);
 				});
 	}
 
@@ -437,7 +436,7 @@ public class PostgreSQL implements Database {
 	}
 
 	@Override
-	public void forEachItemTagWithCount(String userLogin, boolean orderByCount, BiConsumer<String, Integer> consumer) {
+	public void forEachItemTagWithCount(String userLogin, BiConsumer<String, Integer> consumer) {
 		selectAll("SELECT distinct(regexp_split_to_table(tags, E',')) AS tag, count(*) as c FROM items WHERE user_login = ? GROUP BY tag ORDER BY count(*) DESC, tag",
 				(ps) -> ps.setString(1, userLogin),
 				(rs) -> {

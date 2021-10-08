@@ -306,11 +306,11 @@ public class Mongo implements Database {
 	}
 
 	@Override
-	public void forEachItemTagWithCount(String userLogin, boolean orderByCount, BiConsumer<String, Integer> consumer) {
+	public void forEachItemTagWithCount(String userLogin, BiConsumer<String, Integer> consumer) {
 		Document unwind = new Document("$unwind", "$tags");
 		Document match = new Document("$match", new Document("userLogin", userLogin));
 		Document group = new Document("$group", new Document("_id", "$tags").append("count", new Document("$sum", 1)));
-		Document sort = new Document("$sort", (orderByCount ? new Document("count", new BsonInt32(-1)) : new Document()).append("_id", new BsonInt32(1)));
+		Document sort = new Document("$sort", new Document("count", new BsonInt32(-1)).append("_id", new BsonInt32(1)));
 		Consumer<Document> documentConsumer = (document) -> consumer.accept(document.getString("_id"), document.getInteger("count"));
 		getCollection("items").aggregate(Arrays.asList(unwind, match, group, sort)).forEach(documentConsumer);
 	}

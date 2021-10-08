@@ -38,7 +38,7 @@ public interface Database {
 	public boolean hasItemsWithNames(String userLogin, Long parentId, String... names);
 	public Item findItemWithName(String userLogin, Long parentId, String name);
 	public void forEachItemTag(String userLogin, Consumer<String> consumer);
-	public void forEachItemTagWithCount(String userLogin, boolean orderByCount, BiConsumer<String, Integer> consumer);
+	public void forEachItemTagWithCount(String userLogin, BiConsumer<String, Integer> consumer);
 	public long calculateUsedSpace(String userLogin);
 	public void calculateStatistics(String userLogin, Long parentId, boolean recursive, BiConsumer<String, Long> consumer);
 
