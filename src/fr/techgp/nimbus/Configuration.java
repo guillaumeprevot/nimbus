@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -41,6 +39,7 @@ public class Configuration {
 	private final String sessionCookiePath;
 	private final String sessionCookieDomain;
 
+	private final Set<String> serverUseTempFiles;
 	private final File storageFolder;
 	private final String clientDefaultTheme;
 	private final String clientLoginBackground;
@@ -81,13 +80,14 @@ public class Configuration {
 		this.sessionCookiePath = getString("session.cookie.path", null);
 		this.sessionCookieDomain = getString("session.cookie.domain", null);
 
+		this.serverUseTempFiles = Set.of(getString("server.use.temp.files", "").split(","));
 		this.storageFolder = new File(getString("storage.path", "storage"));
 		this.clientDefaultTheme = getString("client.default.theme", "light");
 		this.clientLoginBackground = getString("client.login.background", null);
 		this.clientPlugins = getString("client.plugins", "default-before,note,application,secret,calendar,contacts,bookmarks,epub,pdf,video,audio,image,windows-shortcut,markdown,code,text,default-open,default-after").split(",");
 		this.clientQuotaWarning = getInt("client.quota.warning", 75);
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
-		this.textFileExtensions = Arrays.stream(getString("text.file.extensions", "txt,md,markdown,note,html").split(",")).collect(Collectors.toSet());
+		this.textFileExtensions = Set.of(getString("text.file.extensions", "txt,md,markdown,note,html").split(","));
 		this.facets = getInstances("facet", Facet.class);
 		this.facets.forEach((f) -> f.init(this));
 		this.configureMimeTypes();
@@ -209,6 +209,10 @@ public class Configuration {
 
 	public String getSessionCookieDomain() {
 		return this.sessionCookieDomain;
+	}
+
+	public Set<String> getServerUseTempFiles() {
+		return this.serverUseTempFiles;
 	}
 
 	public File getStorageFolder() {

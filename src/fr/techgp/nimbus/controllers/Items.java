@@ -585,22 +585,37 @@ public class Items extends Controller {
 		List<Item> items = loadMultipleItems(request, itemIds);
 		if (items == null)
 			return Render.badRequest();
-		// Use temp zip file
-		File file = File.createTempFile("cloud", null);
-		// Generate file
-		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
-			zos.setLevel(Deflater.DEFAULT_COMPRESSION);
-			// Parcourir chaque élément
-			for (Item item : items) {
-				// ... pour l'ajouter au zip définitivement
-				zipItem(item, null, zos);
+		if (Controller.configuration.getServerUseTempFiles().contains("zip")) {
+			// Use temp zip file
+			File file = File.createTempFile("cloud", null);
+			// Generate file
+			try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
+				zos.setLevel(Deflater.DEFAULT_COMPRESSION);
+				// Parcourir chaque élément
+				for (Item item : items) {
+					// ... pour l'ajouter au zip définitivement
+					zipItem(item, null, zos);
+				}
+			} catch (Exception ex) {
+				file.delete();
+				return Render.internalServerError();
 			}
-		} catch (Exception ex) {
-			file.delete();
-			return Render.internalServerError();
+			// Retourner le fichier zip
+			return Render.file(file, "application/zip", "cloud.zip", true, true);
 		}
-		// Retourner le fichier zip
-		return Render.file(file, "application/zip", "cloud.zip", true, true);
+		// Use direct stream
+		return (req, res, charset, stream) -> {
+			response.type("application/zip");
+			response.header("Content-Disposition", "attachment; filename=\"cloud.zip\"");
+			try (ZipOutputStream zos = new ZipOutputStream(stream.get())) {
+				zos.setLevel(Deflater.DEFAULT_COMPRESSION);
+				// Parcourir chaque élément
+				for (Item item : items) {
+					// ... pour l'ajouter au zip définitivement
+					zipItem(item, null, zos);
+				}
+			}
+		};
 	};
 
 	/**
