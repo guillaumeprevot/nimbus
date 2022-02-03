@@ -334,7 +334,11 @@ public class Controller {
 		User user = User.findByLogin(login);
 		if (user == null)
 			return "utilisateur inconnu";
-		if (!CryptoUtils.validatePassword(password, user.password, null))
+		// Pendant longtemps, on a utilisé PBKDF2WithHmacSHA1 et 10000 itérations.
+		// Puis on est passé sur PBKDF2WithHmacSHA256 et 99000 itérations
+		// Du coup, le nombre d'itérations du mot de passe enregistré non indique également l'algo utilisé lors du hash
+		String alg = user.password.startsWith("10000:") ? "PBKDF2WithHmacSHA1" : CryptoUtils.PASSWORD_HASH_ALGORITHM;
+		if (!CryptoUtils.validatePassword(password, user.password, alg, null))
 			return "mot de passe incorrect";
 		return null;
 	}
