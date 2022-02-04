@@ -138,6 +138,15 @@
 			<version>2.16.0</version>
 		</dependency>
 		<!--
+			http://www.jthink.net/jaudiotagger/
+			https://search.maven.org/artifact/net.jthink/jaudiotagger
+		-->
+		<dependency>
+			<groupId>net.jthink</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+		<!--
 			http://image4j.sourceforge.net/
 			https://search.maven.org/artifact/org.jclarion/image4j
 		<dependency>
@@ -168,14 +177,6 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/javazoom/mp3spi1.9.5.jar</systemPath>
 		</dependency>
-		<dependency>
-			<groupId>fr.techgp.deps</groupId>
-			<artifactId>jaudiotagger</artifactId>
-			<version>2.2.5</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/jaudiotagger/jaudiotagger-2.2.5.jar</systemPath>
-		</dependency>
-
 	</dependencies>
 
 	<build>
