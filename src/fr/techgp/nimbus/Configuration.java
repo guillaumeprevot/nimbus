@@ -46,6 +46,7 @@ public class Configuration {
 	private final String[] clientPlugins;
 	private final int clientQuotaWarning;
 	private final int clientQuotaDanger;
+	private final String clientFaviconColor;
 	private final Set<String> textFileExtensions;
 	private final List<Facet> facets;
 
@@ -87,6 +88,7 @@ public class Configuration {
 		this.clientPlugins = getString("client.plugins", "default-before,note,application,secret,calendar,contacts,bookmarks,epub,pdf,video,audio,image,windows-shortcut,markdown,code,text,default-open,default-after").split(",");
 		this.clientQuotaWarning = getInt("client.quota.warning", 75);
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
+		this.clientFaviconColor = getString("client.favicon.color", null);
 		this.textFileExtensions = Set.of(getString("text.file.extensions", "txt,md,markdown,note,html").split(","));
 		this.facets = getInstances("facet", Facet.class);
 		this.facets.forEach((f) -> f.init(this));
@@ -237,6 +239,10 @@ public class Configuration {
 
 	public int getClientQuotaDanger() {
 		return this.clientQuotaDanger;
+	}
+
+	public String getClientFaviconColor() {
+		return this.clientFaviconColor;
 	}
 
 	public Set<String> getTextFileExtensions() {
