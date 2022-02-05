@@ -1,4 +1,4 @@
-<#macro head title translated>
+<#macro head title translated icon="/svg/nimbus.svg">
 	<#if translated>
 	<title data-translate="text">${title}</title>
 	<#else>
@@ -9,7 +9,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="robots" content="noindex, nofollow" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link type="image/png" rel="icon" href="/favicon.png" />
+	<link type="image/png" rel="icon" href="${icon}" />
 </#macro>
 
 <#macro styles>

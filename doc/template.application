@@ -7,7 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link type="image/png" rel="icon" href="/favicon.png" />
+<link type="image/png" rel="icon" href="/svg/template.svg" />
 
 <style>
 @font-face {
@@ -325,7 +325,7 @@ function buildHTML(app) {
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link type="image/png" rel="icon" href="/favicon.png" />
+		<link type="image/png" rel="icon" href="/svg/nimbus.svg" />
 		<style>${style}</style>
 		${chunks.themeStylesheet}${chunks.themeScript ? buildScript('', chunks.themeScript + '\n\t\t') : ''}
 		<link type="font/woff2" rel="preload" href="/libs/material-icons/material-icons.woff2" as="font" />

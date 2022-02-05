@@ -43,6 +43,7 @@ public class Controller {
 		r.get("/langs/*", StaticFiles.publicFolder);
 		r.get("/libs/*", StaticFiles.publicFolder);
 		r.get("/plugins/*", StaticFiles.publicFolder);
+		r.get("/svg/*", StaticFiles.publicFolder);
 
 		r.before("/nav", Filters.filterAuthenticatedOrRedirect);
 		r.before("/nav/*", Filters.filterAuthenticatedOrRedirect);

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<@common.head title="${appName} - TEST" translated=false />
+	<@common.head title="${appName} - TEST" translated=false icon="/svg/test.svg" />
 	<link type="text/css" rel="stylesheet" href="${stylesheet}" />
 	<script type="text/javascript" src="/libs/jquery/jquery.min.js"></script>
 </head>
@@ -527,10 +527,10 @@ function fillTests(add) {
 		return $.get("/items/info/4").then((result) => assertObject(result, (r) => r.id === 4 && r.iconURL === "${serverAbsoluteUrl}/favicon.png" && !r.iconURLCache));
 	});
 	add("ICONURL / Modifier l'icône de 'Dossier5' avec une adresse locale relative", function() {
-		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=/favicon.ico").then(assertEmpty);
+		return $.post("/items/rename?itemId=5&name=Dossier5&iconURL=/svg/nimbus.svg").then(assertEmpty);
 	});
 	add("ICONURL / Vérifier la présence de l'icône et l'absence de cache", function() {
-		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "/favicon.ico" && !r.iconURLCache));
+		return $.get("/items/info/5").then((result) => assertObject(result, (r) => r.id === 5 && r.iconURL === "/svg/nimbus.svg" && !r.iconURLCache));
 	});
 	add("ICONURL / Modifier l'icône de 'Dossier7' avec une adresse distante", function() {
 		return $.post("/items/rename?itemId=7&name=Dossier7&iconURL=https://github.com/guillaumeprevot/nimbus/raw/master/public/favicon.png").then(assertEmpty);
