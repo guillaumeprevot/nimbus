@@ -9,6 +9,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link type="image/png" rel="icon" href="/favicon.png" />
 
+<style>
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/libs/material-icons/material-icons.woff2) format('woff2'),
+		 url(/libs/material-icons/material-icons.woff) format('woff'),
+		 url(/libs/material-icons/material-icons.ttf) format('truetype');
+}
+</style>
 <script type="text/javascript">
 var search = new URLSearchParams(window.location.search);
 var stylesheet = '/libs/bootswatch/flatly.min.css';
@@ -301,6 +311,8 @@ function buildChunks(app) {
 function buildHTML(app) {
 	// Prise en compte des options
 	var chunks = buildChunks(app);
+	// Intégration de la @font-face
+	var style = $('head style').html();
 
 	// On va utiliser les "Template literals" pour générer l'HTML
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
@@ -314,6 +326,7 @@ function buildHTML(app) {
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link type="image/png" rel="icon" href="/favicon.png" />
+		<style>${style}</style>
 		${chunks.themeStylesheet}${chunks.themeScript ? buildScript('', chunks.themeScript + '\n\t\t') : ''}
 		<link type="font/woff2" rel="preload" href="/libs/material-icons/material-icons.woff2" as="font" />
 		<link type="text/css" rel="stylesheet" href="/libs/material-icons/material-icons.css" />
