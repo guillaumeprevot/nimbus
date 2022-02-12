@@ -402,7 +402,7 @@ public class PostgreSQL implements Database {
 			sb.append(", ?");
 		}
 		sb.append(")");
-		return 1 == count(sb.toString(), (ps) -> {
+		return 1 <= count(sb.toString(), (ps) -> {
 			int index = 1;
 			ps.setString(index++, userLogin);
 			if (parentId != null)
