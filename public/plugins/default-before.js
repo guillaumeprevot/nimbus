@@ -5,6 +5,7 @@
 			{ name: 'id', caption: 'CommonPropertyId', align: 'right', width: 60, sortBy: 'id', format: (i) => NIMBUS.formatInteger(i.id) },
 			{ name: 'folder', caption: 'CommonPropertyFolder', align: 'center', width: 80, sortBy: 'folder', format: (i) => NIMBUS.formatBoolean(i.folder, 'folder') },
 			{ name: 'length', caption: 'CommonPropertyLength', align: 'right', width: 100, sortBy: 'content.length', format: (i) => NIMBUS.formatLength(i.length) },
+			{ name: 'bytes', caption: 'CommonPropertyBytes', align: 'right', width: 100, sortBy: 'content.length', format: (i) => (i.folder ? '' : i.length.toLocaleString()) },
 			{ name: 'createDate', caption: 'CommonPropertyCreateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'createDate', format: (i) => NIMBUS.formatDatetime(i.createDate) },
 			{ name: 'updateDate', caption: 'CommonPropertyUpdateDate', align: 'right', width: NIMBUS.translate('CommonDateTimeColumnWidth'), sortBy: 'updateDate', format: (i) => NIMBUS.formatDatetime(i.updateDate) },
 			{ name: 'tags', caption: 'CommonPropertyTags' },
@@ -58,9 +59,9 @@
 					$.get('/items/folder/statistics?recursive=false&parentId=' + item.id).done(function(data1) {
 						$.get('/items/folder/statistics?recursive=true&parentId=' + item.id).done(function(data2) {
 							var size1 = NIMBUS.formatLength(data1.size);
-							var part1 = NIMBUS.translate('CommonFolderStatisticsMessagePart', data1.folders, data1.files, size1);
+							var part1 = NIMBUS.translate('CommonFolderStatisticsMessagePart', data1.folders, data1.files, size1, data1.size.toLocaleString());
 							var size2 = NIMBUS.formatLength(data2.size);
-							var part2 = NIMBUS.translate('CommonFolderStatisticsMessagePart', data2.folders, data2.files, size2);
+							var part2 = NIMBUS.translate('CommonFolderStatisticsMessagePart', data2.folders, data2.files, size2, data2.size.toLocaleString());
 							NIMBUS.message(NIMBUS.translate('CommonFolderStatisticsMessageContent', part1, part2), false/*error=false*/, true/*html=true*/);
 						});
 					});

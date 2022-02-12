@@ -186,12 +186,12 @@ var NIMBUS = (function() {
 			return NIMBUS.translate('CommonFileLengthB', length);
 		length = length / 1024;
 		if (length < 1024)
-			return NIMBUS.translate('CommonFileLengthKB', length.toFixed(1));
+			return NIMBUS.translate('CommonFileLengthKB', length.toFixed(2));
 		length = length / 1024;
 		if (length < 1024)
-			return NIMBUS.translate('CommonFileLengthMB', length.toFixed(1));
+			return NIMBUS.translate('CommonFileLengthMB', length.toFixed(2));
 		length = length / 1024;
-		return NIMBUS.translate('CommonFileLengthGB', length.toFixed(1));
+		return NIMBUS.translate('CommonFileLengthGB', length.toFixed(2));
 	};
 
 	// Formatte une durée exprimée en secondes

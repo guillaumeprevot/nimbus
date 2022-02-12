@@ -173,7 +173,7 @@ function createUserRow(user) {
 		+ '<td style="text-align: center; ">' + (user.admin ? '<i class="material-icons">check</i>' : '') + '</td>'
 		+ '<td>' + user.login + '</td>'
 		+ '<td>' + (user.name || '') + '</td>'
-		+ '<td style="text-align: right; ">' + (user.quota ? NIMBUS.formatLength(user.quota * 1024 * 1024 ) : '') + '</td>'
+		+ '<td style="text-align: right; ">' + (user.quota ? NIMBUS.formatLength(user.quota * 1024 * 1024) : '') + '</td>'
 		+ '<td style="text-align: center; "><button class="btn btn-link edit-button"><i class="material-icons">edit</i></button></td>'
 		+ '<td style="text-align: center; "><button class="btn btn-link delete-button"><i class="material-icons">delete</i></button></td>'
 		+ '</tr>';
