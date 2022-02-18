@@ -36,7 +36,11 @@
 			name: 'image',
 			accept: NIMBUS.utils.isBrowserSupportedImage,
 			icon: 'image',
-			thumbnail: function(item) { return '/files/thumbnail/' + item.id + '?size=24'; },
+			thumbnail: function(item) {
+				if (item.name.endsWith('.svg') || item.name.endsWith('.webp'))
+					return '/files/stream/' + item.id;
+				return '/files/thumbnail/' + item.id + '?size=24';
+			},
 			describe: function describe(item) {
 				var p = [];
 				if (item.width && item.height)
