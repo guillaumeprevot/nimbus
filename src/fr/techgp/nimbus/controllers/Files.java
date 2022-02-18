@@ -15,11 +15,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonArray;
 
-import fr.techgp.nimbus.facets.Image4jFacet;
+import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
 import fr.techgp.nimbus.server.MimeTypes;
@@ -27,7 +28,6 @@ import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Response;
 import fr.techgp.nimbus.server.Route;
 import fr.techgp.nimbus.server.Upload;
-import fr.techgp.nimbus.utils.GraphicsUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Files extends Controller {
@@ -271,11 +271,24 @@ public class Files extends Controller {
 				// Fichier absent, pas possible de faire une miniature
 				return Render.notFound();
 			try {
-				String mimeType = MimeTypes.byName(item.name);
-				if (item.name.endsWith(".ico"))
-					return Render.bytes(Image4jFacet.getScaleICOImage(file, size, size), mimeType, item.name, false);
-				return Render.bytes(GraphicsUtils.scaleImageWithMaxDimensions(file, size, size), mimeType, item.name, false);
-			} catch (IOException | NoSuchElementException ex) { // Erreur de lecture ou format non supporté (comme SVG)
+				// L'extension va nous permettre de rechercher comment générer la Facet
+				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
+				// Si l'une des Facet ait générer la miniature, on connaitre le type MIME et le contenu
+				String mimetype = null;
+				byte[] thumbnail = null;
+				// Parcourir les Facet pour voir si l'une peut nous générer la miniature
+				for (Facet facet : configuration.getFacets()) {
+					if (facet.supportsThumbnail(extension)) {
+						thumbnail = facet.generateThumbnail(file, extension, size, size);
+						mimetype = facet.getThumbnailMimeType(extension);
+						if (thumbnail != null && mimetype != null)
+							return Render.bytes(thumbnail, mimetype, null, false);
+					}
+				}
+				// Si aucune Facet ne peut répondre à la demande de miniature, on indique au client que la demande est incorrecte
+				return Render.badRequest();
+			} catch (IOException | NoSuchElementException ex) {
+				// Si une erreur survient pendant la génération de la miniature, on suppose que c'est parce que la demande était incorrecte
 				return Render.badRequest();
 			}
 		});

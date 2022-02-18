@@ -1,6 +1,7 @@
 package fr.techgp.nimbus;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.google.gson.JsonObject;
 
@@ -48,6 +49,40 @@ public interface Facet {
 	 */
 	default void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
 		//
+	}
+
+	/**
+	 * Cette méthode permet à une Facet d'indiquer qu'elle souhaite prendre en charge la génération des miniatures de ce type de fichier.
+	 *
+	 * @param extension l'extension du fichier dont on cherche à générer une miniature
+	 * @return true si cette facet souhaite générer des miniatures pour les fichiers de ce type
+	 */
+	default boolean supportsThumbnail(String extension) {
+		return false;
+	}
+
+	/**
+	 * Cette méthode retourne le type mime de l'image qui sera générée par cette Facet.
+	 *
+	 * @param extension l'extension du fichier dont on cherche à générer une miniature
+	 * @return le type MIME de l'image qui sera générée par generateThumbnail
+	 */
+	default String getThumbnailMimeType(String extension) {
+		return null;
+	}
+
+	/**
+	 * Cette méthode est appelée si la Facet l'a demandé et devra renvoyer un tableau de byte représentant la miniature (ou null).
+	 *
+	 * @param file le fichier dont on cherche à générer une miniature
+	 * @param extension l'extension du fichier dont on cherche à générer une miniature
+	 * @param targetWidth la largeur max en pixel de l'image à générer
+	 * @param targetHeight la hauteur max en pixel de l'image à générer
+	 * @return la miniature sous la forme d'un tableau de byte (ou null si la Facet n'a pas généré de miniature finalement)
+	 * @throws IOException en cas de souci de lecture du fichier
+	 */
+	default byte[] generateThumbnail(File file, String extension, Integer targetWidth, Integer targetHeight) throws IOException  {
+		return null;
 	}
 
 }

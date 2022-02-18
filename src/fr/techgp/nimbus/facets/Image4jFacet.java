@@ -40,6 +40,21 @@ public class Image4jFacet implements Facet {
 		});
 	}
 
+	@Override
+	public boolean supportsThumbnail(String extension) {
+		return supports(extension);
+	}
+
+	@Override
+	public String getThumbnailMimeType(String extension) {
+		return "image/x-icon";
+	}
+
+	@Override
+	public byte[] generateThumbnail(File file, String extension, Integer targetWidth, Integer targetHeight) throws IOException {
+		return getScaleICOImage(file, targetWidth, targetHeight);
+	}
+
 	/** Cette méthode crée une miniature du fichier .ico passé en paramètre en conservant les proportions d'origine */
 	public static final byte[] getScaleICOImage(File file, Integer targetWidth, Integer targetHeight) throws IOException {
 		try (InputStream inputStream = new FileInputStream(file)) {
