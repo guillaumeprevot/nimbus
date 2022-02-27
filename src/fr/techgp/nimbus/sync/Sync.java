@@ -102,6 +102,8 @@ public class Sync {
 	}
 
 	public final void run() throws IOException {
+		// Trace the beginning of each folder
+		this.ontrace.accept(this.localFolder.getAbsolutePath());
 		// Extract content from Nimbus
 		JsonArray array = this.getContentFromServerFolder();
 		// Transform array into the item tree

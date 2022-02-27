@@ -86,11 +86,12 @@ public class SyncMain {
 				sync.ontrace = (s) -> { writer.format(s + "\n"); };
 				sync.onerror = (s) -> { writer.format(s + "\n"); System.err.println(s); System.exit(3); };
 			}
+			// Configuration
+			System.out.printf("SYNC with server %s and login %s", url, login);
 			// Authentication
 			sync.cookie = sync.authenticateAndGetSessionCookie();
 			// Parcours des dossiers demandés
 			for (String index : args) {
-				System.out.println(index);
 				String localFolder = getPropertyAsString(
 						"nimbus." + index + ".localFolder",
 						"Please enter the local folder",
@@ -102,8 +103,6 @@ public class SyncMain {
 				Set<Long> skipItemIds = getPropertyAsLongSet(
 						"nimbus." + index + ".skipItemIds",
 						"(Optionnal) Provide the coma-separated list of item ids to skip");
-				System.out.printf("Sync local folder %s with server folder %s at %s with account %s (skip=%s, unsecured=%s, skipped=%s)\n",
-						localFolder, serverFolderId, url, login, skipExistingWithSameDateAndSize, forceHTTPSCertificate, skipItemIds);
 				sync.localFolder = new File(localFolder);
 				sync.serverFolderId = "root".equals(serverFolderId) ? null : Long.valueOf(serverFolderId);
 				sync.skipItemIds = skipItemIds;
