@@ -87,7 +87,7 @@ public class SyncMain {
 				sync.onerror = (s) -> { writer.format(s + "\n"); System.err.println(s); System.exit(3); };
 			}
 			// Configuration
-			System.out.printf("SYNC with server %s and login %s", url, login);
+			System.out.printf("SYNC with server %s and login %s\n", url, login);
 			// Authentication
 			sync.cookie = sync.authenticateAndGetSessionCookie();
 			// Parcours des dossiers demandés
@@ -106,6 +106,8 @@ public class SyncMain {
 				sync.localFolder = new File(localFolder);
 				sync.serverFolderId = "root".equals(serverFolderId) ? null : Long.valueOf(serverFolderId);
 				sync.skipItemIds = skipItemIds;
+				if (writer != null)
+					System.out.printf("SYNC %s\n", localFolder);
 				sync.run();
 			}
 		} catch (Exception ex) {
