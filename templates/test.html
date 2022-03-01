@@ -329,10 +329,10 @@ function fillTests(add) {
 		return $.get("/files/stream/3").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
 	});
 	add("Récupérer une miniature en 32x32 de 'favicon.png'", function() {
-		return $.get("/files/thumbnail/3").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
+		return $.get("/files/thumbnail/3").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", null, null));
 	});
 	add("Récupérer une miniature en 64x64 de 'favicon.png'", function() {
-		return $.get("/files/thumbnail/3?size=64").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", undefined));
+		return $.get("/files/thumbnail/3?size=64").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", null, null));
 	});
 	add("Naviguer vers l'image 'favicon.png'", function() {
 		return $.get("/files/browse/favicon.png").then((content, status, jqHR) => assertStream(content, status, jqHR, "image/png", "favicon.png", 376));
@@ -468,7 +468,7 @@ function fillTests(add) {
 	});
 
 	add("Télécharger 'file.txt' via un zip appelé 'cloud.zip'", function() {
-		return $.get("/items/zip?itemIds=1").then((content, status, jqHR) => assertStream(content, status, jqHR, "application/zip", "cloud.zip"));
+		return $.get("/items/zip?itemIds=1").then((content, status, jqHR) => assertStream(content, status, jqHR, "application/zip", "cloud.zip", null));
 	});
 	add("Déplacer 'Dossier7' et 'file.txt' dans 'Dossier6'", function() {
 		return $.post("/items/move?itemIds=7,1&targetParentId=6").then(assertEmpty);
