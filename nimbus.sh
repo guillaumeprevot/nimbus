@@ -9,7 +9,7 @@ OPTIONS="-Djdk.tls.ephemeralDHKeySize=2048 -Djdk.tls.rejectClientInitiatedRenego
 #OPTIONS="$OPTIONS -Dnimbus.log=/path/to/custom/nimbus.log"
 
 # Update PATH if needed
-# export PATH=/path/to/openjdk-12/bin:$PATH
+# export PATH=/path/to/openjdk-17/bin:$PATH
 # export PATH=/path/to/maven/bin:$PATH
 
 # Command selection
