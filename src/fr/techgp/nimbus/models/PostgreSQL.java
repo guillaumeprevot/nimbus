@@ -381,11 +381,11 @@ public class PostgreSQL implements Database {
 
 	@Override
 	public boolean hasItemWithName(String userLogin, Long parentId, String name) {
-		StringBuilder sb = new StringBuilder("SELECT count(*) AS c FROM items WHERE user_login = ? AND name = ?");
+		StringBuilder sb = new StringBuilder("SELECT count(*) AS c FROM items WHERE user_login = ? AND lower(name) = ?");
 		sb.append(parentId == null ? " AND parent_id IS NULL" : " AND parent_id = ?");
 		return 1 == count(sb.toString(), (ps) -> {
 			ps.setString(1, userLogin);
-			ps.setString(2, name);
+			ps.setString(2, name.toLowerCase());
 			if (parentId != null)
 				ps.setObject(3, parentId, Types.BIGINT);
 		});
@@ -397,7 +397,7 @@ public class PostgreSQL implements Database {
 			return false;
 		StringBuilder sb = new StringBuilder("SELECT count(*) AS c FROM items WHERE user_login = ?");
 		sb.append(parentId == null ? " AND parent_id IS NULL" : " AND parent_id = ?");
-		sb.append(" AND name in (?");
+		sb.append(" AND lower(name) in (?");
 		for (int i = 1; i < names.length; i++) {
 			sb.append(", ?");
 		}
@@ -408,18 +408,18 @@ public class PostgreSQL implements Database {
 			if (parentId != null)
 				ps.setObject(index++, parentId, Types.BIGINT);
 			for (int i = 0; i < names.length; i++) {
-				ps.setString(index + i, names[i]);
+				ps.setString(index + i, names[i].toLowerCase());
 			}
 		});
 	}
 
 	@Override
 	public Item findItemWithName(String userLogin, Long parentId, String name) {
-		StringBuilder sb = new StringBuilder("SELECT * FROM items WHERE user_login = ? AND name = ?");
+		StringBuilder sb = new StringBuilder("SELECT * FROM items WHERE user_login = ? AND lower(name) = ?");
 		sb.append(parentId == null ? " AND parent_id IS NULL" : " AND parent_id = ?");
 		return selectOne(sb.toString(), (ps) -> {
 			ps.setString(1, userLogin);
-			ps.setString(2, name);
+			ps.setString(2, name.toLowerCase());
 			if (parentId != null)
 				ps.setObject(3, parentId, Types.BIGINT);
 		}, this::readItem);

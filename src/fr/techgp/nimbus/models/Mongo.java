@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.bson.BsonInt32;
 import org.bson.Document;
@@ -286,17 +287,26 @@ public class Mongo implements Database {
 
 	@Override
 	public boolean hasItemWithName(String userLogin, Long parentId, String name) {
-		return getCollection("items").countDocuments(new Document("userLogin", userLogin).append("parentId", parentId).append("name", name)) > 0;
+		Document search = new Document("userLogin", userLogin)
+				.append("parentId", parentId)
+				.append("name", new Document("$regex", "^" + name + "$").append("$options", "i"));
+		return getCollection("items").countDocuments(search) > 0;
 	}
 
 	@Override
 	public boolean hasItemsWithNames(String userLogin, Long parentId, String... names) {
-		return getCollection("items").countDocuments(new Document("userLogin", userLogin).append("parentId", parentId).append("name", new Document("$in", Arrays.asList(names)))) > 0;
+		Document search = new Document("userLogin", userLogin)
+				.append("parentId", parentId)
+				.append("name", new Document("$in", Arrays.stream(names).map(n -> Pattern.compile("^" + n + "$", Pattern.CASE_INSENSITIVE)).collect(Collectors.toList())));
+		return getCollection("items").countDocuments(search) > 0;
 	}
 
 	@Override
 	public Item findItemWithName(String userLogin, Long parentId, String name) {
-		return getCollection("items").find(new Document("userLogin", userLogin).append("parentId", parentId).append("name", name)).map(Mongo::readItem).first();
+		Document search = new Document("userLogin", userLogin)
+				.append("parentId", parentId)
+				.append("name", new Document("$regex", "^" + name + "$").append("$options", "i"));
+		return getCollection("items").find(search).map(Mongo::readItem).first();
 	}
 
 	@Override
