@@ -188,16 +188,8 @@ public class Files extends Controller {
 		} catch (Exception ex) {
 			// UTF-8 is always here, right ?
 		}
-		// Parcourir le chemin
-		Long currentId = null;
-		Item item = null;
-		for (String part : path.split("/")) {
-			item = Item.findItemWithName(userLogin, currentId, part);
-			if (item == null)
-				return Render.badRequest();
-			currentId = item.id;
-		}
-		// Vérification
+		// Récupérer l'élément dont on reçoit le chemin
+		Item item = Item.findItemWithPath(userLogin, null, path);
 		if (item == null)
 			return Render.badRequest();
 		// Renvoyer le fichier au bout du chemin

@@ -246,6 +246,18 @@ public class Item {
 		return getDatabase().findItemWithName(userLogin, parentId, name);
 	}
 
+	public static final Item findItemWithPath(String userLogin, Long parentId, String path) {
+		Long currentId = parentId;
+		Item item = null;
+		for (String part : path.split("/")) {
+			item = Item.findItemWithName(userLogin, currentId, part);
+			if (item == null)
+				break;
+			currentId = item.id;
+		}
+		return item;
+	}
+
 	public static final void forEachTag(String userLogin, Consumer<String> consumer) {
 		getDatabase().forEachItemTag(userLogin, consumer);
 	}

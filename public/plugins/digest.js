@@ -23,14 +23,13 @@
 				const algorithm = extensions[extension];
 				$.get('/digest/check?itemId=' + item.id + '&algorithm=' + algorithm).then(function(results) {
 					const ul = $('<ul></ul>');
-					// console.log(results);
 					results.forEach(r => {
 						if (!r.actual)
-							$('<li class="text-warning"></li>').text(NIMBUS.translate('DigestResultMissing', r.name)).appendTo(ul);
+							$('<li class="text-warning"></li>').text(NIMBUS.translate('DigestResultMissing', r.path)).appendTo(ul);
 						else if (r.actual !== r.expected)
-							$('<li class="text-danger"></li>').text(NIMBUS.translate('DigestResultInvalid', r.name)).appendTo(ul);
+							$('<li class="text-danger"></li>').text(NIMBUS.translate('DigestResultInvalid', r.path)).appendTo(ul);
 						else
-							$('<li></li>').text(NIMBUS.translate('DigestResultOK', r.name)).appendTo(ul);
+							$('<li></li>').text(NIMBUS.translate('DigestResultOK', r.path)).appendTo(ul);
 					});
 					NIMBUS.message(ul.html(), false, true);
 				});

@@ -9,7 +9,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -195,15 +196,19 @@ public class Extensions extends Controller {
 			byte[] buffer = new byte[1014 * 1014];
 			// Préparer le résultat
 			JsonArray results = new JsonArray();
-			// Lire le contenu
-			List<String> lines = FileUtils.readLines(getFile(item), StandardCharsets.UTF_8);
+			// Lire le contenu, en faisant attention au BOM
+			//List<String> lines = FileUtils.readLines(getFile(item), StandardCharsets.UTF_8);
+			List<String> lines;
+			try (BOMInputStream is = new BOMInputStream(new FileInputStream(getFile(item)))) {
+				lines = IOUtils.readLines(is, StandardCharsets.UTF_8);
+			}
 			for (String line : lines) {
 				String hash = line.substring(0, 2 * digest.getDigestLength()).toLowerCase();
-				String name = line.substring(2 * digest.getDigestLength()).trim();
+				String path = line.substring(2 * digest.getDigestLength()).trim();
 				JsonObject result = new JsonObject();
-				result.addProperty("name", name);
+				result.addProperty("path", path);
 				result.addProperty("expected", hash);
-				Item sibling = Item.findItemWithName(userLogin, item.parentId, name);
+				Item sibling = Item.findItemWithPath(userLogin, item.parentId, path);
 				if (sibling != null) {
 					// Vérifier le fichier
 					digest.reset();
