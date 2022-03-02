@@ -1,9 +1,24 @@
 package fr.techgp.nimbus.controllers;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import fr.techgp.nimbus.models.Item;
+import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Route;
+import fr.techgp.nimbus.utils.ConversionUtils;
 import fr.techgp.nimbus.utils.StringUtils;
 
 public class Extensions extends Controller {
@@ -156,6 +171,60 @@ public class Extensions extends Controller {
 		return Templates.render(request, "bookmarks.html",
 				"itemId", request.queryParameterLong("itemId", null));
 	});
+
+	/**
+	 * Cette route vérifie les sommes de contrôles qu'elle lit dans le fichier indiqué en suivant l'algorithme indiqué.
+	 * La méthode renverra du JSON indiquant le résultat du contrôle : fichiers trouvés, checksums validées ou incorrectes.
+	 *
+	 * (itemId, algorithm) => JsonArray<JsonObject<path, expected, actual?>>
+	 */
+	public static final Route checkDigest = (request, response) -> {
+		// Récupérer l'utilisateur connecté
+		String userLogin = getUserLogin(request);
+		if (userLogin == null)
+			return Render.unauthorized();
+		// Rechercher l'élément et en vérifier l'accès
+		String itemIdString = request.queryParameter("itemId");
+		Item item = Item.findById(Long.valueOf(itemIdString));
+		if (item == null || !item.userLogin.equals(userLogin) || item.folder)
+			return Render.badRequest();
+		try {
+			// Récupérer l'algorithme demandé
+			String algorithm = request.queryParameter("algorithm", "SHA-256");
+			MessageDigest digest = MessageDigest.getInstance(algorithm);
+			byte[] buffer = new byte[1014 * 1014];
+			// Préparer le résultat
+			JsonArray results = new JsonArray();
+			// Lire le contenu
+			List<String> lines = FileUtils.readLines(getFile(item), StandardCharsets.UTF_8);
+			for (String line : lines) {
+				String hash = line.substring(0, 2 * digest.getDigestLength()).toLowerCase();
+				String name = line.substring(2 * digest.getDigestLength()).trim();
+				JsonObject result = new JsonObject();
+				result.addProperty("name", name);
+				result.addProperty("expected", hash);
+				Item sibling = Item.findItemWithName(userLogin, item.parentId, name);
+				if (sibling != null) {
+					// Vérifier le fichier
+					digest.reset();
+					try (InputStream is = new FileInputStream(getFile(sibling))) {
+						int read;
+						while ((read = is.read(buffer)) != -1) {
+							digest.update(buffer, 0, read);
+						}
+					}
+					result.addProperty("actual", ConversionUtils.bytes2hex(digest.digest()));
+				}
+				results.add(result);
+			}
+			return Render.json(results);
+		} catch (NoSuchAlgorithmException ex) {
+			return Render.badRequest();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return Render.internalServerError();
+		}
+	};
 
 	private static final String queryParameterURL(Request request, String name, String defaultValue) {
 		String s = request.queryParameter(name);

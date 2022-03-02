@@ -141,6 +141,7 @@ public class Controller {
 		r.get("/calendar.html", Extensions.calendar);
 		r.get("/contacts.html", Extensions.contacts);
 		r.get("/bookmarks.html", Extensions.bookmarks);
+		r.get("/digest/check", Extensions.checkDigest);
 
 		// Accès à la page de test en mode DEV uniquement
 		r.get("/test.html", (request, response) -> {

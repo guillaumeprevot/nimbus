@@ -106,11 +106,14 @@ Il est possible de stocker tout type de fichier dans `Nimbus` et, quand le forma
     - les sous-titres SubRip (`.srt`) peuvent être convertis en WebVTT (vtt) en utilisant l'action `Convertir en WebVTT`, basée sur [ce code](http://www.webvtt.org/)
     - plusieurs propriétés (durée, codecs, ...) sont extraites de nombreux formats afin d'être disponibles lors de la navigation
 - Audio :
-    - les fichiers audio (`.mp3`, `.ogg`, `wav`, ...) [supportés par le navigateur](https://www.w3schools.com/tags/tag_audio.asp) peuvent être écoutés dans Nimbus en utilisant les actions `Ouvrir` ou `Ajouter`
+    - les fichiers audio (`.mp3`, `.ogg`, `.wav`, ...) [supportés par le navigateur](https://www.w3schools.com/tags/tag_audio.asp) peuvent être écoutés dans Nimbus en utilisant les actions `Ouvrir` ou `Ajouter`
     - plusieurs propriétés (durée, auteur, album, ...) sont extraites de nombreux formats afin d'être disponibles lors de la navigation
 - Images :
     - les images (`.jpeg`, `.png`, ...) [supportées par le navigateur](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Img) peuvent être visualisées dans le `Diaporama` de Nimbus
     - plusieurs propriétés (dimensions, coordonnées GPS, ...) peuvent être extraites de différents formats afin d'être disponibles lors de la navigation
+- Fichiers de checksum :
+	- les fichiers de checksum (`.md5`, `.sha1`, `.sha256` et `.sha512`) peuvent être utilisés pour valider le contenu sur le serveur
+	- l'action `Vérifier l'intégrité des fichiers` lit le contenu du fichier et vérifie les sommes de contrôles des fichiers référencés
 - Markdown :
     - les notes au format Markdown (`.markdown` ou `.md`) peuvent être saisies et prévisualisées dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur Markdown`
     - [CodeMirror](https://codemirror.net/) est utilisé pour l'éditeur Markdown ainsi que la coloration syntaxique des blocs de code
@@ -119,7 +122,7 @@ Il est possible de stocker tout type de fichier dans `Nimbus` et, quand le forma
     - les fichiers texte (cf *text.file.extensions* dans *nimbus.conf*) peuvent être édités dans Nimbus en utilisant l'action `Ouvrir dans l'éditeur de texte`
     - les notes au format HTML (`.html` ou `.note`), peuvent être éditées dans Nimbus grâce à une application WYSIWYG dédiée
     - le `code source` peut être édité dans Nimbus grâce à [CodeMirror](https://codemirror.net/) en utilisant l'action `Ouvrir dans l'éditeur de code`
-
+ 
 De plus, une action générale `Ouvrir` permet d'ouvrir le fichier dans le navigateur, quand ce dernier supporte ce format de fichier.
 
 Enfin, certaines extensions sont interprétées comme fichiers contenant les données d'applications intégrées à Nimbus 
