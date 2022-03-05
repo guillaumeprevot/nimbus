@@ -204,6 +204,7 @@ function createFolderNavigationItem(source, folder) {
 			+ '      <button type="button" class="dropdown-item bookmark-folder-select-icon"></button>'
 			+ '      <button type="button" class="dropdown-item bookmark-folder-rename"></button>'
 			+ '      <button type="button" class="dropdown-item bookmark-folder-sort"></button>'
+			+ '      <button type="button" class="dropdown-item bookmark-folder-do-not-sort"></button>'
 			+ '      <div class="dropdown-divider"></div>'
 			+ '      <button type="button" class="dropdown-item text-danger bookmark-folder-delete"></button>'
 			+ '    </div>'
@@ -215,6 +216,7 @@ function createFolderNavigationItem(source, folder) {
 			.find('.bookmark-folder-select-icon').text(NIMBUS.translate('BookmarksSelectFolderIconTitle')).end()
 			.find('.bookmark-folder-rename').text(NIMBUS.translate('BookmarksRenameFolderTitle')).end()
 			.find('.bookmark-folder-sort').text(NIMBUS.translate('BookmarksSortFolderTitle')).end()
+			.find('.bookmark-folder-do-not-sort').text(NIMBUS.translate('BookmarksDoNotSortFolderTitle')).end()
 			.find('.bookmark-folder-delete').text(NIMBUS.translate('BookmarksDeleteFolderTitle')).end();
 }
 
@@ -393,6 +395,8 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 			draggable.insertAfter(droppable);
 			folder.bookmarks.splice(folder.bookmarks.indexOf(target) + 1, 0, bookmark);
 		}
+		// Indiquer que le dossier n'est plus trié automatiquement puisqu'on a trié à la main
+		folder.sorted = false;
 		// Gérer la sauvegarde
 		sourceChangeCallback(source);
 		// S'assurer de vider le contexte (car "dragend" ne sera pas appelé maintenant que le favori a disparu)
@@ -416,6 +420,9 @@ function connectBookmarkDragAndDrop(sourceChangeCallback) {
 			// Déplacer le favori dans le dossier ciblé
 			dropFolder.bookmarks.push(bookmark);
 			dragFolder.bookmarks.splice(dragFolder.bookmarks.indexOf(bookmark), 1);
+			// Appliquer le tri auto sur le nouveau dossier s'il est configuré ainsi
+			if (dropFolder.sorted)
+				dropFolder.sort();
 			draggable.remove();
 			// Ajuster la liste des dossiers en cas de recherche
 			if ($('#searchInput').val())
@@ -517,6 +524,9 @@ function editBookmark(source, folder, bookmark, isNew, callback, deleteCallback)
 		bookmark.extensions = $('#bookmarkExtensions').gpvaluelist().extract().map((e) => new api.BookmarkExtension(e));
 		if (isNew)
 			folder.bookmarks.push(bookmark);
+		// Appliquer le tri auto sur le nouveau dossier s'il est configuré ainsi
+		if (folder.sorted)
+			folder.sort();
 		// Fermer la fenêtre modale
 		$('#bookmarkModal').modal('hide');
 		// Appeler la callback
@@ -721,6 +731,16 @@ NIMBUS.init(['bookmarks.js'], function() {
 			});
 		});
 
+		// Ajustement des 2 entrées de menu pour trier ou non automatiquement
+		$('#navigation').on('show.bs.dropdown', '.bookmark-folder-item', function(event) {
+			// Récupérer l'élément cliqué, la source et le dossier associé
+			var item = $(event.target).closest('.list-group-item');
+			var folder = item.data('folder');
+			// Ajuster les 2 entrées de menu
+			item.find('.bookmark-folder-sort').toggle(!folder.sorted);
+			item.find('.bookmark-folder-do-not-sort').toggle(!!folder.sorted);
+		});
+
 		// Clic sur un bouton de tri d'un dossier
 		$('#navigation').on('click', '.bookmark-folder-sort', function() {
 			// Récupérer l'élément cliqué, la source et le dossier associé
@@ -729,8 +749,21 @@ NIMBUS.init(['bookmarks.js'], function() {
 			var folder = item.data('folder');
 			// Ajuster le modèle
 			folder.sort();
+			folder.sorted = true;
 			// Ajuster le contenu de la partie droite
 			updateSelection(selectedSource, selectedFolder);
+			// Gérer la sauvegarde
+			data.trigger('bookmarksourcechange', source);
+		});
+
+		// Clic sur un bouton désactivant le tri alpha d'un dossier
+		$('#navigation').on('click', '.bookmark-folder-do-not-sort', function() {
+			// Récupérer l'élément cliqué, la source et le dossier associé
+			var item = $(event.target).closest('.list-group-item');
+			var source = item.data('source');
+			var folder = item.data('folder');
+			// Ajuster le modèle
+			folder.sorted = false;
 			// Gérer la sauvegarde
 			data.trigger('bookmarksourcechange', source);
 		});

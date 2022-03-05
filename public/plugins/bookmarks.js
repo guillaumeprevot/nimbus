@@ -30,6 +30,8 @@
 		this.icon = data.icon;
 		// Nom du dossier
 		this.name = data.name;
+		// Indique si les raccourcis doivent être automatiquement triés par ordre alphabétique
+		this.sorted = (typeof data.sorted === 'boolean') ? data.sorted : false;
 		// Liste des favoris dans ce dossier, un tableau de Bookmark
 		this.bookmarks = data.bookmarks || [];
 	}
@@ -86,6 +88,7 @@
 				return {
 					icon: f.icon || undefined,
 					name: f.name || undefined,
+					sorted: !!f.sorted,
 					bookmarks: (f.bookmarks.length === 0) ? undefined : f.bookmarks.map(function(b) {
 						return {
 							url: b.url || undefined,
@@ -204,6 +207,7 @@
 				BookmarksRenameFolderTitle: "Renommer le dossier",
 				BookmarksRenameFolderPrompt: "Choisir le nouveau nom du dossier",
 				BookmarksSortFolderTitle: "Trier le contenu alphabétiquement",
+				BookmarksDoNotSortFolderTitle: "Ne plus trier le contenu alphabétiquement",
 				BookmarksDeleteFolderTitle: "Supprimer le dossier et son contenu",
 				BookmarksDeleteFolderConfirmation: "Êtes-vous sûr de vouloir supprimer le dossier \"{0}\" et son contenu ?",
 				BookmarksEditBookmark: "Modifier ce favori",
@@ -263,6 +267,7 @@
 				BookmarksRenameFolderTitle: "Rename folder",
 				BookmarksRenameFolderPrompt: "Enter the new name of the folder",
 				BookmarksSortFolderTitle: "Sort content alphabetically",
+				BookmarksDoNotSortFolderTitle: "Do not sort content alphabetically anymore",
 				BookmarksDeleteFolderTitle: "Delete this folder and all bookmark in this folder",
 				BookmarksDeleteFolderConfirmation: "Are you sure you want to delete the folder \"{0}\" and all of it's bookmarks?",
 				BookmarksEditBookmark: "Edit this bookmark",
