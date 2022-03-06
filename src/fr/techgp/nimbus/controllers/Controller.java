@@ -163,6 +163,12 @@ public class Controller {
 					"serverAbsoluteUrl", configuration.getServerAbsoluteUrl());
 		});
 
+		// Trace "not found"
+		r.after("/*", (req, res) -> {
+			if (res.body() == null && Controller.logger.isWarnEnabled())
+				Controller.logger.warn("URL non trouvée ({}) : {}", req.ip(), req.path());
+			return null;
+		});
 		return r;
 	}
 

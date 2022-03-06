@@ -48,8 +48,8 @@ public class Authentication extends Controller {
 		String error = authenticate(login, password);
 		String urlToLoad = StringUtils.withDefault(request.queryParameter("urlToLoad"), "/");
 		if (error != null) {
-			if (logger.isWarnEnabled())
-				logger.warn("Authentification échouée (" + login + " / " + request.ip() + ") : " + error);
+			if (Controller.logger.isWarnEnabled())
+				Controller.logger.warn("Authentification échouée ({} / {}) : {}", login, request.ip(), error);
 			return renderLoginPage(request, true, false, urlToLoad);
 		}
 		getSession(request, true).attribute("userLogin", login);
