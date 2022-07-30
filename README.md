@@ -49,10 +49,10 @@ Dépendance | Type | Version | Utilité | Fichiers
 [jQuery](http://api.jquery.com/) | JS | [3.6.0](https://jquery.com/download/) | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | [4.6.2](https://github.com/twbs/bootstrap/releases) | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | [4.6.2](https://github.com/thomaspark/bootswatch/releases) | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
-[Material Icons](https://material.io/icons/) | CSS | [v135](https://fonts.googleapis.com/css?family=Material+Icons) | Apache 2.0 | Icônes sous forme de WebFont
+[Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) | CSS | [v135](https://fonts.googleapis.com/css?family=Material+Icons) | Apache 2.0 | Icônes sous forme de WebFont
 [ePub.js](https://github.com/futurepress/epub.js) | plugin JS | [0.3.93](https://www.npmjs.com/package/epubjs) | Free BSD | Support des fichiers ePub
 [PDF.js](https://mozilla.github.io/pdf.js/) | plugin JS | [2.14.305](https://github.com/mozilla/pdf.js/releases) | Apache 2.0 | Support des fichiers PDF
-[markdown-it](https://github.com/markdown-it/markdown-it) | plugin JS | [12.0.6](https://github.com/markdown-it/markdown-it/releases) | MIT | Prévisualisation du Markdown
+[markdown-it](https://github.com/markdown-it/markdown-it) | plugin JS | [13.0.1](https://github.com/markdown-it/markdown-it/releases) | MIT | Prévisualisation du Markdown
 [CodeMirror](https://codemirror.net/) | plugin JS | [5.65.7](https://codemirror.net/) | MIT | Editeur de code avec coloration syntaxique notamment
 [DOMPurify](https://github.com/cure53/DOMPurify) | plugin JS | [2.3.10](https://github.com/cure53/DOMPurify/releases) | Apache 2.0 / MPL 2.0 | Assainit le contenu des notes avant utilisation
 [Moment.js](https://momentjs.com/docs/) | plugin JS | [2.29.4](https://github.com/moment/moment/releases) | MIT | Manipulation des dates et heures (agenda)
