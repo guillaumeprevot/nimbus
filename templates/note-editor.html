@@ -196,9 +196,7 @@ function sanitize(content) {
 	var safe = search.get('safe') === 'true';
 	if (safe)
 		return content;
-	return DOMPurify.sanitize(content, {
-		SAFE_FOR_JQUERY: true,
-	});
+	return DOMPurify.sanitize(content);
 }
 
 //Initialiser la page

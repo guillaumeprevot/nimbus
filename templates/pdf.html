@@ -431,6 +431,8 @@ function open(url) {
 					value = parsePDFDate(value).toLocaleString();
 				$('<tr />').append('<td>' + name + '</td>').append('<td>' + (value || '') + '</td>').appendTo(tbody);
 			}
+			if (typeof window.pdfjsLib.version === 'string')
+				$('<tr />').append('<td>PDF.js</td>').append('<td>' + window.pdfjsLib.version + '</td>').appendTo(tbody);
 		});
 	});
 
