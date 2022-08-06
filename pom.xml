@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.4.0</version>
+			<version>42.4.1</version>
 		</dependency>
 		<!--
 			https://commons.apache.org/proper/commons-dbcp/
