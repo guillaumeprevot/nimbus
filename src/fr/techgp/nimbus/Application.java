@@ -58,6 +58,7 @@ public class Application {
 					.https(configuration.getServerKeystore(), configuration.getServerKeystorePassword())
 					.multipart(configuration.getStorageFolder().getAbsolutePath(), -1L, -1L, 100 * 1024 * 1024)
 					.session(configuration.getSessionTimeout(), configuration.getSessionCookiePath(), configuration.getSessionCookieDomain(), configuration.getSessionSecretKey())
+					.errors(dev)
 					.start(router);
 
 			// Launch URL
