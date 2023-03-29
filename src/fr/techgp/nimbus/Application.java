@@ -56,6 +56,7 @@ public class Application {
 			// Prepare Jetty
 			JettyServer server = new JettyServer(configuration.getServerPort())
 					.https(configuration.getServerKeystore(), configuration.getServerKeystorePassword())
+					.invalidSNIHandler((req) -> logger.warn("Invalid SNI ({}) : {}", req.getRemoteAddr(), req.getPathInfo()))
 					.multipart(configuration.getStorageFolder().getAbsolutePath(), -1L, -1L, 100 * 1024 * 1024)
 					.session(configuration.getSessionTimeout(), configuration.getSessionCookiePath(), configuration.getSessionCookieDomain(), configuration.getSessionSecretKey())
 					.errors(dev)
