@@ -28,16 +28,16 @@ Le développement du projet s'organise selon 4 axes :
 
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
-[Nimbus Java API](https://github.com/guillaumeprevot/nimbus-java-api) | Java | [1.12](https://github.com/guillaumeprevot/nimbus-java-api/releases) | MIT | Routing API
-[Jetty](https://www.eclipse.org/jetty/) | Java | [11.0.11](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Serveur Web
-[FreeMarker](https://freemarker.apache.org/) | Java | [2.3.31](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
-[Gson](https://github.com/google/gson) | Java | [2.9.1](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
+[Nimbus Java API](https://github.com/guillaumeprevot/nimbus-java-api) | Java | [1.13](https://github.com/guillaumeprevot/nimbus-java-api/releases) | MIT | Routing API
+[Jetty](https://www.eclipse.org/jetty/) | Java | [11.0.14](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Serveur Web
+[FreeMarker](https://freemarker.apache.org/) | Java | [2.3.32](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
+[Gson](https://github.com/google/gson) | Java | [2.10.1](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.36](http://www.slf4j.org/download.html) | MIT | Gestion des logs
-[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.11](https://search.maven.org/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
-[PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.4.1](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
+[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.12](https://search.maven.org/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
+[PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.6.0](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
 [Commons DBCP](https://commons.apache.org/proper/commons-dbcp/) | Java | [2.9.0](https://commons.apache.org/proper/commons-dbcp/download_dbcp.cgi) | Apache 2.0 | Pool pour PostgreSQL
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.11.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
-[PDFBox](https://pdfbox.apache.org/) | plugin Java | [2.0.26](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
+[PDFBox](https://pdfbox.apache.org/) | plugin Java | [2.0.27](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/) | plugin Java | [2.18.0](https://github.com/drewnoakes/metadata-extractor/releases) | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
 [Image4j](http://image4j.sourceforge.net/) | plugin Java | [0.7.1](./lib/image4j/) | LGPL | Support des fichiers ICO et BMP
 [Jave](http://www.sauronsoftware.it/projects/jave/download.php) | plugin Java | [1.0.2](./lib/jave/) | GPL | Support audio et vidéo grâce à FFmpeg
