@@ -83,8 +83,8 @@ public class SyncMain {
 			sync.skipExistingWithSameDateAndSize = skipExistingWithSameDateAndSize;
 			sync.forceHTTPSCertificate = forceHTTPSCertificate;
 			if (writer != null) {
-				sync.ontrace = (s) -> { writer.format(s + "\n"); };
-				sync.onerror = (s) -> { writer.format(s + "\n"); System.err.println(s); System.exit(3); };
+				sync.ontrace = (s) -> { writer.println(s); };
+				sync.onerror = (s) -> { writer.println(s); System.err.println(s); System.exit(3); };
 			}
 			// Configuration
 			System.out.printf("SYNC with server %s and login %s\n", url, login);
@@ -141,7 +141,7 @@ public class SyncMain {
 		if (StringUtils.isNotBlank(log)) {
 			File file = new File(log);
 			try {
-				return new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8));
+				return new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8), true);
 			} catch (FileNotFoundException ex) {
 				System.err.println("Could not open log file \"" + log + "\"");
 				ex.printStackTrace();
