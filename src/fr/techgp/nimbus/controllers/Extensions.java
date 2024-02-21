@@ -199,8 +199,10 @@ public class Extensions extends Controller {
 			// Lire le contenu, en faisant attention au BOM
 			//List<String> lines = FileUtils.readLines(getFile(item), StandardCharsets.UTF_8);
 			List<String> lines;
-			try (BOMInputStream is = new BOMInputStream(new FileInputStream(getFile(item)))) {
-				lines = IOUtils.readLines(is, StandardCharsets.UTF_8);
+			try (InputStream is = new FileInputStream(getFile(item))) {
+				try (BOMInputStream bis = BOMInputStream.builder().setInputStream(is).get()) {
+					lines = IOUtils.readLines(bis, StandardCharsets.UTF_8);
+				}
 			}
 			for (String line : lines) {
 				String hash = line.substring(0, 2 * digest.getDigestLength()).toLowerCase();
