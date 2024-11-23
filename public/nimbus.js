@@ -360,7 +360,8 @@ NIMBUS.utils = (function() {
 	}
 
 	function getFileExtensionFromString(name) {
-		return name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+		var i = name.lastIndexOf('.');
+		return (i == -1 || i == name.length - 1) ? '' : name.substring(i + 1).toLowerCase();
 	}
 
 	function getFileNameFromContentDisposition(jqXHR) {

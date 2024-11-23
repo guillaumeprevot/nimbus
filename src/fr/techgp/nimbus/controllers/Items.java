@@ -685,8 +685,7 @@ public class Items extends Controller {
 				node.addProperty("iconURL", item.metadatas.getString("iconURL"));
 				node.addProperty("iconURLCache", item.metadatas.getString("iconURLCache"));
 			} else {
-				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
-				node.addProperty("mimetype", MimeTypes.byExtension(extension));
+				node.addProperty("mimetype", MimeTypes.byName(item.name));
 				node.addProperty("length", item.metadatas.getLong("length"));
 				if (item.metadatas.has("progress"))
 					node.addProperty("progress", item.metadatas.getInteger("progress"));
@@ -694,6 +693,8 @@ public class Items extends Controller {
 					node.addProperty("status", item.metadatas.getString("status"));
 				if (item.metadatas.has("sourceURL"))
 					node.addProperty("sourceURL", item.metadatas.getString("sourceURL"));
+
+				String extension = FilenameUtils.getExtension(item.name).toLowerCase();
 				for (Facet facet : configuration.getFacets()) {
 					if (facet.supports(extension)) {
 						facet.loadMetadata(item.metadatas, node);
