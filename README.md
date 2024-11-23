@@ -149,6 +149,39 @@ Enfin, certaines extensions sont interprétées comme fichiers contenant les don
 
 Pour fonctionner, `Nimbus` a besoin de [MongoDB](https://www.mongodb.com/download-center/community) ou [PostgreSQL](https://www.postgresql.org/), de [Java](https://adoptium.net/), de [Git](https://git-scm.com/) et de [Maven](https://maven.apache.org/download.cgi).
 
+**Préparation PostgreSQL**
+
+Création du rôle
+```sql
+CREATE ROLE nimbus WITH  -- à ajuster en prod
+	LOGIN
+	NOSUPERUSER
+	NOCREATEDB
+	NOCREATEROLE
+	INHERIT
+	NOREPLICATION
+	CONNECTION LIMIT -1
+	PASSWORD 'nimbus';   -- à ajuster en prod
+```
+
+Création de la base de données
+```sql
+CREATE DATABASE nimbus WITH  -- à ajuster en prod
+	OWNER = nimbus           -- à ajuster en prod
+	ENCODING = 'UTF8'        -- 'UTF-8' sous Linux et macOS
+	LC_COLLATE = 'C'         -- anciennement French_France.1252 sous Windows
+	LC_CTYPE = 'C'           -- anciennement French_France.1252 sous Windows
+	TABLESPACE = pg_default
+	CONNECTION LIMIT = -1
+	TEMPLATE template0;
+```
+
+Création des tables
+Rien à faire, elles seront créées au premier démarrage
+
+Créaton du compte administrateur
+Rien à faire, il sera créé à la première connexion.
+
 **Installation**
 
 Tout d'abord, on récupère le code sur `GitHub` et on compile avec `Maven`
