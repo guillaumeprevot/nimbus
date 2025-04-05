@@ -6,6 +6,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -34,7 +35,7 @@ public class PDFBoxFacet implements Facet {
 
 	@Override
 	public void updateMetadata(File file, String extension, Metadatas metadatas) throws Exception {
-		try (PDDocument doc = PDDocument.load(file)) {
+		try (PDDocument doc = Loader.loadPDF(file)) {
 			// Page count
 			int pageCount = doc.getNumberOfPages();
 			metadatas.put("pageCount", pageCount);
