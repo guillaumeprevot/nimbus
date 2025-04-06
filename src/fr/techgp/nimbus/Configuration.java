@@ -15,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.impl.JettyServer;
+import fr.techgp.nimbus.utils.StringUtils;
 
 public class Configuration {
 
@@ -90,8 +91,9 @@ public class Configuration {
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
 		this.clientFaviconColor = getString("client.favicon.color", null);
 		this.textFileExtensions = Set.of(getString("text.file.extensions", "txt,md,markdown,note,html").split(","));
-		this.facets = getInstances("facet", Facet.class);
-		this.facets.forEach((f) -> f.init(this));
+
+		this.facets = new ArrayList<>();
+		this.loadFacets();
 		this.configureMimeTypes();
 	}
 
@@ -110,22 +112,25 @@ public class Configuration {
 		return Optional.ofNullable(getString(property, null)).map(Boolean::valueOf).orElse(Boolean.valueOf(defaultValue)).booleanValue();
 	}
 
-	private final <T> List<T> getInstances(String property, Class<T> clazz) {
-		List<T> instances = new ArrayList<>();
-		int i = 0;
-		while (true) {
-			String s = getString(property + "." + i, null);
-			if (s == null)
-				break;
+	private final void loadFacets() {
+		String facetNumbers = getString("facet.enabled", "");
+		if (StringUtils.isBlank(facetNumbers))
+			return;
+		for (String facetNumber : facetNumbers.split(",")) {
+			String s = getString("facet." + facetNumber, null);
+			if (s == null) {
+				System.out.println("Configuration référence une facet non définie : " + facetNumber);
+				continue;
+			}
 			try {
-				T instance = Class.forName(s).asSubclass(clazz).getDeclaredConstructor().newInstance();
-				instances.add(instance);
+				Facet instance = Class.forName(s).asSubclass(Facet.class).getDeclaredConstructor().newInstance();
+				instance.init(this);
+				// System.out.println("Loaded facet " + instance.getClass().getSimpleName());
+				this.facets.add(instance);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
-			i++;
 		}
-		return instances;
 	}
 
 	public final void configureMimeTypes() throws IOException {

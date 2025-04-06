@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Metadatas;
 
-public class ContactsFacet implements Facet {
+public class NimbusContactsFacet implements Facet {
 
 	@Override
 	public boolean supports(String extension) {

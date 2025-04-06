@@ -80,6 +80,7 @@ public class Application {
 					logger.info("PostgreSQL {} : {}", configuration.getPostgresqlUsername(), configuration.getPostgresqlURL());
 				else
 					logger.info("MongoDB : {}:{}/{}", configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
+				logger.info("Plugins chargés : {}", configuration.getFacets().size());
 				logger.info("Serveur en attente : {}", configuration.getServerAbsoluteUrl());
 			}
 

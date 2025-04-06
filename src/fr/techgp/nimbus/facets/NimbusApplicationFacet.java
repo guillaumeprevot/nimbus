@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import fr.techgp.nimbus.Facet;
 import fr.techgp.nimbus.models.Metadatas;
 
-public class StandardApplicationFacet implements Facet {
+public class NimbusApplicationFacet implements Facet {
 
 	@Override
 	public boolean supports(String extension) {
