@@ -39,6 +39,7 @@ Dépendance | Type | Version | Utilité | Fichiers
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.18.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
 [PDFBox](https://pdfbox.apache.org/) | plugin Java | [3.0.4](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/) | plugin Java | [2.19.0](https://github.com/drewnoakes/metadata-extractor/releases) | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
+[Commons Imaging](https://commons.apache.org/proper/commons-imaging/) | plugin Java | [1.1.0-alpha5](https://commons.apache.org/proper/commons-imaging/download_imaging.cgi) |  Apache 2.0 | Support des fichiers ICO  
 [Image4j](http://image4j.sourceforge.net/) | plugin Java | [0.7.1](./lib/image4j/) | LGPL | Support des fichiers ICO et BMP
 [Jave](http://www.sauronsoftware.it/projects/jave/download.php) | plugin Java | [1.0.2](./lib/jave/) | GPL | Support audio et vidéo grâce à FFmpeg
 [JavaZoom](http://www.javazoom.net/index.shtml) | plugin Java | [2010](./lib/javazoom/) | LGPL | Support des fichiers MP3 et OGG
