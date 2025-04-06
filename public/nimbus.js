@@ -886,7 +886,7 @@ NIMBUS.navigation = (function() {
 			updatePath(0, items);
 		});
 		// En cas d'utilisation des bouton Précédent / Suivant, ajuster l'IHM en fonction de "location.pathname"
-		window.onpopstate = function(event) {
+		window.onpopstate = function(_event) {
 			goToLocationAndRefreshItems();
 		};
 	}
@@ -926,6 +926,7 @@ NIMBUS.navigation = (function() {
 		}
 		// get path et show it to user
 		getItemsByIds(pathArray.splice(index), function(items) {
+			// keep common path (index), add parent folders from server (items) and selected folder (folder)
 			updatePath(index, items.concat([folder]));
 		});
 	}
@@ -934,6 +935,8 @@ NIMBUS.navigation = (function() {
 	function updatePath(keepCount, appendItems) {
 		// Keep the first "keepCount" folders, if asked
 		currentPath.length = keepCount;
+		// Ensure the path to append is in the right order
+		appendItems.sort((i1, i2) => (i1.path || '').indexOf(i2.path || '') >= 0 ? 1 : -1);
 		// Append specified folders "appendItems" in path "currentPath"
 		Array.prototype.push.apply(currentPath, appendItems);
 		// Clear search
@@ -943,7 +946,7 @@ NIMBUS.navigation = (function() {
 		var pathDiv = $('#path');
 		var location = '/nav';
 		pathDiv.children(':not(:first-child)').remove();
-		currentPath.forEach(function(item, index) {
+		currentPath.forEach(function(item, _index) {
 			location = location + '/' + item.id;
 			$('<li class="nav-item" />').appendTo(pathDiv)
 				.append($('<a class="nav-link" />').text(item.name).attr('href', location));

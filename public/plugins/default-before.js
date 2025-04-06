@@ -45,7 +45,7 @@
 				// La navigation ne se fait que dans des dossiers
 				accept: (item, _extension) => item.folder,
 				// Le support de l'URL vers le dossier pour l'ouverture dans un onglet
-				url: (item) => '/nav/' + item.path.replace(',', '/') + item.id,
+				url: (item) => '/nav/' + item.path.replaceAll(',', '/') + item.id,
 				// Le support de "execute", pour naviguer dans le dossier sans recharger la page
 				execute: (item) => NIMBUS.navigation.goToFolderAndRefreshItems(item)
 			}, {
