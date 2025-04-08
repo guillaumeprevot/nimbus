@@ -848,14 +848,20 @@ NIMBUS.navigation = (function() {
 			$.get('/items/quota').then(function(result) {
 				var usedPct = Math.round(result.usedSpace * 100.0 / result.maxSpace);
 				var freePct = Math.round(result.freeSpace * 100.0 / result.maxSpace);
+				var usedShortText = usedPct.toFixed(0) + '%';
+				var freeShortText = freePct.toFixed(0) + '%';
+				var usedLongText = NIMBUS.translate('MainToolbarUsageUsed', NIMBUS.formatLength(result.usedSpace));
+				var freeLongText = NIMBUS.translate('MainToolbarUsageFree', NIMBUS.formatLength(result.freeSpace));
 				var statusClass = usedPct > result.clientQuotaDanger ? 'bg-danger' : usedPct > result.clientQuotaWarning ? 'bg-warning' : 'bg-primary';
 				usedProgress
 					.css('width', usedPct + '%')
-					.text(usedPct >= 20 ? NIMBUS.translate('MainToolbarUsageUsed', NIMBUS.formatLength(result.usedSpace)) : '')
+					.attr('title', usedPct >= 50 ? usedShortText : usedLongText)
+					.text(usedPct >= 50 ? usedLongText : usedPct >= 20 ? usedShortText : '')
 					.addClass(statusClass).removeClass('progress-bar-striped progress-bar-animated');
 				freeProgress
 					.css('width', freePct + '%')
-					.text(freePct >= 20 ? NIMBUS.translate('MainToolbarUsageFree', NIMBUS.formatLength(result.freeSpace)) : '');
+					.attr('title', freePct >= 50 ? freeShortText : freeLongText)
+					.text(freePct >= 50 ? freeLongText : freePct >= 20 ? freeShortText : '');
 			});
 		});
 	}
