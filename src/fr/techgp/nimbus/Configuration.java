@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -91,22 +90,24 @@ public class Configuration {
 		this.configureMimeTypes();
 	}
 
-	private final String getString(String property, String defaultValue) {
+	private String getString(String property, String defaultValue) {
 		// Look in command line System properties
 		// If not found, look in configuration file
 		// If not found, return default value
 		return System.getProperty(property, this.properties.getProperty(property, defaultValue));
 	}
 
-	private final int getInt(String property, int defaultValue) {
-		return Optional.ofNullable(getString(property, null)).map(Integer::valueOf).orElse(defaultValue).intValue();
+	private int getInt(String property, int defaultValue) {
+		String s = getString(property, null);
+		return s == null ? defaultValue : Integer.parseInt(s);
 	}
 
-	private final boolean getBoolean(String property, boolean defaultValue) {
-		return Optional.ofNullable(getString(property, null)).map(Boolean::valueOf).orElse(Boolean.valueOf(defaultValue)).booleanValue();
+	private boolean getBoolean(String property, boolean defaultValue) {
+		String s = getString(property, null);
+		return s == null ? defaultValue : Boolean.parseBoolean(s);
 	}
 
-	private final void loadFacets() {
+	private void loadFacets() {
 		String facetNumbers = getString("facet.enabled", "");
 		if (StringUtils.isBlank(facetNumbers))
 			return;
@@ -122,7 +123,7 @@ public class Configuration {
 				// System.out.println("Loaded facet " + instance.getClass().getSimpleName());
 				this.facets.add(instance);
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				ex.printStackTrace(System.err);
 			}
 		}
 	}

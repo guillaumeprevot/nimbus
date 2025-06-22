@@ -14,22 +14,21 @@ import fr.techgp.nimbus.server.impl.JettyServer;
 public class Application {
 
 	// Get expected system properties
-	private static final String logPath = System.getProperty("nimbus.log", "nimbus.log");
-	private static final String confPath = System.getProperty("nimbus.conf", "nimbus.conf");
-	private static final boolean dev = Boolean.parseBoolean(System.getProperty("nimbus.dev", "false"));
+	private static final String LOG_PATH = System.getProperty("nimbus.log", "nimbus.log");
+	private static final String CONF_PATH = System.getProperty("nimbus.conf", "nimbus.conf");
+	private static final boolean DEV = Boolean.parseBoolean(System.getProperty("nimbus.dev", "false"));
 	// Apply log configuration as soon as possible
 	private static final Logger logger = prepareLogger();
 
-	private static final Logger prepareLogger() {
-		if (!"none".equals(logPath))
-			System.setProperty("org.slf4j.simpleLogger.logFile", logPath);
+	private static Logger prepareLogger() {
+		if (!"none".equals(LOG_PATH))
+			System.setProperty("org.slf4j.simpleLogger.logFile", LOG_PATH);
 		System.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
 		System.setProperty("org.slf4j.simpleLogger.dateTimeFormat", "dd/MM/yyyy HH:mm:ss");
 		System.setProperty("org.slf4j.simpleLogger.showThreadName", "false");
 		System.setProperty("org.slf4j.simpleLogger.showLogName", "false");
 		System.setProperty("org.slf4j.simpleLogger.showShortLogName", "true");
 		System.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
-		System.setProperty("org.slf4j.simpleLogger.log.org.mongodb.driver", "warn");
 		System.setProperty("org.slf4j.simpleLogger.log.org.eclipse.jetty", "warn");
 		return LoggerFactory.getLogger(Application.class);
 	}
@@ -41,16 +40,16 @@ public class Application {
 				logger.info("Démarrage de l'application");
 
 			// Load configuration from System properties
-			Configuration configuration = new Configuration(confPath);
+			Configuration configuration = new Configuration(CONF_PATH);
 
 			// Prepare database
 			Database.init(configuration);
 
 			// Prepare FreeMarker
-			Templates.init(dev);
+			Templates.init(DEV);
 
 			// Configure routes
-			Router router = Controller.init(logger, configuration, dev);
+			Router router = Controller.init(logger, configuration, DEV);
 
 			// Prepare Jetty
 			JettyServer server = new JettyServer(configuration.getServerPort())
@@ -58,7 +57,7 @@ public class Application {
 					.invalidSNIHandler((req) -> logger.warn("Invalid SNI ({}) : {}", req.getRemoteAddr(), req.getPathInfo()))
 					.multipart(configuration.getStorageFolder().getAbsolutePath(), -1L, -1L, 100 * 1024 * 1024)
 					.session(configuration.getSessionTimeout(), configuration.getSessionCookiePath(), configuration.getSessionCookieDomain(), configuration.getSessionSecretKey())
-					.errors(dev)
+					.errors(DEV)
 					.start(router);
 
 			// Launch URL

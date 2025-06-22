@@ -86,7 +86,7 @@ public class Filters extends Controller {
 			}
 			// Demande d'authentification
 			if (login == null)
-				response.header("WWW-Authenticate", "Basic realm=\"Authentication required\""); // TODO un appel à "Response" hors "Render"
+				response.header("WWW-Authenticate", "Basic realm=\"Authentication required\"");
 		}
 		return login;
 	}

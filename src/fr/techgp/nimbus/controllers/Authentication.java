@@ -3,7 +3,6 @@ package fr.techgp.nimbus.controllers;
 import java.io.File;
 
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.server.MimeTypes;
 import fr.techgp.nimbus.server.Render;
 import fr.techgp.nimbus.server.Request;
 import fr.techgp.nimbus.server.Route;
@@ -77,13 +76,13 @@ public class Authentication extends Controller {
 		String background = configuration.getClientLoginBackground();
 		if (StringUtils.isBlank(background))
 			return Render.notFound();
-		File file = new File(configuration.getStorageFolder(), background);
+		File file = new File(configuration.getStorageFolder(), background); // storage-relative-path
+		if (!file.exists())
+			file = new File(background); // exec-relative-path or absolute-path
 		if (!file.exists())
 			return Render.notFound();
-		// Indiquer le bon type MIME
-		String mimetype = MimeTypes.byName(file.getName());
 		// Renvoyer le fichier tout en gérant le cache
-		return Render.staticFile(file, mimetype);
+		return Render.staticFile(file);
 	};
 
 	private static final Render renderLoginPage(Request request, boolean error, boolean logout, String urlToLoad) {

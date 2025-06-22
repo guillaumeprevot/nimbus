@@ -19,10 +19,8 @@ public class StaticFiles extends Controller {
 		File file = new File("public", path);
 		if (!file.exists() || !file.isFile())
 			return Render.notFound();
-		// Indiquer le bon type MIME
-		String mimetype = MimeTypes.byName(file.getName());
 		// Renvoyer le fichier tout en gérant le cache
-		return Render.staticFile(file, mimetype);
+		return Render.staticFile(file);
 	};
 
 	public static final Route svgFolder = (request, response) -> {

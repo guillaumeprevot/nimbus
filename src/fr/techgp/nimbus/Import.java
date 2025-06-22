@@ -21,30 +21,28 @@ import org.slf4j.LoggerFactory;
 import fr.techgp.nimbus.models.Database;
 import fr.techgp.nimbus.models.Item;
 import fr.techgp.nimbus.models.User;
-import fr.techgp.nimbus.utils.StringUtils;
 
 public class Import {
 
 	// Get expected system properties
-	private static final String logPath = System.getProperty("nimbus.log", "nimbus.log");
-	private static final String confPath = System.getProperty("nimbus.conf", "nimbus.conf");
-	protected static final boolean updateFileExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateFileExistingWithSameSize", "false"));
-	protected static final boolean updateMetadataExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateMetadataExistingWithSameSize", "false"));
-	protected static final boolean updateTimestampsExistingWithSameSize = Boolean.parseBoolean(System.getProperty("nimbus.updateTimestampsExistingWithSameSize", "false"));
+	private static final String LOG_PATH = System.getProperty("nimbus.log", "nimbus.log");
+	private static final String CONF_PATH = System.getProperty("nimbus.conf", "nimbus.conf");
+	private static final boolean OVERWRITE_EXISTING = Boolean.parseBoolean(System.getProperty("nimbus.overwrite", "false"));
+	private static final boolean REFRESH_EXISTING = Boolean.parseBoolean(System.getProperty("nimbus.refresh", "false"));
 	// Apply log configuration as soon as possible
 	protected static final Logger logger = prepareLogger();
 
-	private static final Logger prepareLogger() {
-		if (!"none".equals(logPath))
-			System.setProperty("org.slf4j.simpleLogger.logFile", logPath);
+	private static Logger prepareLogger() {
+		if (!"none".equals(LOG_PATH))
+			System.setProperty("org.slf4j.simpleLogger.logFile", LOG_PATH);
 		System.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
 		System.setProperty("org.slf4j.simpleLogger.dateTimeFormat", "dd/MM/yyyy HH:mm:ss");
 		System.setProperty("org.slf4j.simpleLogger.showThreadName", "false");
 		System.setProperty("org.slf4j.simpleLogger.showLogName", "false");
 		System.setProperty("org.slf4j.simpleLogger.showShortLogName", "true");
 		System.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
-		System.setProperty("org.slf4j.simpleLogger.log.fr.techgp.nimbus.Import", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.org.mongodb.driver.cluster", "warn");
+		System.setProperty("org.slf4j.simpleLogger.log.fr.techgp.nimbus.Import", "debug");
+		System.setProperty("org.slf4j.simpleLogger.log.org.jaudiotagger", "off");
 		return LoggerFactory.getLogger(Import.class);
 	}
 
@@ -55,7 +53,7 @@ public class Import {
 				logger.info("Démarrage de l'import");
 
 			// Load configuration from System properties
-			Configuration configuration = new Configuration(confPath);
+			Configuration configuration = new Configuration(CONF_PATH);
 
 			// Prepare database
 			Database.init(configuration);
@@ -167,8 +165,8 @@ public class Import {
 		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 			Objects.requireNonNull(dir);
 			Objects.requireNonNull(attrs);
-			if (logger.isDebugEnabled())
-				logger.debug(StringUtils.repeat("  ", this.idPath.size()) + "+- " + dir.toAbsolutePath());
+			if (logger.isTraceEnabled())
+				logger.trace(dir.toAbsolutePath() + File.separator);
 			if (this.idPath.isEmpty()) {
 				this.idPath.push(this.root == null ? null : this.root.id);
 				this.itemPath.push(this.root);
@@ -188,38 +186,35 @@ public class Import {
 			Item item = findOrAdd(file, false);
 			// Récupérer le fichier associé dans l'espace de stockage de l'utilisateur
 			File storedFile = this.configuration.getStoredFile(item);
-			// Comparer avec le fichier à importer
-			boolean existingWithSameSize = storedFile.exists() && storedFile.length() == attrs.size();
-			boolean skipped = true;
-			// Copier le fichier dans l'espace de stockage de l'utilisateur
-			if (!existingWithSameSize || updateFileExistingWithSameSize) {
+			// Vérifier si on zappe le fichier à importer
+			boolean sameSize = storedFile.exists() && storedFile.length() == attrs.size();
+			boolean sameDate = storedFile.exists() && storedFile.lastModified() == attrs.lastModifiedTime().toMillis();
+			if (sameSize && sameDate && !OVERWRITE_EXISTING && !REFRESH_EXISTING) {
+				if (logger.isTraceEnabled())
+					logger.trace(file.toAbsolutePath() + " : exclu (n°" + item.id + ")");
+				return FileVisitResult.CONTINUE;				
+			}
+			// Récupérer le nouveau fichier
+			if (!sameDate || !sameSize || OVERWRITE_EXISTING) {
+				// Copier le fichier dans l'espace de stockage de l'utilisateur
 				Files.copy(file, storedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-				skipped = false;
-			}
-			// Mettre à jour les infos du fichier
-			if (!existingWithSameSize || updateMetadataExistingWithSameSize) {
-				this.configuration.updateStoredFile(item, (facet, th) -> {
-					if (logger.isWarnEnabled())
-						logger.warn("{} dans {} sur l'élément n°{} ({}) : {}",
-								th.getClass().getName(), facet.getClass().getSimpleName(), item.id, item.name, th.getMessage());
-				});
-				skipped = false;
-			}
-			// Mettre à jour les dates du fichier
-			if (!existingWithSameSize || updateTimestampsExistingWithSameSize) {
+				// Mettre à jour les dates du fichier
 				item.createDate = new Date(attrs.creationTime().toMillis());
 				item.updateDate = new Date(attrs.lastModifiedTime().toMillis());
-				skipped = false;
-			}
-			if (skipped) {
+				if (logger.isDebugEnabled())
+					logger.debug(file.toAbsolutePath() + " : importé (n°" + item.id + ")");
+			} else {
 				if (logger.isTraceEnabled())
-					logger.trace(StringUtils.repeat("  ", this.idPath.size()) + "|- " + item.name + " (skipped)");
-				return FileVisitResult.CONTINUE;
+					logger.trace(file.toAbsolutePath() + " : raffraichi (n°" + item.id + ")");
 			}
-			// Sauvegarde des métadonnées
+			// Mettre à jour les méta-données
+			this.configuration.updateStoredFile(item, (facet, th) -> {
+				if (logger.isWarnEnabled())
+					logger.warn("{} dans {} sur l'élément n°{} ({}) : {}",
+							th.getClass().getName(), facet.getClass().getSimpleName(), item.id, item.name, th.getMessage());
+			});
+			// Sauvegarder l'élément
 			Item.update(item);
-			if (logger.isTraceEnabled())
-				logger.trace(StringUtils.repeat("  ", this.idPath.size()) + "|- " + item.name + " (" + item.id + ")");
 			return FileVisitResult.CONTINUE;
 		}
 

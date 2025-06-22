@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,17 +50,17 @@ public class Sync {
 	public Consumer<String> ontrace = System.out::println;
 	public Consumer<String> onerror = System.err::println;
 
-	public final String authenticateAndGetSessionCookie() throws IOException {
+	public final String authenticateAndGetSessionCookie() throws URISyntaxException, IOException {
 		String query = "/login.html";
 		byte[] form = ("login=" + URLEncoder.encode(this.login, "UTF-8")
 				+ "&password=" + URLEncoder.encode(this.password, "UTF-8")
 				+ "&urlToLoad=" + URLEncoder.encode("/", "UTF-8")).getBytes();
 
-		HttpURLConnection.setFollowRedirects(false); // pour avoir le retour de "/login.html" avec le(s) cookie(s) mais pas la redirection
-		HttpURLConnection connection = (HttpURLConnection) new URL(this.url + query).openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URI(this.url + query).toURL().openConnection();
 		try {
 			if (this.forceHTTPSCertificate && connection instanceof HttpsURLConnection)
 				WebUtils.unsecuredConnectionUseAtYourOwnRisk((HttpsURLConnection) connection);
+			connection.setInstanceFollowRedirects(false); // pour avoir le retour de "/login.html" avec le(s) cookie(s) mais pas la redirection
 			connection.setRequestMethod("POST");
 			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			connection.setRequestProperty("Content-Length", Integer.toString(form.length));
@@ -326,13 +327,19 @@ public class Sync {
 	}
 
 	protected final <T> T sendRequest(String query, boolean isPost, boolean output, boolean input, SyncRequest<T> consumer) throws IOException {
-		HttpURLConnection.setFollowRedirects(false);
-		HttpURLConnection connection = (HttpURLConnection) new URL(this.url + query).openConnection();
+		HttpURLConnection connection = null;
+		try {
+			connection = (HttpURLConnection) new URI(this.url + query).toURL().openConnection();
+		} catch (URISyntaxException ex) {
+			throw new IOException(ex);
+		}
+
 		try {
 			if (this.forceHTTPSCertificate && connection instanceof HttpsURLConnection)
 				WebUtils.unsecuredConnectionUseAtYourOwnRisk((HttpsURLConnection) connection);
 			if (isPost)
 				connection.setRequestMethod("POST");
+			connection.setInstanceFollowRedirects(false);
 			connection.setDoOutput(output);
 			connection.setDoInput(input);
 			connection.setUseCaches(false);

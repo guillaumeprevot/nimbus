@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.util.Date;
 
 import com.google.gson.JsonArray;
@@ -127,7 +128,7 @@ public class Downloads extends Controller {
 
 			// Renvoyer l'id (surtout pour "add" mais pas utile pour "refresh")
 			return Render.status(statusCode, item.id.toString());
-		} catch (IOException ex) {
+		} catch (IOException | URISyntaxException ex) {
 			ex.printStackTrace();
 			return Render.internalServerError();
 		}

@@ -112,7 +112,7 @@ public class SyncMain {
 			}
 		} catch (Exception ex) {
 			System.err.println("Export failed due to an unexpected error");
-			ex.printStackTrace();
+			ex.printStackTrace(System.err);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class SyncMain {
 					}
 				} catch (IOException ex) {
 					System.err.println("Could not load configuration file \"" + conf + "\"");
-					ex.printStackTrace();
+					ex.printStackTrace(System.err);
 					System.exit(1);
 				}
 			}
@@ -144,7 +144,7 @@ public class SyncMain {
 				return new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8), true);
 			} catch (FileNotFoundException ex) {
 				System.err.println("Could not open log file \"" + log + "\"");
-				ex.printStackTrace();
+				ex.printStackTrace(System.err);
 				System.exit(2);
 			}
 		}
