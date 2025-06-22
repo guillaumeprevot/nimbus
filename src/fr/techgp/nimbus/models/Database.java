@@ -6,7 +6,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import fr.techgp.nimbus.Configuration;
-import fr.techgp.nimbus.utils.StringUtils;
 
 public interface Database {
 
@@ -43,18 +42,11 @@ public interface Database {
 	public void calculateStatistics(String userLogin, Long parentId, boolean recursive, BiConsumer<String, Long> consumer);
 
 	public static void init(Configuration configuration) {
-		if (StringUtils.isNotBlank(configuration.getPostgresqlURL()))
-			PostgreSQL.init(configuration.getPostgresqlURL(), configuration.getPostgresqlUsername(), configuration.getPostgresqlPassword());
-		else
-			Mongo.init(configuration.getMongoHost(), configuration.getMongoPort(), configuration.getMongoDatabase());
+		PostgreSQL.init(configuration.getPostgresqlURL(), configuration.getPostgresqlUsername(), configuration.getPostgresqlPassword());
 	}
 
 	public static Database get() {
-		if (PostgreSQL.get() != null)
-			return PostgreSQL.get();
-		if (Mongo.get() != null)
-			return Mongo.get();
-		throw new IllegalStateException("Database not initialized");
+		return PostgreSQL.get();
 	}
 
 }

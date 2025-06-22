@@ -7,7 +7,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/bcprov-jdk18on-1.80.jar"/>
-	<classpathentry kind="lib" path="lib/bson-3.12.14.jar"/>
 	<classpathentry kind="lib" path="lib/checker-qual-3.48.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-dbcp2-2.13.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-imaging-1.0.0-alpha5.jar"/>
@@ -34,8 +33,6 @@
 	<classpathentry kind="lib" path="lib/jjwt-gson-0.12.6.jar"/>
 	<classpathentry kind="lib" path="lib/jjwt-impl-0.12.6.jar"/>
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.19.0.jar"/>
-	<classpathentry kind="lib" path="lib/mongodb-driver-3.12.14.jar"/>
-	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.12.14.jar"/>
 	<classpathentry kind="lib" path="lib/mp3agic-0.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/pdfbox-3.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/pdfbox-io-3.0.4.jar"/>

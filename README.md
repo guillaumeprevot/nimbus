@@ -33,7 +33,6 @@ Dépendance | Type | Version | Utilité | Fichiers
 [FreeMarker](https://freemarker.apache.org/) | Java | [2.3.34](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
 [Gson](https://github.com/google/gson) | Java | [2.12.1](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
 [SLF4J](http://www.slf4j.org/) | Java | [1.7.36](http://www.slf4j.org/download.html) | MIT | Gestion des logs
-[MongoDB](https://mongodb.github.io/mongo-java-driver/) | Java | [3.12.14](https://search.maven.org/artifact/org.mongodb/mongodb-driver) | Apache 2.0 | Persistance
 [PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.7.5](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
 [Commons DBCP](https://commons.apache.org/proper/commons-dbcp/) | Java | [2.13.0](https://commons.apache.org/proper/commons-dbcp/download_dbcp.cgi) | Apache 2.0 | Pool pour PostgreSQL
 [Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.18.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
@@ -148,7 +147,7 @@ Enfin, certaines extensions sont interprétées comme fichiers contenant les don
 
 **Pré-requis**
 
-Pour fonctionner, `Nimbus` a besoin de [MongoDB](https://www.mongodb.com/download-center/community) ou [PostgreSQL](https://www.postgresql.org/), de [Java](https://adoptium.net/), de [Git](https://git-scm.com/) et de [Maven](https://maven.apache.org/download.cgi).
+Pour fonctionner, `Nimbus` a besoin de [PostgreSQL](https://www.postgresql.org/), de [Java](https://adoptium.net/), de [Git](https://git-scm.com/) et de [Maven](https://maven.apache.org/download.cgi).
 
 **Préparation PostgreSQL**
 
@@ -178,10 +177,10 @@ CREATE DATABASE nimbus WITH  -- à ajuster en prod
 ```
 
 Création des tables
-Rien à faire, elles seront créées au premier démarrage
+> rien à faire, elles seront créées au premier démarrage
 
 Créaton du compte administrateur
-Rien à faire, il sera créé à la première connexion.
+> rien à faire, il sera créé à la première connexion.
 
 **Installation**
 
@@ -213,14 +212,14 @@ Par défaut :
     - les propriétés `server.*` permettent d'ajuster cette partie
 - le serveur utilise des sessions conservées côté serveur
     - les propriétés `session.*` permettent de les configurer ou d'activer JWT
-- le serveur accède à MongoDB en local, sur le port 27017 et crée la base "nimbus"
-    - les propriétés `mongo.*` et `postgresql.*` permettent de choisir et d'ajuster le moteur
+- le serveur accède à PostgreSQL en local, sur le port 5432 et utilise la base "nimbus"
+    - les propriétés `postgresql.*` permettent de configurer l'accès la bdd
 - les fichiers sont stockés dans le sous-dossier "storage"
     - la propriété `storage.path` vous permet d'indiquer un autre chemin (relatif ou absolu)
 - tous les plugins client (javascript) sont activés
     - la propriété `client.plugins` vous permet de sélectionner les plugins à activer
-- seuls les plugins serveur (java) sans dépendances externes sont activés
-    - les propriétés `facet.*` vous permettent de sélectionner les plugins à activer
+- aucun plugin serveur (java) n'est activé
+    - la propriété `facet.enabled` vous permet de sélectionner les plugins à activer
 
 **Exécution**
 
@@ -285,7 +284,7 @@ Options :
 - `-Dorg.slf4j.simpleLogger.log.fr.techgp.nimbus.Import=debug` réduira les traces en n'affichant que les dossiers parcourus
 
 Comportement
-- la configuration est en partie extraite de "nimbus.conf" (accès MongoDB/PostgreSQL, facets, dossier de stockage)
+- la configuration est en partie extraite de "nimbus.conf" (accès PostgreSQL, facets, dossier de stockage)
 - l'import demande confirmation en indiquant la taille et le nombre d'éléments en entrée
 - l'import crée ou complète l'arborescence sous "parentId" pour correspondre à l'arborescence de "folderPath"
 - les fichiers sont copiés sauf s'ils existent déjà avec la même taille (voir options ci-dessus pour personnaliser)

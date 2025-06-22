@@ -66,15 +66,6 @@
 			<version>1.7.36</version>
 		</dependency>
 		<!--
-			https://mongodb.github.io/mongo-java-driver/
-			https://search.maven.org/artifact/org.mongodb/mongodb-driver
-		-->
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver</artifactId>
-			<version>3.12.14</version>
-		</dependency>
-		<!--
 			https://jdbc.postgresql.org/download.html
 			https://search.maven.org/artifact/org.postgresql/postgresql
 		-->

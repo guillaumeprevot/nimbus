@@ -1279,7 +1279,7 @@ NIMBUS.navigation = (function() {
 		// Prise en compte de l'option pour masquer des éléments
 		var showHiddenItems = $('#show-hidden-items').is('.active') ? undefined : false;
 
-		// Prise en compte du tri (sortBy côté MongoDB ou sortComparator côté client)
+		// Prise en compte du tri (sortBy côté SGBD ou sortComparator côté client)
 		var sortBy = (currentSortProperty && typeof currentSortProperty.sortBy === 'string') ? currentSortProperty.sortBy : 'name';
 		var sortComparator = (currentSortProperty && typeof currentSortProperty.sortBy === 'function') ? currentSortProperty.sortBy : undefined;
 
@@ -1296,7 +1296,7 @@ NIMBUS.navigation = (function() {
 			deleted: false,
 			extensions: searchExtensions
 		}).done(function(items) {
-			// Prise en compte du tri (sortBy côté MongoDB ou sortComparator côté client)
+			// Prise en compte du tri (sortBy côté SGBD ou sortComparator côté client)
 			if (sortComparator) {
 				items.sort(function(i1, i2) {
 					if (i1.folder && !i2.folder)

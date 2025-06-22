@@ -21,9 +21,6 @@ public class Configuration {
 
 	private final Properties properties = new Properties();
 
-	private final String mongoHost;
-	private final int mongoPort;
-	private final String mongoDatabase;
 	private final String postgresqlURL;
 	private final String postgresqlUsername;
 	private final String postgresqlPassword;
@@ -63,10 +60,7 @@ public class Configuration {
 			}
 		}
 
-		this.mongoHost = getString("mongo.host", "localhost");
-		this.mongoPort = getInt("mongo.port", 27017);
-		this.mongoDatabase = getString("mongo.database", "nimbus");
-		this.postgresqlURL = getString("postgresql.url", null);
+		this.postgresqlURL = getString("postgresql.url", "jdbc:postgresql://localhost:5432/nimbus");
 		this.postgresqlUsername = getString("postgresql.username", "postgres");
 		this.postgresqlPassword = getString("postgresql.password", "postgres");
 
@@ -152,18 +146,6 @@ public class Configuration {
 		});
 		// Use "application/octet-stream" as the default MIME type
 		MimeTypes.registerDefault(MimeTypes.BINARY);
-	}
-
-	public String getMongoHost() {
-		return this.mongoHost;
-	}
-
-	public int getMongoPort() {
-		return this.mongoPort;
-	}
-
-	public String getMongoDatabase() {
-		return this.mongoDatabase;
 	}
 
 	public String getPostgresqlURL() {
