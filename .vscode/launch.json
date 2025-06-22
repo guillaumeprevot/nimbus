@@ -4,19 +4,23 @@
             "type": "java",
             "name": "Nimbus (dev)",
             "request": "launch",
+            "console": "integratedTerminal",
             "mainClass": "fr.techgp.nimbus.Application",
-            "projectName": "nimbus",
-            "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf;nimbus-dev.conf",
-            "console": "integratedTerminal"
+            "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf:nimbus-dev.conf",
+            "windows": {
+                "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf;nimbus-dev.conf",
+            }
         },
         {
             "type": "java",
             "name": "Nimbus (test)",
             "request": "launch",
+            "console": "integratedTerminal",
             "mainClass": "fr.techgp.nimbus.Application",
-            "projectName": "nimbus",
-            "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf;nimbus-test.conf",
-            "console": "integratedTerminal"
+            "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf:nimbus-test.conf",
+            "windows": {
+                "vmArgs": "-Dnimbus.log=none -Dnimbus.dev=true -Dnimbus.conf=nimbus.conf;nimbus-test.conf"
+            }
         }
     ]
 }

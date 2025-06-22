@@ -84,7 +84,7 @@ public class Configuration {
 		this.clientQuotaWarning = getInt("client.quota.warning", 75);
 		this.clientQuotaDanger = getInt("client.quota.danger", 90);
 		this.clientFaviconColor = getString("client.favicon.color", null);
-		this.textFileExtensions = Set.of(getString("text.file.extensions", "txt,md,markdown,note,html").split(","));
+		this.textFileExtensions = Set.of(getString("text.file.extensions", "txt,md,markdown").split(","));
 
 		this.facets = new ArrayList<>();
 		this.loadFacets();

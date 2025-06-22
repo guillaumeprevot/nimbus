@@ -6,6 +6,6 @@
 /nimbus.keystore
 /nimbus.pkcs12
 /nimbus.url
-/nimbus-dev.conf
-/nimbus-test.conf
+/nimbus-dev.*
+/nimbus-test.*
 /pom.tree.txt

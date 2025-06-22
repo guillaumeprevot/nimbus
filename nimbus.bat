@@ -20,7 +20,7 @@ REM /C pour les choix, /T pour timeout, /D pour default, /N pour cacher le messa
 CHOICE /C 123 /T 6 /D 3 /N /M "Command ? [1=start, 2=stop, 3=update] ?"
 
 IF %ERRORLEVEL% == 1 (
-	set CLASSPATH=.\bin;.\lib\*;.\lib\image4j\*;.\lib\javazoom\*;.\lib\jave\*
+	set CLASSPATH=.\bin;.\lib\*;.\lib\javazoom\*;.\lib\jave\*
 	java %OPTIONS% fr.techgp.nimbus.Application
 
 ) ELSE IF %ERRORLEVEL% == 2 (

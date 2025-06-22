@@ -9,7 +9,7 @@ OPTIONS="-Djdk.tls.ephemeralDHKeySize=2048 -Djdk.tls.rejectClientInitiatedRenego
 #OPTIONS="$OPTIONS -Dnimbus.log=/path/to/custom/nimbus.log"
 
 # Update PATH if needed
-# export PATH=/path/to/openjdk-17/bin:$PATH
+# export PATH=/path/to/openjdk/bin:$PATH
 # export PATH=/path/to/maven/bin:$PATH
 
 # Command selection
@@ -24,7 +24,7 @@ fi
 case $cmd in
 	start )
 		cd $GIT_FOLDER/nimbus
-		export CLASSPATH=./bin:./lib/*:./lib/image4j/*:./lib/jaudiotagger/*:./lib/javazoom/*:./lib/jave/*
+		export CLASSPATH=./bin:./lib/*:./lib/javazoom/*:./lib/jave/*
 		java $OPTIONS fr.techgp.nimbus.Application &
 		;;
 	stop )

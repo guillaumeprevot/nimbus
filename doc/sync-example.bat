@@ -1,6 +1,6 @@
 @echo off
 
-set PATH=%PATH%;D:\apps\openjdk-11\bin
+set PATH=%PATH%;D:\apps\openjdk-21\bin
 set NIMBUS_HOME=D:\code\nimbus
 set LOG_FILE=sync-example.log
 set CONF_FILE=sync-example.conf
@@ -26,7 +26,7 @@ if %ERRORLEVEL% == 3 goto end
 if %ERRORLEVEL% == 1 set NIMBUS_ARGS=%NIMBUS_ARGS% 3
 
 if exist %LOG_FILE% del %LOG_FILE%
-java -cp %NIMBUS_HOME%\bin;%NIMBUS_HOME%\lib\commons-io-2.6.jar;%NIMBUS_HOME%\lib\gson-2.8.6.jar -Dnimbus.log=%LOG_FILE% -Dnimbus.conf=%CONF_FILE% fr.techgp.nimbus.sync.SyncMain %NIMBUS_ARGS%
+java -cp %NIMBUS_HOME%\bin;%NIMBUS_HOME%\lib\* -Dnimbus.log=%LOG_FILE% -Dnimbus.conf=%CONF_FILE% fr.techgp.nimbus.sync.SyncMain %NIMBUS_ARGS%
 pause
 
 :end

@@ -28,24 +28,24 @@ Le développement du projet s'organise selon 4 axes :
 
 Dépendance | Type | Version | Utilité | Fichiers
 -----------|------|---------|---------|---------
-[Nimbus Java API](https://github.com/guillaumeprevot/nimbus-java-api) | Java | [1.16](https://github.com/guillaumeprevot/nimbus-java-api/releases) | MIT | Routing API
+[Nimbus Java API](https://github.com/guillaumeprevot/nimbus-java-api) | Java | [1.18](https://github.com/guillaumeprevot/nimbus-java-api/releases) | MIT | Routing API
 [Jetty](https://www.eclipse.org/jetty/) | Java | [11.0.25](https://www.eclipse.org/jetty/download.html) | Apache 2.0 / EPL 1.0 | Serveur Web
 [FreeMarker](https://freemarker.apache.org/) | Java | [2.3.34](https://freemarker.apache.org/freemarkerdownload.html) | Apache 2.0 | Template de page
-[Gson](https://github.com/google/gson) | Java | [2.12.1](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
-[SLF4J](http://www.slf4j.org/) | Java | [1.7.36](http://www.slf4j.org/download.html) | MIT | Gestion des logs
-[PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.7.5](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
+[Gson](https://github.com/google/gson) | Java | [2.13.1](https://github.com/google/gson/releases) | Apache 2.0 | Support du format JSON
+[SLF4J](http://www.slf4j.org/) | Java | [2.0.17](http://www.slf4j.org/download.html) | MIT | Gestion des logs
+[PostgreSQL](https://jdbc.postgresql.org/download.html) | Java | [42.7.7](https://search.maven.org/artifact/org.postgresql/postgresql) | BSD-2 | Persistance
 [Commons DBCP](https://commons.apache.org/proper/commons-dbcp/) | Java | [2.13.0](https://commons.apache.org/proper/commons-dbcp/download_dbcp.cgi) | Apache 2.0 | Pool pour PostgreSQL
-[Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.18.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
-[PDFBox](https://pdfbox.apache.org/) | plugin Java | [3.0.4](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
+[Commons IO](https://commons.apache.org/proper/commons-io/) | Java | [2.19.0](https://commons.apache.org/proper/commons-io/download_io.cgi) | Apache 2.0 | Utilitaire
+[PDFBox](https://pdfbox.apache.org/) | plugin Java | [3.0.5](https://pdfbox.apache.org/) | Apache 2.0 | Support des fichiers PDF
 [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor/) | plugin Java | [2.19.0](https://github.com/drewnoakes/metadata-extractor/releases) | Apache 2.0 | Support des métadonnées (EXIF/GPS) des images JPEG
-[Commons Imaging](https://commons.apache.org/proper/commons-imaging/) | plugin Java | [1.1.0-alpha5](https://commons.apache.org/proper/commons-imaging/download_imaging.cgi) |  Apache 2.0 | Support des fichiers ICO  
-[Image4j](http://image4j.sourceforge.net/) | plugin Java | [0.7.1](./lib/image4j/) | LGPL | Support des fichiers ICO et BMP
+[Commons Imaging](https://commons.apache.org/proper/commons-imaging/) | plugin Java | [1.1.0-alpha6](https://commons.apache.org/proper/commons-imaging/download_imaging.cgi) |  Apache 2.0 | Support des fichiers ICO
+[Image4j](http://image4j.sourceforge.net/) | plugin Java | [0.7](https://github.com/imcdonagh/image4j) | LGPL | Support des fichiers ICO et BMP
 [Jave](http://www.sauronsoftware.it/projects/jave/download.php) | plugin Java | [1.0.2](./lib/jave/) | GPL | Support audio et vidéo grâce à FFmpeg
 [JavaZoom](http://www.javazoom.net/index.shtml) | plugin Java | [2010](./lib/javazoom/) | LGPL | Support des fichiers MP3 et OGG
 [JAudiotagger](http://www.jthink.net/jaudiotagger/) | plugin Java | [3.0.1](https://dl.bintray.com/ijabz/maven/net/jthink/jaudiotagger/) | LGPL | Support des fichiers MP3, MP4, OGG, FLAC, WAV, AIF, Dsf, Wma
 [mp3agic](https://github.com/mpatric/mp3agic) | plugin Java | [0.9.1](https://github.com/mpatric/mp3agic/releases) | MIT | Support des fichiers MP3
 [JJWT](https://github.com/jwtk/jjwt) | transitive | [0.12.6](https://github.com/jwtk/jjwt/releases) | MIT | Support des JSON Web Token (JWT)
-[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | [1.80](https://www.bouncycastle.org/latest_releases.html) | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
+[Bouncy Castle](https://www.bouncycastle.org/java.html) | transitive | [1.81](https://www.bouncycastle.org/latest_releases.html) | MIT | Dépendance de PDFBox, comme iTextPDF, pour certains documents
 [jQuery](http://api.jquery.com/) | JS | [3.6.0](https://jquery.com/download/) | ~MIT | Kit de départ pour le JS
 [Bootstrap](https://getbootstrap.com/) | CSS/JS | [4.6.2](https://github.com/twbs/bootstrap/releases) | MIT | Kit de départ pour l'IHM
 [Bootswatch](https://bootswatch.com/) | CSS | [4.6.2](https://github.com/thomaspark/bootswatch/releases) | MIT | Thèmes pour Bootstrap dont Flatly et Darkly
@@ -227,9 +227,9 @@ Enfin, on lance l'application
 
 ```bash
 # Linux
-java -cp ./bin:./lib/*:./lib/image4j/*:./lib/jaudiotagger/*:./lib/javazoom/*:./lib/jave/* fr.techgp.nimbus.Application
+java -cp ./bin:./lib/*:./lib/javazoom/*:./lib/jave/* fr.techgp.nimbus.Application
 # Windows
-java -cp .\bin;.\lib\*;.\lib\image4j\*;.\lib\jaudiotagger\*;.\lib\javazoom\*;.\lib\jave\* fr.techgp.nimbus.Application
+java -cp .\bin;.\lib\*;.\lib\javazoom\*;.\lib\jave\* fr.techgp.nimbus.Application
 ```
 
 La page d'accueil est alors accessible [par défaut ici](http://localhost:10001).
